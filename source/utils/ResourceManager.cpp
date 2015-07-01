@@ -68,7 +68,6 @@ const std::string ResourceManager::CONFIGSUBPATH = "config/";
 const std::string ResourceManager::SCRIPTSUBPATH = "scripts/";
 const std::string ResourceManager::LANGUAGESUBPATH = "lang/";
 const std::string ResourceManager::SHADERCACHESUBPATH = "shaderCache/";
-const std::string ResourceManager::CONFIGFILENAME = "ogre.cfg";
 const std::string ResourceManager::LOGFILENAME = "opendungeons.log";
 const std::string ResourceManager::CEGUILOGFILENAME = "CEGUI.log";
 const std::string ResourceManager::USERCFGFILENAME = "config.cfg";
@@ -310,7 +309,6 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
         exit(1);
     }
 
-    mOgreCfgFile = mUserConfigPath + CONFIGFILENAME;
     if(options.count("log") > 0)
     {
         // We change log file

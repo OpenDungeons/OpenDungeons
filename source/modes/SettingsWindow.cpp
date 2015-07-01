@@ -145,17 +145,54 @@ SettingsWindow::~SettingsWindow()
 
 void SettingsWindow::initConfig()
 {
+    ConfigManager& config = ConfigManager::getSingleton();
+
+    // Game
+    CEGUI::Editbox* usernameEb = static_cast<CEGUI::Editbox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/NicknameEdit"));
+    CEGUI::String username = reinterpret_cast<const CEGUI::utf8*>(config.getGameValue(Config::NICKNAME).c_str());
+    usernameEb->setText(username);
+
+    // Audio
+    std::string volumeStr = config.getAudioValue(Config::MUSIC_VOLUME);
+    float volume = volumeStr.empty() ? sf::Listener::getGlobalVolume() : Helper::toFloat(volumeStr);
+    setMusicVolumeValue(volume);
+
+    // Video
     Ogre::Root* ogreRoot = Ogre::Root::getSingletonPtr();
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
     Ogre::ConfigOptionMap& options = renderer->getConfigOptions();
 
-    ConfigManager& config = ConfigManager::getSingleton();
-
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
 
     // Get the video settings.
+
+    // Available renderers
+    const Ogre::RenderSystemList& rdrList = ogreRoot->getAvailableRenderers();
+    Ogre::RenderSystem* renderSystem = ogreRoot->getRenderSystem();
+
+    CEGUI::Combobox* rdrCb = static_cast<CEGUI::Combobox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/RendererCombobox"));
+    rdrCb->setReadOnly(true);
+    rdrCb->setSortingEnabled(true);
+    rdrCb->resetList();
+    uint32_t i = 0;
+    for (Ogre::RenderSystem* rdr : rdrList)
+    {
+        CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(rdr->getName(), i);
+        item->setSelectionBrushImage(selImg);
+        rdrCb->addItem(item);
+
+        if (rdr == renderSystem)
+        {
+            rdrCb->setItemSelectState(item, true);
+            rdrCb->setText(item->getText());
+        }
+        ++i;
+    }
+
     // Resolution
-    Ogre::ConfigOptionMap::const_iterator it = options.find("Video Mode");
+    Ogre::ConfigOptionMap::const_iterator it = options.find(Config::VIDEO_MODE);
     if (it != options.end())
     {
         const Ogre::ConfigOption& video = it->second;
@@ -163,6 +200,7 @@ void SettingsWindow::initConfig()
             mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
         resCb->setReadOnly(true);
         resCb->setSortingEnabled(true);
+        resCb->resetList();
         uint32_t i = 0;
         for (std::string res : video.possibleValues)
         {
@@ -179,31 +217,7 @@ void SettingsWindow::initConfig()
         }
     }
 
-    // Available renderers
-    const Ogre::RenderSystemList& rdrList = ogreRoot->getAvailableRenderers();
-    Ogre::RenderSystem* renderSystem = ogreRoot->getRenderSystem();
-
-    CEGUI::Combobox* rdrCb = static_cast<CEGUI::Combobox*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/RendererCombobox"));
-    rdrCb->setReadOnly(true);
-    rdrCb->setSortingEnabled(true);
-    uint32_t i = 0;
-    for (Ogre::RenderSystem* rdr : rdrList)
-    {
-        CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(rdr->getName(), i);
-        item->setSelectionBrushImage(selImg);
-        rdrCb->addItem(item);
-
-        if (rdr == renderSystem)
-        {
-            rdrCb->setItemSelectState(item, true);
-            rdrCb->setText(item->getText());
-        }
-        ++i;
-    }
-
-    // Fullscreen
-    it = options.find("Full Screen");
+    it = options.find(Config::FULL_SCREEN);
     if (it != options.end())
     {
         const Ogre::ConfigOption& fullscreen = it->second;
@@ -212,8 +226,7 @@ void SettingsWindow::initConfig()
         fsCheckBox->setSelected((fullscreen.currentValue == "Yes"));
     }
 
-    // VSync
-    it = options.find("VSync");
+    it = options.find(Config::VSYNC);
     if (it != options.end())
     {
         const Ogre::ConfigOption& vsync = it->second;
@@ -222,10 +235,64 @@ void SettingsWindow::initConfig()
         vsCheckBox->setSelected((vsync.currentValue == "Yes"));
     }
 
-    // The current volume level
-    std::string volumeStr = config.getAudioValue("Music Volume");
-    float volume = volumeStr.empty() ? sf::Listener::getGlobalVolume() : Helper::toFloat(volumeStr);
-    setMusicVolumeValue(volume);
+    //! First of all, clear up the previously created windows.
+    for (CEGUI::Window* win : mCustomVideoComboBoxes)
+        mSettingsWindow->destroyChild(win);
+    mCustomVideoComboBoxes.clear();
+    for (CEGUI::Window* win : mCustomVideoTexts)
+        mSettingsWindow->destroyChild(win);
+    mCustomVideoTexts.clear();
+
+    // Find every other config options and add them to the config
+    CEGUI::Window* videoTab = mSettingsWindow->getChild("MainTabControl/Video");
+    uint32_t offset = 0;
+    for (std::pair<Ogre::String, Ogre::ConfigOption> option : options)
+    {
+        std::string optionName = option.first;
+        // Skip the main options already set.
+        if (optionName == Config::VSYNC || optionName == Config::FULL_SCREEN
+            || optionName == Config::VIDEO_MODE)
+            continue;
+
+        Ogre::ConfigOption& config = option.second;
+        // If the option is immutable, we can't change it and shouldn't see it. (at least for now)
+        if (config.immutable || config.possibleValues.empty())
+            continue;
+
+        // The text next to the combobox
+        CEGUI::DefaultWindow* videoCbText = static_cast<CEGUI::DefaultWindow*>(videoTab->createChild("OD/StaticText", optionName + "_Text"));
+        videoCbText->setArea(CEGUI::UDim(0, 20), CEGUI::UDim(0, 155 + offset), CEGUI::UDim(0.4, 0), CEGUI::UDim(0, 30));
+        videoCbText->setText(optionName + ": ");
+        videoCbText->setProperty("FrameEnabled", "False");
+        videoCbText->setProperty("BackgroundEnabled", "False");
+
+        CEGUI::Combobox* videoCb = static_cast<CEGUI::Combobox*>(videoTab->createChild("OD/Combobox", optionName));
+        videoCb->setArea(CEGUI::UDim(0, 300), CEGUI::UDim(0, 160 + offset), CEGUI::UDim(0, 130),
+                         CEGUI::UDim(0, config.possibleValues.size() * 17 + 30));
+        videoCb->setReadOnly(true);
+        videoCb->setSortingEnabled(true);
+
+        // Register the widgets for potential later deletion.
+        mCustomVideoTexts.push_back(videoCbText);
+        mCustomVideoComboBoxes.push_back(videoCb);
+
+        // Fill the combobox with possible values.
+        uint32_t cbIndex = 0;
+        for(const std::string& value : config.possibleValues)
+        {
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(value, cbIndex);
+            item->setSelectionBrushImage(selImg);
+            videoCb->addItem(item);
+            // Set the combobox to the current value
+            if(value == config.currentValue)
+            {
+                videoCb->setItemSelectState(item, true);
+                videoCb->setText(item->getText());
+            }
+            ++cbIndex;
+        }
+        offset += 30;
+    }
 }
 
 void SettingsWindow::saveConfig()
@@ -238,10 +305,15 @@ void SettingsWindow::saveConfig()
     ConfigManager& config = ConfigManager::getSingleton();
 
     // Save config
+    // Game
+    CEGUI::Editbox* usernameEb = static_cast<CEGUI::Editbox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/NicknameEdit"));
+    config.setGameValue(Config::NICKNAME, usernameEb->getText().c_str());
+
     // Audio
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
-    config.setAudioValue("Music Volume", Helper::toString(volumeSlider->getCurrentValue()));
+    config.setAudioValue(Config::MUSIC_VOLUME, Helper::toString(volumeSlider->getCurrentValue()));
 
     // Video
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
@@ -265,35 +337,42 @@ void SettingsWindow::saveConfig()
             OD_LOG_WRN("Wanted renderer : " + std::string(rdrCb->getSelectedItem()->getText().c_str()) + " not found. Using the first available: " + renderer->getName());
         }
         ogreRoot->setRenderSystem(renderer);
-        config.setVideoValue("Renderer", renderer->getName());
-        ogreRoot->saveConfig();
+        config.setVideoValue(Config::RENDERER, renderer->getName());
+
         // If render changed, we need to restart game.
         // Note that we do not change values according to the others inputs. The reason
         // is that we don't know if the given values are acceptable for the selected renderer
         OD_LOG_INF("Changed Ogre renderer to " + rendererName + ". We need to restart");
         exit(0);
     }
-    config.setVideoValue("Renderer", renderer->getName());
+    config.setVideoValue(Config::RENDERER, renderer->getName());
 
     // Set renderer-dependent options now we know it didn't change.
     CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
         mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
-    renderer->setConfigOption("Full Screen", (fsCheckBox->isSelected() ? "Yes" : "No"));
-    config.setVideoValue("Full Screen", fsCheckBox->isSelected() ? "Yes" : "No");
+    renderer->setConfigOption(Config::FULL_SCREEN, (fsCheckBox->isSelected() ? "Yes" : "No"));
+    config.setVideoValue(Config::FULL_SCREEN, fsCheckBox->isSelected() ? "Yes" : "No");
 
     CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
-    renderer->setConfigOption("Video Mode", resCb->getSelectedItem()->getText().c_str());
-    config.setVideoValue("Video Mode", resCb->getSelectedItem()->getText().c_str());
+    renderer->setConfigOption(Config::VIDEO_MODE, resCb->getSelectedItem()->getText().c_str());
+    config.setVideoValue(Config::VIDEO_MODE, resCb->getSelectedItem()->getText().c_str());
 
     // Stores the renderer dependent options
     CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(
         mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VSyncCheckbox"));
-    renderer->setConfigOption("VSync", (vsCheckBox->isSelected() ? "Yes" : "No"));
-    config.setVideoValue("VSync", fsCheckBox->isSelected() ? "Yes" : "No");
+    renderer->setConfigOption(Config::VSYNC, (vsCheckBox->isSelected() ? "Yes" : "No"));
+    config.setVideoValue(Config::VSYNC, fsCheckBox->isSelected() ? "Yes" : "No");
 
-    ogreRoot->saveConfig();
-    // TODO: Only save and handle custom config. Drop ogre config if possible.
+    // Save renderer dependent settings and apply them.
+    for (CEGUI::Window* combo : mCustomVideoComboBoxes)
+    {
+        std::string optionName = combo->getName().c_str();
+        std::string optionValue = combo->getText().c_str();
+        renderer->setConfigOption(optionName, optionValue);
+        config.setVideoValue(optionName, optionValue);
+    }
+
     config.saveUserConfig();
 
     // Apply config
@@ -423,8 +502,6 @@ void SettingsWindow::setMusicVolumeValue(float volume)
     // Set the slider position
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
-    volumeSlider->setMaxValue(100);
-    volumeSlider->setClickStep(10);
     volumeSlider->setCurrentValue(volume);
 
     // Set the music volume text

@@ -34,6 +34,20 @@ class TileSetValue;
 enum class CreatureMoodLevel;
 enum class TileVisual;
 
+namespace Config
+{
+//! \brief Config options names
+//! Video
+const std::string RENDERER = "Renderer";
+const std::string VIDEO_MODE = "Video Mode";
+const std::string VSYNC = "VSync";
+const std::string FULL_SCREEN = "Full Screen";
+//! Audio
+const std::string MUSIC_VOLUME = "Music Volume";
+//! Game
+const std::string NICKNAME = "Nickname";
+}
+
 //! \brief This class is used to manage global configuration such as network configuration, global creature stats, ...
 //! It should NOT be used to load level specific stuff. For that, there is GameMap.
 class ConfigManager : public Ogre::Singleton<ConfigManager>
@@ -143,14 +157,21 @@ public:
     { mVideoUserConfig[param] = value; }
     void setInputValue(const std::string& param, const std::string& value)
     { mInputUserConfig[param] = value; }
+    void setGameValue(const std::string& param, const std::string& value)
+    { mGameUserConfig[param] = value; }
 
     //! \brief Get a config value.
     const std::string& getAudioValue(const std::string& param) const;
     const std::string& getVideoValue(const std::string& param) const;
     const std::string& getInputValue(const std::string& param) const;
+    const std::string& getGameValue(const std::string& param) const;
 
     //! \brief Save the user configuration file.
     bool saveUserConfig();
+
+    //! \brief Tries to restore the previous video config
+    //! To be called at startup once the user config has been loaded.
+    bool initVideoConfig(Ogre::Root& ogreRoot);
 
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
@@ -171,7 +192,7 @@ private:
     bool loadTilesets(const std::string& fileName);
     bool loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues);
 
-    // \brief Loads the user configuration values, and use default ones if it cannot do it.
+    //! \brief Loads the user configuration values, and use default ones if it cannot do it.
     void loadUserConfig(const std::string& fileName);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
@@ -231,6 +252,7 @@ private:
     std::map<std::string, std::string> mAudioUserConfig;
     std::map<std::string, std::string> mVideoUserConfig;
     std::map<std::string, std::string> mInputUserConfig;
+    std::map<std::string, std::string> mGameUserConfig;
 };
 
 #endif //CONFIGMANAGER_H

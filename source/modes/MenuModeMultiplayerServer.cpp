@@ -82,7 +82,8 @@ MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager):
 void MenuModeMultiplayerServer::activate()
 {
     // Loads the corresponding Gui sheet.
-    getModeManager().getGui().loadGuiSheet(Gui::multiplayerServerMenu);
+    Gui& gui = getModeManager().getGui();
+    gui.loadGuiSheet(Gui::multiplayerServerMenu);
 
     giveFocus();
 
@@ -94,11 +95,17 @@ void MenuModeMultiplayerServer::activate()
     gameMap->clearAll();
     gameMap->setGamePaused(true);
 
-    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerServerMenu)->getChild(Gui::MPM_LIST_LEVELS);
-    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
+    CEGUI::Window* mainWin = gui.getGuiSheet(Gui::guiSheet::multiplayerServerMenu);
 
-    tmpWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
-    tmpWin->hide();
+    CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(mainWin->getChild(Gui::MPM_EDIT_NICK));
+    ConfigManager& config = ConfigManager::getSingleton();
+    editNick->setText(reinterpret_cast<const CEGUI::utf8*>(config.getGameValue(Config::NICKNAME).c_str()));
+
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(mainWin->getChild(Gui::MPM_LIST_LEVELS));
+
+
+
+    mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("");
     mFilesList.clear();
     mDescriptionList.clear();
     levelSelectList->resetList();
@@ -135,41 +142,32 @@ void MenuModeMultiplayerServer::activate()
 
 bool MenuModeMultiplayerServer::serverButtonPressed(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_LIST_LEVELS);
-    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
+    CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerServerMenu);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(mainWin->getChild(Gui::MPM_LIST_LEVELS));
 
     if(levelSelectList->getSelectedCount() == 0)
     {
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
-        tmpWin->setText("Please select a level first.");
-        tmpWin->show();
+        mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("Please select a level first.");
         return true;
     }
 
-    tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_EDIT_NICK);
-    CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
+    CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(mainWin->getChild(Gui::MPM_EDIT_NICK));
     std::string nick = editNick->getText().c_str();
     CEGUI::String nickCeguiStr = reinterpret_cast<const CEGUI::utf8*>(nick.c_str());
     if (nickCeguiStr.empty())
     {
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
-        tmpWin->setText("Please enter a nickname.");
-        tmpWin->show();
+        mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("Please enter a nickname.");
         return true;
     }
     else if (nickCeguiStr.length() > 20)
     {
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
-        tmpWin->setText("Please enter a shorter nickname. (20 letters max.)");
-        tmpWin->show();
+        mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("Please enter a shorter nickname. (20 letters max.)");
         return true;
     }
 
     ODFrameListener::getSingleton().getClientGameMap()->setLocalPlayerNick(nick);
 
-    tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
-    tmpWin->setText("Loading...");
-    tmpWin->show();
+    mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("Loading...");
 
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
     int id = selItem->getID();
@@ -180,9 +178,7 @@ bool MenuModeMultiplayerServer::serverButtonPressed(const CEGUI::EventArgs&)
     if(!ODServer::getSingleton().startServer(level, ServerMode::ModeGameMultiPlayer))
     {
         OD_LOG_ERR("Could not start server for multi player game !!!");
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
-        tmpWin->setText("ERROR: Could not start server for multi player game !!!");
-        tmpWin->show();
+        mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("ERROR: Could not start server for multi player game !!!");
         return true;
     }
 
@@ -190,9 +186,7 @@ bool MenuModeMultiplayerServer::serverButtonPressed(const CEGUI::EventArgs&)
     if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
         OD_LOG_ERR("Could not connect to server for multi player game !!!");
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
-        tmpWin->setText("Error: Couldn't connect to local server!");
-        tmpWin->show();
+        mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("Error: Couldn't connect to local server!");
         return true;
     }
     return true;
@@ -201,10 +195,10 @@ bool MenuModeMultiplayerServer::serverButtonPressed(const CEGUI::EventArgs&)
 bool MenuModeMultiplayerServer::updateDescription(const CEGUI::EventArgs&)
 {
     // Get the level corresponding id
-    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::SKM_LIST_LEVELS);
-    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
+    CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(mainWin->getChild(Gui::SKM_LIST_LEVELS));
 
-    CEGUI::Window* descTxt = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild("LevelWindowFrame/MapDescriptionText");
+    CEGUI::Window* descTxt = mainWin->getChild("LevelWindowFrame/MapDescriptionText");
 
     if(levelSelectList->getSelectedCount() == 0)
     {
