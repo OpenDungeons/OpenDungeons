@@ -1529,10 +1529,7 @@ const std::string& ConfigManager::getAudioValue(const std::string& param) const
 const std::string& ConfigManager::getVideoValue(const std::string& param) const
 {
     if(mVideoUserConfig.count(param) <= 0)
-    {
-        OD_LOG_ERR("Unknown parameter param=" + param);
         return EMPTY_STRING;
-    }
 
     return mVideoUserConfig.at(param);
 }
@@ -1540,10 +1537,7 @@ const std::string& ConfigManager::getVideoValue(const std::string& param) const
 const std::string& ConfigManager::getInputValue(const std::string& param) const
 {
     if(mInputUserConfig.count(param) <= 0)
-    {
-        OD_LOG_ERR("Unknown parameter param=" + param);
         return EMPTY_STRING;
-    }
 
     return mInputUserConfig.at(param);
 }
@@ -1551,10 +1545,7 @@ const std::string& ConfigManager::getInputValue(const std::string& param) const
 const std::string& ConfigManager::getGameValue(const std::string& param) const
 {
     if(mGameUserConfig.count(param) <= 0)
-    {
-        OD_LOG_ERR("Unknown parameter param=" + param);
         return EMPTY_STRING;
-    }
 
     return mGameUserConfig.at(param);
 }
