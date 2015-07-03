@@ -99,27 +99,15 @@ void GiftBoxEntity::exportHeadersToStream(std::ostream& os) const
     os << mGiftBoxType << "\t";
 }
 
-void GiftBoxEntity::exportToStream(std::ostream& os) const
-{
-    RenderedMovableEntity::exportToStream(os);
-    os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
-}
-
-void GiftBoxEntity::importFromStream(std::istream& is)
-{
-    RenderedMovableEntity::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
-}
-
 std::string GiftBoxEntity::getGiftBoxEntityStreamFormat()
 {
     std::string format = RenderedMovableEntity::getRenderedMovableEntityStreamFormat();
     if(!format.empty())
         format += "\t";
 
-    format += "GiftBoxType\tPosX\tPosY\tPosZ";
+    format += "optionalData";
 
-    return format;
+    return "GiftBoxType\t" + format;
 }
 
 std::ostream& operator<<(std::ostream& os, const GiftBoxType& type)

@@ -55,8 +55,6 @@ public:
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position) override;
 
     virtual void exportHeadersToStream(std::ostream& os) const override;
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
 
     //! \brief Server side function that will be called when the gift box is carried to the dungeon temple. It should be
     //! called by the overriding classes to do what they need. However, this function is not pure virtual because on client side,

@@ -39,6 +39,18 @@ GiftBoxResearch::GiftBoxResearch(GameMap* gameMap, bool isOnServerMap) :
 {
 }
 
+void GiftBoxResearch::exportToStream(std::ostream& os) const
+{
+    GiftBoxEntity::exportToStream(os);
+    os << mResearchType << "\t";
+}
+
+void GiftBoxResearch::importFromStream(std::istream& is)
+{
+    GiftBoxEntity::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mResearchType);
+}
+
 void GiftBoxResearch::applyEffect()
 {
     if(getSeat() == nullptr)

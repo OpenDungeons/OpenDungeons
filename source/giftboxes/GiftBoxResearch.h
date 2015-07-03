@@ -31,6 +31,9 @@ public:
     GiftBoxResearch(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, ResearchType researchType);
     GiftBoxResearch(GameMap* gameMap, bool isOnServerMap);
 
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+
     virtual void applyEffect();
 
 private:
