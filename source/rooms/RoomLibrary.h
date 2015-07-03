@@ -61,6 +61,9 @@ public:
     virtual void removeCreatureUsingRoom(Creature* c) override;
     virtual void absorbRoom(Room *r) override;
 
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+
     static void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet);
     static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
@@ -80,6 +83,7 @@ private:
         Ogre::Real& wantedX, Ogre::Real& wantedY);
     std::vector<Tile*> mUnusedSpots;
     std::map<Creature*,Tile*> mCreaturesSpots;
+    int32_t mResearchPoints;
 };
 
 #endif // ROOMLIBRARY_H

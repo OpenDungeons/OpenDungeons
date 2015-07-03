@@ -767,6 +767,7 @@ void Creature::doUpkeep()
                 obj->setPosition(spawnPosition);
             }
 
+/* TODO : Use a gift box
             if(mResearchTypeDropDeath != ResearchType::nullResearchType)
             {
                 ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), getIsOnServerMap(),
@@ -777,6 +778,7 @@ void Creature::doUpkeep()
                 researchEntity->createMesh();
                 researchEntity->setPosition(spawnPosition);
             }
+            */
 
             // TODO: drop weapon when available
         }

@@ -104,6 +104,8 @@ class GameMode final : public GameEditorModeBase, public InputCommand
     bool showResearchWindow(const CEGUI::EventArgs& = {});
     bool hideResearchWindow(const CEGUI::EventArgs& = {});
     bool toggleResearchWindow(const CEGUI::EventArgs& = {});
+    bool applyResearchWindow(const CEGUI::EventArgs& = {});
+    void closeResearchWindow(bool saveResearch);
 
     //! \brief Shows/hides/toggles the options window
     bool showOptionsWindow(const CEGUI::EventArgs& = {});
@@ -121,6 +123,23 @@ class GameMode final : public GameEditorModeBase, public InputCommand
     void unselectAllTiles() override;
 
     void displayText(const Ogre::ColourValue& txtColour, const std::string& txt) override;
+
+    //! \brief Called when the research window is displayed. This function will call the Seat to get
+    //! the current research tree and update it as the player clicks on the research buttons by calling
+    //! researchButtonTreeClicked
+    void resetResearchTree();
+    //! \brief Called when the player clicks a research in the research tree. Note that resetResearchTree
+    //! should be called before calling researchButtonTreeClicked
+    //! Returns true if the pending list have been changed and false otherwise
+    bool researchButtonTreeClicked(ResearchType type);
+    //! \brief Called when the player closes the research tree. If apply is true, the changes
+    //! should be sent to the server. If false, the changes should be canceled.
+    void endResearchTree(bool apply);
+
+    //! \brief Called at each frame. It checks if the Gui should be refreshed (for example,
+    //! if a research is done) and, if yes, refreshes accordingly.
+    //! \param forceRefresh Refresh the gui even if no changes was declared by the local player Seat.
+    void refreshGuiResearch(bool forceRefresh = false);
 
 protected:
     bool onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/);
@@ -152,6 +171,12 @@ private:
     //! \brief The settings window.
     SettingsWindow mSettings;
 
+    //! \brief Researches pending (Client side). This is copied from the seat for temporary changes while the
+    //! player clicks on the research tree window
+    std::vector<ResearchType> mResearchPending;
+
+    bool mIsResearchWindowOpen;
+
     //! \brief Set the help window (quite long) text.
     void setHelpWindowText();
 
@@ -159,17 +184,16 @@ private:
     //! It will handle the potential mouse wheel logic
     void handleMouseWheel(const OIS::MouseEvent& arg);
 
-    //! \brief Called at each frame. It checks if the Gui should be refreshed (for example,
-    //! if a research is done) and, if yes, refreshes accordingly.
-    //! \param forceRefresh Refresh the gui even if no changes was declared by the local player Seat.
-    void refreshGuiResearch(bool forceRefresh = false);
-
-    //! \brief Set the state of the given research button accordingly
-    //! to the research type given.
+    //! \brief Set the state of the given research button accordingly to the research type given.
     //! \note: Called by refreshGuiResearch() for each researchType.
     void refreshResearchButtonState(ResearchType resType);
 
+    //! \brief sets cegui button name according to the given resType
+    //! returns true is the button name is found for the given resType and false otherwise
+    bool researchButtonFromType(ResearchType resType, std::string& researchWidgetButton, std::string& useWidgetButton);
+
     void connectSpellSelect(const std::string& buttonName, SpellType spellType);
+    void connectResearchSelect(const std::string& buttonName, ResearchType type);
 
     //! \brief Tells whether the latest mouse click was made on a relevant CEGUI widget,
     //! and thus, the game should ignore it.

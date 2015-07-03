@@ -2,97 +2,109 @@
 
 <GUILayout version="4" >
     <Window type="OD/FrameWindow" name="ResearchTreeWindow" >
-        <Property name="Area" value="{{0.5,-295},{0.5,-156},{0.5,295},{0.5,156}}" />
+        <Property name="Area" value="{{0.5,-305},{0.5,-196},{0.5,305},{0.5,196}}" />
         <Property name="Text" value="Research Tree" />
         <Property name="SizingEnabled" value="False" />
-        <Window type="OD/StaticImage" name="AttackSkills" >
-            <Property name="Area" value="{{0,20},{0,35},{0,200},{1,-20}}" />
+        <Window type="OD/StaticImage" name="Skills" >
+            <Property name="Area" value="{{0,20},{0,35},{1,-20},{1,-60}}" />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
-            <Property name="FrameColours" value="tl:FFFF0000 tr:FFFF0000 bl:FFFFFFFF br:FFFFFFFF" />
-            <Window type="OD/ImageButton" name="TrainingHallButton" >
-                <Property name="Area" value="{{0.5,-25},{0,15},{0.5,25},{0,65}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/TrainingHallButton" />
-                <Property name="TooltipText" value="Room: Training Hall" />
+            <Window type="OD/StaticImage" name="AttackSkills" >
+                <Property name="Area" value="{{0,10},{0,10},{0,190},{1,-10}}" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="FrameColours" value="tl:FFFF0000 tr:FFFF0000 bl:FFFFFFFF br:FFFFFFFF" />
+                <Window type="OD/ImageButton" name="TrainingHallButton" >
+                    <Property name="Area" value="{{0.5,-25},{0,15},{0.5,25},{0,65}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/TrainingHallButton" />
+                    <Property name="TooltipText" value="Room: Training Hall" />
+                </Window>
+                <Window type="OD/ImageButton" name="CallToWarButton" >
+                    <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/CallToWarButton" />
+                    <Property name="TooltipText" value="Spell: Call to War" />
+                </Window>
+                <Window type="OD/ImageButton" name="CreatureExplosionButton" >
+                    <Property name="Area" value="{{0.7,-25},{0,75},{0.7,25},{0,125}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureExplosionButton" />
+                    <Property name="TooltipText" value="Spell: Creature Explosion" />
+                </Window>
             </Window>
-            <Window type="OD/ImageButton" name="CallToWarButton" >
-                <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/CallToWarButton" />
-                <Property name="TooltipText" value="Spell: Call to War" />
+            <Window type="OD/StaticImage" name="TacticSkills" >
+                <Property name="Area" value="{{0,195},{0,10},{0,375},{1,-10}}" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Window type="OD/ImageButton" name="TreasuryButton" >
+                    <Property name="Area" value="{{0.2,-25},{0,15},{0.2,25},{0,65}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/TreasuryButton" />
+                    <Property name="TooltipText" value="Room: Treasury" />
+                </Window>
+                <Window type="OD/ImageButton" name="HatcheryButton" >
+                    <Property name="Area" value="{{0.5,-25},{0,15},{0.5,25},{0,65}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/HatcheryButton" />
+                    <Property name="TooltipText" value="Room: Hatchery" />
+                </Window>
+                <Window type="OD/ImageButton" name="DormitoryButton" >
+                    <Property name="Area" value="{{0.8,-25},{0,15},{0.8,25},{0,65}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/DormitoryButton" />
+                    <Property name="TooltipText" value="Room: Dormitory" />
+                </Window>
+                <Window type="OD/ImageButton" name="WorkshopButton" >
+                    <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/WorkshopButton" />
+                    <Property name="TooltipText" value="Room: Workshop" />
+                </Window>
+                <Window type="OD/ImageButton" name="WoodenDoorTrapButton" >
+                    <Property name="Area" value="{{0.7,-25},{0,75},{0.7,25},{0,125}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/WoodenDoorTrapButton" />
+                    <Property name="TooltipText" value="Trap: Wooden door" />
+                </Window>
+                <Window type="OD/ImageButton" name="CannonButton" >
+                    <Property name="Area" value="{{0.3,-25},{0,135},{0.3,25},{0,185}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/CannonButton" />
+                    <Property name="TooltipText" value="Trap: Cannon" />
+                </Window>
+                <Window type="OD/ImageButton" name="SpikeTrapButton" >
+                    <Property name="Area" value="{{0.7,-25},{0,135},{0.7,25},{0,185}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/SpikeTrapButton" />
+                    <Property name="TooltipText" value="Trap: Spike trap" />
+                </Window>
+                <Window type="OD/ImageButton" name="BoulderTrapButton" >
+                    <Property name="Area" value="{{0.5,-25},{0,195},{0.5,25},{0,245}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/BoulderTrapButton" />
+                    <Property name="TooltipText" value="Trap: Boulder trap" />
+                </Window>
             </Window>
-            <Window type="OD/ImageButton" name="CreatureExplosionButton" >
-                <Property name="Area" value="{{0.7,-25},{0,75},{0.7,25},{0,125}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureExplosionButton" />
-                <Property name="TooltipText" value="Spell: Creature Explosion" />
+            <Window type="OD/StaticImage" name="MagicSkills" >
+                <Property name="Area" value="{{0,380},{0,10},{0,560},{1,-10}}" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="FrameColours" value="tl:FF0000FF tr:FF0000FF bl:FFFFFFFF br:FFFFFFFF" />
+                <Window type="OD/ImageButton" name="LibraryButton" >
+                    <Property name="Area" value="{{0.7,-25},{0,15},{0.7,25},{0,65}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/LibraryButton" />
+                    <Property name="TooltipText" value="Room: Library" />
+                </Window>
+                <Window type="OD/ImageButton" name="CryptButton" >
+                    <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/CryptButton" />
+                    <Property name="TooltipText" value="Room: Crypt" />
+                </Window>
+                <Window type="OD/ImageButton" name="SummonWorkerButton" >
+                    <Property name="Area" value="{{0.3,-25},{0,15},{0.3,25},{0,65}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/SummonWorkerButton" />
+                    <Property name="TooltipText" value="Spell: Summon Worker" />
+                </Window>
+                <Window type="OD/ImageButton" name="CreatureHealButton" >
+                    <Property name="Area" value="{{0.7,-25},{0,75},{0.7,25},{0,125}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureHealButton" />
+                    <Property name="TooltipText" value="Spell: Creature Heal" />
+                </Window>
             </Window>
         </Window>
-        <Window type="OD/StaticImage" name="TacticSkills" >
-            <Property name="Area" value="{{0,205},{0,35},{0,385},{1,-20}}" />
-            <Property name="MaxSize" value="{{1,0},{1,0}}" />
-            <Window type="OD/ImageButton" name="TreasuryButton" >
-                <Property name="Area" value="{{0.2,-25},{0,15},{0.2,25},{0,65}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/TreasuryButton" />
-                <Property name="TooltipText" value="Room: Treasury" />
-            </Window>
-            <Window type="OD/ImageButton" name="HatcheryButton" >
-                <Property name="Area" value="{{0.5,-25},{0,15},{0.5,25},{0,65}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/HatcheryButton" />
-                <Property name="TooltipText" value="Room: Hatchery" />
-            </Window>
-            <Window type="OD/ImageButton" name="DormitoryButton" >
-                <Property name="Area" value="{{0.8,-25},{0,15},{0.8,25},{0,65}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/DormitoryButton" />
-                <Property name="TooltipText" value="Room: Dormitory" />
-            </Window>
-            <Window type="OD/ImageButton" name="WorkshopButton" >
-                <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/WorkshopButton" />
-                <Property name="TooltipText" value="Room: Workshop" />
-            </Window>
-            <Window type="OD/ImageButton" name="WoodenDoorTrapButton" >
-                <Property name="Area" value="{{0.7,-25},{0,75},{0.7,25},{0,125}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/WoodenDoorTrapButton" />
-                <Property name="TooltipText" value="Trap: Wooden door" />
-            </Window>
-            <Window type="OD/ImageButton" name="CannonButton" >
-                <Property name="Area" value="{{0.3,-25},{0,135},{0.3,25},{0,185}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/CannonButton" />
-                <Property name="TooltipText" value="Trap: Cannon" />
-            </Window>
-            <Window type="OD/ImageButton" name="SpikeTrapButton" >
-                <Property name="Area" value="{{0.7,-25},{0,135},{0.7,25},{0,185}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/SpikeTrapButton" />
-                <Property name="TooltipText" value="Trap: Spike trap" />
-            </Window>
-            <Window type="OD/ImageButton" name="BoulderTrapButton" >
-                <Property name="Area" value="{{0.5,-25},{0,195},{0.5,25},{0,245}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/BoulderTrapButton" />
-                <Property name="TooltipText" value="Trap: Boulder trap" />
-            </Window>
+        <Window type="OD/Button" name="CancelButton" >
+            <Property name="Area" value="{{1,-200},{1,-50},{1,-120},{1,-20}}" />
+            <Property name="Text" value="Cancel" />
         </Window>
-        <Window type="OD/StaticImage" name="MagicSkills" >
-            <Property name="Area" value="{{0,390},{0,35},{0,570},{1,-20}}" />
-            <Property name="MaxSize" value="{{1,0},{1,0}}" />
-            <Property name="FrameColours" value="tl:FF0000FF tr:FF0000FF bl:FFFFFFFF br:FFFFFFFF" />
-            <Window type="OD/ImageButton" name="LibraryButton" >
-                <Property name="Area" value="{{0.7,-25},{0,15},{0.7,25},{0,65}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/LibraryButton" />
-                <Property name="TooltipText" value="Room: Library" />
-            </Window>
-            <Window type="OD/ImageButton" name="CryptButton" >
-                <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/CryptButton" />
-                <Property name="TooltipText" value="Room: Crypt" />
-            </Window>
-            <Window type="OD/ImageButton" name="SummonWorkerButton" >
-                <Property name="Area" value="{{0.3,-25},{0,15},{0.3,25},{0,65}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/SummonWorkerButton" />
-                <Property name="TooltipText" value="Spell: Summon Worker" />
-            </Window>
-            <Window type="OD/ImageButton" name="CreatureHealButton" >
-                <Property name="Area" value="{{0.7,-25},{0,75},{0.7,25},{0,125}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureHealButton" />
-                <Property name="TooltipText" value="Spell: Creature Heal" />
-            </Window>
+        <Window type="OD/Button" name="ApplyButton" >
+            <Property name="Area" value="{{1,-100},{1,-50},{1,-20},{1,-20}}" />
+            <Property name="Text" value="Apply" />
         </Window>
     </Window>
 </GUILayout>

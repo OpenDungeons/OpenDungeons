@@ -29,12 +29,10 @@ class GameMap;
 class Tile;
 class ODPacket;
 
-enum class ResearchType;
-
 class ResearchEntity: public RenderedMovableEntity
 {
 public:
-    ResearchEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, ResearchType researchType);
+    ResearchEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, int32_t researchPoints);
     ResearchEntity(GameMap* gameMap, bool isOnServerMap);
 
     virtual GameEntityType getObjectType() const override
@@ -42,8 +40,8 @@ public:
 
     virtual const Ogre::Vector3& getScale() const override;
 
-    ResearchType getResearchType() const
-    { return mResearchType; }
+    inline int32_t getResearchPoints() const
+    { return mResearchPoints; }
 
     virtual EntityCarryType getEntityCarryType() override
     { return EntityCarryType::researchEntity; }
@@ -58,7 +56,7 @@ public:
     static ResearchEntity* getResearchEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static std::string getResearchEntityStreamFormat();
 private:
-    ResearchType mResearchType;
+    int32_t mResearchPoints;
 };
 
 #endif // RESEARCHENTITY_H

@@ -131,7 +131,7 @@ void RoomDungeonTemple::notifyCarryingStateChanged(Creature* carrier, GameEntity
 
     // We notify the player that the research is now available and we delete the researchEntity
     ResearchEntity* researchEntity = static_cast<ResearchEntity*>(carriedEntity);
-    getSeat()->addResearch(researchEntity->getResearchType());
+    getSeat()->addResearchPoints(researchEntity->getResearchPoints());
     researchEntity->removeEntityFromPositionTile();
     researchEntity->removeFromGameMap();
     researchEntity->deleteYourself();

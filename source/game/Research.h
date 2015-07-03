@@ -74,6 +74,15 @@ public:
 
     bool canBeResearched(const std::vector<ResearchType>& researchesDone) const;
 
+    //! \brief Builds the dependency tree in dependencies with the researches required for this research
+    //! excluding researches already done in researchesDone including the research itself. Note that the returned vector
+    //! will contain needed researches ordered by feasible researches (the first one will have no needed dependencies,
+    //! the second none other than the first, ...)
+    void buildDependencies(const std::vector<ResearchType>& researchesDone, std::vector<ResearchType>& dependencies) const;
+
+    //! \brief Returns true if the research depends on the given type and false otherwise
+    bool dependsOn(ResearchType type) const;
+
     //! \brief The research name as used in level files.
     static std::string researchTypeToString(ResearchType type);
 

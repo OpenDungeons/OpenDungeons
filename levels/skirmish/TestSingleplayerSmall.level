@@ -32,14 +32,13 @@ spellCreatureHeal
 spellCreatureExplosion
 [/ResearchDone]
 [ResearchNotAllowed]
+trapSpike
 [/ResearchNotAllowed]
 [ResearchPending]
 roomTrainingHall
 spellCallToWar
-trapSpike
 roomWorkshop
 roomCrypt
-trapBoulder
 [/ResearchPending]
 [/Seat]
 [Seat]

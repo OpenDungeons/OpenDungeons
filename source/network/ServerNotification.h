@@ -80,8 +80,6 @@ enum class ServerNotificationType
     releaseCarriedEntity,
 
     researchTree,
-    researchStarted, // Warns a client a new research has started.
-    researchWaiting, // Tells the client a research entity is waiting for research info data
     researchesDone,
 
     setSpellCooldown,
