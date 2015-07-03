@@ -21,6 +21,7 @@
 #include "entities/ChickenEntity.h"
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
+#include "entities/GiftBoxEntity.h"
 #include "entities/MapLight.h"
 #include "entities/MissileObject.h"
 #include "entities/PersistentObject.h"
@@ -111,6 +112,11 @@ GameEntity* getGameEntityFromStream(GameMap* gameMap, GameEntityType type, std::
             entity = ResearchEntity::getResearchEntityFromStream(gameMap, is);
             break;
         }
+        case GameEntityType::giftBoxEntity:
+        {
+            entity = GiftBoxEntity::getGiftBoxEntityFromStream(gameMap, is);
+            break;
+        }
         default:
         {
             OD_LOG_ERR("Unknown enum value : " + Helper::toString(
@@ -194,6 +200,11 @@ GameEntity* getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
         case GameEntityType::researchEntity:
         {
             entity = ResearchEntity::getResearchEntityFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::giftBoxEntity:
+        {
+            entity = GiftBoxEntity::getGiftBoxEntityFromPacket(gameMap, is);
             break;
         }
         default:

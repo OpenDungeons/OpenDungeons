@@ -53,6 +53,7 @@ enum class EntityCarryType
     corpse,
     researchEntity,
     craftedTrap,
+    giftBox,
     gold
 };
 

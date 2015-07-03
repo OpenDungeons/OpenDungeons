@@ -1,0 +1,137 @@
+/*
+ *  Copyright (C) 2011-2015  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "entities/GiftBoxEntity.h"
+
+#include "entities/Creature.h"
+#include "entities/Tile.h"
+
+#include "network/ODPacket.h"
+
+#include "game/Research.h"
+
+#include "gamemap/GameMap.h"
+
+#include "giftboxes/GiftBoxResearch.h"
+
+#include "traps/Trap.h"
+#include "traps/TrapBoulder.h"
+#include "traps/TrapCannon.h"
+#include "traps/TrapSpike.h"
+
+#include "utils/Helper.h"
+#include "utils/LogManager.h"
+#include "utils/Random.h"
+
+#include <iostream>
+
+const std::string EMPTY_STRING;
+
+const Ogre::Vector3 SCALE(0.7,0.7,0.7);
+
+GiftBoxEntity::GiftBoxEntity(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, const std::string& meshName, GiftBoxType type) :
+    RenderedMovableEntity(gameMap, isOnServerMap, baseName, meshName, 0.0f, false, 1.0f),
+    mGiftBoxType(type)
+{
+}
+
+GiftBoxEntity::GiftBoxEntity(GameMap* gameMap, bool isOnServerMap) :
+    RenderedMovableEntity(gameMap, isOnServerMap),
+    mGiftBoxType(GiftBoxType::nbTypes)
+{
+}
+
+const Ogre::Vector3& GiftBoxEntity::getScale() const
+{
+    return SCALE;
+}
+
+void GiftBoxEntity::notifyEntityCarryOn(Creature* carrier)
+{
+    removeEntityFromPositionTile();
+    setSeat(carrier->getSeat());
+}
+
+void GiftBoxEntity::notifyEntityCarryOff(const Ogre::Vector3& position)
+{
+    mPosition = position;
+    addEntityToPositionTile();
+}
+
+GiftBoxEntity* GiftBoxEntity::getGiftBoxEntityFromStream(GameMap* gameMap, std::istream& is)
+{
+    GiftBoxType type;
+    is >> type;
+    switch(type)
+    {
+        case GiftBoxType::research:
+            return new GiftBoxResearch(gameMap, true);
+
+        default:
+            OD_LOG_ERR("Unknown GiftBoxType=" + Helper::toString(static_cast<uint32_t>(type)));
+            return nullptr;
+    }
+}
+
+GiftBoxEntity* GiftBoxEntity::getGiftBoxEntityFromPacket(GameMap* gameMap, ODPacket& is)
+{
+    // On client side, we always use a GiftBoxEntity because we don't want clients to know what the gift box is
+    return new GiftBoxEntity(gameMap, false);
+}
+
+void GiftBoxEntity::exportHeadersToStream(std::ostream& os) const
+{
+    RenderedMovableEntity::exportHeadersToStream(os);
+    os << mGiftBoxType << "\t";
+}
+
+void GiftBoxEntity::exportToStream(std::ostream& os) const
+{
+    RenderedMovableEntity::exportToStream(os);
+    os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
+}
+
+void GiftBoxEntity::importFromStream(std::istream& is)
+{
+    RenderedMovableEntity::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
+}
+
+std::string GiftBoxEntity::getGiftBoxEntityStreamFormat()
+{
+    std::string format = RenderedMovableEntity::getRenderedMovableEntityStreamFormat();
+    if(!format.empty())
+        format += "\t";
+
+    format += "GiftBoxType\tPosX\tPosY\tPosZ";
+
+    return format;
+}
+
+std::ostream& operator<<(std::ostream& os, const GiftBoxType& type)
+{
+    os << static_cast<int32_t>(type);
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, GiftBoxType& type)
+{
+    int32_t tmp;
+    OD_ASSERT_TRUE(is >> tmp);
+    type = static_cast<GiftBoxType>(tmp);
+    return is;
+}
