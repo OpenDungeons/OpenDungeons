@@ -1515,11 +1515,31 @@ bool ConfigManager::saveUserConfig()
     return true;
 }
 
+bool ConfigManager::hasAudioValue(const std::string& param) const
+{
+    return (mAudioUserConfig.count(param) > 0);
+}
+
+bool ConfigManager::hasVideoValue(const std::string& param) const
+{
+    return (mVideoUserConfig.count(param) > 0);
+}
+
+bool ConfigManager::hasInputValue(const std::string& param) const
+{
+    return (mInputUserConfig.count(param) > 0);
+}
+
+bool ConfigManager::hasGameValue(const std::string& param) const
+{
+    return (mGameUserConfig.count(param) > 0);
+}
+
 const std::string& ConfigManager::getAudioValue(const std::string& param) const
 {
     if(mAudioUserConfig.count(param) <= 0)
     {
-        OD_LOG_ERR("Unknown parameter param=" + param);
+        OD_LOG_WRN("Unknown parameter param=" + param);
         return EMPTY_STRING;
     }
 
@@ -1530,7 +1550,7 @@ const std::string& ConfigManager::getVideoValue(const std::string& param) const
 {
     if(mVideoUserConfig.count(param) <= 0)
     {
-        OD_LOG_ERR("Unknown parameter param=" + param);
+        OD_LOG_WRN("Unknown parameter param=" + param);
         return EMPTY_STRING;
     }
 
@@ -1541,7 +1561,7 @@ const std::string& ConfigManager::getInputValue(const std::string& param) const
 {
     if(mInputUserConfig.count(param) <= 0)
     {
-        OD_LOG_ERR("Unknown parameter param=" + param);
+        OD_LOG_WRN("Unknown parameter param=" + param);
         return EMPTY_STRING;
     }
 
@@ -1552,7 +1572,7 @@ const std::string& ConfigManager::getGameValue(const std::string& param) const
 {
     if(mGameUserConfig.count(param) <= 0)
     {
-        OD_LOG_ERR("Unknown parameter param=" + param);
+        OD_LOG_WRN("Unknown parameter param=" + param);
         return EMPTY_STRING;
     }
 
@@ -1777,7 +1797,12 @@ const TileSet* ConfigManager::getTileSet(const std::string& tileSetName) const
 
 bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
 {
-    std::string rendererName = getVideoValue(Config::RENDERER);
+    // Also creates the config entry if it doesn't exist in config yet.
+    std::string rendererName = hasVideoValue(Config::RENDERER) ?
+        getVideoValue(Config::RENDERER) : std::string();
+    // Try the default OpenGL renderer first, if empty.
+    if (rendererName.empty())
+        rendererName = "OpenGL Rendering Subsystem";
 
     Ogre::RenderSystem* renderSystem = ogreRoot.getRenderSystemByName(rendererName);
     bool sameRenderer = true;

@@ -166,6 +166,12 @@ public:
     const std::string& getInputValue(const std::string& param) const;
     const std::string& getGameValue(const std::string& param) const;
 
+    //! \brief Get whether a config value is existing.
+    bool hasAudioValue(const std::string& param) const;
+    bool hasVideoValue(const std::string& param) const;
+    bool hasInputValue(const std::string& param) const;
+    bool hasGameValue(const std::string& param) const;
+
     //! \brief Save the user configuration file.
     bool saveUserConfig();
 

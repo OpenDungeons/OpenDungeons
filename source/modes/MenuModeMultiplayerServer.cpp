@@ -95,15 +95,17 @@ void MenuModeMultiplayerServer::activate()
     gameMap->clearAll();
     gameMap->setGamePaused(true);
 
+    ConfigManager& config = ConfigManager::getSingleton();
+
     CEGUI::Window* mainWin = gui.getGuiSheet(Gui::guiSheet::multiplayerServerMenu);
 
     CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(mainWin->getChild(Gui::MPM_EDIT_NICK));
-    ConfigManager& config = ConfigManager::getSingleton();
-    editNick->setText(reinterpret_cast<const CEGUI::utf8*>(config.getGameValue(Config::NICKNAME).c_str()));
+    std::string nickname = config.hasGameValue(Config::NICKNAME) ?
+        config.getGameValue(Config::NICKNAME) : std::string();
+    if (!nickname.empty())
+        editNick->setText(reinterpret_cast<const CEGUI::utf8*>(nickname.c_str()));
 
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(mainWin->getChild(Gui::MPM_LIST_LEVELS));
-
-
 
     mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("");
     mFilesList.clear();

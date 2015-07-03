@@ -115,7 +115,9 @@ void MenuModeSkirmish::activate()
     updateFilesList();
 
     // Set the player name if valid. (Will use the defaut one if not.)
-    std::string nickname = ConfigManager::getSingleton().getGameValue(Config::NICKNAME);
+    ConfigManager& config = ConfigManager::getSingleton();
+    std::string nickname = config.hasGameValue(Config::NICKNAME) ?
+        config.getGameValue(Config::NICKNAME) : std::string();
     if (!nickname.empty())
         ODFrameListener::getSingleton().getClientGameMap()->setLocalPlayerNick(nickname);
 }
