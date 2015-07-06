@@ -30,6 +30,7 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/EntityLoading.h"
 #include "entities/GameEntity.h"
+#include "entities/GiftBoxEntity.h"
 #include "entities/MapLight.h"
 #include "entities/MissileObject.h"
 #include "entities/ResearchEntity.h"
@@ -534,6 +535,12 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         return false;
     }
 
+    if(!readGameEntity(gameMap, "GiftBoxEntity", GameEntityType::giftBoxEntity, levelFile))
+    {
+        OD_LOG_WRN("Invalid GiftBoxEntity section");
+        return false;
+    }
+
     if(!readGameEntity(gameMap, "Missiles", GameEntityType::missileObject, levelFile))
     {
         OD_LOG_WRN("Invalid Missiles section");
@@ -767,6 +774,19 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         levelFile << std::endl;
     }
     levelFile << "[/ResearchEntity]" << std::endl;
+
+    levelFile << "\n[GiftBoxEntity]\n";
+    levelFile << "# " << GiftBoxEntity::getGiftBoxEntityStreamFormat() << "\n";
+    for (RenderedMovableEntity* rendered : rendereds)
+    {
+        if(rendered->getObjectType() != GameEntityType::giftBoxEntity)
+            continue;
+
+        rendered->exportHeadersToStream(levelFile);
+        rendered->exportToStream(levelFile);
+        levelFile << std::endl;
+    }
+    levelFile << "[/GiftBoxEntity]" << std::endl;
 
     levelFile << "\n[Missiles]\n";
     levelFile << "# " << MissileObject::getMissileObjectStreamFormat() << "\n";

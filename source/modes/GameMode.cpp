@@ -40,6 +40,7 @@
 #include "sound/SoundEffectsManager.h"
 #include "spells/SpellManager.h"
 #include "spells/SpellType.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
@@ -73,13 +74,29 @@ namespace
         SpellType spellType;
         PlayerSelection& playerSelection;
     };
+    //! \brief Functor to select spell from gui
+    class ResearchSelector
+    {
+    public:
+        bool operator()(const CEGUI::EventArgs& e)
+        {
+            if(!mGameMode.researchButtonTreeClicked(mType))
+                return true;
+
+            mGameMode.refreshGuiResearch(true);
+            return true;
+        }
+        ResearchType mType;
+        GameMode& mGameMode;
+    };
 }
 
 GameMode::GameMode(ModeManager *modeManager):
     GameEditorModeBase(modeManager, ModeManager::GAME, modeManager->getGui().getGuiSheet(Gui::guiSheet::inGameMenu)),
     mDigSetBool(false),
     mIndexEvent(0),
-    mSettings(SettingsWindow(mRootWindow))
+    mSettings(SettingsWindow(mRootWindow)),
+    mIsResearchWindowOpen(false)
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
@@ -121,6 +138,18 @@ GameMode::GameMode(ModeManager *modeManager):
         guiSheet->getChild("ResearchTreeWindow/__auto_closebutton__")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&GameMode::hideResearchWindow, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("ResearchTreeWindow/CancelButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::hideResearchWindow, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("ResearchTreeWindow/ApplyButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::applyResearchWindow, this)
         )
     );
 
@@ -212,6 +241,18 @@ GameMode::GameMode(ModeManager *modeManager):
     connectSpellSelect(Gui::BUTTON_SPELL_SUMMON_WORKER, SpellType::summonWorker);
     connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_HEAL, SpellType::creatureHeal);
     connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_EXPLOSION, SpellType::creatureExplosion);
+
+    std::string researchWidgetButton;
+    std::string useWidgetButton;
+    for (uint16_t i = static_cast<uint16_t>(ResearchType::nullResearchType);
+            i < static_cast<uint16_t>(ResearchType::countResearch); ++i)
+    {
+        ResearchType resType = static_cast<ResearchType>(i);
+        if(!researchButtonFromType(resType, researchWidgetButton, useWidgetButton))
+            continue;
+
+        connectResearchSelect("ResearchTreeWindow/Skills/" + researchWidgetButton, resType);
+    }
 
     syncTabButtonTooltips(Gui::MAIN_TABCONTROL);
 }
@@ -1049,14 +1090,27 @@ bool GameMode::toggleObjectivesWindow(const CEGUI::EventArgs& e)
 
 bool GameMode::showResearchWindow(const CEGUI::EventArgs&)
 {
+    resetResearchTree();
     mRootWindow->getChild("ResearchTreeWindow")->show();
     return true;
 }
 
 bool GameMode::hideResearchWindow(const CEGUI::EventArgs&)
 {
-    mRootWindow->getChild("ResearchTreeWindow")->hide();
+    closeResearchWindow(false);
     return true;
+}
+
+bool GameMode::applyResearchWindow(const CEGUI::EventArgs& e)
+{
+    closeResearchWindow(true);
+    return true;
+}
+
+void GameMode::closeResearchWindow(bool saveResearch)
+{
+    endResearchTree(saveResearch);
+    mRootWindow->getChild("ResearchTreeWindow")->hide();
 }
 
 bool GameMode::toggleResearchWindow(const CEGUI::EventArgs& e)
@@ -1064,9 +1118,13 @@ bool GameMode::toggleResearchWindow(const CEGUI::EventArgs& e)
     CEGUI::Window* research = mRootWindow->getChild("ResearchTreeWindow");
 
     if (research->isVisible())
-        hideResearchWindow(e);
+    {
+        closeResearchWindow(false);
+    }
     else
+    {
         showResearchWindow(e);
+    }
     return true;
 }
 
@@ -1110,7 +1168,7 @@ bool GameMode::showObjectivesFromOptions(const CEGUI::EventArgs& /*e*/)
 bool GameMode::showResearchFromOptions(const CEGUI::EventArgs& /*e*/)
 {
     mRootWindow->getChild("GameOptionsWindow")->hide();
-    mRootWindow->getChild("ResearchTreeWindow")->show();
+    showResearchWindow();
     return true;
 }
 
@@ -1195,94 +1253,133 @@ void GameMode::setHelpWindowText()
     textWindow->setText(reinterpret_cast<const CEGUI::utf8*>(txt.str().c_str()));
 }
 
-void GameMode::refreshResearchButtonState(ResearchType resType)
+bool GameMode::researchButtonFromType(ResearchType resType, std::string& researchWidgetButton, std::string& useWidgetButton)
 {
-    const std::string okIcon = "OpenDungeonsIcons/CheckIcon";
-    const std::string flagIcon = "OpenDungeonsIcons/SeatIcon";
-    const std::string inProgressIcon = "OpenDungeonsIcons/CogIcon";
-    const std::string pendingIcon = "OpenDungeonsIcons/HourglassIcon";
-
-    // The current pending research or nullResearch if none.
-    Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
-
-    // Determine the widget name and button accordingly to the ResearchType given
-    std::string ceguiWidgetName;
-    std::string ceguiWidgetButtonName;
     switch(resType)
     {
         case ResearchType::nullResearchType:
-        default:
-            return;
-            break;
+            return false;
         case ResearchType::roomDormitory:
-            ceguiWidgetName = "TacticSkills/DormitoryButton";
-            ceguiWidgetButtonName = Gui::BUTTON_DORMITORY;
+            researchWidgetButton = "TacticSkills/DormitoryButton";
+            useWidgetButton = Gui::BUTTON_DORMITORY;
             break;
         case ResearchType::roomTreasury:
-            ceguiWidgetName = "TacticSkills/TreasuryButton";
-            ceguiWidgetButtonName = Gui::BUTTON_TREASURY;
+            researchWidgetButton = "TacticSkills/TreasuryButton";
+            useWidgetButton = Gui::BUTTON_TREASURY;
             break;
         case ResearchType::roomHatchery:
-            ceguiWidgetName = "TacticSkills/HatcheryButton";
-            ceguiWidgetButtonName = Gui::BUTTON_HATCHERY;
+            researchWidgetButton = "TacticSkills/HatcheryButton";
+            useWidgetButton = Gui::BUTTON_HATCHERY;
             break;
         case ResearchType::roomWorkshop:
-            ceguiWidgetName = "TacticSkills/WorkshopButton";
-            ceguiWidgetButtonName = Gui::BUTTON_WORKSHOP;
+            researchWidgetButton = "TacticSkills/WorkshopButton";
+            useWidgetButton = Gui::BUTTON_WORKSHOP;
             break;
         case ResearchType::trapCannon:
-            ceguiWidgetName = "TacticSkills/CannonButton";
-            ceguiWidgetButtonName = Gui::BUTTON_TRAP_CANNON;
+            researchWidgetButton = "TacticSkills/CannonButton";
+            useWidgetButton = Gui::BUTTON_TRAP_CANNON;
             break;
         case ResearchType::trapSpike:
-            ceguiWidgetName = "TacticSkills/SpikeTrapButton";
-            ceguiWidgetButtonName = Gui::BUTTON_TRAP_SPIKE;
+            researchWidgetButton = "TacticSkills/SpikeTrapButton";
+            useWidgetButton = Gui::BUTTON_TRAP_SPIKE;
             break;
         case ResearchType::trapBoulder:
-            ceguiWidgetName = "TacticSkills/BoulderTrapButton";
-            ceguiWidgetButtonName = Gui::BUTTON_TRAP_BOULDER;
+            researchWidgetButton = "TacticSkills/BoulderTrapButton";
+            useWidgetButton = Gui::BUTTON_TRAP_BOULDER;
             break;
         case ResearchType::trapDoorWooden:
-            ceguiWidgetName = "TacticSkills/WoodenDoorTrapButton";
-            ceguiWidgetButtonName = Gui::BUTTON_TRAP_DOOR_WOODEN;
+            researchWidgetButton = "TacticSkills/WoodenDoorTrapButton";
+            useWidgetButton = Gui::BUTTON_TRAP_DOOR_WOODEN;
             break;
         case ResearchType::roomLibrary:
-            ceguiWidgetName = "MagicSkills/LibraryButton";
-            ceguiWidgetButtonName = Gui::BUTTON_LIBRARY;
+            researchWidgetButton = "MagicSkills/LibraryButton";
+            useWidgetButton = Gui::BUTTON_LIBRARY;
             break;
         case ResearchType::roomCrypt:
-            ceguiWidgetName = "MagicSkills/CryptButton";
-            ceguiWidgetButtonName = Gui::BUTTON_CRYPT;
+            researchWidgetButton = "MagicSkills/CryptButton";
+            useWidgetButton = Gui::BUTTON_CRYPT;
             break;
         case ResearchType::spellSummonWorker:
-            ceguiWidgetName = "MagicSkills/SummonWorkerButton";
-            ceguiWidgetButtonName = Gui::BUTTON_SPELL_SUMMON_WORKER;
+            researchWidgetButton = "MagicSkills/SummonWorkerButton";
+            useWidgetButton = Gui::BUTTON_SPELL_SUMMON_WORKER;
             break;
         case ResearchType::roomTrainingHall:
-            ceguiWidgetName = "AttackSkills/TrainingHallButton";
-            ceguiWidgetButtonName = Gui::BUTTON_TRAININGHALL;
+            researchWidgetButton = "AttackSkills/TrainingHallButton";
+            useWidgetButton = Gui::BUTTON_TRAININGHALL;
             break;
         case ResearchType::spellCallToWar:
-            ceguiWidgetName = "AttackSkills/CallToWarButton";
-            ceguiWidgetButtonName = Gui::BUTTON_SPELL_CALLTOWAR;
+            researchWidgetButton = "AttackSkills/CallToWarButton";
+            useWidgetButton = Gui::BUTTON_SPELL_CALLTOWAR;
             break;
         case ResearchType::spellCreatureHeal:
-            ceguiWidgetName = "MagicSkills/CreatureHealButton";
-            ceguiWidgetButtonName = Gui::BUTTON_SPELL_CREATURE_HEAL;
+            researchWidgetButton = "MagicSkills/CreatureHealButton";
+            useWidgetButton = Gui::BUTTON_SPELL_CREATURE_HEAL;
             break;
         case ResearchType::spellCreatureExplosion:
-            ceguiWidgetName = "AttackSkills/CreatureExplosionButton";
-            ceguiWidgetButtonName = Gui::BUTTON_SPELL_CREATURE_EXPLOSION;
+            researchWidgetButton = "AttackSkills/CreatureExplosionButton";
+            useWidgetButton = Gui::BUTTON_SPELL_CREATURE_EXPLOSION;
             break;
+        default:
+            OD_LOG_ERR("Unexpected enum value: " + Research::researchTypeToString(resType));
+            return false;
     }
+    return true;
+}
+
+void GameMode::refreshResearchButtonState(ResearchType resType)
+{
+    // Determine the widget name and button accordingly to the ResearchType given
+    std::string ceguiWidgetName;
+    std::string ceguiWidgetButtonName;
+    if(!researchButtonFromType(resType, ceguiWidgetName, ceguiWidgetButtonName))
+        return;
+
+    Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
+    bool isDone = localPlayerSeat->isResearchDone(resType);
+    bool isAllowed = true;
+    uint32_t queueNumber = 0;
+    if(!isDone)
+    {
+        const std::vector<ResearchType>& researchNotAllowed = localPlayerSeat->getResearchNotAllowed();
+        if(std::find(researchNotAllowed.begin(), researchNotAllowed.end(), resType) != researchNotAllowed.end())
+        {
+            // Research is not allowed
+            isAllowed = false;
+        }
+        else
+        {
+            // If we are currently changing the research window, we display the temporary
+            // modified pending list
+            if(mIsResearchWindowOpen)
+            {
+                uint32_t cpt = 1;
+                for (ResearchType pendingRes : mResearchPending)
+                {
+                    if (pendingRes == resType)
+                    {
+                        queueNumber = cpt;
+                        break;
+                    }
+                    ++cpt;
+                }
+            }
+            else
+            {
+                queueNumber = localPlayerSeat->isResearchPending(resType);
+            }
+        }
+    }
+
+    const std::string okIcon = "OpenDungeonsIcons/CheckIcon";
+    const std::string pendingIcon = "OpenDungeonsIcons/HourglassIcon";
+    const std::string abortIcon = "OpenDungeonsIcons/AbortIcon";
 
     // We show/hide the icons depending on available researches
     CEGUI::Window* guiSheet = mRootWindow;
-    CEGUI::Window* researchGui = guiSheet->getChild("ResearchTreeWindow");
+    CEGUI::Window* skillsWindow = guiSheet->getChild("ResearchTreeWindow/Skills");
 
-    CEGUI::Window* researchButton = researchGui->getChild(ceguiWidgetName);
-    uint32_t queueNumber = localPlayerSeat->isResearchPending(resType);
-    if(localPlayerSeat->isResearchDone(resType))
+    CEGUI::Window* researchButton = skillsWindow->getChild(ceguiWidgetName);
+    if(isDone)
     {
         guiSheet->getChild(ceguiWidgetButtonName)->show();
         researchButton->setText("");
@@ -1290,22 +1387,18 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
         researchButton->setProperty("StateImageColour", "FF00BB00");
         researchButton->setEnabled(false);
     }
-    else if (localPlayerSeat->hasResearchWaitingForType(resType))
+    else if(!isAllowed)
     {
+        guiSheet->getChild(ceguiWidgetButtonName)->show();
         researchButton->setText("");
-        researchButton->setProperty("StateImage", flagIcon);
+        researchButton->setProperty("StateImage", abortIcon);
         researchButton->setProperty("StateImageColour", "FFBB0000");
         researchButton->setEnabled(false);
     }
-    else if (localPlayerSeat->getCurrentResearchType() == resType)
-    {
-        researchButton->setText("");
-        researchButton->setProperty("StateImage", inProgressIcon);
-        researchButton->setProperty("StateImageColour", "FFBBBB00");
-        researchButton->setEnabled(true);
-    }
     else if (queueNumber > 0)
     {
+        // The skill is not available but research is pending
+        guiSheet->getChild(ceguiWidgetButtonName)->hide();
         researchButton->setText(Helper::toString(queueNumber));
         researchButton->setProperty("StateImage", pendingIcon);
         researchButton->setProperty("StateImageColour", "FFFFFFFF");
@@ -1313,11 +1406,13 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
     }
     else
     {
+        // The skill is not available and research is not pending
         guiSheet->getChild(ceguiWidgetButtonName)->hide();
         researchButton->setText("");
         researchButton->setProperty("StateImage", "");
         researchButton->setEnabled(true);
     }
+    // TODO: handle case research is disabled
 }
 
 void GameMode::refreshGuiResearch(bool forceRefresh)
@@ -1326,15 +1421,31 @@ void GameMode::refreshGuiResearch(bool forceRefresh)
     if(!forceRefresh && !localPlayerSeat->getGuiResearchNeedsRefresh())
         return;
 
+    if(mIsResearchWindowOpen && localPlayerSeat->getGuiResearchNeedsRefresh())
+    {
+        // We check if the temporary current pending list changed.
+        for(auto it = mResearchPending.begin(); it != mResearchPending.end();)
+        {
+            ResearchType resType = *it;
+            if(!localPlayerSeat->isResearchDone(resType))
+            {
+                ++it;
+                continue;
+            }
+
+            it = mResearchPending.erase(it);
+        }
+    }
+
     localPlayerSeat->guiResearchRefreshed();
 
     // We show/hide each icon depending on available researches
     for (uint16_t i = static_cast<uint16_t>(ResearchType::nullResearchType);
             i < static_cast<uint16_t>(ResearchType::countResearch); ++i)
     {
-        refreshResearchButtonState(static_cast<ResearchType>(i));
+        ResearchType resType = static_cast<ResearchType>(i);
+        refreshResearchButtonState(resType);
     }
-
 }
 
 void GameMode::connectSpellSelect(const std::string& buttonName, SpellType spellType)
@@ -1343,6 +1454,16 @@ void GameMode::connectSpellSelect(const std::string& buttonName, SpellType spell
         mRootWindow->getChild(buttonName)->subscribeEvent(
           CEGUI::PushButton::EventClicked,
           CEGUI::Event::Subscriber(SpellSelector{spellType, mPlayerSelection})
+        )
+    );
+}
+
+void GameMode::connectResearchSelect(const std::string& buttonName, ResearchType type)
+{
+    addEventConnection(
+        mRootWindow->getChild(buttonName)->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(ResearchSelector{type, *this})
         )
     );
 }
@@ -1460,4 +1581,105 @@ void GameMode::handlePlayerActionSelectTile()
     clientNotification->mPacket << mDigSetBool;
     ODClient::getSingleton().queueClientNotification(clientNotification);
     mPlayerSelection.setCurrentAction(SelectedAction::none);
+}
+
+void GameMode::resetResearchTree()
+{
+    mResearchPending = mGameMap->getLocalPlayer()->getSeat()->getResearchPending();
+    mIsResearchWindowOpen = true;
+}
+
+bool GameMode::researchButtonTreeClicked(ResearchType type)
+{
+    // If the research is already done or not allowed, nothing to do
+    const std::vector<ResearchType>& researchDone = mGameMap->getLocalPlayer()->getSeat()->getResearchDone();
+    if(std::find(researchDone.begin(), researchDone.end(), type) != researchDone.end())
+        return false;
+    const std::vector<ResearchType>& researchNotAllowed = mGameMap->getLocalPlayer()->getSeat()->getResearchNotAllowed();
+    if(std::find(researchNotAllowed.begin(), researchNotAllowed.end(), type) != researchNotAllowed.end())
+        return false;
+
+    const std::vector<const Research*>& researches = ConfigManager::getSingleton().getResearches();
+    auto it = std::find(mResearchPending.begin(), mResearchPending.end(), type);
+    if(it != mResearchPending.end())
+    {
+        // The research is pending. We remove it as well as all its dependencies
+        mResearchPending.erase(it);
+
+        for(it = mResearchPending.begin(); it != mResearchPending.end();)
+        {
+            ResearchType pendingType = *it;
+            const Research* researchCanceled = nullptr;
+            for(const Research* research : researches)
+            {
+                if(research->getType() != pendingType)
+                    continue;
+
+                if(research->dependsOn(type))
+                    researchCanceled = research;
+
+                break;
+            }
+
+            if(researchCanceled == nullptr)
+            {
+                ++it;
+                continue;
+            }
+            it = mResearchPending.erase(it);
+        }
+        return true;
+    }
+
+    std::vector<ResearchType> researchToAdd;
+
+    // The research is not pending. We need to check availability to all its dependencies and
+    // add them at the end of the list if all are available/done
+    for(const Research* research : researches)
+    {
+        if(research->getType() != type)
+            continue;
+
+        std::vector<ResearchType> dependencies;
+        research->buildDependencies(researchDone, dependencies);
+
+        // We check if one of the dependencies is not available. If not, we cannot research
+        for(ResearchType researchType : dependencies)
+        {
+            if(std::find(researchNotAllowed.begin(), researchNotAllowed.end(), researchType) != researchNotAllowed.end())
+                return false;
+
+            if(std::find(mResearchPending.begin(), mResearchPending.end(), researchType) != mResearchPending.end())
+                continue;
+
+            researchToAdd.push_back(researchType);
+        }
+
+        break;
+    }
+
+    for(ResearchType researchType : researchToAdd)
+        mResearchPending.push_back(researchType);
+
+    return true;
+}
+
+void GameMode::endResearchTree(bool apply)
+{
+    if(apply)
+    {
+        uint32_t nbItems = static_cast<uint32_t>(mResearchPending.size());
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotificationType::askSetResearchTree);
+        clientNotification->mPacket << nbItems;
+        for(const ResearchType& type : mResearchPending)
+        {
+            clientNotification->mPacket << type;
+        }
+        ODClient::getSingleton().queueClientNotification(clientNotification);
+    }
+
+    mResearchPending.clear();
+    mIsResearchWindowOpen = false;
+    refreshGuiResearch(true);
 }

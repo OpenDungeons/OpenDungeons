@@ -1,4 +1,4 @@
-/*!
+/*
  *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -15,37 +15,29 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GAMEENTITYTYPE_H
-#define GAMEENTITYTYPE_H
+#ifndef GIFTBOXRESEARCH_H
+#define GIFTBOXRESEARCH_H
 
+#include "entities/GiftBoxEntity.h"
+
+#include <string>
 #include <iosfwd>
 
-class ODPacket;
+enum class ResearchType;
 
-enum class GameEntityType
+class GiftBoxResearch: public GiftBoxEntity
 {
-    unknown,
-    creature,
-    room,
-    trap,
-    tile,
-    mapLight,
-    spell,
-    buildingObject,
-    treasuryObject,
-    chickenEntity,
-    smallSpiderEntity,
-    craftedTrap,
-    missileObject,
-    persistentObject,
-    trapEntity,
-    researchEntity,
-    giftBoxEntity
+public:
+    GiftBoxResearch(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, ResearchType researchType);
+    GiftBoxResearch(GameMap* gameMap, bool isOnServerMap);
+
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+
+    virtual void applyEffect();
+
+private:
+    ResearchType mResearchType;
 };
 
-ODPacket& operator<<(ODPacket& os, const GameEntityType& type);
-ODPacket& operator>>(ODPacket& is, GameEntityType& type);
-std::ostream& operator<<(std::ostream& os, const GameEntityType& type);
-std::istream& operator>>(std::istream& is, GameEntityType& type);
-
-#endif
+#endif // GIFTBOXRESEARCH_H

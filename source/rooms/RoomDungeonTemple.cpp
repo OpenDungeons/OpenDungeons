@@ -20,6 +20,7 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "entities/Creature.h"
+#include "entities/GiftBoxEntity.h"
 #include "entities/PersistentObject.h"
 #include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
@@ -93,48 +94,66 @@ void RoomDungeonTemple::destroyMeshLocal()
 
 bool RoomDungeonTemple::hasCarryEntitySpot(GameEntity* carriedEntity)
 {
-    if(carriedEntity->getObjectType() != GameEntityType::researchEntity)
-        return false;
-
-    // We accept any researchEntity
-    return true;
+    switch(carriedEntity->getObjectType())
+    {
+        case GameEntityType::giftBoxEntity:
+        case GameEntityType::researchEntity:
+            return true;
+        default:
+            return false;
+    }
 }
 
 Tile* RoomDungeonTemple::askSpotForCarriedEntity(GameEntity* carriedEntity)
 {
-    if(carriedEntity->getObjectType() != GameEntityType::researchEntity)
+    switch(carriedEntity->getObjectType())
     {
-        OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
-        return nullptr;
+        case GameEntityType::giftBoxEntity:
+        case GameEntityType::researchEntity:
+            return getCentralTile();
+        default:
+            OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
+            return nullptr;
     }
-
-    // We accept any researchEntity
-    return getCentralTile();
 }
 
 void RoomDungeonTemple::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
 {
-    if(carriedEntity->getObjectType() != GameEntityType::researchEntity)
-    {
-        OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
-        return;
-    }
-
     // We check if the carrier is at the expected destination. If not on the wanted tile,
-    // we don't accept the researchEntity
-    // Note that if the wanted tile were to move during the transport, the researchEntity
+    // we don't accept the entity
+    // Note that if the wanted tile were to move during the transport, the carried entity
     // will be dropped at its original destination and will become available again so there
     // should be no problem
     Tile* carrierTile = carrier->getPositionTile();
     if(carrierTile != getCentralTile())
         return;
 
-    // We notify the player that the research is now available and we delete the researchEntity
-    ResearchEntity* researchEntity = static_cast<ResearchEntity*>(carriedEntity);
-    getSeat()->addResearch(researchEntity->getResearchType());
-    researchEntity->removeEntityFromPositionTile();
-    researchEntity->removeFromGameMap();
-    researchEntity->deleteYourself();
+    switch(carriedEntity->getObjectType())
+    {
+        case GameEntityType::giftBoxEntity:
+        {
+            // We apply the gift box effect
+            GiftBoxEntity* giftBox = static_cast<GiftBoxEntity*>(carriedEntity);
+            giftBox->applyEffect();
+            giftBox->removeEntityFromPositionTile();
+            giftBox->removeFromGameMap();
+            giftBox->deleteYourself();
+            return;
+        }
+        case GameEntityType::researchEntity:
+        {
+            // We notify the player that the research is now available and we delete the researchEntity
+            ResearchEntity* researchEntity = static_cast<ResearchEntity*>(carriedEntity);
+            getSeat()->addResearchPoints(researchEntity->getResearchPoints());
+            researchEntity->removeEntityFromPositionTile();
+            researchEntity->removeFromGameMap();
+            researchEntity->deleteYourself();
+            return;
+        }
+        default:
+            OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
+            return;
+    }
 }
 
 void RoomDungeonTemple::restoreInitialEntityState()

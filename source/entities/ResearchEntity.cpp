@@ -40,9 +40,9 @@ const std::string EMPTY_STRING;
 
 const Ogre::Vector3 SCALE(0.5,0.5,0.5);
 
-ResearchEntity::ResearchEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, ResearchType researchType) :
+ResearchEntity::ResearchEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, int32_t researchPoints) :
     RenderedMovableEntity(gameMap, isOnServerMap, libraryName, "Grimoire", 0.0f, false, 1.0f),
-    mResearchType(researchType)
+    mResearchPoints(researchPoints)
 {
     mPrevAnimationState = "Loop";
     mPrevAnimationStateLoop = true;
@@ -85,14 +85,14 @@ ResearchEntity* ResearchEntity::getResearchEntityFromPacket(GameMap* gameMap, OD
 void ResearchEntity::exportToStream(std::ostream& os) const
 {
     RenderedMovableEntity::exportToStream(os);
-    os << mResearchType << "\t";
+    os << mResearchPoints << "\t";
     os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
 }
 
 void ResearchEntity::importFromStream(std::istream& is)
 {
     RenderedMovableEntity::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mResearchType);
+    OD_ASSERT_TRUE(is >> mResearchPoints);
     OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
 }
 
@@ -102,7 +102,7 @@ std::string ResearchEntity::getResearchEntityStreamFormat()
     if(!format.empty())
         format += "\t";
 
-    format += "researchType\tPosX\tPosY\tPosZ";
+    format += "researchPoints\tPosX\tPosY\tPosZ";
 
     return format;
 }

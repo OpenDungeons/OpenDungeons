@@ -27,7 +27,6 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/CreatureSound.h"
 #include "entities/MissileOneHit.h"
-#include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
 #include "entities/Weapon.h"
@@ -38,6 +37,8 @@
 
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
+
+#include "giftboxes/GiftBoxResearch.h"
 
 #include "network/ODClient.h"
 #include "network/ODServer.h"
@@ -769,7 +770,7 @@ void Creature::doUpkeep()
 
             if(mResearchTypeDropDeath != ResearchType::nullResearchType)
             {
-                ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), getIsOnServerMap(),
+                GiftBoxResearch* researchEntity = new GiftBoxResearch(getGameMap(), getIsOnServerMap(),
                     "DroppedBy" + getName(), mResearchTypeDropDeath);
                 researchEntity->addToGameMap();
                 Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),

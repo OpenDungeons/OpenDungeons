@@ -5202,6 +5202,7 @@ ProtectDungeonTemple	NULL
 38	61
 38	62
 38	63
+0
 [/Room]
 [Room]
 4	Portal5	5	9
@@ -5286,8 +5287,12 @@ ProtectDungeonTemple	NULL
 [/CraftedTraps]
 
 [ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchPoints	PosX	PosY	PosZ
 [/ResearchEntity]
+
+[GiftBoxEntity]
+# GiftBoxType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
+[/GiftBoxEntity]
 
 [Missiles]
 # missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData

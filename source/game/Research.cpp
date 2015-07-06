@@ -44,6 +44,33 @@ bool Research::canBeResearched(const std::vector<ResearchType>& researchesDone) 
     return false;
 }
 
+void Research::buildDependencies(const std::vector<ResearchType>& researchesDone, std::vector<ResearchType>& dependencies) const
+{
+    for(const Research* research : mResearchDepends)
+    {
+        if(std::find(researchesDone.begin(), researchesDone.end(), research->getType()) != researchesDone.end())
+            continue;
+
+        research->buildDependencies(researchesDone, dependencies);
+    }
+
+    dependencies.push_back(getType());
+}
+
+bool Research::dependsOn(ResearchType type) const
+{
+    for(const Research* research : mResearchDepends)
+    {
+        if(research->getType() == type)
+            return true;
+
+        if(research->dependsOn(type))
+            return true;
+    }
+
+    return false;
+}
+
 std::string Research::researchTypeToString(ResearchType type)
 {
     switch(type)

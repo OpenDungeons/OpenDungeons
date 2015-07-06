@@ -916,6 +916,7 @@ Spider12	16	13	0
 17	9
 17	10
 17	11
+0
 [/Room]
 [Room]
 4	Portal1	1	9
@@ -1086,8 +1087,12 @@ Spider12	16	13	0
 [/CraftedTraps]
 
 [ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchPoints	PosX	PosY	PosZ
 [/ResearchEntity]
+
+[GiftBoxEntity]
+# GiftBoxType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
+[/GiftBoxEntity]
 
 [Missiles]
 # missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData

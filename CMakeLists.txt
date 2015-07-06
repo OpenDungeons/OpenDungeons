@@ -270,6 +270,7 @@ set(OD_SOURCEFILES
     ${SRC}/entities/EntityLoading.cpp
     ${SRC}/entities/GameEntity.cpp
     ${SRC}/entities/GameEntityType.cpp
+    ${SRC}/entities/GiftBoxEntity.cpp
     ${SRC}/entities/MapLight.cpp
     ${SRC}/entities/MissileBoulder.cpp
     ${SRC}/entities/MissileObject.cpp
@@ -298,6 +299,8 @@ set(OD_SOURCEFILES
     ${SRC}/gamemap/MiniMapCamera.cpp
     ${SRC}/gamemap/TileContainer.cpp
     ${SRC}/gamemap/TileSet.cpp
+
+    ${SRC}/giftboxes/GiftBoxResearch.cpp
 
     ${SRC}/goals/Goal.cpp
     ${SRC}/goals/GoalClaimNTiles.cpp

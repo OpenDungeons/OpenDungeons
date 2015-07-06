@@ -38,7 +38,8 @@ const Ogre::Real OFFSET_CREATURE = 0.3;
 const Ogre::Real OFFSET_SPOT = 0.3;
 
 RoomLibrary::RoomLibrary(GameMap* gameMap) :
-    Room(gameMap)
+    Room(gameMap),
+    mResearchPoints(0)
 {
     setMeshName("Library");
 }
@@ -225,6 +226,7 @@ void RoomLibrary::doUpkeep()
         return;
     }
 
+    int32_t researchEntityPoints = ConfigManager::getSingleton().getRoomConfigInt32("LibraryResearchPointsBook");
     for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
     {
         Creature* creature = p.first;
@@ -274,11 +276,12 @@ void RoomLibrary::doUpkeep()
                 creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMin"),
                     ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMax")));
 
-                // We check if we have enough points for the current research
-                const Research* researchDone = getSeat()->addResearchPoints(pointsEarned);
-                if(researchDone == nullptr)
+                // We check if we have enough points to create a research entity
+                mResearchPoints += pointsEarned;
+                if(mResearchPoints < researchEntityPoints)
                     continue;
 
+                mResearchPoints -= researchEntityPoints;
                 // We check if there is an empty tile to release the researchEntity
                 Tile* spawnTile = checkIfAvailableSpot();
                 if(spawnTile == nullptr)
@@ -287,15 +290,12 @@ void RoomLibrary::doUpkeep()
                     return;
                 }
 
-                ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), true, getName(), researchDone->getType());
+                ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), true, getName(), researchEntityPoints);
                 researchEntity->setSeat(getSeat());
                 researchEntity->addToGameMap();
                 Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(spawnTile->getX()), static_cast<Ogre::Real>(spawnTile->getY()), static_cast<Ogre::Real>(0.0));
                 researchEntity->createMesh();
                 researchEntity->setPosition(spawnPosition);
-
-                // Tell the seat a research entity is waiting to be brought to the temple.
-                getSeat()->addResearchWaiting(researchDone->getType());
             }
         }
     }
@@ -420,6 +420,18 @@ bool RoomLibrary::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 {
     RoomLibrary* room = new RoomLibrary(gameMap);
     return buildRoomDefaultEditor(gameMap, room, packet);
+}
+
+void RoomLibrary::exportToStream(std::ostream& os) const
+{
+    Room::exportToStream(os);
+    os << mResearchPoints << "\n";
+}
+
+void RoomLibrary::importFromStream(std::istream& is)
+{
+    Room::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mResearchPoints);
 }
 
 Room* RoomLibrary::getRoomFromStream(GameMap* gameMap, std::istream& is)

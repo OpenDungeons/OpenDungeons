@@ -170,27 +170,27 @@ public:
 
     void fireEvents();
 
-    //! Called on client side to update the current list of events. Note that
+    //! \brief Called on client side to update the current list of events. Note that
     //! the time remaining of PlayerEvent class is not relevant on client side
     void updateEvents(const std::vector<PlayerEvent*>& events);
 
-    //! get the next event. After index. If index > events size, the first one is
+    //! \brief get the next event. After index. If index > events size, the first one is
     //! sent. When the function returns, index is set to the index of the returned event
     //! and it returns the PlayerEvent if any (nullptr is none).
     //! Note that on client side, PlayerEvent::mTimeRemain is not relevant
     const PlayerEvent* getNextEvent(uint32_t& index) const;
 
-    //! Marks the tiles for digging and send the refresh event to concerned player if human
+    //! \brief Marks the tiles for digging and send the refresh event to concerned player if human
     void markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, bool asyncMsg);
 
     uint32_t getSpellCooldownTurns(SpellType spellType);
 
     void setSpellCooldownTurns(SpellType spellType, uint32_t cooldown);
 
-    //! Called each turn, it should handle Player upkeep on server side
+    //! \brief Called each turn, it should handle Player upkeep on server side
     void upkeepPlayer(double timeSinceLastUpkeep);
 
-    //! Decreases cooldown for all spells. Used on both server and client sides
+    //! \brief Decreases cooldown for all spells. Used on both server and client sides
     void decreaseSpellCooldowns();
 
 private:
