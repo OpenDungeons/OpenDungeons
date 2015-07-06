@@ -113,9 +113,7 @@ textures/
 -> Chicken.png
 -> Chimney*.png                        Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Claimed*.png
--> ClaimedWall.png                     Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> ClaimedWallNormal.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> ClaimedWallMask.png                 Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> ClaimedWall*.png                    Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> CreatureOverlay*.png                hwoarangmy              CC-BY-SA 3.0
 -> Crypt*.png                          Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 -> Defender*.png                       Anthony Myers           CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=61450#p61450
@@ -124,8 +122,6 @@ textures/
 -> Dormitory*.png
 -> DragonBed.png                       Dm3d                    GPL 2.0/GPL 3.0/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
 -> DungeonClaimedWall*.png             Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> DungeonClaimedWallNormal*.png       Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> DungeonClaimedWallNormalMask*.png   Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Dragon{,Normal}.png
 -> DungeonTemple*.png
 -> Dwarf*.png
@@ -160,6 +156,7 @@ textures/
 -> LizardmanBed*.png                   Nobiax, public domain   CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 -> Lizardman{,Normal}.png
 -> Longsword.png
+-> MysteryBox*.png                     Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> OrcBed*.png                         Bart, p0ss              CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60191#p60191
 -> Orc{,Normal}.png
 -> PitDemon*.png
@@ -193,12 +190,10 @@ textures/
 -> White.png                           Public domain, too simple to be licensed
 -> Wizard.png
 -> WoodBridge*.png
+-> WoodenDoor.png                      Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Workshop{,Normal}.png               Nobiax                  CC0                     http://opengameart.org/users/yughues
 -> WorkshopMachine1*.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> WorkshopMachine2*.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> MysteryBox.png                      Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> MysteryBoxNormal.png                Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> WoodenDoor.png                      Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Wyvern*.png
 
 ======================
