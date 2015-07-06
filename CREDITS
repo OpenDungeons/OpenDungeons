@@ -184,6 +184,7 @@ textures/
 -> Treasury*.png
 -> Troll{,Normal,Rock}.png
 -> TrollBed*.png                       Eugeneloza, Anagoria, Chris Chittleborough   CC-BY-SA 3.0 - http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
+-> WarBanner*.png                      Danimal, Yughes, Atmostatic, game-icons.net   CC-BY 3.0 - https://github.com/OpenDungeons/OpenDungeons/pull/838#issuecomment-118964220
 -> Water.png
 -> WeaponShield1*.png                  YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
 -> WeaponShield2*.png                  YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
@@ -256,6 +257,7 @@ Library.mesh                           Danimal                 CC-BY-SA 3.0     
 Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 LizardmanBed.mesh                      Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 Longsword.mesh                         Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+MysteryBox.mesh                        Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 Orc.*                                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
 OrcBed.mesh                            Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60191#p60191
 PitDemon.*                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
@@ -287,16 +289,16 @@ Treasury.mesh                          Skorpio                 CC-BY-SA 3.0, GPL
 Troll.*                                Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
 TrollBed.mesh                          Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
 TrollRock.mesh                         Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
+WarBanner.*                            Danimal, Atmostatic     CC-BY 3.0               https://github.com/OpenDungeons/OpenDungeons/pull/838#issuecomment-118964220
 Water*                                 Skorpio                 CC-BY-SA 3.0, GPL 3.0
 WeaponShield1.mesh                     YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
 WeaponShield2.mesh                     YD, Rshackleford, Danimal CC-BY 3.0             http://opengameart.org/users/rshackleford
 Wizard.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
 WoodBridge.mesh                        Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
+WoodenDoor.mesh                        Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
 Workshop.mesh                          Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WorkshopMachine1.mesh                  Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WorkshopMachine2.*                     Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
-MysteryBox.mesh                        Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
-WoodenDoor.mesh                        Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
 Wyvern.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 
 
