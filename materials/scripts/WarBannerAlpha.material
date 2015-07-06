@@ -1,0 +1,29 @@
+// WarBannerAlpha genrated by blender2ogre 0.6.0
+
+
+material WarBannerAlpha 
+{
+    receive_shadows on 
+    technique
+    {
+        pass
+        {
+            ambient 0.8 0.8 0.8 1.0
+            diffuse 0.8 0.8 0.8 1.0
+            specular 0.0 0.0 0.0 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+
+            scene_blend alpha_blend
+            depth_write off
+            cull_hardware none
+            cull_software none
+            texture_unit
+            {
+                texture WarBanner.png
+                tex_address_mode wrap
+                filtering trilinear
+                colour_op alpha_blend
+            }
+        }
+    }
+}
