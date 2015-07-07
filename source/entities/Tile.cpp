@@ -356,15 +356,6 @@ int Tile::nextTileFullness(int f)
     switch (f)
     {
         case 0:
-            return 25;
-
-        case 25:
-            return 50;
-
-        case 50:
-            return 75;
-
-        case 75:
             return 100;
 
         case 100:
