@@ -109,6 +109,9 @@ public:
     inline double getClaimingWallPenalty() const
     { return mClaimingWallPenalty; }
 
+    inline const std::string& getMainMenuMusic() const
+    { return mMainMenuMusic; }
+
     const std::vector<const SpawnCondition*>& getCreatureSpawnConditions(const CreatureDefinition* def) const;
 
     //! \brief Get the fighter creature definition spawnable in portals according to the given faction.
@@ -226,6 +229,7 @@ private:
     double mMaxManaPerSeat;
     double mClaimingWallPenalty;
     std::string mDefaultWorkerRogue;
+    std::string mMainMenuMusic;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
     std::map<const std::string, std::vector<const CreatureMood*> > mCreatureMoodModifiers;
     std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;

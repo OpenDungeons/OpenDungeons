@@ -25,6 +25,7 @@
 #include "render/ODFrameListener.h"
 #include "render/TextRenderer.h"
 #include "sound/MusicPlayer.h"
+#include "utils/ConfigManager.h"
 
 #include <CEGUI/widgets/PushButton.h>
 
@@ -81,8 +82,7 @@ void MenuModeMain::activate()
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
     // Play the main menu music
-    // TODO: Make this configurable.
-    MusicPlayer::getSingleton().play("OpenDungeonsMainTheme_pZi.ogg");
+    MusicPlayer::getSingleton().play(ConfigManager::getSingleton().getMainMenuMusic());
 
     GameMap* gameMap = ODFrameListener::getSingletonPtr()->getClientGameMap();
     gameMap->clearAll();

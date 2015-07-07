@@ -85,7 +85,7 @@ namespace Helper
     }
 
     //! \brief Split a line based on a delimiter.
-    std::vector<std::string> split(const std::string& line, char delimiter);
+    std::vector<std::string> split(const std::string& line, char delimiter, bool removeEmpty = false);
 
     int toInt(const std::string& text);
     uint32_t toUInt32(const std::string& text);

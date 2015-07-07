@@ -94,8 +94,7 @@ void MenuModeConfigureSeats::activate()
     giveFocus();
 
     // Play the main menu music
-    // TODO: Make this configurable.
-    MusicPlayer::getSingleton().play("OpenDungeonsMainTheme_pZi.ogg");
+    MusicPlayer::getSingleton().play(ConfigManager::getSingleton().getMainMenuMusic());
 
     // We use the client game map to allow everybody to see how the server is configuring seats
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();

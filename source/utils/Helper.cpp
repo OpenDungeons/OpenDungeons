@@ -29,7 +29,7 @@
 
 namespace Helper
 {
-    std::vector<std::string> split(const std::string& line, char delimiter)
+    std::vector<std::string> split(const std::string& line, char delimiter, bool removeEmpty)
     {
         //std::cout << line << std::endl;
         std::stringstream ss(line);
@@ -37,6 +37,9 @@ namespace Helper
         std::string item;
         while (std::getline(ss, item, delimiter))
         {
+            if(removeEmpty && item.empty())
+                continue;
+
             elems.push_back(item);
             //std::cout << item << std::endl;
         }
