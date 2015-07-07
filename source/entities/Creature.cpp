@@ -4137,11 +4137,11 @@ bool Creature::canSlap(Seat* seat)
     if(mDropCooldown > 0)
         return false;
 
-    if(getHP() <= 0.0)
-        return false;
-
     if(getGameMap()->isInEditorMode())
         return true;
+
+    if(getHP() <= 0.0)
+        return false;
 
     // Only the owning player can slap a creature
     if(getSeat() != seat)
