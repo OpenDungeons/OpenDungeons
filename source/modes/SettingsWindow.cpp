@@ -150,14 +150,12 @@ void SettingsWindow::initConfig()
     // Game
     CEGUI::Editbox* nicknameEb = static_cast<CEGUI::Editbox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Game/NicknameEdit"));
-    std::string nickname = config.hasGameValue(Config::NICKNAME) ?
-        config.getGameValue(Config::NICKNAME) : std::string();
+    std::string nickname = config.getGameValue(Config::NICKNAME, std::string(), false);
     if (!nickname.empty())
         nicknameEb->setText(reinterpret_cast<const CEGUI::utf8*>(nickname.c_str()));
 
     // Audio
-    std::string volumeStr = config.hasAudioValue(Config::MUSIC_VOLUME) ?
-        config.getAudioValue(Config::MUSIC_VOLUME) : std::string();
+    std::string volumeStr = config.getAudioValue(Config::MUSIC_VOLUME, std::string(), false);
     float volume = volumeStr.empty() ? sf::Listener::getGlobalVolume() : Helper::toFloat(volumeStr);
     setMusicVolumeValue(volume);
 
@@ -510,5 +508,5 @@ void SettingsWindow::setMusicVolumeValue(float volume)
 
     // Set the music volume text
     CEGUI::Window* volumeText = mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicText");
-    volumeText->setText("Music: " + Helper::toString(volume) + "%");
+    volumeText->setText("Music: " + Helper::toString(static_cast<int32_t>(volume)) + "%");
 }

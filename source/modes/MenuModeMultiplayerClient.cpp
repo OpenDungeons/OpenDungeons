@@ -80,8 +80,7 @@ void MenuModeMultiplayerClient::activate()
 
     CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(mainWin->getChild(Gui::MPM_EDIT_NICK));
     ConfigManager& config = ConfigManager::getSingleton();
-    std::string nickname = config.hasGameValue(Config::NICKNAME) ?
-        config.getGameValue(Config::NICKNAME) : std::string();
+    std::string nickname = config.getGameValue(Config::NICKNAME, std::string(), false);
     if (!nickname.empty())
         editNick->setText(reinterpret_cast<const CEGUI::utf8*>(nickname.c_str()));
 }
