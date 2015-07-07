@@ -38,37 +38,12 @@
 MovableGameEntity::MovableGameEntity(GameMap* gameMap, bool isOnServerMap) :
     GameEntity(gameMap, isOnServerMap),
     mAnimationState(nullptr),
-    mMoveSpeed(1.0),
-    mAnimationSpeedFactor(1.0),
     mDestinationAnimationState(EntityAnimation::idle_anim),
     mDestinationAnimationLoop(false),
     mDestinationAnimationDirection(Ogre::Vector3::ZERO),
     mWalkDirection(Ogre::Vector3::ZERO),
     mAnimationTime(0.0)
 {
-}
-
-void MovableGameEntity::setMoveSpeed(double moveSpeed, double animationSpeed)
-{
-    mMoveSpeed = moveSpeed;
-    mAnimationSpeedFactor = animationSpeed;
-
-    if (!getIsOnServerMap())
-        return;
-
-    for(Seat* seat : mSeatsWithVisionNotified)
-    {
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-
-        const std::string& name = getName();
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::setMoveSpeed, seat->getPlayer());
-        serverNotification->mPacket << name << moveSpeed << animationSpeed;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
 }
 
 bool MovableGameEntity::isMoving()
@@ -362,11 +337,9 @@ std::string MovableGameEntity::getMovableGameEntityStreamFormat()
 void MovableGameEntity::exportToPacket(ODPacket& os) const
 {
     GameEntity::exportToPacket(os);
-    os << mMoveSpeed;
     os << mPrevAnimationState;
     os << mPrevAnimationStateLoop;
     os << mWalkDirection;
-    os << mAnimationSpeedFactor;
     os << mAnimationTime;
 
     int32_t nbDestinations = mWalkQueue.size();
@@ -380,11 +353,9 @@ void MovableGameEntity::exportToPacket(ODPacket& os) const
 void MovableGameEntity::importFromPacket(ODPacket& is)
 {
     GameEntity::importFromPacket(is);
-    OD_ASSERT_TRUE(is >> mMoveSpeed);
     OD_ASSERT_TRUE(is >> mPrevAnimationState);
     OD_ASSERT_TRUE(is >> mPrevAnimationStateLoop);
     OD_ASSERT_TRUE(is >> mWalkDirection);
-    OD_ASSERT_TRUE(is >> mAnimationSpeedFactor);
     OD_ASSERT_TRUE(is >> mAnimationTime);
 
     int32_t nbDestinations;

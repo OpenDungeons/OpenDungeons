@@ -341,6 +341,9 @@ public:
     void pickup();
     bool tryDrop(Seat* seat, Tile* tile);
 
+    //! \brief sets the speed modifier. If 1.0, resets to default speed
+    void setMoveSpeedModifier(double modifier);
+
     inline void jobDone(double val)
     {
         mAwakeness -= val;

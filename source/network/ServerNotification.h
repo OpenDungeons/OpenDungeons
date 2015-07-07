@@ -52,7 +52,6 @@ enum class ServerNotificationType
 
     animatedObjectSetWalkPath,
     setObjectAnimationState,
-    setMoveSpeed,
     entityPickedUp,
     entityDropped,
     entitySlapped,

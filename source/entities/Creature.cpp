@@ -2542,11 +2542,10 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
         }
 
         MissileOneHit* missile = new MissileOneHit(getGameMap(), getIsOnServerMap(), getSeat(), getName(), "Cannonball",
-            "MissileMagic", missileDirection, physicalDamage, magicalDamage, tileBuilding, false);
+            "MissileMagic", missileDirection, 3.0, physicalDamage, magicalDamage, tileBuilding, false);
         missile->addToGameMap();
         missile->createMesh();
         missile->setPosition(position);
-        missile->setMoveSpeed(3.0, 1.0);
         // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
         // we can safely call the missile doUpkeep as we know the engine will not call it the turn
         // it has been added
@@ -4602,4 +4601,13 @@ void Creature::clientUpkeep()
     MovableGameEntity::clientUpkeep();
     if(mDropCooldown > 0)
         --mDropCooldown;
+}
+
+void Creature::setMoveSpeedModifier(double modifier)
+{
+    double multiplier = mLevel * modifier;
+    mGroundSpeed = mDefinition->getGroundSpeedPerLevel() * multiplier;
+    mWaterSpeed = mDefinition->getWaterSpeedPerLevel() * multiplier;
+    mLavaSpeed = mDefinition->getLavaSpeedPerLevel() * multiplier;
+    mNeedFireRefresh = true;
 }

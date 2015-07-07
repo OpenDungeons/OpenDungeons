@@ -25,8 +25,8 @@
 #include <iostream>
 
 MissileBoulder::MissileBoulder(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double damage, Tile* tileBuildingTarget) :
-    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, tileBuildingTarget, true),
+        const Ogre::Vector3& direction, double speed, double damage, Tile* tileBuildingTarget) :
+    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, tileBuildingTarget, true),
     mDamage(damage),
     mNbHits(0)
 {

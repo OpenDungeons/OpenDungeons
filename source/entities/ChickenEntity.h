@@ -37,6 +37,9 @@ public:
 
     virtual void doUpkeep() override;
 
+    virtual double getMoveSpeed() const override
+    { return 0.4; }
+
     virtual GameEntityType getObjectType() const override
     { return GameEntityType::chickenEntity; }
 

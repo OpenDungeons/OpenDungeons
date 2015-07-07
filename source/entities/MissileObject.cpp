@@ -30,12 +30,13 @@
 #include <iostream>
 
 MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, Tile* tileBuildingTarget, bool damageAllies) :
+        const Ogre::Vector3& direction, double speed, Tile* tileBuildingTarget, bool damageAllies) :
     RenderedMovableEntity(gameMap, isOnServerMap, senderName, meshName, 0.0f, false),
     mDirection(direction),
     mIsMissileAlive(true),
     mTileBuildingTarget(tileBuildingTarget),
-    mDamageAllies(damageAllies)
+    mDamageAllies(damageAllies),
+    mSpeed(speed)
 {
     setSeat(seat);
 }
@@ -45,7 +46,8 @@ MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap) :
     mDirection(Ogre::Vector3::ZERO),
     mIsMissileAlive(true),
     mTileBuildingTarget(nullptr),
-    mDamageAllies(false)
+    mDamageAllies(false),
+    mSpeed(1.0)
 {
 }
 
@@ -217,12 +219,25 @@ void MissileObject::exportHeadersToPacket(ODPacket& os) const
     os << getMissileType();
 }
 
+void MissileObject::exportToPacket(ODPacket& os) const
+{
+    RenderedMovableEntity::exportToPacket(os);
+    os << mSpeed;
+}
+
+void MissileObject::importFromPacket(ODPacket& is)
+{
+    RenderedMovableEntity::importFromPacket(is);
+    OD_ASSERT_TRUE(is >> mSpeed);
+}
+
 void MissileObject::exportToStream(std::ostream& os) const
 {
     RenderedMovableEntity::exportToStream(os);
     os << mDirection.x << "\t" << mDirection.y << "\t" << mDirection.z << "\t";
     os << mIsMissileAlive << "\t";
     os << mDamageAllies << "\t";
+    os << mSpeed << "\t";
 }
 
 void MissileObject::importFromStream(std::istream& is)
@@ -231,6 +246,7 @@ void MissileObject::importFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> mDirection.x >> mDirection.y >> mDirection.z);
     OD_ASSERT_TRUE(is >> mIsMissileAlive);
     OD_ASSERT_TRUE(is >> mDamageAllies);
+    OD_ASSERT_TRUE(is >> mSpeed);
 }
 
 std::string MissileObject::getMissileObjectStreamFormat()
@@ -239,7 +255,7 @@ std::string MissileObject::getMissileObjectStreamFormat()
     if(!format.empty())
         format += "\t";
 
-    format += "directionX\tdirectionY\tdirectionZ\tmissileAlive\tdamageAllies\toptionalData";
+    format += "directionX\tdirectionY\tdirectionZ\tmissileAlive\tdamageAllies\tspeed\toptionalData";
 
     return "missileType\t" + format;
 }

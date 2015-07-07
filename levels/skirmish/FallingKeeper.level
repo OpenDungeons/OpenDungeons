@@ -36,7 +36,6 @@ trapDoorWooden
 trapSpike
 roomWorkshop
 roomCrypt
-trapDoorWooden
 trapBoulder
 spellCreatureHeal
 spellCreatureExplosion
@@ -2242,7 +2241,7 @@ BigKnight	12
 [/GiftBoxEntity]
 
 [Missiles]
-# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	speed	optionalData
 [/Missiles]
 
 [TreasuryObject]

@@ -26,9 +26,9 @@
 #include <iostream>
 
 MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const std::string& particleScript, const Ogre::Vector3& direction, double physicalDamage, double magicalDamage,
+        const std::string& particleScript, const Ogre::Vector3& direction, double speed, double physicalDamage, double magicalDamage,
         Tile* tileBuildingTarget, bool damageAllies) :
-    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, tileBuildingTarget, damageAllies),
+    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, tileBuildingTarget, damageAllies),
     mPhysicalDamage(physicalDamage),
     mMagicalDamage(magicalDamage)
 {
