@@ -399,9 +399,15 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         // Stop creating rooms, traps, etc.
         unselectAllTiles();
-        mPlayerSelection.setCurrentAction(SelectedAction::none);
         mCurrentTileVisual = TileVisual::nullTileVisual;
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
+        // If we have a currently selected action, we cancel it and don't try to slap or
+        // drop what we have in hand
+        if(mPlayerSelection.getCurrentAction() != SelectedAction::none)
+        {
+            mPlayerSelection.setCurrentAction(SelectedAction::none);
+            return true;
+        }
 
         // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
         Tile* curTile = mGameMap->getTile(inputManager.mXPos, inputManager.mYPos);
