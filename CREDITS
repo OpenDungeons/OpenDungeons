@@ -113,9 +113,7 @@ textures/
 -> Chicken.png
 -> Chimney*.png                        Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Claimed*.png
--> ClaimedWall.png                     Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> ClaimedWallNormal.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> ClaimedWallMask.png                 Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> ClaimedWall*.png                    Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> CreatureOverlay*.png                hwoarangmy              CC-BY-SA 3.0
 -> Crypt*.png                          Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 -> Defender*.png                       Anthony Myers           CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=61450#p61450
@@ -124,8 +122,6 @@ textures/
 -> Dormitory*.png
 -> DragonBed.png                       Dm3d                    GPL 2.0/GPL 3.0/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
 -> DungeonClaimedWall*.png             Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> DungeonClaimedWallNormal*.png       Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> DungeonClaimedWallNormalMask*.png   Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Dragon{,Normal}.png
 -> DungeonTemple*.png
 -> Dwarf*.png
@@ -160,6 +156,7 @@ textures/
 -> LizardmanBed*.png                   Nobiax, public domain   CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 -> Lizardman{,Normal}.png
 -> Longsword.png
+-> MysteryBox*.png                     Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> OrcBed*.png                         Bart, p0ss              CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60191#p60191
 -> Orc{,Normal}.png
 -> PitDemon*.png
@@ -187,18 +184,17 @@ textures/
 -> Treasury*.png
 -> Troll{,Normal,Rock}.png
 -> TrollBed*.png                       Eugeneloza, Anagoria, Chris Chittleborough   CC-BY-SA 3.0 - http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
+-> WarBanner*.png                      Danimal, Yughes, Atmostatic, game-icons.net   CC-BY 3.0 - https://github.com/OpenDungeons/OpenDungeons/pull/838#issuecomment-118964220
 -> Water.png
 -> WeaponShield1*.png                  YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
 -> WeaponShield2*.png                  YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
 -> White.png                           Public domain, too simple to be licensed
 -> Wizard.png
 -> WoodBridge*.png
+-> WoodenDoor.png                      Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Workshop{,Normal}.png               Nobiax                  CC0                     http://opengameart.org/users/yughues
 -> WorkshopMachine1*.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> WorkshopMachine2*.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> MysteryBox.png                      Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> MysteryBoxNormal.png                Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> WoodenDoor.png                      Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Wyvern*.png
 
 ======================
@@ -261,6 +257,7 @@ Library.mesh                           Danimal                 CC-BY-SA 3.0     
 Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 LizardmanBed.mesh                      Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 Longsword.mesh                         Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+MysteryBox.mesh                        Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 Orc.*                                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
 OrcBed.mesh                            Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60191#p60191
 PitDemon.*                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
@@ -292,16 +289,16 @@ Treasury.mesh                          Skorpio                 CC-BY-SA 3.0, GPL
 Troll.*                                Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
 TrollBed.mesh                          Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
 TrollRock.mesh                         Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
+WarBanner.*                            Danimal, Atmostatic     CC-BY 3.0               https://github.com/OpenDungeons/OpenDungeons/pull/838#issuecomment-118964220
 Water*                                 Skorpio                 CC-BY-SA 3.0, GPL 3.0
 WeaponShield1.mesh                     YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
 WeaponShield2.mesh                     YD, Rshackleford, Danimal CC-BY 3.0             http://opengameart.org/users/rshackleford
 Wizard.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
 WoodBridge.mesh                        Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
+WoodenDoor.mesh                        Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
 Workshop.mesh                          Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WorkshopMachine1.mesh                  Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WorkshopMachine2.*                     Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
-MysteryBox.mesh                        Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
-WoodenDoor.mesh                        Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
 Wyvern.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 
 
