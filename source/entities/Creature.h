@@ -444,6 +444,8 @@ public:
     //! example if a door is closed)
     void checkWalkPathValid();
 
+    virtual void clientUpkeep() override;
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -591,6 +593,13 @@ private:
     //! Used on server side to indicate if a change that needs to be notified to the clients happened (like changing
     //! level or HP)
     bool                            mNeedFireRefresh;
+
+    //! \brief Used on client side. When a creature is dropped, this cooldown will be set to a value > 0
+    //! and decreased at each turn. Until it is > 0, the creature cannot be slapped. That's to avoid
+    //! slapping creatures to death when dropping many.
+    //! Note that this is done on client side and not checked on server side because it is just to be
+    //! player friendly
+    uint32_t                        mDropCooldown;
 
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
