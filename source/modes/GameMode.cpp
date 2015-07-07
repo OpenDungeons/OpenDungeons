@@ -1412,7 +1412,6 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
         researchButton->setProperty("StateImage", "");
         researchButton->setEnabled(true);
     }
-    // TODO: handle case research is disabled
 }
 
 void GameMode::refreshGuiResearch(bool forceRefresh)
