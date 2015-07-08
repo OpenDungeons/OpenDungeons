@@ -30,6 +30,7 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     mLMouseDown(false),
     mRMouseDown(false),
     mMouseDownOnCEGUIWindow(false),
+    mKeeperHandPos(Ogre::Vector3::ZERO),
     mXPos(0),
     mYPos(0),
     mLStartDragX(0),

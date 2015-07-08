@@ -36,5 +36,12 @@
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
         </Window>
+        <Window type="OD/GameTabButton" name="CreatureHasteButton" >
+            <Property name="Area" value="{{0,340},{0,25},{0,400},{0,85}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/CreatureHasteButton" />
+            <Property name="TooltipText" value="Increases, target speed. Target: friendly creatures on claimed tiles" />
+            <Property name="InheritsAlpha" value="False" />
+            <Property name="Visible" value="False" />
+        </Window>
     </Window>
 </GUILayout>

@@ -985,6 +985,7 @@ void Seat::exportTilesVisualInitialStates(TileVisual tileVisual, std::ostream& o
 
 bool Seat::isSpellAvailable(SpellType type) const
 {
+    // TODO: merge that in the futur ResearchManager
     switch(type)
     {
         case SpellType::summonWorker:
@@ -995,6 +996,8 @@ bool Seat::isSpellAvailable(SpellType type) const
             return isResearchDone(ResearchType::spellCreatureHeal);
         case SpellType::creatureExplosion:
             return isResearchDone(ResearchType::spellCreatureExplosion);
+        case SpellType::creatureHaste:
+            return isResearchDone(ResearchType::spellCreatureHaste);
         default:
             OD_LOG_ERR("Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));

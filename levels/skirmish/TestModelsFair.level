@@ -32,6 +32,7 @@ trapCannon
 trapDoorWooden
 trapSpike
 spellCallToWar
+spellCreatureHaste
 spellCreatureHeal
 spellCreatureExplosion
 spellSummonWorker

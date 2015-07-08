@@ -241,6 +241,7 @@ GameMode::GameMode(ModeManager *modeManager):
     connectSpellSelect(Gui::BUTTON_SPELL_SUMMON_WORKER, SpellType::summonWorker);
     connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_HEAL, SpellType::creatureHeal);
     connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_EXPLOSION, SpellType::creatureExplosion);
+    connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_HASTE, SpellType::creatureHaste);
 
     std::string researchWidgetButton;
     std::string useWidgetButton;
@@ -334,12 +335,11 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     // Since this is a tile selection query we loop over the result set
     // and look for the first object which is actually a tile.
-    Ogre::Vector3 keeperHandPos;
-    ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, keeperHandPos);
-    RenderManager::getSingleton().moveWorldCoords(keeperHandPos.x, keeperHandPos.y);
+    ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, inputManager.mKeeperHandPos);
+    RenderManager::getSingleton().moveWorldCoords(inputManager.mKeeperHandPos.x, inputManager.mKeeperHandPos.y);
 
-    int tileX = Helper::round(keeperHandPos.x);
-    int tileY = Helper::round(keeperHandPos.y);
+    int tileX = Helper::round(inputManager.mKeeperHandPos.x);
+    int tileY = Helper::round(inputManager.mKeeperHandPos.y);
     Tile* tileClicked = mGameMap->getTile(tileX, tileY);
     if(tileClicked == nullptr)
         return true;
@@ -358,7 +358,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         }
 
         const Ogre::Vector3& entityPos = entity->getPosition();
-        double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+        double dist = Pathfinding::squaredDistance(entityPos.x, inputManager.mKeeperHandPos.x, entityPos.y, inputManager.mKeeperHandPos.y);
         if(closestCreature == nullptr)
         {
             closestDist = dist;
@@ -471,14 +471,13 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     if(mGameMap->getGamePaused())
         return true;
 
-    Ogre::Vector3 keeperHandPos;
-    if(!ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, keeperHandPos))
+    if(!ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, inputManager.mKeeperHandPos))
         return true;
 
-    RenderManager::getSingleton().moveWorldCoords(keeperHandPos.x, keeperHandPos.y);
+    RenderManager::getSingleton().moveWorldCoords(inputManager.mKeeperHandPos.x, inputManager.mKeeperHandPos.y);
 
-    int tileX = Helper::round(keeperHandPos.x);
-    int tileY = Helper::round(keeperHandPos.y);
+    int tileX = Helper::round(inputManager.mKeeperHandPos.x);
+    int tileY = Helper::round(inputManager.mKeeperHandPos.y);
     Tile* tileClicked = mGameMap->getTile(tileX, tileY);
     if(tileClicked == nullptr)
         return true;
@@ -497,7 +496,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
                 continue;
 
             const Ogre::Vector3& entityPos = entity->getPosition();
-            double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+            double dist = Pathfinding::squaredDistance(entityPos.x, inputManager.mKeeperHandPos.x, entityPos.y, inputManager.mKeeperHandPos.y);
             if(closestEntity == nullptr)
             {
                 closestDist = dist;
@@ -573,7 +572,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
                     continue;
 
                 const Ogre::Vector3& entityPos = entity->getPosition();
-                double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+                double dist = Pathfinding::squaredDistance(entityPos.x, inputManager.mKeeperHandPos.x, entityPos.y, inputManager.mKeeperHandPos.y);
                 if(closestEntity == nullptr)
                 {
                     closestDist = dist;
@@ -621,7 +620,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
                 continue;
 
             const Ogre::Vector3& entityPos = entity->getPosition();
-            double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+            double dist = Pathfinding::squaredDistance(entityPos.x, inputManager.mKeeperHandPos.x, entityPos.y, inputManager.mKeeperHandPos.y);
             if(closestEntity == nullptr)
             {
                 closestDist = dist;
@@ -1261,6 +1260,8 @@ void GameMode::setHelpWindowText()
 
 bool GameMode::researchButtonFromType(ResearchType resType, std::string& researchWidgetButton, std::string& useWidgetButton)
 {
+    // TODO: this should be moved to some ResearchManager that would link:
+    // ResearchType, ResearchButton, GuiButton, Research dependencies, needed research points
     switch(resType)
     {
         case ResearchType::nullResearchType:
@@ -1324,6 +1325,10 @@ bool GameMode::researchButtonFromType(ResearchType resType, std::string& researc
         case ResearchType::spellCreatureExplosion:
             researchWidgetButton = "AttackSkills/CreatureExplosionButton";
             useWidgetButton = Gui::BUTTON_SPELL_CREATURE_EXPLOSION;
+            break;
+        case ResearchType::spellCreatureHaste:
+            researchWidgetButton = "MagicSkills/CreatureHasteButton";
+            useWidgetButton = Gui::BUTTON_SPELL_CREATURE_HASTE;
             break;
         default:
             OD_LOG_ERR("Unexpected enum value: " + Research::researchTypeToString(resType));

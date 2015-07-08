@@ -50,7 +50,10 @@ CreatureEffect* CreatureEffect::load(std::istream& is)
 bool CreatureEffect::upkeepEffect(Creature& creature)
 {
     if(mNbTurnsEffect <= 0)
+    {
+        releaseEffect(creature);
         return false;
+    }
 
     --mNbTurnsEffect;
     applyEffect(creature);

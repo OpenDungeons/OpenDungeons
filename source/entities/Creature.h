@@ -344,6 +344,9 @@ public:
     //! \brief sets the speed modifier. If 1.0, resets to default speed
     void setMoveSpeedModifier(double modifier);
 
+    virtual double getAnimationSpeedFactor() const
+    { return mSpeedModifier; }
+
     inline void jobDone(double val)
     {
         mAwakeness -= val;
@@ -603,6 +606,10 @@ private:
     //! Note that this is done on client side and not checked on server side because it is just to be
     //! player friendly
     uint32_t                        mDropCooldown;
+
+    //! \brief Speed modifier that will apply to both animation speed and move speed. If
+    //! 1.0, it will be default speed
+    double                          mSpeedModifier;
 
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been

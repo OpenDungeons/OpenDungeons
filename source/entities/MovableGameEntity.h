@@ -82,7 +82,7 @@ public:
 
     virtual void setAnimationState(const std::string& state, bool loop = true, const Ogre::Vector3& direction = Ogre::Vector3::ZERO);
 
-    inline double getAnimationSpeedFactor() const
+    virtual double getAnimationSpeedFactor() const
     { return 1.0; }
 
     //! \brief Updates the entity path, movement, and direction
