@@ -37,15 +37,20 @@ enum class TileVisual;
 namespace Config
 {
 //! \brief Config options names
-//! Video
+// Video
+const std::string VIDEO = "Video";
 const std::string RENDERER = "Renderer";
 const std::string VIDEO_MODE = "Video Mode";
 const std::string VSYNC = "VSync";
 const std::string FULL_SCREEN = "Full Screen";
-//! Audio
+// Audio
+const std::string AUDIO = "Audio";
 const std::string MUSIC_VOLUME = "Music Volume";
-//! Game
+// Game
+const std::string GAME = "Game";
 const std::string NICKNAME = "Nickname";
+// Input
+const std::string INPUT = "Input";
 }
 
 //! \brief This class is used to manage global configuration such as network configuration, global creature stats, ...
@@ -153,21 +158,33 @@ public:
     //! Returns the tileset for the given name. If the tileset is not found, returns the default tileset
     const TileSet* getTileSet(const std::string& tileSetName) const;
 
-    //! \brief Set a config value.
+    //! \brief Set a config value. Only permits predetermined types.
     void setAudioValue(const std::string& param, const std::string& value)
-    { mAudioUserConfig[param] = value; }
+    { mUserConfig[Config::AUDIO][param] = value; }
     void setVideoValue(const std::string& param, const std::string& value)
-    { mVideoUserConfig[param] = value; }
+    { mUserConfig[Config::VIDEO][param] = value; }
     void setInputValue(const std::string& param, const std::string& value)
-    { mInputUserConfig[param] = value; }
+    { mUserConfig[Config::INPUT][param] = value; }
     void setGameValue(const std::string& param, const std::string& value)
-    { mGameUserConfig[param] = value; }
+    { mUserConfig[Config::GAME][param] = value; }
 
     //! \brief Get a config value.
-    const std::string& getAudioValue(const std::string& param) const;
-    const std::string& getVideoValue(const std::string& param) const;
-    const std::string& getInputValue(const std::string& param) const;
-    const std::string& getGameValue(const std::string& param) const;
+    inline const std::string& getAudioValue(const std::string& param,
+                                            const std::string& defaultValue = std::string(),
+                                            bool triggerError = true) const
+    { return getUserValue(Config::AUDIO, param, defaultValue, triggerError); }
+    inline const std::string& getVideoValue(const std::string& param,
+                                            const std::string& defaultValue = std::string(),
+                                            bool triggerError = true) const
+    { return getUserValue(Config::VIDEO, param, defaultValue, triggerError); }
+    inline const std::string& getInputValue(const std::string& param,
+                                            const std::string& defaultValue = std::string(),
+                                            bool triggerError = true) const
+    { return getUserValue(Config::INPUT, param, defaultValue, triggerError); }
+    inline const std::string& getGameValue(const std::string& param,
+                                           const std::string& defaultValue = std::string(),
+                                           bool triggerError = true) const
+    { return getUserValue(Config::GAME, param, defaultValue, triggerError); }
 
     //! \brief Save the user configuration file.
     bool saveUserConfig();
@@ -197,6 +214,12 @@ private:
 
     //! \brief Loads the user configuration values, and use default ones if it cannot do it.
     void loadUserConfig(const std::string& fileName);
+
+    //! \brief Get a config value.
+    const std::string& getUserValue(const std::string& type,
+                                    const std::string& param,
+                                    const std::string& defaultValue = std::string(),
+                                    bool triggerError = true) const;
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
     std::map<std::string, CreatureDefinition*> mCreatureDefs;
@@ -252,11 +275,9 @@ private:
     //! \brief Allowed tilesets
     std::map<std::string, const TileSet*> mTileSets;
 
-    //! \brief User config
-    std::map<std::string, std::string> mAudioUserConfig;
-    std::map<std::string, std::string> mVideoUserConfig;
-    std::map<std::string, std::string> mInputUserConfig;
-    std::map<std::string, std::string> mGameUserConfig;
+    //! \brief User config values
+    //! < category, < param, value > >
+    std::map<std::string, std::map<std::string, std::string> > mUserConfig;
 };
 
 #endif //CONFIGMANAGER_H

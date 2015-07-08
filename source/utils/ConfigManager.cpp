@@ -35,14 +35,6 @@
 #include <boost/dynamic_bitset.hpp>
 #include <OgreRoot.h>
 
-enum class USER_CONFIG_CATEGORY {
-    CATEGORY_NONE  = 0,
-    CATEGORY_AUDIO = 1,
-    CATEGORY_VIDEO = 2,
-    CATEGORY_INPUT = 3,
-    CATEGORY_GAME  = 4
-};
-
 const std::vector<std::string> EMPTY_SPAWNPOOL;
 const std::string EMPTY_STRING;
 const std::string ConfigManager::DEFAULT_TILESET_NAME = "Default";
@@ -1400,6 +1392,12 @@ void ConfigManager::loadUserConfig(const std::string& fileName)
         return;
     }
 
+    mUserConfig.clear();
+    mUserConfig.insert(std::make_pair(Config::AUDIO, std::map<std::string, std::string>()));
+    mUserConfig.insert(std::make_pair(Config::VIDEO, std::map<std::string, std::string>()));
+    mUserConfig.insert(std::make_pair(Config::INPUT, std::map<std::string, std::string>()));
+    mUserConfig.insert(std::make_pair(Config::GAME, std::map<std::string, std::string>()));
+
     std::string nextParam;
     defFile >> nextParam;
     if (nextParam != "[Configuration]")
@@ -1409,7 +1407,7 @@ void ConfigManager::loadUserConfig(const std::string& fileName)
     }
 
     std::string value;
-    USER_CONFIG_CATEGORY category = USER_CONFIG_CATEGORY::CATEGORY_NONE;
+    std::string category;
     while(defFile.good())
     {
         if (!(defFile >> nextParam))
@@ -1422,28 +1420,28 @@ void ConfigManager::loadUserConfig(const std::string& fileName)
         }
         else if (nextParam == "[Audio]")
         {
-            category = USER_CONFIG_CATEGORY::CATEGORY_AUDIO;
+            category = Config::AUDIO;
             continue;
         }
         else if (nextParam == "[Video]")
         {
-            category = USER_CONFIG_CATEGORY::CATEGORY_VIDEO;
+            category = Config::VIDEO;
             continue;
         }
         else if (nextParam == "[Input]")
         {
-            category = USER_CONFIG_CATEGORY::CATEGORY_INPUT;
+            category = Config::INPUT;
             continue;
         }
         else if (nextParam == "[Game]")
         {
-            category = USER_CONFIG_CATEGORY::CATEGORY_GAME;
+            category = Config::GAME;
             continue;
         }
         else if (nextParam == "[/Audio]" || nextParam == "[/Video]" || nextParam == "[/Input]"
                  || nextParam == "[/Game]")
         {
-            category = USER_CONFIG_CATEGORY::CATEGORY_NONE;
+            category.clear();
             continue;
         }
         else if (!nextParam.empty())
@@ -1459,26 +1457,14 @@ void ConfigManager::loadUserConfig(const std::string& fileName)
                 continue;
             }
 
-            switch(category)
+            if (category.empty())
             {
-                case USER_CONFIG_CATEGORY::CATEGORY_AUDIO:
-                    mAudioUserConfig[ elements[0] ] = elements[1];
-                    break;
-                case USER_CONFIG_CATEGORY::CATEGORY_VIDEO:
-                    mVideoUserConfig[ elements[0] ] = elements[1];
-                    break;
-                case USER_CONFIG_CATEGORY::CATEGORY_INPUT:
-                    mInputUserConfig[ elements[0] ] = elements[1];
-                    break;
-                case USER_CONFIG_CATEGORY::CATEGORY_GAME:
-                    mGameUserConfig[ elements[0] ] = elements[1];
-                    break;
-                default:
-                    OD_LOG_WRN("Parameter set in unknown category. Will be ignored: "
-                               + elements[0] + ": " + elements[1]);
-                    break;
+                OD_LOG_WRN("Parameter set in unknown category. Will be ignored: "
+                            + elements[0] + ": " + elements[1]);
+                continue;
             }
-            continue;
+
+            mUserConfig[ category ][ elements[0] ] = elements[1];
         }
         else
         {
@@ -1501,6 +1487,12 @@ bool ConfigManager::saveUserConfig()
         OD_LOG_ERR("Couldn't open user config for writing: " + mFilenameUserCfg);
         return false;
     }
+
+    // Split config in categories.
+    std::map<std::string, std::string>& mAudioUserConfig = mUserConfig.at(Config::AUDIO);
+    std::map<std::string, std::string>& mVideoUserConfig = mUserConfig.at(Config::VIDEO);
+    std::map<std::string, std::string>& mInputUserConfig = mUserConfig.at(Config::INPUT);
+    std::map<std::string, std::string>& mGameUserConfig = mUserConfig.at(Config::GAME);
 
     userFile << "[Configuration]" << std::endl;
 
@@ -1529,48 +1521,27 @@ bool ConfigManager::saveUserConfig()
     return true;
 }
 
-const std::string& ConfigManager::getAudioValue(const std::string& param) const
+const std::string& ConfigManager::getUserValue(const std::string& category,
+                                               const std::string& param,
+                                               const std::string& defaultValue,
+                                               bool triggerError) const
 {
-    if(mAudioUserConfig.count(param) <= 0)
+    auto it = mUserConfig.find(category);
+    if (it == mUserConfig.end())
     {
-        OD_LOG_ERR("Unknown parameter param=" + param);
-        return EMPTY_STRING;
+        if (triggerError)
+            OD_LOG_ERR("Unknown parameter category=" + param);
+        return defaultValue;
     }
 
-    return mAudioUserConfig.at(param);
-}
-
-const std::string& ConfigManager::getVideoValue(const std::string& param) const
-{
-    if(mVideoUserConfig.count(param) <= 0)
+    if(it->second.count(param) <= 0)
     {
-        OD_LOG_ERR("Unknown parameter param=" + param);
-        return EMPTY_STRING;
+        if (triggerError)
+            OD_LOG_ERR("Unknown parameter param=" + param);
+        return defaultValue;
     }
 
-    return mVideoUserConfig.at(param);
-}
-
-const std::string& ConfigManager::getInputValue(const std::string& param) const
-{
-    if(mInputUserConfig.count(param) <= 0)
-    {
-        OD_LOG_ERR("Unknown parameter param=" + param);
-        return EMPTY_STRING;
-    }
-
-    return mInputUserConfig.at(param);
-}
-
-const std::string& ConfigManager::getGameValue(const std::string& param) const
-{
-    if(mGameUserConfig.count(param) <= 0)
-    {
-        OD_LOG_ERR("Unknown parameter param=" + param);
-        return EMPTY_STRING;
-    }
-
-    return mGameUserConfig.at(param);
+    return it->second.at(param);
 }
 
 const std::string& ConfigManager::getRoomConfigString(const std::string& param) const
@@ -1791,7 +1762,11 @@ const TileSet* ConfigManager::getTileSet(const std::string& tileSetName) const
 
 bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
 {
-    std::string rendererName = getVideoValue(Config::RENDERER);
+    // Also creates the config entry if it doesn't exist in config yet.
+    std::string rendererName = getVideoValue(Config::RENDERER, std::string(), false);
+    // Try the default OpenGL renderer first, if empty.
+    if (rendererName.empty())
+        rendererName = "OpenGL Rendering Subsystem";
 
     Ogre::RenderSystem* renderSystem = ogreRoot.getRenderSystemByName(rendererName);
     bool sameRenderer = true;
@@ -1814,7 +1789,8 @@ bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
     // If the renderer was changed, we need to reset the video options.
     if (sameRenderer == false)
     {
-        mVideoUserConfig.clear();
+
+        mUserConfig[Config::VIDEO].clear();
 
         for (std::pair<Ogre::String, Ogre::ConfigOption> option : options)
         {
@@ -1831,6 +1807,7 @@ bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
         std::vector<std::string> optionsToRemove;
 
         // The renderer system was initialized. Let's load its new option values.
+        std::map<std::string, std::string>& mVideoUserConfig = mUserConfig[Config::VIDEO];
         for (std::pair<std::string, std::string> setting : mVideoUserConfig)
         {
             // Check the option exists.

@@ -148,13 +148,14 @@ void SettingsWindow::initConfig()
     ConfigManager& config = ConfigManager::getSingleton();
 
     // Game
-    CEGUI::Editbox* usernameEb = static_cast<CEGUI::Editbox*>(
+    CEGUI::Editbox* nicknameEb = static_cast<CEGUI::Editbox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Game/NicknameEdit"));
-    CEGUI::String username = reinterpret_cast<const CEGUI::utf8*>(config.getGameValue(Config::NICKNAME).c_str());
-    usernameEb->setText(username);
+    std::string nickname = config.getGameValue(Config::NICKNAME, std::string(), false);
+    if (!nickname.empty())
+        nicknameEb->setText(reinterpret_cast<const CEGUI::utf8*>(nickname.c_str()));
 
     // Audio
-    std::string volumeStr = config.getAudioValue(Config::MUSIC_VOLUME);
+    std::string volumeStr = config.getAudioValue(Config::MUSIC_VOLUME, std::string(), false);
     float volume = volumeStr.empty() ? sf::Listener::getGlobalVolume() : Helper::toFloat(volumeStr);
     setMusicVolumeValue(volume);
 
@@ -236,11 +237,12 @@ void SettingsWindow::initConfig()
     }
 
     //! First of all, clear up the previously created windows.
+    CEGUI::Window* parentWindow = mSettingsWindow->getChild("MainTabControl/Video");
     for (CEGUI::Window* win : mCustomVideoComboBoxes)
-        mSettingsWindow->destroyChild(win);
+        parentWindow->destroyChild(win);
     mCustomVideoComboBoxes.clear();
     for (CEGUI::Window* win : mCustomVideoTexts)
-        mSettingsWindow->destroyChild(win);
+        parentWindow->destroyChild(win);
     mCustomVideoTexts.clear();
 
     // Find every other config options and add them to the config
@@ -506,5 +508,5 @@ void SettingsWindow::setMusicVolumeValue(float volume)
 
     // Set the music volume text
     CEGUI::Window* volumeText = mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicText");
-    volumeText->setText("Music: " + Helper::toString(volume) + "%");
+    volumeText->setText("Music: " + Helper::toString(static_cast<int32_t>(volume)) + "%");
 }
