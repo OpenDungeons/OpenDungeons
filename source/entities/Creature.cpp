@@ -163,7 +163,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mOverlayHealthValue      (0),
     mOverlayMoodValue        (0),
     mOverlayStatus           (nullptr),
-    mNeedFireRefresh         (false)
+    mNeedFireRefresh         (false),
+    mDropCooldown            (0)
 
 {
     //TODO: This should be set in initialiser list in parent classes
@@ -246,7 +247,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mOverlayHealthValue      (0),
     mOverlayMoodValue        (0),
     mOverlayStatus           (nullptr),
-    mNeedFireRefresh         (false)
+    mNeedFireRefresh         (false),
+    mDropCooldown            (0)
 {
     pushAction(CreatureActionType::idle, false, true);
 }
@@ -628,7 +630,10 @@ void Creature::drop(const Ogre::Vector3& v)
 {
     setPosition(v);
     if(!getIsOnServerMap())
+    {
+        mDropCooldown = 2;
         return;
+    }
 
     mForceAction = forcedActionSearchAction;
     if(getHasVisualDebuggingEntities())
@@ -4129,11 +4134,14 @@ bool Creature::canSlap(Seat* seat)
         return false;
     }
 
-    if(getHP() <= 0.0)
+    if(mDropCooldown > 0)
         return false;
 
     if(getGameMap()->isInEditorMode())
         return true;
+
+    if(getHP() <= 0.0)
+        return false;
 
     // Only the owning player can slap a creature
     if(getSeat() != seat)
@@ -4587,4 +4595,11 @@ void Creature::setJobCooldown(int val)
         val = Helper::round(static_cast<float>(val) * 0.8f);
 
     mJobCooldown = val;
+}
+
+void Creature::clientUpkeep()
+{
+    MovableGameEntity::clientUpkeep();
+    if(mDropCooldown > 0)
+        --mDropCooldown;
 }

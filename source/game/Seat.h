@@ -300,9 +300,8 @@ public:
     //! Returns true if the type was inserted and false otherwise
     bool addResearch(ResearchType type);
 
-    //! Called from the library as creatures are researching. When enough points are gathered,
-    //! the corresponding research will become available.
-    //! Returns the research done if enough points have been gathered and nullptr otherwise
+    //! Called when a fresh grimoire is brought to the dungeon temple. When enough points are
+    //! gathered, the corresponding research will become available.
     void addResearchPoints(int32_t points);
 
     //! Used on both client and server side. On server side, the research tree's validity will be

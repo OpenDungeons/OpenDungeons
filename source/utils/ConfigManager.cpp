@@ -531,6 +531,20 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
             mClaimingWallPenalty = Helper::toDouble(nextParam);
             // Not mandatory
         }
+
+        if(nextParam == "MainMenuMusic")
+        {
+            std::string line;
+            std::getline(configFile, line);
+            std::vector<std::string> elements = Helper::split(line, '\t', true);
+            if (elements.empty())
+            {
+                OD_LOG_WRN("Invalid MainMenuMusic : " + line);
+                continue;
+            }
+            mMainMenuMusic = elements[0];
+            // Not mandatory
+        }
     }
 
     if(paramsOk != 0x01)

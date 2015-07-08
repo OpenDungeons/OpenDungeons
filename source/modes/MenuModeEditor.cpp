@@ -84,8 +84,7 @@ void MenuModeEditor::activate()
     giveFocus();
 
     // Play the main menu music
-    // TODO: Make this configurable.
-    MusicPlayer::getSingleton().play("OpenDungeonsMainTheme_pZi.ogg");
+    MusicPlayer::getSingleton().play(ConfigManager::getSingleton().getMainMenuMusic());
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->clearAll();

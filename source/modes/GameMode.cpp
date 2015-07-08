@@ -528,8 +528,14 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
         inputManager.mLStartDragX = inputManager.mXPos;
         inputManager.mLStartDragY = inputManager.mYPos;
         unselectAllTiles();
-        mPlayerSelection.setCurrentAction(SelectedAction::none);
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
+        // If we have a currently selected action, we cancel it and don't try to slap or
+        // drop what we have in hand
+        if(mPlayerSelection.getCurrentAction() != SelectedAction::none)
+        {
+            mPlayerSelection.setCurrentAction(SelectedAction::none);
+            return true;
+        }
 
         if(mGameMap->getLocalPlayer()->numObjectsInHand() > 0)
         {
@@ -1412,7 +1418,6 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
         researchButton->setProperty("StateImage", "");
         researchButton->setEnabled(true);
     }
-    // TODO: handle case research is disabled
 }
 
 void GameMode::refreshGuiResearch(bool forceRefresh)
