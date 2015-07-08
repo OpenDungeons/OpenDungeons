@@ -166,21 +166,21 @@ public:
     { mUserConfig[Config::GAME][param] = value; }
 
     //! \brief Get a config value.
-    const std::string& getAudioValue(const std::string& param,
-                                     const std::string& defaultValue = std::string(),
-                                     bool triggerError = true) const
+    inline const std::string& getAudioValue(const std::string& param,
+                                            const std::string& defaultValue = std::string(),
+                                            bool triggerError = true) const
     { return getUserValue(Config::AUDIO, param, defaultValue, triggerError); }
-    const std::string& getVideoValue(const std::string& param,
-                                     const std::string& defaultValue = std::string(),
-                                     bool triggerError = true) const
+    inline const std::string& getVideoValue(const std::string& param,
+                                            const std::string& defaultValue = std::string(),
+                                            bool triggerError = true) const
     { return getUserValue(Config::VIDEO, param, defaultValue, triggerError); }
-    const std::string& getInputValue(const std::string& param,
-                                     const std::string& defaultValue = std::string(),
-                                     bool triggerError = true) const
+    inline const std::string& getInputValue(const std::string& param,
+                                            const std::string& defaultValue = std::string(),
+                                            bool triggerError = true) const
     { return getUserValue(Config::INPUT, param, defaultValue, triggerError); }
-    const std::string& getGameValue(const std::string& param,
-                                     const std::string& defaultValue = std::string(),
-                                     bool triggerError = true) const
+    inline const std::string& getGameValue(const std::string& param,
+                                           const std::string& defaultValue = std::string(),
+                                           bool triggerError = true) const
     { return getUserValue(Config::GAME, param, defaultValue, triggerError); }
 
     //! \brief Save the user configuration file.
