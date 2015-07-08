@@ -32,7 +32,7 @@ public:
     {}
 
     virtual CreatureEffectType getCreatureEffectType() const override
-    { return CreatureEffectType::heal; }
+    { return CreatureEffectType::speedChange; }
 
     static CreatureEffectSpeedChange* load(std::istream& is);
 
