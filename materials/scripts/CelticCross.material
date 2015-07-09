@@ -8,7 +8,6 @@ material CelticCross : RTSS/NormalMapping_MultiPass
     {
         pass lighting
         {
-
             // Override the normal map.
             rtshader_system
             {

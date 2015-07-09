@@ -8,10 +8,9 @@ material MysteryBox
     {
         pass MysteryBox
         {
-            ambient 0.800000011920929 0.800000011920929 0.800000011920929 1.0
-            diffuse 0.6400000190734865 0.6400000190734865 0.6400000190734865 1.0
-            specular 0.03783784061670303 0.03783784061670303 0.03783784061670303 1.0 20.25
-            emissive 0.0 0.0 0.0 1.0
+            ambient 0.8 0.8 0.8 1.0
+            diffuse 0.65 0.65 0.65 1.0
+            specular 0.0 0.0 0.0 1.0 20
 
             alpha_to_coverage off
             colour_write on
