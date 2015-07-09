@@ -1,8 +1,10 @@
 ## OpenDungeons Release Notes
 
-This file contains the subsequent release notes for each version of OpenDungeons since version 0.4.9, in reverse chronological order.
+This file contains the subsequent release notes for each version of
+OpenDungeons since version 0.4.9, in reverse chronological order.
 
-The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our repository at https://github.com/OpenDungeons/OpenDungeons
+The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on
+our repository at https://github.com/OpenDungeons/OpenDungeons
 
 
 ### Version 0.5.0 - 20 April 2015
@@ -11,7 +13,8 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 
 * Fog of War implemented
 * Spell system implemented with two spells: Summon Worker and Call to War
-* Research logic and UI implemented: rooms, spells and traps should now be researched in the library
+* Research logic and UI implemented: rooms, spells and traps should now be
+  researched in the library
 * Saving/loading feature
 * Creatures pay day implemented
 * Portals can be claimed and can generate rogue waves that attack keepers
@@ -48,20 +51,25 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * Implemented the Call to War spell (#484)
 * Implemented the library's research logic + research tree (#411 #508)
 * Portals can be claimed (#588)
-* The max number of creatures is configurable and influenced by the number of claimed portals (#588)
+* The max number of creatures is configurable and influenced by the number of
+  claimed portals (#588)
 * Implemented rogue portal waves (#594 #607)
-* Gold dropped on the floor follows the same mesh logic as the one in treasury rooms (#279)
+* Gold dropped on the floor follows the same mesh logic as the one in treasury
+rooms (#279)
 * Improved the camera perspective (#345)
-* Readded default viewpoint support and made the V key cycle the viewpoints (#494)
+* Readded default viewpoint support and made the V key cycle the viewpoints
+  (#494)
 * AI repairs damaged rooms (#375)
 * Revised the creature spawning logic (#568)
 * Updated the help window content (#548)
 
 **Rooms:**
 
-* The workshop replaces the forge for traps. The forge will be used later to craft creature's equipment (#459)
+* The workshop replaces the forge for traps. The forge will be used later to
+craft creature's equipment (#459)
 * Traps are crafted in the workshop only when needed (#469)
-* Add support to disable a room for a specific player in a specific level (#86)
+* Add support to disable a room for a specific player in a specific level
+  (#86)
 
 **Creatures:**
 
@@ -76,12 +84,15 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 **UI:**
 
 * Added the research tree GUI, currently not interactive (#517)
-* Skull flag system to see current creatures health + level + team color (#519)
+* Skull flag system to see current creatures health + level + team color
+  (#519)
 * Console code cleaned up and using CEGUI (#134 #299)
 * Chat and event messages handling upgrade (#638 #642 #647 #654)
 * Fixed tooltips behaviour (#337 #397)
-* Added a check box, permitting to disable replay creation when quitting the game (#406)
-* Improved the UI of Combo-boxes/Check-boxes, ... from generic to OD-like (#419)
+* Added a check box, permitting to disable replay creation when quitting the
+  game (#406)
+* Improved the UI of Combo-boxes/Check-boxes, ... from generic to OD-like
+  (#419)
 * Display the number of controlled fighting creatures (#562)
 * The keeper hand is used as an icon and is above the GUI (#547 #420)
 
@@ -125,7 +136,8 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * Functional AI implemented
 * Core gameplay better defined
 * Traps support
-* Gameplay elements are configurable via ini-style files: levels, creatures characteristics, equipment, rooms and traps behaviour
+* Gameplay elements are configurable via ini-style files: levels, creatures
+  characteristics, equipment, rooms and traps behaviour
 * Lots of new rooms
 * Revamped UI
 * Replay mode
@@ -134,25 +146,31 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 
 * The game is stable and does not crash at exit
 * The game does use threads only when needed (through sf::Thread)
-* The code has been reviewed, is following conventions and does not use not GPL'ed code (#91)
+* The code has been reviewed, is following conventions and does not use not
+  GPL'ed code (#91)
 * The license of every files is clear and defined in the CREDITS file (#93)
 * Fix CMake basic invocation flags handling (#97 #42 #57 #58)
 * Lots of bug fixes
 
 **Game logic:**
 
-* Spawn pools. Each faction has got their own configurable set of spawnable creatures
+* Spawn pools. Each faction has got their own configurable set of spawnable
+  creatures
 * Support for configurable alliances
 * Support for three functional traps
 * Optimize pickup/dig mouse handling speed (#103)
 * Upgrade and completion of the creature stats format (#151 #152 #245)
-* Creatures are spawned based on the available rooms and their active spots number and it is configurable (#257)
+* Creatures are spawned based on the available rooms and their active spots
+  number and it is configurable (#257)
 * Better balancing through the use of a global balance sheet (#153)
-* Creature definitions are overrideable in levels to create special creatures, or bosses
+* Creature definitions are overrideable in levels to create special creatures,
+  or bosses
 * Equipment is now defined in the config/equipment.cfg file
 * Creatures can spawn with default equipment
-* Rooms and traps behaviour are now defined in config/rooms.cfg and config/traps.cfg files
-* Creatures can be slapped to death. And more importantly, those creepy chickens can be slapped while on a claimed tile
+* Rooms and traps behaviour are now defined in config/rooms.cfg and
+  config/traps.cfg files
+* Creatures can be slapped to death. And more importantly, those creepy
+  chickens can be slapped while on a claimed tile
 
 **Rooms:**
 
@@ -176,7 +194,8 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * Forge (not actually useful in this release)
 * Library (not actually useful in this release)
 * Crypt: spawns gnomes when you let enemy creatures decay there (#322)
-* Add support to destroy rooms or traps using a new button to get a refund of half their price (#108)
+* Add support to destroy rooms or traps using a new button to get a refund of
+  half their price (#108)
 
 **Creature behaviour:**
 
@@ -185,7 +204,8 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * Separate water/lava and flying collision handling (#101)
 * Better creature fighting behaviour (#154)
 * Make workers flee on first enemy blow (#90)
-* Workers drop mined gold in the form of a pickable gold stack if no treasury room
+* Workers drop mined gold in the form of a pickable gold stack if no treasury
+  room
 
 **Modes and menus:**
 
@@ -200,7 +220,8 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 **Basic AI (#15):**
 
 * The AI can build every useful room
-* The AI takes care of building rooms to get the maximum "active spots" (represented by room models)
+* The AI takes care of building rooms to get the maximum "active spots"
+  (represented by room models)
 * The AI can drop fighters nearby other enemy creatures to trigger some fun
 * AI takes care of having at least one treasury tile before searching for gold
 
@@ -213,9 +234,12 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 
 ### Version 0.4.8 - 25 April 2011
 
-* Now with a new GUI, it is not completely done, but we are getting there. The mini-map and goals screen will be finished in later versions.
-* Now with a main menu. We now have the code set up for a main menu, it will nicer in the next versions.
-* Fixed a bug in the cannon trap, so it can now actually be placed. It actually also somewhat works and fires a moving projectile :)
+* Now with a new GUI, it is not completely done, but we are getting there. The
+  mini-map and goals screen will be finished in later versions.
+* Now with a main menu. We now have the code set up for a main menu, it will
+  nicer in the next versions.
+* Fixed a bug in the cannon trap, so it can now actually be placed. It
+  actually also somewhat works and fires a moving projectile :)
 * A lot of code refactoring, us devs love that :D
 * Now with support for normal mapping.
 * A claim tile sound, so you can hear you Kobolds working hard for you ;)
@@ -228,17 +252,23 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 **Media Updates:**
 
 * New creature models for 8 creatures.
-* Several new meshes have been added to the game including the Portal, and the Cannon.
-* A new GUI for the game which replaces the generic one we had before and also allows you to start the game from the system menu.
+* Several new meshes have been added to the game including the Portal, and the
+  Cannon.
+* A new GUI for the game which replaces the generic one we had before and also
+  allows you to start the game from the system menu.
 * Creatures now properly display the Die and Flee animations in combat.
 * Two basic sound effects have been added, an attack and a dig sound.
 
 **Code Updates:**
 
-* Creatures, tiles, rooms, and traps are now colored according to which team they are on.
-* Creature AI calculations have been improved so that combat now works correctly and it has been optimized significantly.
-* Creature AI is now multithreaded, and the number of active AI threads can be set via the in-game console (the default is 2).
-* Many, many bugfixes including fixing lots of race conditions present in the previous code and in the new multithreaded AI.
+* Creatures, tiles, rooms, and traps are now colored according to which team
+  they are on.
+* Creature AI calculations have been improved so that combat now works
+  correctly and it has been optimized significantly.
+* Creature AI is now multithreaded, and the number of active AI threads can be
+  set via the in-game console (the default is 2).
+* Many, many bugfixes including fixing lots of race conditions present in the
+  previous code and in the new multithreaded AI.
 
 **Distribution:**
 
