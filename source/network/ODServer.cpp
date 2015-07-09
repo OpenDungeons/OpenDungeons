@@ -158,7 +158,7 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
         }
     }
 
-    // In single player, we set seats that can be choosen to
+    // In single player, we set seats that can be chosen to
     if(mServerMode != ServerMode::ModeGameSinglePlayer)
         return true;
 

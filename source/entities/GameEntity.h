@@ -285,7 +285,7 @@ class GameEntity : public EntityBase
 
     //! List of particle effects affecting this entity. Note that the particle effects are not saved on the entity automatically
     //! when exporting to stream or packet because some might build them alone and saving them would break level and saved
-    //! games compatibility. If it becomes usefull later, it can be done.
+    //! games compatibility. If it becomes useful later, it can be done.
     std::vector<EntityParticleEffect*> mEntityParticleEffects;
 
     //! Constructs a particle system based on this entity name

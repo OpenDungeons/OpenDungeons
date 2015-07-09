@@ -1555,7 +1555,7 @@ const CreatureDefinition* Seat::getNextFighterClassToSpawn(const GameMap& gameMa
         if(nbPointsConditions < 0)
             continue;
 
-        // Check if it is the first time this conditions have been fullfilled. If yes, we force this creature to spawn
+        // Check if it is the first time this conditions have been fulfilled. If yes, we force this creature to spawn
         if(!def.second && !conditions.empty())
         {
             def.second = true;
