@@ -1531,7 +1531,7 @@ const std::string& ConfigManager::getUserValue(Config::Ctg category,
         OD_LOG_ERR("User configuration categories uninitialized!");
         return defaultValue;
     }
-    auto userCfg = mUserConfig[category];
+    auto& userCfg = mUserConfig[category];
 
     if(userCfg.count(param) <= 0)
     {
