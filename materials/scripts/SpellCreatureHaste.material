@@ -18,7 +18,7 @@ material SpellCreatureHaste
 
             texture_unit
             {
-                texture hasteflare.png
+                texture Hasteflare.png
             }
         }
     }

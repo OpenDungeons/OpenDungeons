@@ -23,7 +23,7 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
-#include "gamemap/PathFinding.h"
+#include "gamemap/Pathfinding.h"
 #include "modes/InputCommand.h"
 #include "modes/InputManager.h"
 #include "network/ODClient.h"
