@@ -144,7 +144,7 @@ textures/
 -> Grindstone*.png                     Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Hammock*.png                        Luke.RUSTLTD, Nobiax    CC0                     http://forum.freegamedev.net/viewtopic.php?p=59983#p59983
 -> Hasteflare.png                      OD Team                 CC-BY-SA 3.0            Used icon from game-icons.net
--> Heartflare.png                      Bertram                 CC-BY-SA 3.0            Own made flare + heart icon from game-icons.net
+-> Heartflare.png                      OD Team                 CC-BY-SA 3.0            Own made flare + heart icon from game-icons.net
 -> ImpBed*.png                         Nobiax CC0 and J. W. Bjerk (magic circle) CC-BY3 or GPL3 - http://opengameart.org/content/painterly-spell-icons-part-3 - http://opengameart.org/users/yughues
 -> Keeperhand*.png
 -> Knight.png
@@ -165,7 +165,7 @@ textures/
 -> Portal{,Normal}.png                 Yughues                 CC0                     http://opengameart.org/users/yughues
 -> PortalVortex.png
 -> RangerBed*.png                      PantherOne              CC0                     http://opengameart.org/content/tent-pack
--> Rock.png                            Yughues                 cc0                     http://opengameart.org/users/yughues
+-> Rock.png                            Yughues                 CC0                     http://opengameart.org/users/yughues
 -> Roundshield.png
 -> RunelordDwarf*.png
 -> Scarab*.png
@@ -175,8 +175,8 @@ textures/
 -> SpiderBed*.png                      Eugeneloza, Nobiax      CC0                     http://forum.freegamedev.net/viewtopic.php?p=60089#p60089
 -> Spiketrap.png                       P0ss, Danimal           CC-BY 3.0               http://opengameart.org/content/spyke-trap-low-poly
 -> Staff.png
+-> StoneBridge*.png                    Danimal, Skorpio        CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> StoneCoffin*.png                    Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
--> Stonebridge*.png                    Danimal, Skorpio        CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Tentacle{Albine,Green,Normal}.png
 -> TentacleBed*.png                    West                    CC0                     http://forum.freegamedev.net/viewtopic.php?p=60091#p60091
 -> TrainingDummy1*.png
