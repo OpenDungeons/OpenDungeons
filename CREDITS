@@ -4,7 +4,7 @@ Author's Credit file
 This file is listing each files present in this repository, its author and its corresponding license.
 
 Each corresponding license is fully described in the licenses/ folder.
-Other text files (.txt, .cpp, .h, .sh, ...), except licensing, are licensed using the GPL 3.0 license.
+Other text files (.txt, .cpp, .h, .sh, ...), except licensing, are licensed using the GPLv3+ license.
 
 Latest update: 2015/05/06
 
@@ -15,7 +15,7 @@ Latest update: 2015/05/06
 
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
-*.cfg                                  OD Team                 GPL 3.0
+*.cfg                                  OD Team                 GPLv3+
 
 
 ===================
@@ -24,17 +24,17 @@ Name                                   Author                  License          
 
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
-OD.project                             Bertram                 GPL 3.0                 CEED Project file.
+OD.project                             Bertram                 GPLv3+                  CEED Project file.
 ODBackgrounds.imageset                 OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 ODBackgrounds.png                      OD Team                 CC-BY-SA 3.0
-ODLogo.imageset                        OD Team                 GPL 3.0
+ODLogo.imageset                        OD Team                 GPLv3+
 ODLogo.png                             Svenskmand              CC-BY-SA 3.0
-ODMainMenuBackground.imageset          Bertram                 GPL 3.0
+ODMainMenuBackground.imageset          Bertram                 GPLv3+
 ODMainMenuBackground.png               Vagner                  CC-BY-SA 3.0            http://opengameart.org/content/mammon-angel-of-darkness
-ODMainMenuButtons.imageset             Bertram                 GPL 3.0
+ODMainMenuButtons.imageset             Bertram                 GPLv3+
 ODMainMenuButtons.png                  StumpyStrust            CC-BY-SA 3.0            http://opengameart.org/content/fantasy-ui-box
 OpenDungeons.looknfeel                 OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
-OpenDungeonsIcons.imageset             OD Team                 GPL 3.0
+OpenDungeonsIcons.imageset             OD Team                 GPLv3+
 OpenDungeonsIcons.png                  OD Team                 CC-BY-SA 3.0
 OpenDungeonsSkin.imageset              OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 OpenDungeonsSkin.png                   Bertram, StumpyStrust   CC-BY-SA 3.0            Own made GUI based on: http://opengameart.org/content/fantasy-ui-box
@@ -44,8 +44,8 @@ OpenDungeonsSkin.scheme                OD Team                 MIT              
 fonts/
 -> LiberationSans-Bold.ttf             Red Hat                 OFL (Open Font License) https://fedorahosted.org/liberation-fonts/
 -> MedievalSharp-Bold.ttf              wmk69 (wmk69@o2.pl)     OFL (Open Font License) http://openfontlibrary.org/en/font/medievalsharp
--> *.font                              OD Team                 GPL 3.0
--> ogrefonts.fontdef                   OD Team                 GPL 3.0
+-> *.font                              OD Team                 GPLv3+
+-> ogrefonts.fontdef                   OD Team                 GPLv3+
 
 schemas/
 -> Animation.xsd                       OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
@@ -64,24 +64,24 @@ schemas/
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
 multiplayer/
--> GreedOrMight.level                  Akien                   GPL 3.0
--> ScreamInTheDark.level               Bertram                 GPL 3.0
--> TestBigMap.level                    hwoarangmy              GPL 3.0
--> TestMultiplayerSmall1v1.level       hwoarangmy              GPL 3.0
--> TestMultiplayerSmallAlliance.level  hwoarangmy              GPL 3.0
--> TestMultiplayerSmallFreeForAll.level hwoarangmy             GPL 3.0
--> TheBridge.level                     Bertram                 GPL 3.0
+-> GreedOrMight.level                  Akien                   GPLv3+
+-> ScreamInTheDark.level               Bertram                 GPLv3+
+-> TestBigMap.level                    hwoarangmy              GPLv3+
+-> TestMultiplayerSmall1v1.level       hwoarangmy              GPLv3+
+-> TestMultiplayerSmallAlliance.level  hwoarangmy              GPLv3+
+-> TestMultiplayerSmallFreeForAll.level hwoarangmy             GPLv3+
+-> TheBridge.level                     Bertram                 GPLv3+
 
 skirmish/
--> FallingKeeper.level                 hwoarangmy              GPL 3.0
--> StonekeepSiege.level                Danimal                 GPL 3.0
--> TestLegacy.level                    OD Team                 GPL 3.0
--> TestModelsFair.level                Akien                   GPL 3.0
--> TestSingleplayerSmall.level         hwoarangmy              GPL 3.0
--> TestSingleplayerSmallEmpty.level    hwoarangmy              GPL 3.0
--> TestSingleplayerSmallPassability.level hwoarangmy           GPL 3.0
+-> FallingKeeper.level                 hwoarangmy              GPLv3+
+-> StonekeepSiege.level                Danimal                 GPLv3+
+-> TestLegacy.level                    OD Team                 GPLv3+
+-> TestModelsFair.level                Akien                   GPLv3+
+-> TestSingleplayerSmall.level         hwoarangmy              GPLv3+
+-> TestSingleplayerSmallEmpty.level    hwoarangmy              GPLv3+
+-> TestSingleplayerSmallPassability.level hwoarangmy           GPLv3+
 
-template.level                         OD Team                 GPL 3.0
+template.level                         OD Team                 GPLv3+
 
 
 =================================================
@@ -93,7 +93,7 @@ Name                                   Author                  License          
 RTShaderLib/*                          The Ogre 3D Team        MIT                     http://www.ogre3d.org/licensing
 
 scripts/
--> *.material                          OD Team                 GPL 3.0
+-> *.material                          OD Team                 GPLv3+
 
 textures/
 -> *.png                               Titus Tscharntke        CC0                     http://www.burningwell.org/ - photo sources for textures
@@ -107,7 +107,7 @@ textures/
 -> Bookshelf*.png
 -> Boulder.png                         Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59832#p59832
 -> Cannon.png
--> Cavehornet*.png                     Skorpio                 CC-BY-SA 3.0, GPL 3.0
+-> Cavehornet*.png                     Skorpio                 CC-BY-SA 3.0, GPLv3+
 -> CelticCross*.png                    Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 -> ChickenCoop*.png                    Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
 -> Chicken.png
@@ -120,7 +120,7 @@ textures/
 -> Dirt*.png
 -> Dojo*.png
 -> Dormitory*.png
--> DragonBed.png                       Dm3d                    GPL 2.0/GPL 3.0/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
+-> DragonBed.png                       Dm3d                    GPL 2.0/GPLv3+/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
 -> DungeonClaimedWall*.png             Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Dragon{,Normal}.png
 -> DungeonTemple*.png
@@ -212,31 +212,31 @@ Bed.mesh                               Clint Bellanger         CC0              
 Bookcase.mesh                          Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Bookshelf.mesh                         Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Boulder.*                              Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59832#p59832
-Cannon.mesh                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Cannon.mesh                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
 Cannonball.mesh                        Andrew Buck             CC-BY-SA 3.0
 CaveHornet.*                           Skorpio, Danimal        CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 CelticCross.mesh                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 Chicken.*                              Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 ChickenCoop.mesh                       Dm3d, Danimal           CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
 Chimney.mesh                           Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
-Claimed_*.mesh                         Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Claimed_*.mesh                         Skorpio                 CC-BY-SA 3.0, GPLv3+
 Cre_vision_indicator.mesh              Andrew Buck             CC-BY-SA 3.0
 Crypt.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 Defender.*                             Konstantin Maystrenko - Concept  CC-BY 3.0      http://forum.freegamedev.net/viewtopic.php?p=61450#p61450
                                        AnthonyMyers - Modeller
                                        Danimal - Retopo/Rigging/Animation
-Dirt*.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Dirt*.mesh                             Skorpio                 CC-BY-SA 3.0, GPLv3+
 Dojo.mesh                              p0ss                    CC-BY-SA 3.0
-Dormitory.mesh                         Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Dragon.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
-DragonBed.mesh                         Dm3d                    GPL 2.0/GPL 3.0/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
-DungeonTemple*.*                       Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Dwarf1.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Dwarf2.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Dormitory.mesh                         Skorpio                 CC-BY-SA 3.0, GPLv3+
+Dragon.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
+DragonBed.mesh                         Dm3d                    GPL 2.0/GPLv3+/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
+DungeonTemple*.*                       Skorpio                 CC-BY-SA 3.0, GPLv3+
+Dwarf1.*                               Skorpio                 CC-BY-SA 3.0, GPLv3+
+Dwarf2.*                               Skorpio                 CC-BY-SA 3.0, GPLv3+
 Farm.mesh                              Danimal                 CC-BY-SA 3.0            (Texture by nobiax - CC0) - http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Forge.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 Foundry.mesh                           Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
-Gnome.*                                Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Gnome.*                                Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
 Goblin.*                               xGhostx7                CC0                     http://www.blendswap.com/blends/view/72394
  -> Animation                          Danimal
  -> Knife model                        Wind astella            CC-BY 3.0               http://opengameart.org/content/wind-weapon-pack-1
@@ -246,30 +246,30 @@ Grimoire.*                             Danimal                 CC-BY-SA 3.0     
 Grindstone.mesh                        Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 Hammock.mesh                           eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=59983#p59983
 ImpBed.mesh                            eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60275#p60275
-Keeperhand.*                           Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Keeperhand.*                           Skorpio                 CC-BY-SA 3.0, GPLv3+
 Knight.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
 KnightCoffin.mesh                      YD                      CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 KnightStatue.mesh                      YD                      CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 KnightStatue2.mesh                     YD                      CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 Kobold.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
-Kreatur.*                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Kreatur.*                              Skorpio                 CC-BY-SA 3.0, GPLv3+
 Lamp.mesh                              Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
-Lava*.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Lava*.mesh                             Skorpio                 CC-BY-SA 3.0, GPLv3+
 Library.mesh                           Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
-Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
 LizardmanBed.mesh                      Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
-Longsword.mesh                         Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Longsword.mesh                         Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
 MysteryBox.mesh                        Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
-Orc.*                                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Orc.*                                  Skorpio                 CC-BY-SA 3.0, GPLv3+
 OrcBed.mesh                            Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60191#p60191
-PitDemon.*                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Podium.mesh                            DM3d                    CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/podium
+PitDemon.*                             Skorpio                 CC-BY-SA 3.0, GPLv3+
+Podium.mesh                            DM3d                    CC-BY-SA 3.0, GPLv3+    http://opengameart.org/content/podium
 PortalObject.*                         Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60904#p60904
 Portal.mesh                            Skorpio                 CC-BY-SA 3.0
 RangerBed.mesh                         PantherOne              CC0                     http://opengameart.org/content/tent-pack
-Roundshield.mesh                       Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Roundshield.mesh                       Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
 RunelordDwarf.*                        thecubber (OGA), MrBeast (OGA), Skorpio
- ->                                                            CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/dwarf-fixed
+ ->                                                            CC-BY-SA 3.0, GPLv3+    http://opengameart.org/content/dwarf-fixed
 Sabre.mesh                             Andrew Buck             CC-BY-SA 3.0
 Scarab.*                               killyoverdrive (OGA)    CC-BY-SA 3.0            http://opengameart.org/content/beetle-golem-animated
 Slime.*                                Grefuntor, D3dm         CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
@@ -278,30 +278,30 @@ Spider.*                               DennisH2010, Danimal    CC-BY 3.0        
 SpiderBed.mesh                         Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60089#p60089
 Spiketrap.*                            Danimal                 CC-BY 3.0               http://opengameart.org/content/spyke-trap-low-poly
 SquareSelector.mesh                    OD Team                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59066#p59066
-Staff.*                                Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Staff.*                                Skorpio                 CC-BY-SA 3.0, GPLv3+
 StoneCoffin.mesh                       Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 TentacleBed.mesh                       Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60091#p60091
-Tentacle*.*                            Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Tentacle*.*                            Skorpio                 CC-BY-SA 3.0, GPLv3+
 Tileset                                Skorpio, Danimal        CC-BY-SA 3.0            http://opengameart.org/content/3d-dungeon-tileset
 TrainingDummy1.*                       Aaron Eads              CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 TrainingDummy2.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?f=38&t=5528&p=59348#p59239
 TrainingDummy3.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
 TrainingDummy4.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
-Treasury.mesh                          Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Treasury.mesh                          Skorpio                 CC-BY-SA 3.0, GPLv3+
 Troll.*                                Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
 TrollBed.mesh                          Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
 TrollRock.mesh                         Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
 WarBanner.*                            Danimal, Atmostatic     CC-BY 3.0               https://github.com/OpenDungeons/OpenDungeons/pull/838#issuecomment-118964220
-Water*                                 Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Water*                                 Skorpio                 CC-BY-SA 3.0, GPLv3+
 WeaponShield1.mesh                     YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
 WeaponShield2.mesh                     YD, Rshackleford, Danimal CC-BY 3.0             http://opengameart.org/users/rshackleford
-Wizard.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Wizard.*                               Skorpio                 CC-BY-SA 3.0, GPLv3+
 WoodBridge.mesh                        Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WoodenDoor.mesh                        Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
 Workshop.mesh                          Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WorkshopMachine1.mesh                  Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WorkshopMachine2.*                     Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
-Wyvern.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Wyvern.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
 
 
 ====================
@@ -322,7 +322,7 @@ Searching_yd.ogg                       yd                      CC0              
 
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
-*.as                                   OD Team                 GPL 3.0
+*.as                                   OD Team                 GPLv3+
 
 
 =======================
@@ -343,7 +343,7 @@ Creatures/Default/
 -> Digging/Digging*.ogg                Svenskmand              CC-BY-SA 3.0
 
 Rooms/
--> default_build_room.ogg              remaxim                 CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/falling-body
+-> default_build_room.ogg              remaxim                 CC-BY-SA 3.0, GPLv3+    http://opengameart.org/content/falling-body
 -> default_build_trap.ogg              Svenskmand              CC-BY-SA 3.0
 
 Traps/
@@ -356,7 +356,7 @@ Traps/
 
 hicolor/*/apps/opendungeons.*          Svenskmand              CC-BY-SA 3.0
   except hicolor/16x16/apps/opendungeons.png  OD Team          CC-BY-SA 3.0
-icon.rc                                OD Team                 GPL 3.0
+icon.rc                                OD Team                 GPLv3+
 logo.svg                               Svenskmand              CC-BY-SA 3.0
 OD-Logo.ico                            Svenskmand              CC-BY-SA 3.0
-opendungeons.appdata.xml               OD Team                 GPL 3.0
+opendungeons.appdata.xml               OD Team                 GPLv3+
