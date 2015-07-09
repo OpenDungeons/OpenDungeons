@@ -37,20 +37,26 @@ enum class TileVisual;
 namespace Config
 {
 //! \brief Config options names
+// Categories
+enum Ctg : std::size_t
+{
+    NONE  = 0,
+    VIDEO = 1,
+    AUDIO = 2,
+    GAME  = 3,
+    INPUT = 4,
+    TOTAL = 5
+};
+
 // Video
-const std::string VIDEO = "Video";
 const std::string RENDERER = "Renderer";
 const std::string VIDEO_MODE = "Video Mode";
 const std::string VSYNC = "VSync";
 const std::string FULL_SCREEN = "Full Screen";
 // Audio
-const std::string AUDIO = "Audio";
 const std::string MUSIC_VOLUME = "Music Volume";
 // Game
-const std::string GAME = "Game";
 const std::string NICKNAME = "Nickname";
-// Input
-const std::string INPUT = "Input";
 }
 
 //! \brief This class is used to manage global configuration such as network configuration, global creature stats, ...
@@ -160,31 +166,31 @@ public:
 
     //! \brief Set a config value. Only permits predetermined types.
     void setAudioValue(const std::string& param, const std::string& value)
-    { mUserConfig[Config::AUDIO][param] = value; }
+    { mUserConfig[Config::Ctg::AUDIO][param] = value; }
     void setVideoValue(const std::string& param, const std::string& value)
-    { mUserConfig[Config::VIDEO][param] = value; }
+    { mUserConfig[Config::Ctg::VIDEO][param] = value; }
     void setInputValue(const std::string& param, const std::string& value)
-    { mUserConfig[Config::INPUT][param] = value; }
+    { mUserConfig[Config::Ctg::INPUT][param] = value; }
     void setGameValue(const std::string& param, const std::string& value)
-    { mUserConfig[Config::GAME][param] = value; }
+    { mUserConfig[Config::Ctg::GAME][param] = value; }
 
     //! \brief Get a config value.
     inline const std::string& getAudioValue(const std::string& param,
                                             const std::string& defaultValue = std::string(),
                                             bool triggerError = true) const
-    { return getUserValue(Config::AUDIO, param, defaultValue, triggerError); }
+    { return getUserValue(Config::Ctg::AUDIO, param, defaultValue, triggerError); }
     inline const std::string& getVideoValue(const std::string& param,
                                             const std::string& defaultValue = std::string(),
                                             bool triggerError = true) const
-    { return getUserValue(Config::VIDEO, param, defaultValue, triggerError); }
+    { return getUserValue(Config::Ctg::VIDEO, param, defaultValue, triggerError); }
     inline const std::string& getInputValue(const std::string& param,
                                             const std::string& defaultValue = std::string(),
                                             bool triggerError = true) const
-    { return getUserValue(Config::INPUT, param, defaultValue, triggerError); }
+    { return getUserValue(Config::Ctg::INPUT, param, defaultValue, triggerError); }
     inline const std::string& getGameValue(const std::string& param,
                                            const std::string& defaultValue = std::string(),
                                            bool triggerError = true) const
-    { return getUserValue(Config::GAME, param, defaultValue, triggerError); }
+    { return getUserValue(Config::Ctg::GAME, param, defaultValue, triggerError); }
 
     //! \brief Save the user configuration file.
     bool saveUserConfig();
@@ -216,7 +222,7 @@ private:
     void loadUserConfig(const std::string& fileName);
 
     //! \brief Get a config value.
-    const std::string& getUserValue(const std::string& type,
+    const std::string& getUserValue(Config::Ctg category,
                                     const std::string& param,
                                     const std::string& defaultValue = std::string(),
                                     bool triggerError = true) const;
@@ -277,7 +283,7 @@ private:
 
     //! \brief User config values
     //! < category, < param, value > >
-    std::map<std::string, std::map<std::string, std::string> > mUserConfig;
+    std::vector< std::map<std::string, std::string> > mUserConfig;
 };
 
 #endif //CONFIGMANAGER_H
