@@ -1,11 +1,96 @@
 ## OpenDungeons Release Notes
 
 This file contains the subsequent release notes for each version of
-OpenDungeons since version 0.4.9, in reverse chronological order.
+OpenDungeons since version 0.4.7, in reverse chronological order.
 
 The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on
 our repository at https://github.com/OpenDungeons/OpenDungeons
 
+### Version 0.6.0
+
+**Highlights:**
+
+* New spell logic with cooldown, targets and cost management
+* Fancy new spells: Heal, Explosion and Haste
+* Particle effects!
+* Reworked library logic and made research order configurable
+* New creature overlays that show the creatures' mood
+* Doors to better block enemies and macromanage allies
+* In-game settings menu support!
+* New claimed walls graphics and various other graphical improvements
+* New minimap camera with real-time rendering
+* Dedicated server support with command-line parameters
+
+**General:**
+
+* Allow to display callstack when a crash occurs with MSVS2013 versions (#701)
+* Homogenize how the callstack is displayed independently from platform (#701)
+* Training room max training level is configurable in config/rooms.cfg (#698)
+* Simplifications on mode handling (#670)
+* Support for command-line options (see --help for details) (#688)
+* Support for running the game as a dedicated (standalone) server (#665)
+* Cheat added to unlock all skills at once (for testing purposes) (#729)
+* De-hardcoded main menu music, now configurable (#632)
+* Readded support for Direct3D renderer on Windows (#799)
+
+**Gameplay:**
+
+* New "Heal" and "Explosion" spells (#706)
+* New "Haste" spell (#842)
+* Spell logic implementation and improvements:
+  - Initial spell logic: cooldown, targets and cost (#683)
+  - Spells are triggered only when relevant and "Spawn Worker" has no
+    cooldown (#710)
+  - Handle spells through a spell manager (#727)
+* Reworked library logic:
+  - Working at the library generates grimoires that represent a fixed
+    amount of skill points (#817)
+  - Rooms and spells are unlocked when their skill points requirements are
+    fulfilled (#817)
+* Implemented doors (#732)
+* Warn the player when they place a trap without having a workshop to craft
+  it (#671)
+* Do not trigger payday messages if no fighting creatures are alive (#715)
+* Prevent slapping creatures with a right-click when dropping them (#722)
+* Creatures bank account: payday gold is accumulated and dropped on death,
+  unless the creature leave the dungeon (#704)
+* Improved fighter creature behaviour so that they go to sleep or eat when
+  tired or hungry, if they are not forced to do a given task (#807)
+
+**Levels:**
+
+* Removed levels redundancy between skirmish and multiplayer maps:
+  multiplayer maps can now be loaded in singleplayer vs AI from the skirmish
+  menu (#696)
+* Improvements to the "The Bridge" level (#673)
+* Drop unused intermediate tile fullness values in the editor (#590)
+
+**Graphics:**
+
+* Better-looking claimed walls models (#808 #818)
+* Fixed tileset glitches (#273 #694)
+* Particle effects support on entities (#683 #709 #710 #711)
+* Add a random offset to creature position on their tile to prevent
+  meshes overlap (#660 #697)
+* Gold stacks have random orientations and offsets (#725)
+* Rotate tables in the workshop and place creatures accordingly (#573)
+* Increase size of the scarab nose (#721)
+
+**UI:**
+
+* In-game settings menu, replaces the default OGRE launcher (#3)
+* In-game and editor tabs are now displayed as thematic icons (#742)
+* Research UI improvements:
+  - Customisable research order with automatic dependency management (#577)
+* Creature overlays improvements:
+  - Display 8 health states instead of 4 in the skull flags (#733)
+  - Display an overlay with the creature's mood (#734)
+* New minimap camera that shows the actual map models in top-down view (#530)
+* Creature selection relies on selected tile instead of ray casts (#785)
+* Display picked up entities at a fixed size regardless of camera zoom (#794)
+* Made UI buttons more responsive to multiple clicks (#343)
+* Allow to toggle the keeper hand and tile selector with F9 (#684)
+* Improved cost tooltips for rooms, traps and spells (#713)
 
 ### Version 0.5.0 - 20 April 2015
 
