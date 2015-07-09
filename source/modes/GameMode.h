@@ -190,7 +190,10 @@ private:
 
     //! \brief sets cegui button name according to the given resType
     //! returns true is the button name is found for the given resType and false otherwise
-    bool researchButtonFromType(ResearchType resType, std::string& researchWidgetButton, std::string& useWidgetButton);
+    bool researchButtonFromType(ResearchType resType,
+                                std::string& researchWidgetButton,
+                                std::string& useWidgetButton,
+                                std::string& researchProgressBar);
 
     void connectSpellSelect(const std::string& buttonName, SpellType spellType);
     void connectResearchSelect(const std::string& buttonName, ResearchType type);

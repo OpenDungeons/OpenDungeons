@@ -275,6 +275,9 @@ public:
     bool isResearching() const
     { return mCurrentResearch != nullptr; }
 
+    //! \brief Gets the current percentage of research done. (0.0f-1.0f)
+    float getCurrentResearchProgress() const;
+
     //! \brief Tells whether the given research type is in the pending queue.
     //! \return The number of the pending research in the research queue or 0 if not there.
     uint32_t isResearchPending(ResearchType resType) const;
