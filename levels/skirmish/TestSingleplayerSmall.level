@@ -1292,7 +1292,7 @@ DwarfWorker	1
 [/GiftBoxEntity]
 
 [Missiles]
-# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	speed	optionalData
 [/Missiles]
 
 [TreasuryObject]

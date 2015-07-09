@@ -1065,6 +1065,7 @@ bool ConfigManager::loadResearches(const std::string& fileName)
     int32_t pointsSpellCallToWar = 0;
     int32_t pointsSpellCreatureHeal = 0;
     int32_t pointsSpellCreatureExplosion = 0;
+    int32_t pointsSpellCreatureHaste = 0;
 
     OD_LOG_INF("Load Researches file: " + fileName);
     std::stringstream defFile;
@@ -1150,6 +1151,12 @@ bool ConfigManager::loadResearches(const std::string& fileName)
             defFile >> pointsSpellCreatureExplosion;
             continue;
         }
+
+        if(nextParam == "SpellCreatureHaste")
+        {
+            defFile >> pointsSpellCreatureHaste;
+            continue;
+        }
     }
 
     // We build the research tree
@@ -1205,6 +1212,10 @@ bool ConfigManager::loadResearches(const std::string& fileName)
     // CreatureExplosion depends on CreatureHeal
     depends.push_back(research);
     research = new Research(ResearchType::spellCreatureExplosion, pointsSpellCreatureExplosion, depends);
+    mResearches.push_back(research);
+
+    depends.clear();
+    research = new Research(ResearchType::spellCreatureHaste, pointsSpellCreatureHaste, depends);
     mResearches.push_back(research);
     return true;
 }

@@ -164,7 +164,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mOverlayMoodValue        (0),
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false),
-    mDropCooldown            (0)
+    mDropCooldown            (0),
+    mSpeedModifier           (1.0)
 
 {
     //TODO: This should be set in initialiser list in parent classes
@@ -248,7 +249,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mOverlayMoodValue        (0),
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false),
-    mDropCooldown            (0)
+    mDropCooldown            (0),
+    mSpeedModifier           (1.0)
 {
     pushAction(CreatureActionType::idle, false, true);
 }
@@ -531,6 +533,7 @@ void Creature::exportToPacket(ODPacket& os) const
     os << mWeaponlessAtkRange;
     os << mOverlayHealthValue;
     os << mOverlayMoodValue;
+    os << mSpeedModifier;
 
     if(mWeaponL != nullptr)
         os << mWeaponL->getName();
@@ -581,6 +584,7 @@ void Creature::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mWeaponlessAtkRange);
     OD_ASSERT_TRUE(is >> mOverlayHealthValue);
     OD_ASSERT_TRUE(is >> mOverlayMoodValue);
+    OD_ASSERT_TRUE(is >> mSpeedModifier);
 
     OD_ASSERT_TRUE(is >> tempString);
     if(tempString != "none")
@@ -2542,11 +2546,10 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
         }
 
         MissileOneHit* missile = new MissileOneHit(getGameMap(), getIsOnServerMap(), getSeat(), getName(), "Cannonball",
-            "MissileMagic", missileDirection, physicalDamage, magicalDamage, tileBuilding, false);
+            "MissileMagic", missileDirection, 3.0, physicalDamage, magicalDamage, tileBuilding, false);
         missile->addToGameMap();
         missile->createMesh();
         missile->setPosition(position);
-        missile->setMoveSpeed(3.0, 1.0);
         // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
         // we can safely call the missile doUpkeep as we know the engine will not call it the turn
         // it has been added
@@ -3182,6 +3185,10 @@ void Creature::refreshCreature(ODPacket& packet)
     OD_ASSERT_TRUE(packet >> seatId);
     OD_ASSERT_TRUE(packet >> mOverlayHealthValue);
     OD_ASSERT_TRUE(packet >> mOverlayMoodValue);
+    OD_ASSERT_TRUE(packet >> mGroundSpeed);
+    OD_ASSERT_TRUE(packet >> mWaterSpeed);
+    OD_ASSERT_TRUE(packet >> mLavaSpeed);
+    OD_ASSERT_TRUE(packet >> mSpeedModifier);
     RenderManager::getSingleton().rrScaleEntity(this);
 
     if(getSeat()->getId() != seatId)
@@ -4250,6 +4257,10 @@ void Creature::fireCreatureRefreshIfNeeded()
         serverNotification->mPacket << seatId;
         serverNotification->mPacket << mOverlayHealthValue;
         serverNotification->mPacket << mOverlayMoodValue;
+        serverNotification->mPacket << mGroundSpeed;
+        serverNotification->mPacket << mWaterSpeed;
+        serverNotification->mPacket << mLavaSpeed;
+        serverNotification->mPacket << mSpeedModifier;
 
         uint32_t nbCreatureEffect = mEntityParticleEffects.size();
         serverNotification->mPacket << nbCreatureEffect;
@@ -4602,4 +4613,26 @@ void Creature::clientUpkeep()
     MovableGameEntity::clientUpkeep();
     if(mDropCooldown > 0)
         --mDropCooldown;
+}
+
+void Creature::setMoveSpeedModifier(double modifier)
+{
+    mSpeedModifier = modifier;
+
+    mGroundSpeed = mDefinition->getMoveSpeedGround();
+    mWaterSpeed = mDefinition->getMoveSpeedWater();
+    mLavaSpeed  = mDefinition->getMoveSpeedLava();
+
+    double multiplier = mLevel - 1;
+    if (multiplier > 0.0)
+    {
+        mGroundSpeed += mDefinition->getGroundSpeedPerLevel() * multiplier;
+        mWaterSpeed += mDefinition->getWaterSpeedPerLevel() * multiplier;
+        mLavaSpeed += mDefinition->getLavaSpeedPerLevel() * multiplier;
+    }
+
+    mGroundSpeed *= mSpeedModifier;
+    mWaterSpeed *= mSpeedModifier;
+    mLavaSpeed *= mSpeedModifier;
+    mNeedFireRefresh = true;
 }

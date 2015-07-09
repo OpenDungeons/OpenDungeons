@@ -62,8 +62,6 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "animatedObjectSetWalkPath";
         case ServerNotificationType::setObjectAnimationState:
             return "setObjectAnimationState";
-        case ServerNotificationType::setMoveSpeed:
-            return "setMoveSpeed";
         case ServerNotificationType::entityPickedUp:
             return "entityPickedUp";
         case ServerNotificationType::entityDropped:

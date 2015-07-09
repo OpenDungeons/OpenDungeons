@@ -28,6 +28,7 @@ enum class CreatureEffectType
     unknown,
     heal,
     explosion,
+    speedChange,
     slap
 };
 

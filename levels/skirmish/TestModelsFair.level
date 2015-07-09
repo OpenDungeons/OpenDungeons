@@ -32,6 +32,7 @@ trapCannon
 trapDoorWooden
 trapSpike
 spellCallToWar
+spellCreatureHaste
 spellCreatureHeal
 spellCreatureExplosion
 spellSummonWorker
@@ -1095,7 +1096,7 @@ Spider12	16	13	0
 [/GiftBoxEntity]
 
 [Missiles]
-# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	speed	optionalData
 [/Missiles]
 
 [TreasuryObject]

@@ -71,11 +71,11 @@ bool TrapBoulder::shoot(Tile* tile)
     position.z = 0;
     direction.normalise();
     MissileBoulder* missile = new MissileBoulder(getGameMap(), true, getSeat(), getName(), "Boulder",
-        direction, Random::Double(mMinDamage, mMaxDamage), nullptr);
+        direction, ConfigManager::getSingleton().getTrapConfigDouble("BoulderSpeed"),
+        Random::Double(mMinDamage, mMaxDamage), nullptr);
     missile->addToGameMap();
     missile->createMesh();
     missile->setPosition(position);
-    missile->setMoveSpeed(ConfigManager::getSingleton().getTrapConfigDouble("BoulderSpeed"), 1.0);
     // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
     // we can safely call the missile doUpkeep as we know the engine will not call it the turn
     // it has been added

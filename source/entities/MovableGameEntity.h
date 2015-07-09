@@ -78,14 +78,12 @@ public:
     virtual void correctDropPosition(Ogre::Vector3& position) override;
 
     virtual double getMoveSpeed() const
-    { return mMoveSpeed; }
-
-    virtual void setMoveSpeed(double moveSpeed, double animationSpeed);
+    { return 1.0; }
 
     virtual void setAnimationState(const std::string& state, bool loop = true, const Ogre::Vector3& direction = Ogre::Vector3::ZERO);
 
-    inline double getAnimationSpeedFactor() const
-    { return mAnimationSpeedFactor; }
+    virtual double getAnimationSpeedFactor() const
+    { return 1.0; }
 
     //! \brief Updates the entity path, movement, and direction
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
@@ -118,8 +116,6 @@ protected:
 private:
     void fireObjectAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction);
     Ogre::AnimationState* mAnimationState;
-    double mMoveSpeed;
-    double mAnimationSpeedFactor;
     std::string mDestinationAnimationState;
     bool mDestinationAnimationLoop;
     Ogre::Vector3 mDestinationAnimationDirection;

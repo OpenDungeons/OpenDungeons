@@ -77,9 +77,14 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="FrameColours" value="tl:FF0000FF tr:FF0000FF bl:FFFFFFFF br:FFFFFFFF" />
                 <Window type="OD/ImageButton" name="LibraryButton" >
-                    <Property name="Area" value="{{0.7,-25},{0,15},{0.7,25},{0,65}}" />
+                    <Property name="Area" value="{{0.5,-25},{0,15},{0.5,25},{0,65}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/LibraryButton" />
                     <Property name="TooltipText" value="Room: Library" />
+                </Window>
+                <Window type="OD/ImageButton" name="CreatureHasteButton" >
+                    <Property name="Area" value="{{0.8,-25},{0,15},{0.8,25},{0,65}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureHasteButton" />
+                    <Property name="TooltipText" value="Spell: Haste creature" />
                 </Window>
                 <Window type="OD/ImageButton" name="CryptButton" >
                     <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
@@ -87,7 +92,7 @@
                     <Property name="TooltipText" value="Room: Crypt" />
                 </Window>
                 <Window type="OD/ImageButton" name="SummonWorkerButton" >
-                    <Property name="Area" value="{{0.3,-25},{0,15},{0.3,25},{0,65}}" />
+                    <Property name="Area" value="{{0.2,-25},{0,15},{0.2,25},{0,65}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/SummonWorkerButton" />
                     <Property name="TooltipText" value="Spell: Summon Worker" />
                 </Window>

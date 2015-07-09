@@ -49,6 +49,7 @@ enum class ResearchType
     spellCallToWar,
     spellCreatureHeal,
     spellCreatureExplosion,
+    spellCreatureHaste,
 
     // This should be the last
     countResearch

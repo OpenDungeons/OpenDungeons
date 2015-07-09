@@ -19,6 +19,7 @@
 
 #include "creatureeffect/CreatureEffectHeal.h"
 #include "creatureeffect/CreatureEffectExplosion.h"
+#include "creatureeffect/CreatureEffectSpeedChange.h"
 
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -39,6 +40,8 @@ CreatureEffect* CreatureEffect::load(std::istream& is)
     {
         case CreatureEffectType::heal:
             return CreatureEffectHeal::load(is);
+        case CreatureEffectType::speedChange:
+            return CreatureEffectSpeedChange::load(is);
         case CreatureEffectType::explosion:
             return CreatureEffectExplosion::load(is);
         default:
@@ -50,7 +53,10 @@ CreatureEffect* CreatureEffect::load(std::istream& is)
 bool CreatureEffect::upkeepEffect(Creature& creature)
 {
     if(mNbTurnsEffect <= 0)
+    {
+        releaseEffect(creature);
         return false;
+    }
 
     --mNbTurnsEffect;
     applyEffect(creature);

@@ -173,6 +173,7 @@ const std::string Gui::BUTTON_SPELL_SUMMON_WORKER = "MainTabControl/Spells/Summo
 const std::string Gui::BUTTON_SPELL_CALLTOWAR = "MainTabControl/Spells/CallToWarButton";
 const std::string Gui::BUTTON_SPELL_CREATURE_HEAL = "MainTabControl/Spells/CreatureHealButton";
 const std::string Gui::BUTTON_SPELL_CREATURE_EXPLOSION = "MainTabControl/Spells/CreatureExplosionButton";
+const std::string Gui::BUTTON_SPELL_CREATURE_HASTE = "MainTabControl/Spells/CreatureHasteButton";
 const std::string Gui::TAB_CREATURES = "MainTabControl/Creatures";
 const std::string Gui::BUTTON_CREATURE_WORKER = "MainTabControl/Creatures/WorkerButton";
 const std::string Gui::BUTTON_CREATURE_FIGHTER = "MainTabControl/Creatures/FighterButton";

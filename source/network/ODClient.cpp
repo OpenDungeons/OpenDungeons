@@ -578,23 +578,6 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotificationType::setMoveSpeed:
-        {
-            std::string objName;
-            double moveSpeed;
-            double animationSpeed;
-            OD_ASSERT_TRUE(packetReceived >> objName >> moveSpeed >> animationSpeed);
-            MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
-            if (obj == nullptr)
-            {
-                OD_LOG_ERR("objName=" + objName + ", moveSpeed=" + Helper::toString(moveSpeed) + ", animationSpeed=" + Helper::toString(animationSpeed));
-                break;
-            }
-
-            obj->setMoveSpeed(moveSpeed, animationSpeed);
-            break;
-        }
-
         case ServerNotificationType::refreshPlayerSeat:
         {
             Seat tmpSeat(gameMap);
