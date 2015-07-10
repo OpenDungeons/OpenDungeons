@@ -15,7 +15,7 @@ material DCW0101 : RTSS/NormalMapping_MultiPass
         }
         pass decal
         {
-        lighting off
+            lighting off
             // We use blending, so that we can see the underlying texture.
             texture_unit decalmap
             {

@@ -1,9 +1,9 @@
 // WarBannerAlpha genrated by blender2ogre 0.6.0
 
 
-material WarBannerAlpha 
+material WarBannerAlpha
 {
-    receive_shadows on 
+    receive_shadows on
     technique
     {
         pass

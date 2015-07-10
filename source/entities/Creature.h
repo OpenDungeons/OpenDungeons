@@ -592,7 +592,7 @@ private:
     //! \brief Represents the mood of the creature. It is a bit array
     uint32_t                        mOverlayMoodValue;
 
-    //! Used by the renderer to save this entity's overlay. It is its responsability
+    //! Used by the renderer to save this entity's overlay. It is its responsibility
     //! to allocate/delete this pointer
     CreatureOverlayStatus*          mOverlayStatus;
 
