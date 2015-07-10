@@ -29,6 +29,7 @@ class InputCommand;
 class InputManager;
 class ODPacket;
 class Player;
+class Seat;
 class Spell;
 
 enum class SpellType;

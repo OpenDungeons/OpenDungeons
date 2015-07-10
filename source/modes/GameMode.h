@@ -186,17 +186,8 @@ private:
 
     //! \brief Set the state of the given research button accordingly to the research type given.
     //! \note: Called by refreshGuiResearch() for each researchType.
-    void refreshResearchButtonState(ResearchType resType);
-
-    //! \brief sets cegui button name according to the given resType
-    //! returns true is the button name is found for the given resType and false otherwise
-    bool researchButtonFromType(ResearchType resType,
-                                std::string& researchWidgetButton,
-                                std::string& useWidgetButton,
-                                std::string& researchProgressBar);
-
-    void connectSpellSelect(const std::string& buttonName, SpellType spellType);
-    void connectResearchSelect(const std::string& buttonName, ResearchType type);
+    void refreshResearchButtonState(const std::string& researchButton, const std::string& castButton,
+        const std::string& researchProgressBar, ResearchType resType);
 
     //! \brief Tells whether the latest mouse click was made on a relevant CEGUI widget,
     //! and thus, the game should ignore it.

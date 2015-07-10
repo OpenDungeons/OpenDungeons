@@ -30,6 +30,7 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
 #include "entities/Tile.h"
+#include "game/ResearchManager.h"
 #include "game/Seat.h"
 #include "traps/TrapManager.h"
 #include "game/Player.h"
@@ -926,21 +927,13 @@ void EditorMode::refreshGuiResearch()
 {
     // We show/hide the icons depending on available researches
     CEGUI::Window* guiSheet = mRootWindow;
-    guiSheet->getChild(Gui::BUTTON_DORMITORY)->show();
-    guiSheet->getChild(Gui::BUTTON_TREASURY)->show();
-    guiSheet->getChild(Gui::BUTTON_HATCHERY)->show();
-    guiSheet->getChild(Gui::BUTTON_LIBRARY)->show();
-    guiSheet->getChild(Gui::BUTTON_CRYPT)->show();
-    guiSheet->getChild(Gui::BUTTON_TRAININGHALL)->show();
-    guiSheet->getChild(Gui::BUTTON_WORKSHOP)->show();
-    guiSheet->getChild(Gui::BUTTON_TRAP_DOOR_WOODEN)->show();
-    guiSheet->getChild(Gui::BUTTON_TRAP_CANNON)->show();
-    guiSheet->getChild(Gui::BUTTON_TRAP_SPIKE)->show();
-    guiSheet->getChild(Gui::BUTTON_TRAP_BOULDER)->show();
-    guiSheet->getChild(Gui::BUTTON_SPELL_SUMMON_WORKER)->show();
-    guiSheet->getChild(Gui::BUTTON_SPELL_CALLTOWAR)->show();
-    guiSheet->getChild(Gui::BUTTON_SPELL_CREATURE_HEAL)->show();
-    guiSheet->getChild(Gui::BUTTON_SPELL_CREATURE_EXPLOSION)->show();
+
+    ResearchManager::listAllResearches([&](const std::string& researchButtonName, const std::string& castButtonName,
+        const std::string& researchProgressBarName, ResearchType resType)
+    {
+        guiSheet->getChild(castButtonName)->show();
+    });
+
 
     // We also display the editor only buttons
     guiSheet->getChild(Gui::BUTTON_TEMPLE)->show();

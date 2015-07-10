@@ -291,6 +291,7 @@ set(OD_SOURCEFILES
     ${SRC}/game/PlayerFunctions.cpp
     ${SRC}/game/PlayerSelection.cpp
     ${SRC}/game/Research.cpp
+    ${SRC}/game/ResearchManager.cpp
     ${SRC}/game/Seat.cpp
     ${SRC}/game/SeatFunctions.cpp
 

@@ -20,6 +20,7 @@
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
+#include "game/ResearchManager.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "rooms/Room.h"
@@ -486,11 +487,11 @@ bool KeeperAI::lookForGold()
 bool KeeperAI::buildMostNeededRoom()
 {
     uint32_t nbDormitory = 0;
-    if(mPlayer.getSeat()->isRoomAvailable(RoomType::dormitory))
+    if(ResearchManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::dormitory, mPlayer.getSeat());
         nbDormitory = rooms.size();
-        if(mPlayer.getSeat()->isRoomAvailable(RoomType::dormitory) && nbDormitory == 0)
+        if(ResearchManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()) && nbDormitory == 0)
         {
             std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
                 mRoomPosY + mRoomSize - 1, &mPlayer);
@@ -504,7 +505,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(mPlayer.getSeat()->isRoomAvailable(RoomType::treasury))
+    if(ResearchManager::isRoomAvailable(RoomType::treasury, mPlayer.getSeat()))
     {
         std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(RoomType::treasury,
             mPlayer.getSeat());
@@ -531,7 +532,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(mPlayer.getSeat()->isRoomAvailable(RoomType::hatchery))
+    if(ResearchManager::isRoomAvailable(RoomType::hatchery, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::hatchery, mPlayer.getSeat());
         if(rooms.empty())
@@ -548,7 +549,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(mPlayer.getSeat()->isRoomAvailable(RoomType::trainingHall))
+    if(ResearchManager::isRoomAvailable(RoomType::trainingHall, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::trainingHall, mPlayer.getSeat());
         if(rooms.empty())
@@ -565,7 +566,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(mPlayer.getSeat()->isRoomAvailable(RoomType::workshop))
+    if(ResearchManager::isRoomAvailable(RoomType::workshop, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::workshop, mPlayer.getSeat());
         if(rooms.empty())
@@ -582,7 +583,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(mPlayer.getSeat()->isRoomAvailable(RoomType::library))
+    if(ResearchManager::isRoomAvailable(RoomType::library, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::library, mPlayer.getSeat());
         if(rooms.empty())
@@ -599,7 +600,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(mPlayer.getSeat()->isRoomAvailable(RoomType::crypt))
+    if(ResearchManager::isRoomAvailable(RoomType::crypt, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::crypt, mPlayer.getSeat());
         if(rooms.empty())
@@ -617,7 +618,7 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // Once we have done all the basic buildings, we go for another dormitory
-    if(mPlayer.getSeat()->isRoomAvailable(RoomType::dormitory) && nbDormitory == 1)
+    if(ResearchManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()) && nbDormitory == 1)
     {
         std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
             mRoomPosY + mRoomSize - 1, &mPlayer);

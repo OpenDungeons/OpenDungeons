@@ -17,31 +17,32 @@
 
 #include "network/ODServer.h"
 
-#include "network/ODClient.h"
-#include "network/ServerNotification.h"
-#include "gamemap/GameMap.h"
-#include "ODApplication.h"
-#include "modes/ServerConsoleCommands.h"
-#include "game/Player.h"
-#include "game/Seat.h"
-#include "game/Research.h"
-#include "gamemap/MapLoader.h"
-#include "utils/LogManager.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
-#include "traps/Trap.h"
-#include "traps/TrapType.h"
-#include "traps/TrapManager.h"
+#include "game/Player.h"
+#include "game/Research.h"
+#include "game/ResearchManager.h"
+#include "game/Seat.h"
+#include "gamemap/GameMap.h"
+#include "gamemap/MapLoader.h"
+#include "modes/ServerConsoleCommands.h"
+#include "network/ODClient.h"
+#include "network/ServerNotification.h"
 #include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
 #include "spells/SpellManager.h"
 #include "spells/SpellType.h"
+#include "traps/Trap.h"
+#include "traps/TrapType.h"
+#include "traps/TrapManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
+#include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
+#include "ODApplication.h"
 
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
@@ -1185,7 +1186,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // We check if the room is available. It is not normal to receive a message
             // asking to build an unbuildable room since the client should only display
             // available rooms
-            if(!player->getSeat()->isRoomAvailable(type))
+            if(!ResearchManager::isRoomAvailable(type, player->getSeat()))
             {
                 OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
                     + " asked to build a room not available: " + RoomManager::getRoomNameFromRoomType(type));
@@ -1231,7 +1232,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // We check if the trap is available. It is not normal to receive a message
             // asking to build an unbuildable trap since the client should only display
             // available rooms
-            if(!player->getSeat()->isTrapAvailable(type))
+            if(!ResearchManager::isTrapAvailable(type, player->getSeat()))
             {
                 OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
                     + " asked to build a trap not available: " + TrapManager::getTrapNameFromTrapType(type));
@@ -1272,7 +1273,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // We check if the spell is available. It is not normal to receive a message
             // asking to cast an uncastable spell since the client should only display
             // available spells
-            if(!player->getSeat()->isSpellAvailable(spellType))
+            if(!ResearchManager::isSpellAvailable(spellType, player->getSeat()))
             {
                 OD_LOG_WRN("player " + player->getNick()
                     + " asked to cast a spell not available: " + SpellManager::getSpellNameFromSpellType(spellType));

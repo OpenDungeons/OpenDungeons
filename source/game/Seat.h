@@ -282,18 +282,6 @@ public:
     //! \return The number of the pending research in the research queue or 0 if not there.
     uint32_t isResearchPending(ResearchType resType) const;
 
-    //! \brief Checks if the given spell is available for the Player. This check
-    //! should be done on server side to avoid cheating
-    bool isSpellAvailable(SpellType type) const;
-
-    //! \brief Checks if the given room is available for the Player. This check
-    //! should be done on server side to avoid cheating
-    bool isRoomAvailable(RoomType type) const;
-
-    //! \brief Checks if the given trap is available for the Player. This check
-    //! should be done on server side to avoid cheating
-    bool isTrapAvailable(TrapType type) const;
-
     //! Returns true if the given ResearchType is already done for this player. False
     //! otherwise
     bool isResearchDone(ResearchType type) const;

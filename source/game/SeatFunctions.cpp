@@ -18,35 +18,25 @@
 #include "game/Seat.h"
 
 #include "game/Research.h"
-
+#include "game/ResearchManager.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
-
 #include "game/Player.h"
-
 #include "gamemap/GameMap.h"
-
 #include "goals/Goal.h"
-
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
-
 #include "render/RenderManager.h"
-
 #include "rooms/Room.h"
 #include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
-
 #include "spawnconditions/SpawnCondition.h"
-
 #include "spells/Spell.h"
 #include "spells/SpellType.h"
-
 #include "traps/Trap.h"
 #include "traps/TrapManager.h"
 #include "traps/TrapType.h"
-
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -983,77 +973,6 @@ void Seat::exportTilesVisualInitialStates(TileVisual tileVisual, std::ostream& o
     os << "[/" + Tile::tileVisualToString(tileVisual) + "]" << std::endl;
 }
 
-bool Seat::isSpellAvailable(SpellType type) const
-{
-    // TODO: merge that in the futur ResearchManager
-    switch(type)
-    {
-        case SpellType::summonWorker:
-            return isResearchDone(ResearchType::spellSummonWorker);
-        case SpellType::callToWar:
-            return isResearchDone(ResearchType::spellCallToWar);
-        case SpellType::creatureHeal:
-            return isResearchDone(ResearchType::spellCreatureHeal);
-        case SpellType::creatureExplosion:
-            return isResearchDone(ResearchType::spellCreatureExplosion);
-        case SpellType::creatureHaste:
-            return isResearchDone(ResearchType::spellCreatureHaste);
-        default:
-            OD_LOG_ERR("Unknown enum value : " + Helper::toString(
-                static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));
-            return false;
-    }
-    return false;
-}
-
-bool Seat::isRoomAvailable(RoomType type) const
-{
-    // TODO: use the RoomManager to map RoomType with ResearchType
-    switch(type)
-    {
-        case RoomType::treasury:
-            return isResearchDone(ResearchType::roomTreasury);
-        case RoomType::dormitory:
-            return isResearchDone(ResearchType::roomDormitory);
-        case RoomType::hatchery:
-            return isResearchDone(ResearchType::roomHatchery);
-        case RoomType::trainingHall:
-            return isResearchDone(ResearchType::roomTrainingHall);
-        case RoomType::library:
-            return isResearchDone(ResearchType::roomLibrary);
-        case RoomType::workshop:
-            return isResearchDone(ResearchType::roomWorkshop);
-        case RoomType::crypt:
-            return isResearchDone(ResearchType::roomCrypt);
-        default:
-            OD_LOG_ERR("Unknown enum value : " + Helper::toString(
-                static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));
-            return false;
-    }
-    return false;
-}
-
-bool Seat::isTrapAvailable(TrapType type) const
-{
-    // TODO: use the TrapManager to map RoomType with ResearchType
-    switch(type)
-    {
-        case TrapType::boulder:
-            return isResearchDone(ResearchType::trapBoulder);
-        case TrapType::cannon:
-            return isResearchDone(ResearchType::trapCannon);
-        case TrapType::spike:
-            return isResearchDone(ResearchType::trapSpike);
-        case TrapType::doorWooden:
-            return isResearchDone(ResearchType::trapDoorWooden);
-        default:
-            OD_LOG_ERR("Unknown enum value : " + Helper::toString(
-                static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));
-            return false;
-    }
-    return false;
-}
-
 bool Seat::addResearch(ResearchType type)
 {
     if(std::find(mResearchDone.begin(), mResearchDone.end(), type) != mResearchDone.end())
@@ -1154,16 +1073,7 @@ void Seat::setNextResearch(ResearchType researchedType)
 
     // We have found a fitting research. We retrieve the corresponding Research
     // object and start working on that
-    const std::vector<const Research*>& researches = ConfigManager::getSingleton().getResearches();
-    for(const Research* research : researches)
-    {
-        if(research->getType() != researchType)
-            continue;
-
-        mCurrentResearch = research;
-        break;
-    }
-
+    mCurrentResearch = ResearchManager::getResearch(researchType);
 }
 
 void Seat::setResearchesDone(const std::vector<ResearchType>& researches)
@@ -1210,7 +1120,6 @@ void Seat::setResearchTree(const std::vector<ResearchType>& researches)
     if(mGameMap->isServerGameMap())
     {
         // We check if all the researches in the vector are allowed. If not, we don't update the list
-        const std::vector<const Research*>& researchList = ConfigManager::getSingleton().getResearches();
         std::vector<ResearchType> researchesDoneInTree = mResearchDone;
         for(ResearchType researchType : researches)
         {
@@ -1222,16 +1131,7 @@ void Seat::setResearchTree(const std::vector<ResearchType>& researches)
                 OD_LOG_ERR("Unallowed research: " + Research::researchTypeToString(researchType));
                 return;
             }
-            const Research* research = nullptr;
-            for(const Research* researchTmp : researchList)
-            {
-                if(researchTmp->getType() != researchType)
-                    continue;
-
-                research = researchTmp;
-                break;
-            }
-
+            const Research* research = ResearchManager::getResearch(researchType);
             if(research == nullptr)
             {
                 // We found an unknown research

@@ -111,15 +111,15 @@ public:
     //! \brief Common goBack function requesting previous game mode.
     virtual bool goBack(const CEGUI::EventArgs& e = {});
 
+    inline void addEventConnection(CEGUI::Event::Connection conn)
+    {
+        mEventConnections.emplace_back(conn);
+    }
+
 protected:
     ModeManager& getModeManager()
     {
         return *mModeManager;
-    }
-
-    inline void addEventConnection(CEGUI::Event::Connection conn)
-    {
-        mEventConnections.emplace_back(conn);
     }
 
     //! \brief Foreign reference, don't delete it.

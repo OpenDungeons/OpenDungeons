@@ -23,13 +23,14 @@
 #include "camera/CameraManager.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
-#include "network/ODClient.h"
-#include "network/ODServer.h"
 #include "game/Player.h"
 #include "game/Research.h"
+#include "game/ResearchManager.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
+#include "network/ODClient.h"
+#include "network/ODServer.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
 #include "render/RenderManager.h"
@@ -40,7 +41,6 @@
 #include "sound/SoundEffectsManager.h"
 #include "spells/SpellManager.h"
 #include "spells/SpellType.h"
-#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
@@ -59,38 +59,6 @@
 #include <algorithm>
 #include <vector>
 #include <string>
-
-namespace
-{
-    //! \brief Functor to select spell from gui
-    class SpellSelector
-    {
-    public:
-        bool operator()(const CEGUI::EventArgs& e)
-        {
-            playerSelection.setCurrentAction(SelectedAction::castSpell);
-            playerSelection.setNewSpellType(spellType);
-            return true;
-        }
-        SpellType spellType;
-        PlayerSelection& playerSelection;
-    };
-    //! \brief Functor to select spell from gui
-    class ResearchSelector
-    {
-    public:
-        bool operator()(const CEGUI::EventArgs& e)
-        {
-            if(!mGameMode.researchButtonTreeClicked(mType))
-                return true;
-
-            mGameMode.refreshGuiResearch(true);
-            return true;
-        }
-        ResearchType mType;
-        GameMode& mGameMode;
-    };
-}
 
 GameMode::GameMode(ModeManager *modeManager):
     GameEditorModeBase(modeManager, ModeManager::GAME, modeManager->getGui().getGuiSheet(Gui::guiSheet::inGameMenu)),
@@ -237,25 +205,7 @@ GameMode::GameMode(ModeManager *modeManager):
     // Set the help window text
     setHelpWindowText();
 
-    //Spells
-    connectSpellSelect(Gui::BUTTON_SPELL_CALLTOWAR, SpellType::callToWar);
-    connectSpellSelect(Gui::BUTTON_SPELL_SUMMON_WORKER, SpellType::summonWorker);
-    connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_HEAL, SpellType::creatureHeal);
-    connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_EXPLOSION, SpellType::creatureExplosion);
-    connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_HASTE, SpellType::creatureHaste);
-
-    std::string researchWidgetButton;
-    std::string useWidgetButton;
-    std::string researchProgressBar;
-    for (uint16_t i = static_cast<uint16_t>(ResearchType::nullResearchType);
-            i < static_cast<uint16_t>(ResearchType::countResearch); ++i)
-    {
-        ResearchType resType = static_cast<ResearchType>(i);
-        if(!researchButtonFromType(resType, researchWidgetButton, useWidgetButton, researchProgressBar))
-            continue;
-
-        connectResearchSelect("ResearchTreeWindow/Skills/" + researchWidgetButton, resType);
-    }
+    ResearchManager::connectResearches(this, mRootWindow);
 
     syncTabButtonTooltips(Gui::MAIN_TABCONTROL);
 }
@@ -1260,113 +1210,10 @@ void GameMode::setHelpWindowText()
     textWindow->setText(reinterpret_cast<const CEGUI::utf8*>(txt.str().c_str()));
 }
 
-bool GameMode::researchButtonFromType(ResearchType resType,
-                                      std::string& researchWidgetButton,
-                                      std::string& useWidgetButton,
-                                      std::string& researchProgressBar)
-{
-    // TODO: this should be moved to some ResearchManager that would link:
-    // ResearchType, ResearchButton, GuiButton, Research dependencies, needed research points
-    switch(resType)
-    {
-        case ResearchType::nullResearchType:
-            return false;
-        case ResearchType::roomDormitory:
-            researchWidgetButton = "TacticSkills/DormitoryButton";
-            useWidgetButton = Gui::BUTTON_DORMITORY;
-            researchProgressBar = "DormitoryProgressBar";
-            break;
-        case ResearchType::roomTreasury:
-            researchWidgetButton = "TacticSkills/TreasuryButton";
-            useWidgetButton = Gui::BUTTON_TREASURY;
-            researchProgressBar = "TreasuryProgressBar";
-            break;
-        case ResearchType::roomHatchery:
-            researchWidgetButton = "TacticSkills/HatcheryButton";
-            useWidgetButton = Gui::BUTTON_HATCHERY;
-            researchProgressBar = "HatcheryProgressBar";
-            break;
-        case ResearchType::roomWorkshop:
-            researchWidgetButton = "TacticSkills/WorkshopButton";
-            useWidgetButton = Gui::BUTTON_WORKSHOP;
-            researchProgressBar = "WorkshopProgressBar";
-            break;
-        case ResearchType::trapCannon:
-            researchWidgetButton = "TacticSkills/CannonButton";
-            useWidgetButton = Gui::BUTTON_TRAP_CANNON;
-            researchProgressBar = "CannonProgressBar";
-            break;
-        case ResearchType::trapSpike:
-            researchWidgetButton = "TacticSkills/SpikeTrapButton";
-            useWidgetButton = Gui::BUTTON_TRAP_SPIKE;
-            researchProgressBar = "SpikeTrapProgressBar";
-            break;
-        case ResearchType::trapBoulder:
-            researchWidgetButton = "TacticSkills/BoulderTrapButton";
-            useWidgetButton = Gui::BUTTON_TRAP_BOULDER;
-            researchProgressBar = "BoulderTrapProgressBar";
-            break;
-        case ResearchType::trapDoorWooden:
-            researchWidgetButton = "TacticSkills/WoodenDoorTrapButton";
-            useWidgetButton = Gui::BUTTON_TRAP_DOOR_WOODEN;
-            researchProgressBar = "WoodenDoorProgressBar";
-            break;
-        case ResearchType::roomLibrary:
-            researchWidgetButton = "MagicSkills/LibraryButton";
-            useWidgetButton = Gui::BUTTON_LIBRARY;
-            researchProgressBar = "LibraryProgressBar";
-            break;
-        case ResearchType::roomCrypt:
-            researchWidgetButton = "MagicSkills/CryptButton";
-            useWidgetButton = Gui::BUTTON_CRYPT;
-            researchProgressBar = "CryptProgressBar";
-            break;
-        case ResearchType::spellSummonWorker:
-            researchWidgetButton = "MagicSkills/SummonWorkerButton";
-            useWidgetButton = Gui::BUTTON_SPELL_SUMMON_WORKER;
-            researchProgressBar = "SummonWorkerProgressBar";
-            break;
-        case ResearchType::roomTrainingHall:
-            researchWidgetButton = "AttackSkills/TrainingHallButton";
-            useWidgetButton = Gui::BUTTON_TRAININGHALL;
-            researchProgressBar = "TrainingHallProgressBar";
-            break;
-        case ResearchType::spellCallToWar:
-            researchWidgetButton = "AttackSkills/CallToWarButton";
-            useWidgetButton = Gui::BUTTON_SPELL_CALLTOWAR;
-            researchProgressBar = "CallToWarProgressBar";
-            break;
-        case ResearchType::spellCreatureHeal:
-            researchWidgetButton = "MagicSkills/CreatureHealButton";
-            useWidgetButton = Gui::BUTTON_SPELL_CREATURE_HEAL;
-            researchProgressBar = "CreatureHealProgressBar";
-            break;
-        case ResearchType::spellCreatureExplosion:
-            researchWidgetButton = "AttackSkills/CreatureExplosionButton";
-            useWidgetButton = Gui::BUTTON_SPELL_CREATURE_EXPLOSION;
-            researchProgressBar = "CreatureExplosionProgressBar";
-            break;
-        case ResearchType::spellCreatureHaste:
-            researchWidgetButton = "MagicSkills/CreatureHasteButton";
-            useWidgetButton = Gui::BUTTON_SPELL_CREATURE_HASTE;
-            researchProgressBar = "CreatureHasteProgressBar";
-            break;
-        default:
-            OD_LOG_ERR("Unexpected enum value: " + Research::researchTypeToString(resType));
-            return false;
-    }
-    return true;
-}
-
-void GameMode::refreshResearchButtonState(ResearchType resType)
+void GameMode::refreshResearchButtonState(const std::string& researchButtonName, const std::string& castButtonName,
+        const std::string& researchProgressBarName, ResearchType resType)
 {
     // Determine the widget name and button accordingly to the ResearchType given
-    std::string ceguiWidgetName;
-    std::string ceguiWidgetButtonName;
-    std::string ceguiWidgetProgressBarName;
-    if(!researchButtonFromType(resType, ceguiWidgetName, ceguiWidgetButtonName, ceguiWidgetProgressBarName))
-        return;
-
     Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
     bool isDone = localPlayerSeat->isResearchDone(resType);
     bool isAllowed = true;
@@ -1413,13 +1260,12 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
     CEGUI::Window* guiSheet = mRootWindow;
     CEGUI::Window* skillsWindow = guiSheet->getChild("ResearchTreeWindow/Skills");
 
-    CEGUI::Window* researchButton = skillsWindow->getChild(ceguiWidgetName);
+    CEGUI::Window* researchButton = skillsWindow->getChild(researchButtonName);
     CEGUI::ProgressBar* researchProgressBar =
-        static_cast<CEGUI::ProgressBar*>(skillsWindow->getChild(ceguiWidgetName + "/" +
-                                                                ceguiWidgetProgressBarName));
+        static_cast<CEGUI::ProgressBar*>(skillsWindow->getChild(researchProgressBarName));
     if(isDone)
     {
-        guiSheet->getChild(ceguiWidgetButtonName)->show();
+        guiSheet->getChild(castButtonName)->show();
         researchButton->setText("");
         researchButton->setProperty("StateImage", okIcon);
         researchButton->setProperty("StateImageColour", "FF00BB00");
@@ -1428,7 +1274,7 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
     }
     else if(!isAllowed)
     {
-        guiSheet->getChild(ceguiWidgetButtonName)->show();
+        guiSheet->getChild(castButtonName)->show();
         researchButton->setText("");
         researchButton->setProperty("StateImage", abortIcon);
         researchButton->setProperty("StateImageColour", "FFBB0000");
@@ -1438,7 +1284,7 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
     else if (queueNumber > 1)
     {
         // The skill is not available but research is pending
-        guiSheet->getChild(ceguiWidgetButtonName)->hide();
+        guiSheet->getChild(castButtonName)->hide();
         researchButton->setText(Helper::toString(queueNumber));
         researchButton->setProperty("StateImage", pendingIcon);
         researchButton->setProperty("StateImageColour", "FFFFFFFF");
@@ -1448,7 +1294,7 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
     else if (queueNumber == 1)
     {
         // The skill is not available but research is being done
-        guiSheet->getChild(ceguiWidgetButtonName)->hide();
+        guiSheet->getChild(castButtonName)->hide();
         researchButton->setText(Helper::toString(queueNumber));
         researchButton->setProperty("StateImage", workIcon);
         researchButton->setProperty("StateImageColour", "FF888800");
@@ -1466,7 +1312,7 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
     else
     {
         // The skill is not available and research is not pending
-        guiSheet->getChild(ceguiWidgetButtonName)->hide();
+        guiSheet->getChild(castButtonName)->hide();
         researchButton->setText("");
         researchButton->setProperty("StateImage", "");
         researchButton->setEnabled(true);
@@ -1499,32 +1345,11 @@ void GameMode::refreshGuiResearch(bool forceRefresh)
     localPlayerSeat->guiResearchRefreshed();
 
     // We show/hide each icon depending on available researches
-    for (uint16_t i = static_cast<uint16_t>(ResearchType::nullResearchType);
-            i < static_cast<uint16_t>(ResearchType::countResearch); ++i)
+    ResearchManager::listAllResearches([this](const std::string& researchButtonName, const std::string& castButtonName,
+        const std::string& researchProgressBarName, ResearchType resType)
     {
-        ResearchType resType = static_cast<ResearchType>(i);
-        refreshResearchButtonState(resType);
-    }
-}
-
-void GameMode::connectSpellSelect(const std::string& buttonName, SpellType spellType)
-{
-    addEventConnection(
-        mRootWindow->getChild(buttonName)->subscribeEvent(
-          CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(SpellSelector{spellType, mPlayerSelection})
-        )
-    );
-}
-
-void GameMode::connectResearchSelect(const std::string& buttonName, ResearchType type)
-{
-    addEventConnection(
-        mRootWindow->getChild(buttonName)->subscribeEvent(
-          CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(ResearchSelector{type, *this})
-        )
-    );
+        refreshResearchButtonState(researchButtonName, castButtonName, researchProgressBarName, resType);
+    });
 }
 
 void GameMode::selectSquaredTiles(int tileX1, int tileY1, int tileX2, int tileY2)
@@ -1658,7 +1483,6 @@ bool GameMode::researchButtonTreeClicked(ResearchType type)
     if(std::find(researchNotAllowed.begin(), researchNotAllowed.end(), type) != researchNotAllowed.end())
         return false;
 
-    const std::vector<const Research*>& researches = ConfigManager::getSingleton().getResearches();
     auto it = std::find(mResearchPending.begin(), mResearchPending.end(), type);
     if(it != mResearchPending.end())
     {
@@ -1668,19 +1492,14 @@ bool GameMode::researchButtonTreeClicked(ResearchType type)
         for(it = mResearchPending.begin(); it != mResearchPending.end();)
         {
             ResearchType pendingType = *it;
-            const Research* researchCanceled = nullptr;
-            for(const Research* research : researches)
+            const Research* research = ResearchManager::getResearch(pendingType);
+            if(research == nullptr)
             {
-                if(research->getType() != pendingType)
-                    continue;
-
-                if(research->dependsOn(type))
-                    researchCanceled = research;
-
-                break;
+                OD_LOG_ERR("null research pendingType=" + Helper::toString(static_cast<uint32_t>(pendingType)));
+                continue;
             }
 
-            if(researchCanceled == nullptr)
+            if(!research->dependsOn(type))
             {
                 ++it;
                 continue;
@@ -1694,27 +1513,20 @@ bool GameMode::researchButtonTreeClicked(ResearchType type)
 
     // The research is not pending. We need to check availability to all its dependencies and
     // add them at the end of the list if all are available/done
-    for(const Research* research : researches)
+    const Research* research = ResearchManager::getResearch(type);
+    std::vector<ResearchType> dependencies;
+    research->buildDependencies(researchDone, dependencies);
+
+    // We check if one of the dependencies is not available. If not, we cannot research
+    for(ResearchType researchType : dependencies)
     {
-        if(research->getType() != type)
+        if(std::find(researchNotAllowed.begin(), researchNotAllowed.end(), researchType) != researchNotAllowed.end())
+            return false;
+
+        if(std::find(mResearchPending.begin(), mResearchPending.end(), researchType) != mResearchPending.end())
             continue;
 
-        std::vector<ResearchType> dependencies;
-        research->buildDependencies(researchDone, dependencies);
-
-        // We check if one of the dependencies is not available. If not, we cannot research
-        for(ResearchType researchType : dependencies)
-        {
-            if(std::find(researchNotAllowed.begin(), researchNotAllowed.end(), researchType) != researchNotAllowed.end())
-                return false;
-
-            if(std::find(mResearchPending.begin(), mResearchPending.end(), researchType) != mResearchPending.end())
-                continue;
-
-            researchToAdd.push_back(researchType);
-        }
-
-        break;
+        researchToAdd.push_back(researchType);
     }
 
     for(ResearchType researchType : researchToAdd)

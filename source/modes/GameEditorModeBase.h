@@ -110,10 +110,6 @@ private:
 
     //! \brief Minimap click event handler
     bool onMinimapClick(const CEGUI::EventArgs& arg);
-
-    //! \brief helper functions to connect buttons to entities
-    void connectRoomSelect(const std::string& buttonName, RoomType roomType);
-    void connectTrapSelect(const std::string& buttonName, TrapType trapType);
 };
 
 #endif // GAMEEDITORMODEBASE_H

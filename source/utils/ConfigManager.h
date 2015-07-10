@@ -155,11 +155,10 @@ public:
     int32_t getSpellConfigInt32(const std::string& param) const;
     double getSpellConfigDouble(const std::string& param) const;
 
+    int32_t getResearchPoints(const std::string& res) const;
+
     inline const CreatureDefinition* getCreatureDefinitionDefaultWorker() const
     { return mCreatureDefinitionDefaultWorker; }
-
-    inline const std::vector<const Research*>& getResearches() const
-    { return mResearches; }
 
     //! Returns the tileset for the given name. If the tileset is not found, returns the default tileset
     const TileSet* getTileSet(const std::string& tileSetName) const;
@@ -270,13 +269,11 @@ private:
     std::map<const std::string, std::string> mRoomsConfig;
     std::map<const std::string, std::string> mTrapsConfig;
     std::map<const std::string, std::string> mSpellConfig;
+    std::map<const std::string, int32_t> mResearchPoints;
 
     //! \brief Default definition for the editor. At map loading, it will spawn a creature from
     //! the default seat worker depending on seat faction
     CreatureDefinition* mCreatureDefinitionDefaultWorker;
-
-    //! \brief Allowed researches
-    std::vector<const Research*> mResearches;
 
     //! \brief Allowed tilesets
     std::map<std::string, const TileSet*> mTileSets;
