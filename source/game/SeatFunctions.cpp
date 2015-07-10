@@ -1117,7 +1117,14 @@ void Seat::addResearchPoints(int32_t points)
 
     // We set the next research
     setNextResearch(mCurrentResearch->getType());
-    return;
+}
+
+float Seat::getCurrentResearchProgress() const
+{
+    if(mCurrentResearch == nullptr)
+        return 0.0f;
+
+    return static_cast<float>(mResearchPoints) / static_cast<float>(mCurrentResearch->getNeededResearchPoints());
 }
 
 void Seat::setNextResearch(ResearchType researchedType)

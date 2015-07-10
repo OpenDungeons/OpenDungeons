@@ -16,16 +16,40 @@
                     <Property name="Area" value="{{0.5,-25},{0,15},{0.5,25},{0,65}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/TrainingHallButton" />
                     <Property name="TooltipText" value="Room: Training Hall" />
+                    <Window type="OD/ProgressBar" name="TrainingHallProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="CallToWarButton" >
                     <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/CallToWarButton" />
                     <Property name="TooltipText" value="Spell: Call to War" />
+                    <Window type="OD/ProgressBar" name="CallToWarProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="CreatureExplosionButton" >
                     <Property name="Area" value="{{0.7,-25},{0,75},{0.7,25},{0,125}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureExplosionButton" />
                     <Property name="TooltipText" value="Spell: Creature Explosion" />
+                    <Window type="OD/ProgressBar" name="CreatureExplosionProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
             </Window>
             <Window type="OD/StaticImage" name="TacticSkills" >
@@ -35,71 +59,175 @@
                     <Property name="Area" value="{{0.2,-25},{0,15},{0.2,25},{0,65}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/TreasuryButton" />
                     <Property name="TooltipText" value="Room: Treasury" />
+                    <Window type="OD/ProgressBar" name="TreasuryProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="HatcheryButton" >
                     <Property name="Area" value="{{0.5,-25},{0,15},{0.5,25},{0,65}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/HatcheryButton" />
                     <Property name="TooltipText" value="Room: Hatchery" />
+                    <Window type="OD/ProgressBar" name="HatcheryProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="DormitoryButton" >
                     <Property name="Area" value="{{0.8,-25},{0,15},{0.8,25},{0,65}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/DormitoryButton" />
                     <Property name="TooltipText" value="Room: Dormitory" />
+                    <Window type="OD/ProgressBar" name="DormitoryProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="WorkshopButton" >
                     <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/WorkshopButton" />
                     <Property name="TooltipText" value="Room: Workshop" />
+                    <Window type="OD/ProgressBar" name="WorkshopProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="WoodenDoorTrapButton" >
                     <Property name="Area" value="{{0.7,-25},{0,75},{0.7,25},{0,125}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/WoodenDoorTrapButton" />
                     <Property name="TooltipText" value="Trap: Wooden door" />
+                    <Window type="OD/ProgressBar" name="WoodenDoorProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="CannonButton" >
                     <Property name="Area" value="{{0.3,-25},{0,135},{0.3,25},{0,185}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/CannonButton" />
                     <Property name="TooltipText" value="Trap: Cannon" />
+                    <Window type="OD/ProgressBar" name="CannonProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="SpikeTrapButton" >
                     <Property name="Area" value="{{0.7,-25},{0,135},{0.7,25},{0,185}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/SpikeTrapButton" />
                     <Property name="TooltipText" value="Trap: Spike trap" />
+                    <Window type="OD/ProgressBar" name="SpikeTrapProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="BoulderTrapButton" >
                     <Property name="Area" value="{{0.5,-25},{0,195},{0.5,25},{0,245}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/BoulderTrapButton" />
                     <Property name="TooltipText" value="Trap: Boulder trap" />
+                    <Window type="OD/ProgressBar" name="BoulderTrapProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
             </Window>
             <Window type="OD/StaticImage" name="MagicSkills" >
                 <Property name="Area" value="{{0,380},{0,10},{0,560},{1,-10}}" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="FrameColours" value="tl:FF0000FF tr:FF0000FF bl:FFFFFFFF br:FFFFFFFF" />
+                <Window type="OD/ImageButton" name="SummonWorkerButton" >
+                    <Property name="Area" value="{{0.3,-25},{0,15},{0.3,25},{0,65}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/SummonWorkerButton" />
+                    <Property name="TooltipText" value="Spell: Summon Worker" />
+                    <Window type="OD/ProgressBar" name="SummonWorkerProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
+                </Window>
                 <Window type="OD/ImageButton" name="LibraryButton" >
-                    <Property name="Area" value="{{0.5,-25},{0,15},{0.5,25},{0,65}}" />
+                    <Property name="Area" value="{{0.7,-25},{0,15},{0.7,25},{0,65}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/LibraryButton" />
                     <Property name="TooltipText" value="Room: Library" />
-                </Window>
-                <Window type="OD/ImageButton" name="CreatureHasteButton" >
-                    <Property name="Area" value="{{0.8,-25},{0,15},{0.8,25},{0,65}}" />
-                    <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureHasteButton" />
-                    <Property name="TooltipText" value="Spell: Haste creature" />
+                    <Window type="OD/ProgressBar" name="LibraryProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="CryptButton" >
                     <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/CryptButton" />
                     <Property name="TooltipText" value="Room: Crypt" />
-                </Window>
-                <Window type="OD/ImageButton" name="SummonWorkerButton" >
-                    <Property name="Area" value="{{0.2,-25},{0,15},{0.2,25},{0,65}}" />
-                    <Property name="ButtonImage" value="OpenDungeonsIcons/SummonWorkerButton" />
-                    <Property name="TooltipText" value="Spell: Summon Worker" />
+                    <Window type="OD/ProgressBar" name="CryptProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="CreatureHealButton" >
                     <Property name="Area" value="{{0.7,-25},{0,75},{0.7,25},{0,125}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureHealButton" />
                     <Property name="TooltipText" value="Spell: Creature Heal" />
+                    <Window type="OD/ProgressBar" name="CreatureHealProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
+                </Window>
+                <Window type="OD/ImageButton" name="CreatureHasteButton" >
+                    <Property name="Area" value="{{0.5,-25},{0,135},{0.5,25},{0,185}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureHasteButton" />
+                    <Property name="TooltipText" value="Spell: Haste creature" />
+                    <Window type="OD/ProgressBar" name="CreatureHasteProgressBar" >
+                        <Property name="Area" value="{{0.1,0},{0.7,0},{0.9,0},{0.9,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                    </Window>
                 </Window>
             </Window>
         </Window>

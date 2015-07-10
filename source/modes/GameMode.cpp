@@ -51,6 +51,7 @@
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/widgets/ToggleButton.h>
+#include <CEGUI/widgets/ProgressBar.h>
 
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
@@ -245,11 +246,12 @@ GameMode::GameMode(ModeManager *modeManager):
 
     std::string researchWidgetButton;
     std::string useWidgetButton;
+    std::string researchProgressBar;
     for (uint16_t i = static_cast<uint16_t>(ResearchType::nullResearchType);
             i < static_cast<uint16_t>(ResearchType::countResearch); ++i)
     {
         ResearchType resType = static_cast<ResearchType>(i);
-        if(!researchButtonFromType(resType, researchWidgetButton, useWidgetButton))
+        if(!researchButtonFromType(resType, researchWidgetButton, useWidgetButton, researchProgressBar))
             continue;
 
         connectResearchSelect("ResearchTreeWindow/Skills/" + researchWidgetButton, resType);
@@ -1258,7 +1260,10 @@ void GameMode::setHelpWindowText()
     textWindow->setText(reinterpret_cast<const CEGUI::utf8*>(txt.str().c_str()));
 }
 
-bool GameMode::researchButtonFromType(ResearchType resType, std::string& researchWidgetButton, std::string& useWidgetButton)
+bool GameMode::researchButtonFromType(ResearchType resType,
+                                      std::string& researchWidgetButton,
+                                      std::string& useWidgetButton,
+                                      std::string& researchProgressBar)
 {
     // TODO: this should be moved to some ResearchManager that would link:
     // ResearchType, ResearchButton, GuiButton, Research dependencies, needed research points
@@ -1269,66 +1274,82 @@ bool GameMode::researchButtonFromType(ResearchType resType, std::string& researc
         case ResearchType::roomDormitory:
             researchWidgetButton = "TacticSkills/DormitoryButton";
             useWidgetButton = Gui::BUTTON_DORMITORY;
+            researchProgressBar = "DormitoryProgressBar";
             break;
         case ResearchType::roomTreasury:
             researchWidgetButton = "TacticSkills/TreasuryButton";
             useWidgetButton = Gui::BUTTON_TREASURY;
+            researchProgressBar = "TreasuryProgressBar";
             break;
         case ResearchType::roomHatchery:
             researchWidgetButton = "TacticSkills/HatcheryButton";
             useWidgetButton = Gui::BUTTON_HATCHERY;
+            researchProgressBar = "HatcheryProgressBar";
             break;
         case ResearchType::roomWorkshop:
             researchWidgetButton = "TacticSkills/WorkshopButton";
             useWidgetButton = Gui::BUTTON_WORKSHOP;
+            researchProgressBar = "WorkshopProgressBar";
             break;
         case ResearchType::trapCannon:
             researchWidgetButton = "TacticSkills/CannonButton";
             useWidgetButton = Gui::BUTTON_TRAP_CANNON;
+            researchProgressBar = "CannonProgressBar";
             break;
         case ResearchType::trapSpike:
             researchWidgetButton = "TacticSkills/SpikeTrapButton";
             useWidgetButton = Gui::BUTTON_TRAP_SPIKE;
+            researchProgressBar = "SpikeTrapProgressBar";
             break;
         case ResearchType::trapBoulder:
             researchWidgetButton = "TacticSkills/BoulderTrapButton";
             useWidgetButton = Gui::BUTTON_TRAP_BOULDER;
+            researchProgressBar = "BoulderTrapProgressBar";
             break;
         case ResearchType::trapDoorWooden:
             researchWidgetButton = "TacticSkills/WoodenDoorTrapButton";
             useWidgetButton = Gui::BUTTON_TRAP_DOOR_WOODEN;
+            researchProgressBar = "WoodenDoorProgressBar";
             break;
         case ResearchType::roomLibrary:
             researchWidgetButton = "MagicSkills/LibraryButton";
             useWidgetButton = Gui::BUTTON_LIBRARY;
+            researchProgressBar = "LibraryProgressBar";
             break;
         case ResearchType::roomCrypt:
             researchWidgetButton = "MagicSkills/CryptButton";
             useWidgetButton = Gui::BUTTON_CRYPT;
+            researchProgressBar = "CryptProgressBar";
             break;
         case ResearchType::spellSummonWorker:
             researchWidgetButton = "MagicSkills/SummonWorkerButton";
             useWidgetButton = Gui::BUTTON_SPELL_SUMMON_WORKER;
+            researchProgressBar = "SummonWorkerProgressBar";
             break;
         case ResearchType::roomTrainingHall:
             researchWidgetButton = "AttackSkills/TrainingHallButton";
             useWidgetButton = Gui::BUTTON_TRAININGHALL;
+            researchProgressBar = "TrainingHallProgressBar";
             break;
         case ResearchType::spellCallToWar:
             researchWidgetButton = "AttackSkills/CallToWarButton";
             useWidgetButton = Gui::BUTTON_SPELL_CALLTOWAR;
+            researchProgressBar = "CallToWarProgressBar";
             break;
         case ResearchType::spellCreatureHeal:
             researchWidgetButton = "MagicSkills/CreatureHealButton";
             useWidgetButton = Gui::BUTTON_SPELL_CREATURE_HEAL;
+            researchProgressBar = "CreatureHealProgressBar";
             break;
         case ResearchType::spellCreatureExplosion:
             researchWidgetButton = "AttackSkills/CreatureExplosionButton";
             useWidgetButton = Gui::BUTTON_SPELL_CREATURE_EXPLOSION;
+            researchProgressBar = "CreatureExplosionProgressBar";
             break;
         case ResearchType::spellCreatureHaste:
             researchWidgetButton = "MagicSkills/CreatureHasteButton";
             useWidgetButton = Gui::BUTTON_SPELL_CREATURE_HASTE;
+            researchProgressBar = "CreatureHasteProgressBar";
             break;
         default:
             OD_LOG_ERR("Unexpected enum value: " + Research::researchTypeToString(resType));
@@ -1342,13 +1363,15 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
     // Determine the widget name and button accordingly to the ResearchType given
     std::string ceguiWidgetName;
     std::string ceguiWidgetButtonName;
-    if(!researchButtonFromType(resType, ceguiWidgetName, ceguiWidgetButtonName))
+    std::string ceguiWidgetProgressBarName;
+    if(!researchButtonFromType(resType, ceguiWidgetName, ceguiWidgetButtonName, ceguiWidgetProgressBarName))
         return;
 
     Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
     bool isDone = localPlayerSeat->isResearchDone(resType);
     bool isAllowed = true;
     uint32_t queueNumber = 0;
+    float curResearchProgress = localPlayerSeat->getCurrentResearchProgress();
     if(!isDone)
     {
         const std::vector<ResearchType>& researchNotAllowed = localPlayerSeat->getResearchNotAllowed();
@@ -1384,12 +1407,16 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
     const std::string okIcon = "OpenDungeonsIcons/CheckIcon";
     const std::string pendingIcon = "OpenDungeonsIcons/HourglassIcon";
     const std::string abortIcon = "OpenDungeonsIcons/AbortIcon";
+    const std::string workIcon = "OpenDungeonsIcons/CogIcon";
 
     // We show/hide the icons depending on available researches
     CEGUI::Window* guiSheet = mRootWindow;
     CEGUI::Window* skillsWindow = guiSheet->getChild("ResearchTreeWindow/Skills");
 
     CEGUI::Window* researchButton = skillsWindow->getChild(ceguiWidgetName);
+    CEGUI::ProgressBar* researchProgressBar =
+        static_cast<CEGUI::ProgressBar*>(skillsWindow->getChild(ceguiWidgetName + "/" +
+                                                                ceguiWidgetProgressBarName));
     if(isDone)
     {
         guiSheet->getChild(ceguiWidgetButtonName)->show();
@@ -1397,6 +1424,7 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
         researchButton->setProperty("StateImage", okIcon);
         researchButton->setProperty("StateImageColour", "FF00BB00");
         researchButton->setEnabled(false);
+        researchProgressBar->hide();
     }
     else if(!isAllowed)
     {
@@ -1405,8 +1433,9 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
         researchButton->setProperty("StateImage", abortIcon);
         researchButton->setProperty("StateImageColour", "FFBB0000");
         researchButton->setEnabled(false);
+        researchProgressBar->hide();
     }
-    else if (queueNumber > 0)
+    else if (queueNumber > 1)
     {
         // The skill is not available but research is pending
         guiSheet->getChild(ceguiWidgetButtonName)->hide();
@@ -1414,6 +1443,25 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
         researchButton->setProperty("StateImage", pendingIcon);
         researchButton->setProperty("StateImageColour", "FFFFFFFF");
         researchButton->setEnabled(true);
+        researchProgressBar->hide();
+    }
+    else if (queueNumber == 1)
+    {
+        // The skill is not available but research is being done
+        guiSheet->getChild(ceguiWidgetButtonName)->hide();
+        researchButton->setText(Helper::toString(queueNumber));
+        researchButton->setProperty("StateImage", workIcon);
+        researchButton->setProperty("StateImageColour", "FF888800");
+        researchButton->setEnabled(true);
+        if (curResearchProgress > 0.0f)
+        {
+            researchProgressBar->show();
+            researchProgressBar->setProgress(curResearchProgress);
+        }
+        else
+        {
+            researchProgressBar->hide();
+        }
     }
     else
     {
@@ -1422,6 +1470,7 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
         researchButton->setText("");
         researchButton->setProperty("StateImage", "");
         researchButton->setEnabled(true);
+        researchProgressBar->hide();
     }
 }
 
