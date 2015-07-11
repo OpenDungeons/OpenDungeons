@@ -10,7 +10,7 @@ FightMusic	TheDarkAmulet_MP.ogg
 [Seats]
 [Seat]
 seatId	1
-teamId	1
+teamId	1/2/3/4
 player	Choice
 faction	Keeper
 startingX	10
@@ -33,7 +33,7 @@ spellSummonWorker
 [/Seat]
 [Seat]
 seatId	2
-teamId	2
+teamId	2/1/3/4
 player	Choice
 faction	Keeper
 startingX	10
@@ -56,7 +56,7 @@ spellSummonWorker
 [/Seat]
 [Seat]
 seatId	3
-teamId	3
+teamId	3/1/2/4
 player	Choice
 faction	Keeper
 startingX	10
@@ -79,7 +79,7 @@ spellSummonWorker
 [/Seat]
 [Seat]
 seatId	4
-teamId	4
+teamId	4/1/2/3
 player	Choice
 faction	Keeper
 startingX	10
