@@ -275,33 +275,36 @@ public:
     bool isResearching() const
     { return mCurrentResearch != nullptr; }
 
-    //! \brief Gets the current percentage of research done. (0.0f-1.0f)
-    float getCurrentResearchProgress() const;
+    //! \brief Gets the current type and percentage of research done. (0.0f-1.0f).
+    //! Returns true if a research is in progress and false otherwise
+    bool getCurrentResearchProgress(ResearchType& type, float& progress) const;
 
     //! \brief Tells whether the given research type is in the pending queue.
     //! \return The number of the pending research in the research queue or 0 if not there.
     uint32_t isResearchPending(ResearchType resType) const;
 
-    //! Returns true if the given ResearchType is already done for this player. False
+    ResearchType getFirstResearchPending() const;
+
+    //! \brief Returns true if the given ResearchType is already done for this player. False
     //! otherwise
     bool isResearchDone(ResearchType type) const;
 
-    //! Called when the research entity reaches its destination. From there, the researched
-    //! thing is available
+    //! \brief Called when the research entity reaches its destination. From there, the
+    //! researched thing is available
     //! Returns true if the type was inserted and false otherwise
     bool addResearch(ResearchType type);
 
-    //! Called when a fresh grimoire is brought to the dungeon temple. When enough points are
-    //! gathered, the corresponding research will become available.
+    //! \brief Server side function. Called when a fresh grimoire is brought to the dungeon
+    //! temple. When enough points are gathered, the corresponding research will become available
     void addResearchPoints(int32_t points);
 
-    //! Used on both client and server side. On server side, the research tree's validity will be
-    //! checked. If ok, it will be sent to the client. If not, the research tree will not be
-    //! changed. Note that the order of the research matters as the first researches in the given
-    //! vector can needed for the next ones
+    //! \brief Used on both client and server side. On server side, the research tree's validity
+    //! will be checked. If ok, it will be sent to the client. If not, the research tree will not
+    //! be changed. Note that the order of the research matters as the first researches in the
+    //! given vector can needed for the next ones
     void setResearchTree(const std::vector<ResearchType>& researches);
 
-    //! Used on both client and server side
+    //! \brief Used on both client and server side
     void setResearchesDone(const std::vector<ResearchType>& researches);
 
     inline bool getGuiResearchNeedsRefresh() const
@@ -448,6 +451,10 @@ private:
 
     //! \brief Counter for research points
     int32_t mResearchPoints;
+
+    //! \brief Progress for current research. Allows to display the progressbar on the client side
+    ResearchType mCurrentResearchType;
+    float mCurrentResearchProgress;
 
     //! \brief Currently researched Research. This pointer is external and should not be deleted
     const Research* mCurrentResearch;

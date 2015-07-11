@@ -78,11 +78,8 @@ public:
     static void connectResearches(GameMode* mode, CEGUI::Window* rootWindow);
 
     static void connectGuiButtons(GameEditorModeBase* mode, CEGUI::Window* rootWindow, PlayerSelection& playerSelection);
-private:
-    //! \brief sets cegui button name according to the given resType
-    //! returns true is the button name is found for the given resType and false otherwise
-    static bool researchButtonFromType(ResearchType resType, std::string& researchWidgetButton, std::string& useWidgetButton);
 
+private:
     //! \brief Allowed researches
     std::vector<const ResearchDef*> mResearches;
 

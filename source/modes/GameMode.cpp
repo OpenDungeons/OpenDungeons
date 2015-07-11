@@ -65,7 +65,9 @@ GameMode::GameMode(ModeManager *modeManager):
     mDigSetBool(false),
     mIndexEvent(0),
     mSettings(SettingsWindow(mRootWindow)),
-    mIsResearchWindowOpen(false)
+    mIsResearchWindowOpen(false),
+    mCurrentResearchType(ResearchType::nullResearchType),
+    mCurrentResearchProgress(0.0)
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
@@ -1218,7 +1220,6 @@ void GameMode::refreshResearchButtonState(const std::string& researchButtonName,
     bool isDone = localPlayerSeat->isResearchDone(resType);
     bool isAllowed = true;
     uint32_t queueNumber = 0;
-    float curResearchProgress = localPlayerSeat->getCurrentResearchProgress();
     if(!isDone)
     {
         const std::vector<ResearchType>& researchNotAllowed = localPlayerSeat->getResearchNotAllowed();
@@ -1256,6 +1257,13 @@ void GameMode::refreshResearchButtonState(const std::string& researchButtonName,
     const std::string abortIcon = "OpenDungeonsIcons/AbortIcon";
     const std::string workIcon = "OpenDungeonsIcons/CogIcon";
 
+    float curResearchProgress;
+    ResearchType curResType;
+    if(!localPlayerSeat->getCurrentResearchProgress(curResType, curResearchProgress))
+    {
+        curResType = ResearchType::nullResearchType;
+    }
+
     // We show/hide the icons depending on available researches
     CEGUI::Window* guiSheet = mRootWindow;
     CEGUI::Window* skillsWindow = guiSheet->getChild("ResearchTreeWindow/Skills");
@@ -1281,21 +1289,15 @@ void GameMode::refreshResearchButtonState(const std::string& researchButtonName,
         researchButton->setEnabled(false);
         researchProgressBar->hide();
     }
-    else if (queueNumber > 1)
-    {
-        // The skill is not available but research is pending
-        guiSheet->getChild(castButtonName)->hide();
-        researchButton->setText(Helper::toString(queueNumber));
-        researchButton->setProperty("StateImage", pendingIcon);
-        researchButton->setProperty("StateImageColour", "FFFFFFFF");
-        researchButton->setEnabled(true);
-        researchProgressBar->hide();
-    }
-    else if (queueNumber == 1)
+    else if(resType == curResType)
     {
         // The skill is not available but research is being done
         guiSheet->getChild(castButtonName)->hide();
-        researchButton->setText(Helper::toString(queueNumber));
+        if(queueNumber == 0)
+            researchButton->setText("");
+        else
+            researchButton->setText(Helper::toString(queueNumber));
+
         researchButton->setProperty("StateImage", workIcon);
         researchButton->setProperty("StateImageColour", "FF888800");
         researchButton->setEnabled(true);
@@ -1308,6 +1310,16 @@ void GameMode::refreshResearchButtonState(const std::string& researchButtonName,
         {
             researchProgressBar->hide();
         }
+    }
+    else if (queueNumber >= 1)
+    {
+        // The skill is not available but research is pending
+        guiSheet->getChild(castButtonName)->hide();
+        researchButton->setText(Helper::toString(queueNumber));
+        researchButton->setProperty("StateImage", pendingIcon);
+        researchButton->setProperty("StateImageColour", "FFFFFFFF");
+        researchButton->setEnabled(true);
+        researchProgressBar->hide();
     }
     else
     {
@@ -1323,6 +1335,17 @@ void GameMode::refreshResearchButtonState(const std::string& researchButtonName,
 void GameMode::refreshGuiResearch(bool forceRefresh)
 {
     Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
+
+    // If the percentage or the pending research changed, we force refresh
+    float curResearchProgress;
+    ResearchType curResType;
+    if(localPlayerSeat->getCurrentResearchProgress(curResType, curResearchProgress) &&
+       ((mCurrentResearchType != curResType) ||
+        (mCurrentResearchProgress != curResearchProgress)))
+    {
+        forceRefresh = true;
+    }
+
     if(!forceRefresh && !localPlayerSeat->getGuiResearchNeedsRefresh())
         return;
 

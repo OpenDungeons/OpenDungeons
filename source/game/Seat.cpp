@@ -19,6 +19,7 @@
 
 #include "entities/Tile.h"
 #include "game/Player.h"
+#include "game/Research.h"
 #include "goals/Goal.h"
 #include "rooms/RoomType.h"
 #include "utils/Helper.h"
@@ -64,6 +65,8 @@ Seat::Seat(GameMap* gameMap) :
     mNbTreasuries(0),
     mIsDebuggingVision(false),
     mResearchPoints(0),
+    mCurrentResearchType(ResearchType::nullResearchType),
+    mCurrentResearchProgress(0.0f),
     mCurrentResearch(nullptr),
     mGuiResearchNeedsRefresh(false),
     mConfigPlayerId(-1),
@@ -336,6 +339,8 @@ void Seat::refreshFromSeat(Seat* s)
     mNumCreaturesFightersMax = s->mNumCreaturesFightersMax;
     mHasGoalsChanged = s->mHasGoalsChanged;
     mNbTreasuries = s->mNbTreasuries;
+    mCurrentResearchType = s->mCurrentResearchType;
+    mCurrentResearchProgress = s->mCurrentResearchProgress;
 }
 
 bool Seat::takeMana(double mana)

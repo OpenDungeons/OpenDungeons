@@ -1019,16 +1019,31 @@ uint32_t Seat::isResearchPending(ResearchType resType) const
     return 0;
 }
 
+ResearchType Seat::getFirstResearchPending() const
+{
+    if(mResearchPending.empty())
+        return ResearchType::nullResearchType;
+
+    return mResearchPending.at(0);
+}
+
 void Seat::addResearchPoints(int32_t points)
 {
     // Even if we are not searching anything, we allow to bring back a research book if
     // we find any
     mResearchPoints += points;
     if(mCurrentResearch == nullptr)
+    {
+        mCurrentResearchType = ResearchType::nullResearchType;
         return;
+    }
 
     if(mResearchPoints < mCurrentResearch->getNeededResearchPoints())
+    {
+        mCurrentResearchType = mCurrentResearch->getType();
+        mCurrentResearchProgress = static_cast<float>(mResearchPoints) / static_cast<float>(mCurrentResearch->getNeededResearchPoints());
         return;
+    }
 
     // The current research is complete. We add it to the available research list
     mResearchPoints -= mCurrentResearch->getNeededResearchPoints();
@@ -1038,12 +1053,14 @@ void Seat::addResearchPoints(int32_t points)
     setNextResearch(mCurrentResearch->getType());
 }
 
-float Seat::getCurrentResearchProgress() const
+bool Seat::getCurrentResearchProgress(ResearchType& type, float& progress) const
 {
-    if(mCurrentResearch == nullptr)
-        return 0.0f;
+    if(mCurrentResearchType == ResearchType::nullResearchType)
+        return false;
 
-    return static_cast<float>(mResearchPoints) / static_cast<float>(mCurrentResearch->getNeededResearchPoints());
+    type = mCurrentResearchType;
+    progress = mCurrentResearchProgress;
+    return true;
 }
 
 void Seat::setNextResearch(ResearchType researchedType)
@@ -1053,7 +1070,10 @@ void Seat::setNextResearch(ResearchType researchedType)
 
     mCurrentResearch = nullptr;
     if(mResearchPending.empty())
+    {
+        mCurrentResearchType = ResearchType::nullResearchType;
         return;
+    }
 
     // We search for the first pending research we don't own a corresponding ResearchEntity
     ResearchType researchType = ResearchType::nullResearchType;
@@ -1069,11 +1089,22 @@ void Seat::setNextResearch(ResearchType researchedType)
     }
 
     if(researchType == ResearchType::nullResearchType)
+    {
+        mCurrentResearchType = ResearchType::nullResearchType;
         return;
+    }
 
     // We have found a fitting research. We retrieve the corresponding Research
     // object and start working on that
     mCurrentResearch = ResearchManager::getResearch(researchType);
+    if(mCurrentResearch == nullptr)
+    {
+        mCurrentResearchType = ResearchType::nullResearchType;
+        return;
+    }
+
+    mCurrentResearchType = mCurrentResearch->getType();
+    mCurrentResearchProgress = static_cast<float>(mResearchPoints) / static_cast<float>(mCurrentResearch->getNeededResearchPoints());
 }
 
 void Seat::setResearchesDone(const std::vector<ResearchType>& researches)
@@ -1500,6 +1531,8 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
     os << s->mNumCreaturesFighters << s->mNumCreaturesFightersMax;
     os << s->mHasGoalsChanged;
     os << s->mNbTreasuries;
+    os << s->mCurrentResearchType;
+    os << s->mCurrentResearchProgress;
     uint32_t nb;
     nb  = s->mAvailableTeamIds.size();
     os << nb;
@@ -1523,6 +1556,8 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     is >> s->mNumCreaturesFighters >> s->mNumCreaturesFightersMax;
     is >> s->mHasGoalsChanged;
     is >> s->mNbTreasuries;
+    is >> s->mCurrentResearchType;
+    is >> s->mCurrentResearchProgress;
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
     uint32_t nb;
     is >> nb;

@@ -177,6 +177,9 @@ private:
 
     bool mIsResearchWindowOpen;
 
+    ResearchType mCurrentResearchType;
+    float mCurrentResearchProgress;
+
     //! \brief Set the help window (quite long) text.
     void setHelpWindowText();
 
