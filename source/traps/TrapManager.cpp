@@ -363,20 +363,8 @@ void TrapManager::checkSellTrapTilesEditor(GameMap* gameMap, const InputManager&
 {
     if(inputManager.mCommandState == InputCommandState::infoOnly)
     {
-        // We do not differentiate between Trap and trap (because there is no way to know on client side).
-        // Note that price = 0 doesn't mean that the building is not a Trap
-        Tile* tile = gameMap->getTile(inputManager.mXPos, inputManager.mYPos);
-        if((tile == nullptr) || (!tile->getIsTrap()))
-        {
-            inputCommand.displayText(Ogre::ColourValue::White, "Remove tiles");
-            inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos, inputManager.mYPos);
-            return;
-        }
-
         inputCommand.displayText(Ogre::ColourValue::White, "Remove tiles");
-        std::vector<Tile*> tiles;
-        tiles.push_back(tile);
-        inputCommand.selectTiles(tiles);
+        inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos, inputManager.mYPos);
         return;
     }
 

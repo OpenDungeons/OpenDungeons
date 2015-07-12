@@ -147,6 +147,7 @@ bool Tile::isGroundClaimable(Seat* seat) const
 
 void Tile::updateFromPacket(ODPacket& is)
 {
+    // This function should read parameters as sent by Seat::exportTileToPacket
     int seatId;
     std::string meshName;
     std::stringstream ss;
