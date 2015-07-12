@@ -58,6 +58,27 @@ namespace {
     };
 }
 
+bool RoomSelector::operator()(const CEGUI::EventArgs& e)
+{
+    mPlayerSelection.setCurrentAction(SelectedAction::buildRoom);
+    mPlayerSelection.setNewRoomType(mRoomType);
+    return true;
+}
+
+bool TrapSelector::operator()(const CEGUI::EventArgs& e)
+{
+    mPlayerSelection.setCurrentAction(SelectedAction::buildTrap);
+    mPlayerSelection.setNewTrapType(mTrapType);
+    return true;
+}
+
+bool SpellSelector::operator()(const CEGUI::EventArgs& e)
+{
+    mPlayerSelection.setCurrentAction(SelectedAction::castSpell);
+    mPlayerSelection.setNewSpellType(mSpellType);
+    return true;
+}
+
 GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::ModeType modeType, CEGUI::Window* rootWindow) :
     AbstractApplicationMode(modeManager, modeType),
     mCurrentInputMode(InputModeNormal),

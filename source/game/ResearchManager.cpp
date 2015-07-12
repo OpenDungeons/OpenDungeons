@@ -19,6 +19,7 @@
 
 #include "game/Research.h"
 #include "game/Seat.h"
+#include "modes/GameEditorModeBase.h"
 #include "modes/GameMode.h"
 #include "render/Gui.h"
 #include "rooms/RoomType.h"
@@ -33,65 +34,6 @@
 
 namespace
 {
-//! \brief Functors for binding gui actions to spells/room/trap selection.
-class RoomSelector
-{
-public:
-    RoomSelector(RoomType roomType, PlayerSelection& playerSelection):
-        mRoomType(roomType),
-        mPlayerSelection(playerSelection)
-    {
-    }
-
-    bool operator()(const CEGUI::EventArgs& e)
-    {
-        mPlayerSelection.setCurrentAction(SelectedAction::buildRoom);
-        mPlayerSelection.setNewRoomType(mRoomType);
-        return true;
-    }
-    RoomType mRoomType;
-    PlayerSelection& mPlayerSelection;
-};
-
-class TrapSelector
-{
-public:
-    TrapSelector(TrapType trapType, PlayerSelection& playerSelection):
-        mTrapType(trapType),
-        mPlayerSelection(playerSelection)
-    {
-    }
-
-    bool operator()(const CEGUI::EventArgs& e)
-    {
-        mPlayerSelection.setCurrentAction(SelectedAction::buildTrap);
-        mPlayerSelection.setNewTrapType(mTrapType);
-        return true;
-    }
-    TrapType mTrapType;
-    PlayerSelection& mPlayerSelection;
-};
-
-//! \brief Functor to select spell from gui
-class SpellSelector
-{
-public:
-    SpellSelector(SpellType spellType, PlayerSelection& playerSelection):
-        mSpellType(spellType),
-        mPlayerSelection(playerSelection)
-    {
-    }
-
-    bool operator()(const CEGUI::EventArgs& e)
-    {
-        mPlayerSelection.setCurrentAction(SelectedAction::castSpell);
-        mPlayerSelection.setNewSpellType(mSpellType);
-        return true;
-    }
-    SpellType mSpellType;
-    PlayerSelection& mPlayerSelection;
-};
-
 //! \brief Functor to select researches from gui
 class ResearchSelector
 {
