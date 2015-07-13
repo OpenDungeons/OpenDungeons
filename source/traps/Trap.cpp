@@ -545,6 +545,9 @@ bool Trap::isTileVisibleForSeat(Tile* tile, Seat* seat) const
         return false;
     }
 
+    if(getGameMap()->isInEditorMode())
+        return true;
+
     const TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
     if(std::find(trapTileData->mSeatsVision.begin(), trapTileData->mSeatsVision.end(), seat) == trapTileData->mSeatsVision.end())
         return false;

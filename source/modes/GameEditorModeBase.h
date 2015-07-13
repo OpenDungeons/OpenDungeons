@@ -37,6 +37,53 @@ class EventMessage;
 enum class RoomType;
 enum class TrapType;
 
+//! \brief Functors for binding gui actions to spells/room/trap selection.
+class RoomSelector
+{
+public:
+    RoomSelector(RoomType roomType, PlayerSelection& playerSelection):
+        mRoomType(roomType),
+        mPlayerSelection(playerSelection)
+    {
+    }
+
+    bool operator()(const CEGUI::EventArgs& e);
+
+    RoomType mRoomType;
+    PlayerSelection& mPlayerSelection;
+};
+
+class TrapSelector
+{
+public:
+    TrapSelector(TrapType trapType, PlayerSelection& playerSelection):
+        mTrapType(trapType),
+        mPlayerSelection(playerSelection)
+    {
+    }
+
+    bool operator()(const CEGUI::EventArgs& e);
+
+    TrapType mTrapType;
+    PlayerSelection& mPlayerSelection;
+};
+
+//! \brief Functor to select spell from gui
+class SpellSelector
+{
+public:
+    SpellSelector(SpellType spellType, PlayerSelection& playerSelection):
+        mSpellType(spellType),
+        mPlayerSelection(playerSelection)
+    {
+    }
+
+    bool operator()(const CEGUI::EventArgs& e);
+
+    SpellType mSpellType;
+    PlayerSelection& mPlayerSelection;
+};
+
 //! \brief Class containing common functionality between editor and game modes.
 class GameEditorModeBase : public AbstractApplicationMode
 {
@@ -110,10 +157,6 @@ private:
 
     //! \brief Minimap click event handler
     bool onMinimapClick(const CEGUI::EventArgs& arg);
-
-    //! \brief helper functions to connect buttons to entities
-    void connectRoomSelect(const std::string& buttonName, RoomType roomType);
-    void connectTrapSelect(const std::string& buttonName, TrapType trapType);
 };
 
 #endif // GAMEEDITORMODEBASE_H

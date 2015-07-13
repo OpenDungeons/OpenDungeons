@@ -173,12 +173,6 @@ ConfigManager::~ConfigManager()
     }
     mCreatureSpawnConditions.clear();
 
-    for(const Research* research : mResearches)
-    {
-        delete research;
-    }
-    mResearches.clear();
-
     for(std::pair<const std::string, const TileSet*> p : mTileSets)
     {
         delete p.second;
@@ -1058,18 +1052,6 @@ bool ConfigManager::loadCreaturesMood(const std::string& fileName)
 
 bool ConfigManager::loadResearches(const std::string& fileName)
 {
-    int32_t pointsRoomCrypt = 0;
-    int32_t pointsRoomWorkshop = 0;
-    int32_t pointsRoomTrainingHall = 0;
-    int32_t pointsTrapCannon = 0;
-    int32_t pointsTrapWoodenDoor = 0;
-    int32_t pointsTrapBoulder = 0;
-    int32_t pointsTrapSpike = 0;
-    int32_t pointsSpellCallToWar = 0;
-    int32_t pointsSpellCreatureHeal = 0;
-    int32_t pointsSpellCreatureExplosion = 0;
-    int32_t pointsSpellCreatureHaste = 0;
-
     OD_LOG_INF("Load Researches file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
@@ -1095,131 +1077,8 @@ bool ConfigManager::loadResearches(const std::string& fileName)
         if (nextParam == "[/Researches]")
             break;
 
-        if(nextParam == "RoomCryptPoints")
-        {
-            defFile >> pointsRoomCrypt;
-            continue;
-        }
-
-        if(nextParam == "RoomWorkshopPoints")
-        {
-            defFile >> pointsRoomWorkshop;
-            continue;
-        }
-
-        if(nextParam == "RoomTrainingHallPoints")
-        {
-            defFile >> pointsRoomTrainingHall;
-            continue;
-        }
-
-        if(nextParam == "TrapCannonPoints")
-        {
-            defFile >> pointsTrapCannon;
-            continue;
-        }
-
-        if(nextParam == "TrapWoodenDoorPoints")
-        {
-            defFile >> pointsTrapWoodenDoor;
-            continue;
-        }
-
-        if(nextParam == "TrapBoulderPoints")
-        {
-            defFile >> pointsTrapBoulder;
-            continue;
-        }
-
-        if(nextParam == "TrapSpikePoints")
-        {
-            defFile >> pointsTrapSpike;
-            continue;
-        }
-
-        if(nextParam == "SpellCallToWarPoints")
-        {
-            defFile >> pointsSpellCallToWar;
-            continue;
-        }
-
-        if(nextParam == "SpellCreatureHeal")
-        {
-            defFile >> pointsSpellCreatureHeal;
-            continue;
-        }
-
-        if(nextParam == "SpellCreatureExplosion")
-        {
-            defFile >> pointsSpellCreatureExplosion;
-            continue;
-        }
-
-        if(nextParam == "SpellCreatureHaste")
-        {
-            defFile >> pointsSpellCreatureHaste;
-            continue;
-        }
+        defFile >> mResearchPoints[nextParam];
     }
-
-    // We build the research tree
-    std::vector<const Research*> depends;
-    Research* research;
-    depends.clear();
-    research = new Research(ResearchType::roomTrainingHall, pointsRoomTrainingHall, depends);
-    mResearches.push_back(research);
-
-    depends.clear();
-    // Workshop depends on training hall
-    depends.push_back(research);
-    research = new Research(ResearchType::roomWorkshop, pointsRoomWorkshop, depends);
-    mResearches.push_back(research);
-
-    depends.clear();
-    // Crypt depends on Workshop
-    depends.push_back(research);
-    research = new Research(ResearchType::roomCrypt, pointsRoomCrypt, depends);
-    mResearches.push_back(research);
-
-    depends.clear();
-    research = new Research(ResearchType::trapDoorWooden, pointsTrapWoodenDoor, depends);
-    mResearches.push_back(research);
-
-    depends.clear();
-    research = new Research(ResearchType::trapCannon, pointsTrapCannon, depends);
-    mResearches.push_back(research);
-
-    depends.clear();
-    // Spikes depends on Cannon
-    depends.push_back(research);
-    research = new Research(ResearchType::trapSpike, pointsTrapSpike, depends);
-    mResearches.push_back(research);
-
-    depends.clear();
-    // Boulder depends on spike
-    depends.push_back(research);
-    research = new Research(ResearchType::trapBoulder, pointsTrapBoulder, depends);
-    mResearches.push_back(research);
-
-    depends.clear();
-    research = new Research(ResearchType::spellCallToWar, pointsSpellCallToWar, depends);
-    mResearches.push_back(research);
-
-    depends.clear();
-    // CreatureHeal depends on CallToWar
-    depends.push_back(research);
-    research = new Research(ResearchType::spellCreatureHeal, pointsSpellCreatureHeal, depends);
-    mResearches.push_back(research);
-
-    depends.clear();
-    // CreatureExplosion depends on CreatureHeal
-    depends.push_back(research);
-    research = new Research(ResearchType::spellCreatureExplosion, pointsSpellCreatureExplosion, depends);
-    mResearches.push_back(research);
-
-    depends.clear();
-    research = new Research(ResearchType::spellCreatureHaste, pointsSpellCreatureHaste, depends);
-    mResearches.push_back(research);
     return true;
 }
 
@@ -1684,6 +1543,17 @@ double ConfigManager::getSpellConfigDouble(const std::string& param) const
     }
 
     return Helper::toDouble(mSpellConfig.at(param));
+}
+
+int32_t ConfigManager::getResearchPoints(const std::string& res) const
+{
+    if(mResearchPoints.count(res) <= 0)
+    {
+        OD_LOG_ERR("Unknown parameter res=" + res);
+        return 0.0;
+    }
+
+    return mResearchPoints.at(res);
 }
 
 const CreatureDefinition* ConfigManager::getCreatureDefinition(const std::string& name) const

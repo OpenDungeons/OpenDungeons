@@ -344,7 +344,7 @@ public:
     //! \brief sets the speed modifier. If 1.0, resets to default speed
     void setMoveSpeedModifier(double modifier);
 
-    virtual double getAnimationSpeedFactor() const
+    virtual double getAnimationSpeedFactor() const override
     { return mSpeedModifier; }
 
     inline void jobDone(double val)

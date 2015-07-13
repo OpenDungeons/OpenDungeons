@@ -18,7 +18,7 @@
 #include "GameEditorModeBase.h"
 
 #include "GameEditorModeConsole.h"
-
+#include "game/ResearchManager.h"
 #include "gamemap/GameMap.h"
 #include "network/ChatEventMessage.h"
 #include "render/Gui.h"
@@ -32,31 +32,6 @@
 #include <CEGUI/widgets/Scrollbar.h>
 
 namespace {
-    //Functors for binding gui actions to spells/room/trap selection.
-    class RoomSelector
-    {
-    public:
-        bool operator()(const CEGUI::EventArgs& e)
-        {
-            playerSelection.setCurrentAction(SelectedAction::buildRoom);
-            playerSelection.setNewRoomType(roomType);
-            return true;
-        }
-        RoomType roomType;
-        PlayerSelection& playerSelection;
-    };
-    class TrapSelector
-    {
-    public:
-        bool operator()(const CEGUI::EventArgs& e)
-        {
-            playerSelection.setCurrentAction(SelectedAction::buildTrap);
-            playerSelection.setNewTrapType(trapType);
-            return true;
-        }
-        TrapType trapType;
-        PlayerSelection& playerSelection;
-    };
     class ActionSelector
     {
     public:
@@ -83,6 +58,27 @@ namespace {
     };
 }
 
+bool RoomSelector::operator()(const CEGUI::EventArgs& e)
+{
+    mPlayerSelection.setCurrentAction(SelectedAction::buildRoom);
+    mPlayerSelection.setNewRoomType(mRoomType);
+    return true;
+}
+
+bool TrapSelector::operator()(const CEGUI::EventArgs& e)
+{
+    mPlayerSelection.setCurrentAction(SelectedAction::buildTrap);
+    mPlayerSelection.setNewTrapType(mTrapType);
+    return true;
+}
+
+bool SpellSelector::operator()(const CEGUI::EventArgs& e)
+{
+    mPlayerSelection.setCurrentAction(SelectedAction::castSpell);
+    mPlayerSelection.setNewSpellType(mSpellType);
+    return true;
+}
+
 GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::ModeType modeType, CEGUI::Window* rootWindow) :
     AbstractApplicationMode(modeManager, modeType),
     mCurrentInputMode(InputModeNormal),
@@ -104,15 +100,6 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
             CEGUI::Event::Subscriber(ActionSelector{SelectedAction::destroyRoom, mPlayerSelection})
         )
     );
-    connectRoomSelect(Gui::BUTTON_CRYPT, RoomType::crypt);
-    connectRoomSelect(Gui::BUTTON_DORMITORY, RoomType::dormitory);
-    connectRoomSelect(Gui::BUTTON_TEMPLE, RoomType::dungeonTemple);
-    connectRoomSelect(Gui::BUTTON_WORKSHOP, RoomType::workshop);
-    connectRoomSelect(Gui::BUTTON_HATCHERY, RoomType::hatchery);
-    connectRoomSelect(Gui::BUTTON_LIBRARY, RoomType::library);
-    connectRoomSelect(Gui::BUTTON_PORTAL, RoomType::portal);
-    connectRoomSelect(Gui::BUTTON_TRAININGHALL, RoomType::trainingHall);
-    connectRoomSelect(Gui::BUTTON_TREASURY, RoomType::treasury);
 
     // Traps
     addEventConnection(
@@ -121,10 +108,9 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
             CEGUI::Event::Subscriber(ActionSelector{SelectedAction::destroyTrap, mPlayerSelection})
         )
     );
-    connectTrapSelect(Gui::BUTTON_TRAP_BOULDER, TrapType::boulder);
-    connectTrapSelect(Gui::BUTTON_TRAP_DOOR_WOODEN, TrapType::doorWooden);
-    connectTrapSelect(Gui::BUTTON_TRAP_CANNON, TrapType::cannon);
-    connectTrapSelect(Gui::BUTTON_TRAP_SPIKE, TrapType::spike);
+
+    // Connect gui buttons (Rooms, traps, spells)
+    ResearchManager::connectGuiButtons(this, mRootWindow, mPlayerSelection);
 
     // Creature buttons
     connectGuiAction(Gui::BUTTON_CREATURE_WORKER, AbstractApplicationMode::GuiAction::ButtonPressedCreatureWorker);
@@ -171,26 +157,6 @@ bool GameEditorModeBase::onMinimapClick(const CEGUI::EventArgs& arg)
     frameListener.getCameraManager()->onMiniMapClick(cc);
 
     return true;
-}
-
-void GameEditorModeBase::connectRoomSelect(const std::string& buttonName, RoomType roomType)
-{
-    addEventConnection(
-        mRootWindow->getChild(buttonName)->subscribeEvent(
-          CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(RoomSelector{roomType, mPlayerSelection})
-        )
-    );
-}
-
-void GameEditorModeBase::connectTrapSelect(const std::string& buttonName, TrapType trapType)
-{
-    addEventConnection(
-        mRootWindow->getChild(buttonName)->subscribeEvent(
-          CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(TrapSelector{trapType, mPlayerSelection})
-        )
-    );
 }
 
 void GameEditorModeBase::onFrameStarted(const Ogre::FrameEvent& evt)
