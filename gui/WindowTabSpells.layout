@@ -14,6 +14,17 @@
             <Property name="TooltipText" value="Summon a worker" />
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
+            <Window type="OD/ProgressBar" name="SummonWorkerButtonProgressBar" >
+                <Property name="Area" value="{{0.0,-20},{0.0,-20},{1.0,20},{1.0,20}}" />
+                <Property name="InheritsTooltipText" value="True" />
+                <Property name="CurrentProgress" value="0.0" />
+                <Property name="MousePassThroughEnabled" value="True" />
+                <Property name="StepSize" value="0.1" />
+                <Property name="Visible" value="False" />
+                <Property name="VerticalProgress" value="True" />
+                <Property name="Alpha" value="0.2" />
+                <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+            </Window>
         </Window>
         <Window type="OD/GameTabButton" name="CallToWarButton" >
             <Property name="Area" value="{{0,160},{0,25},{0,220},{0,85}}" />
@@ -21,6 +32,17 @@
             <Property name="TooltipText" value="Casts a spell that calls available creatures" />
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
+            <Window type="OD/ProgressBar" name="CallToWarButtonProgressBar" >
+                <Property name="Area" value="{{0.0,-20},{0.0,-20},{1.0,20},{1.0,20}}" />
+                <Property name="InheritsTooltipText" value="True" />
+                <Property name="CurrentProgress" value="0.0" />
+                <Property name="MousePassThroughEnabled" value="True" />
+                <Property name="StepSize" value="0.1" />
+                <Property name="Visible" value="False" />
+                <Property name="VerticalProgress" value="True" />
+                <Property name="Alpha" value="0.2" />
+                <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+            </Window>
         </Window>
         <Window type="OD/GameTabButton" name="CreatureHealButton" >
             <Property name="Area" value="{{0,220},{0,25},{0,280},{0,85}}" />
@@ -28,6 +50,17 @@
             <Property name="TooltipText" value="Casts a spell that heals owned creatures on allied tiles" />
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
+            <Window type="OD/ProgressBar" name="CreatureHealButtonProgressBar" >
+                <Property name="Area" value="{{0.0,-20},{0.0,-20},{1.0,20},{1.0,20}}" />
+                <Property name="InheritsTooltipText" value="True" />
+                <Property name="CurrentProgress" value="0.0" />
+                <Property name="MousePassThroughEnabled" value="True" />
+                <Property name="StepSize" value="0.1" />
+                <Property name="Visible" value="False" />
+                <Property name="VerticalProgress" value="True" />
+                <Property name="Alpha" value="0.2" />
+                <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+            </Window>
         </Window>
         <Window type="OD/GameTabButton" name="CreatureExplosionButton" >
             <Property name="Area" value="{{0,280},{0,25},{0,340},{0,85}}" />
@@ -35,6 +68,17 @@
             <Property name="TooltipText" value="Casts a spell that damages enemy creatures on allied tiles" />
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
+            <Window type="OD/ProgressBar" name="CreatureExplosionButtonProgressBar" >
+                <Property name="Area" value="{{0.0,-20},{0.0,-20},{1.0,20},{1.0,20}}" />
+                <Property name="InheritsTooltipText" value="True" />
+                <Property name="CurrentProgress" value="0.0" />
+                <Property name="MousePassThroughEnabled" value="True" />
+                <Property name="StepSize" value="0.1" />
+                <Property name="Visible" value="False" />
+                <Property name="VerticalProgress" value="True" />
+                <Property name="Alpha" value="0.2" />
+                <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+            </Window>
         </Window>
         <Window type="OD/GameTabButton" name="CreatureHasteButton" >
             <Property name="Area" value="{{0,340},{0,25},{0,400},{0,85}}" />
@@ -42,6 +86,17 @@
             <Property name="TooltipText" value="Increases, target speed. Target: friendly creatures on claimed tiles" />
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
+            <Window type="OD/ProgressBar" name="CreatureHasteButtonProgressBar" >
+                <Property name="Area" value="{{0.0,-20},{0.0,-20},{1.0,20},{1.0,20}}" />
+                <Property name="InheritsTooltipText" value="True" />
+                <Property name="CurrentProgress" value="0.0" />
+                <Property name="MousePassThroughEnabled" value="True" />
+                <Property name="StepSize" value="0.1" />
+                <Property name="Visible" value="False" />
+                <Property name="VerticalProgress" value="True" />
+                <Property name="Alpha" value="0.2" />
+                <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+            </Window>
         </Window>
     </Window>
 </GUILayout>

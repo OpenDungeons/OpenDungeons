@@ -187,6 +187,8 @@ bool SpellCreatureExplosion::castSpell(GameMap* gameMap, Player* player, ODPacke
         creature->addCreatureEffect(effect);
     }
 
+    player->setSpellCooldownTurns(SpellType::creatureExplosion, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureExplosionCooldown"));
+
     return true;
 }
 
