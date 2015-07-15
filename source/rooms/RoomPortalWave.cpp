@@ -25,6 +25,8 @@
 #include "game/Seat.h"
 #include "gamemap/Pathfinding.h"
 #include "gamemap/GameMap.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
 #include "rooms/RoomManager.h"
 #include "spells/SpellCallToWar.h"
 #include "utils/ConfigManager.h"
@@ -76,7 +78,11 @@ RoomPortalWave::RoomPortalWave(GameMap* gameMap) :
         mSearchFoeCountdown(0),
         mTurnsBetween2Waves(0),
         mPortalObject(nullptr),
-        mClaimedValue(0)
+        mClaimedValue(0),
+        mTargetDungeon(nullptr),
+        mIsFirstUpkeep(true),
+        mStrategy(RoomPortalWaveStrategy::closestDungeon),
+        mRangeTilesAttack(-1)
 {
    setMeshName("Portal");
 }
@@ -198,13 +204,20 @@ void RoomPortalWave::doUpkeep()
     if (mCoveredTiles.empty())
         return;
 
+    if(mIsFirstUpkeep)
+    {
+        mIsFirstUpkeep = false;
+        handleFirstUpkeep();
+        handleChooseTarget();
+    }
+
     if(mSearchFoeCountdown > 0)
         --mSearchFoeCountdown;
     else
     {
         mSearchFoeCountdown = Random::Uint(10, 20);
-        if(!handleSearchFoe())
-            handleDigging();
+
+        handleAttack();
     }
 
     if (mSpawnCountdown < mTurnsBetween2Waves)
@@ -214,8 +227,138 @@ void RoomPortalWave::doUpkeep()
         return;
     }
 
+    // At each new wave, we try to choose a target
+    handleChooseTarget();
+
+    // Spawns a new wave
     mSpawnCountdown = 0;
 
+    handleSpawnWave();
+}
+
+void RoomPortalWave::handleChooseTarget()
+{
+    // We choose an enemy depending on the strategy
+    if(!mAttackableSeats.empty())
+    {
+        switch(mStrategy)
+        {
+            case RoomPortalWaveStrategy::randomPlayer:
+            {
+                uint32_t kk = Random::Uint(0, mAttackableSeats.size() - 1);
+                mTargetSeats.clear();
+                Seat* attackedSeat = mAttackableSeats[kk];
+                OD_LOG_INF("PortalWave=" + getName() + ", attacking seatId=" + Helper::toString(attackedSeat->getId()));
+                mTargetSeats.push_back(attackedSeat);
+                if(mTargetDungeon != nullptr)
+                    mTargetDungeon->removeGameEntityListener(this);
+
+                mTargetDungeon = nullptr;
+                break;
+            }
+            case RoomPortalWaveStrategy::fixedTeamIds:
+            case RoomPortalWaveStrategy::closestDungeon:
+            default:
+                mTargetSeats = mAttackableSeats;
+                break;
+        }
+    }
+}
+
+void RoomPortalWave::spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t maxCreaturesToSpawn)
+{
+    Tile* centralTile = getCentralTile();
+    if (centralTile == nullptr)
+        return;
+
+    if (mPortalObject != nullptr)
+        mPortalObject->setAnimationState("Triggered", false);
+
+    Ogre::Real xPos = static_cast<Ogre::Real>(centralTile->getX());
+    Ogre::Real yPos = static_cast<Ogre::Real>(centralTile->getY());
+    Ogre::Vector3 spawnPosition(xPos, yPos, 0.0f);
+
+    // Create the wave
+    for(const std::pair<std::string, uint32_t>& p : roomPortalWaveData->mSpawnCreatureClassName)
+    {
+        if(maxCreaturesToSpawn <= 0)
+            break;
+
+        const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(p.first);
+        if(classToSpawn == nullptr)
+        {
+            OD_LOG_ERR("RoomPortalWave=" + getName() + ", wrong creature class=" + p.first);
+            continue;
+        }
+
+        Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat(), spawnPosition);
+        newCreature->setLevel(p.second);
+        newCreature->setHP(newCreature->getMaxHp());
+
+        OD_LOG_INF("RoomPortalWave name=" + getName()
+            + "spawns a creature class=" + classToSpawn->getClassName()
+            + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(getSeat()->getId()));
+
+        newCreature->addToGameMap();
+        newCreature->createMesh();
+        newCreature->setPosition(newCreature->getPosition());
+
+        --maxCreaturesToSpawn;
+    }
+}
+
+void RoomPortalWave::handleAttack()
+{
+    // We check if new foe has claimed a tile in our border
+    if(mRangeTilesAttack > 0)
+    {
+        for(Tile* tile : mTilesBorder)
+        {
+            if(!tile->isClaimed())
+                continue;
+
+            Seat* tileSeat = tile->getSeat();
+            if(tileSeat == nullptr)
+            {
+                OD_LOG_ERR("nullptr seat claimed tile=" + Tile::displayAsString(tile));
+                continue;
+            }
+
+            if(std::find(mAttackableSeats.begin(), mAttackableSeats.end(), tileSeat) != mAttackableSeats.end())
+                continue;
+
+            if(getSeat()->isAlliedSeat(tileSeat))
+                continue;
+
+            if((mStrategy == RoomPortalWaveStrategy::fixedTeamIds) &&
+               (std::find(mTargetTeams.begin(), mTargetTeams.end(), tileSeat->getTeamId()) == mTargetTeams.end()))
+            {
+                continue;
+            }
+
+            mAttackableSeats.push_back(tileSeat);
+            // Tells the player he is going to be attacked
+            if(tileSeat->getPlayer() != nullptr && tileSeat->getPlayer()->getIsHuman())
+            {
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotificationType::chatServer, tileSeat->getPlayer());
+
+                std::string msg = "Your evil presence has soiled this holy land for too long. You shall be crushed by our blessed swords !";
+                serverNotification->mPacket << msg << EventShortNoticeType::majorGameEvent;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+        }
+    }
+
+    if(!mAttackableSeats.empty())
+    {
+        if(!handleSearchFoe())
+            handleDigging();
+    }
+}
+
+void RoomPortalWave::handleSpawnWave()
+{
     // We start by checking that the spawnable wave list is up to date
     int64_t curTurn = getGameMap()->getTurnNumber();
     for(auto it = mRoomPortalWaveDataSpawnable.begin(); it != mRoomPortalWaveDataSpawnable.end();)
@@ -275,49 +418,6 @@ void RoomPortalWave::doUpkeep()
     // Randomly choose a wave to spawn
     uint32_t index = Random::Uint(0, mRoomPortalWaveDataSpawnable.size() - 1);
     spawnWave(mRoomPortalWaveDataSpawnable[index], maxCreatures - numCreatures);
-
-}
-
-void RoomPortalWave::spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t maxCreaturesToSpawn)
-{
-    Tile* centralTile = getCentralTile();
-    if (centralTile == nullptr)
-        return;
-
-    if (mPortalObject != nullptr)
-        mPortalObject->setAnimationState("Triggered", false);
-
-    Ogre::Real xPos = static_cast<Ogre::Real>(centralTile->getX());
-    Ogre::Real yPos = static_cast<Ogre::Real>(centralTile->getY());
-    Ogre::Vector3 spawnPosition(xPos, yPos, 0.0f);
-
-    // Create the wave
-    for(const std::pair<std::string, uint32_t>& p : roomPortalWaveData->mSpawnCreatureClassName)
-    {
-        if(maxCreaturesToSpawn <= 0)
-            break;
-
-        const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(p.first);
-        if(classToSpawn == nullptr)
-        {
-            OD_LOG_ERR("RoomPortalWave=" + getName() + ", wrong creature class=" + p.first);
-            continue;
-        }
-
-        Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat(), spawnPosition);
-        newCreature->setLevel(p.second);
-        newCreature->setHP(newCreature->getMaxHp());
-
-        OD_LOG_INF("RoomPortalWave name=" + getName()
-            + "spawns a creature class=" + classToSpawn->getClassName()
-            + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(getSeat()->getId()));
-
-        newCreature->addToGameMap();
-        newCreature->createMesh();
-        newCreature->setPosition(newCreature->getPosition());
-
-        ++maxCreaturesToSpawn;
-    }
 }
 
 void RoomPortalWave::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
@@ -330,7 +430,23 @@ void RoomPortalWave::exportToStream(std::ostream& os) const
 {
     Room::exportToStream(os);
 
-    os << mClaimedValue << "\t" << mTurnsBetween2Waves << "\n";
+    std::string teams;
+    if(mTargetTeams.empty())
+    {
+        teams = "-";
+    }
+    else
+    {
+        for(int team : mTargetTeams)
+        {
+            if(teams.empty())
+                teams = Helper::toString(team);
+            else
+                teams += "/" + Helper::toString(team);
+        }
+    }
+
+    os << mClaimedValue << "\t" << mTurnsBetween2Waves << "\t" << mStrategy << "\t" << mRangeTilesAttack << "\t" << teams << "\n";
     os << "[Waves]" << "\n";
     for(RoomPortalWaveData* roomPortalWaveData : mRoomPortalWaveDataNotSpawnable)
     {
@@ -367,6 +483,26 @@ void RoomPortalWave::importFromStream(std::istream& is)
 
     OD_ASSERT_TRUE(is >> mClaimedValue);
     OD_ASSERT_TRUE(is >> mTurnsBetween2Waves);
+    OD_ASSERT_TRUE(is >> mStrategy);
+    OD_ASSERT_TRUE(is >> mRangeTilesAttack);
+    std::string teamsStr;
+    OD_ASSERT_TRUE(is >> teamsStr);
+    mTargetTeams.clear();
+    if(teamsStr != "-")
+    {
+        std::vector<std::string> teams = Helper::split(teamsStr, '/', true);
+        for(const std::string& teamStr : teams)
+        {
+            int teamId = Helper::toInt(teamStr);
+            if(teamId == 0)
+            {
+                OD_LOG_ERR("Cannot use team 0 as a target for portal wave=" + getName());
+                continue;
+            }
+            mTargetTeams.push_back(teamId);
+        }
+    }
+
     std::string str;
     OD_ASSERT_TRUE(is >> str);
     if(str != "[Waves]")
@@ -515,7 +651,8 @@ bool RoomPortalWave::handleSearchFoe()
     std::vector<std::pair<Tile*,Ogre::Real>> tileDungeons;
     for(Room* room : dungeonTemples)
     {
-        if(room->getSeat()->isAlliedSeat(getSeat()))
+        // We check if the strategy allows us to attack the dungeon
+        if(std::find(mTargetSeats.begin(), mTargetSeats.end(), room->getSeat()) == mTargetSeats.end())
             continue;
 
         Tile* tile = room->getCentralTile();
@@ -586,13 +723,11 @@ bool RoomPortalWave::handleDigging()
     }
 
     // We check that the dungeon is still alive.
-    if(!mTargetDungeon.empty())
+    if(mTargetDungeon != nullptr)
     {
-        Room* room = getGameMap()->getRoomByName(mTargetDungeon);
-        if((room == nullptr) ||
-           (room->numCoveredTiles() == 0))
+        if(mTargetDungeon->numCoveredTiles() == 0)
         {
-            mTargetDungeon.clear();
+            mTargetDungeon = nullptr;
         }
     }
 
@@ -625,7 +760,7 @@ bool RoomPortalWave::handleDigging()
 
     if(isPathValid &&
        (nbTilesToDig > 0) &&
-       !mTargetDungeon.empty())
+       (mTargetDungeon != nullptr))
     {
         // The currently marked tile path is valid. No need to change
         // we check if we already killed the given dungeon. If no, nothing to do. If yes, we go somewhere else
@@ -638,7 +773,8 @@ bool RoomPortalWave::handleDigging()
     std::vector<Room*> dungeonTemples = getGameMap()->getRoomsByType(RoomType::dungeonTemple);
     for(Room* room : dungeonTemples)
     {
-        if(room->getSeat()->isAlliedSeat(getSeat()))
+        // We check if the strategy allows us to attack the dungeon
+        if(std::find(mTargetSeats.begin(), mTargetSeats.end(), room->getSeat()) == mTargetSeats.end())
             continue;
 
         Tile* tile = room->getCentralTile();
@@ -674,7 +810,8 @@ bool RoomPortalWave::handleDigging()
             continue;
         }
 
-        mTargetDungeon = p.first->getCoveringBuilding()->getName();
+        mTargetDungeon = p.first->getCoveringRoom();
+        mTargetDungeon->addGameEntityListener(this);
         isWayFound = true;
         for(Tile* tile : mMarkedTilesToEnemy)
             tilesToMark.push_back(tile);
@@ -864,6 +1001,133 @@ bool RoomPortalWave::findBestDiggablePath(Tile* tileStart, Tile* tileDest, Creat
     }
 }
 
+void RoomPortalWave::handleFirstUpkeep()
+{
+    // We check the dungeons is in range
+    Tile* myTile = getCentralTile();
+    if(myTile == nullptr)
+    {
+        OD_LOG_ERR("nullptr tile room=" + getName());
+        return;
+    }
+
+    if(mRangeTilesAttack <= 0)
+    {
+        // We take all dungeons
+        std::vector<Room*> dungeonTemples = getGameMap()->getRoomsByType(RoomType::dungeonTemple);
+        for(Room* room : dungeonTemples)
+        {
+            Seat* roomSeat = room->getSeat();
+            if(roomSeat->isAlliedSeat(getSeat()))
+                continue;
+
+            if((mStrategy == RoomPortalWaveStrategy::fixedTeamIds) &&
+               (std::find(mTargetTeams.begin(), mTargetTeams.end(), roomSeat->getTeamId()) == mTargetTeams.end()))
+            {
+                continue;
+            }
+
+            if(std::find(mAttackableSeats.begin(), mAttackableSeats.end(), roomSeat) == mAttackableSeats.end())
+            {
+                mAttackableSeats.push_back(roomSeat);
+            }
+        }
+    }
+    else
+    {
+        double squaredRange = static_cast<double>(mRangeTilesAttack) * static_cast<double>(mRangeTilesAttack);
+        std::vector<Room*> dungeonTemples = getGameMap()->getRoomsByType(RoomType::dungeonTemple);
+        for(Room* room : dungeonTemples)
+        {
+            Seat* roomSeat = room->getSeat();
+            if(roomSeat->isAlliedSeat(getSeat()))
+                continue;
+
+            if((mStrategy == RoomPortalWaveStrategy::fixedTeamIds) &&
+               (std::find(mTargetTeams.begin(), mTargetTeams.end(), roomSeat->getTeamId()) == mTargetTeams.end()))
+            {
+                continue;
+            }
+
+            Tile* centralTile = room->getCentralTile();
+            double dist = Pathfinding::squaredDistanceTile(*centralTile, *myTile);
+            if(dist > squaredRange)
+                continue;
+
+            if(std::find(mAttackableSeats.begin(), mAttackableSeats.end(), roomSeat) == mAttackableSeats.end())
+            {
+                mAttackableSeats.push_back(roomSeat);
+            }
+        }
+
+        // We only keep the tiles on the border. That means that if a player starts with claimed
+        // tiles in range of the portal (but not its dungeon heart), it will not get attacked until
+        // he starts claiming tiles on the portal's border. That is acceptable and will avoid to
+        // check all the tiles in range to focus on the border only (which will cover 99% of the
+        // real cases).
+        int32_t index = 0;
+        while(true)
+        {
+            int32_t x = index;
+            double yDouble = std::sqrt(squaredRange - static_cast<double>(x * x));
+            int32_t y = Helper::round(yDouble);
+            // If x > y, we should have read all tiles
+            if(x > y)
+                break;
+
+            Tile* tile;
+            // Tile north-west
+            tile = getGameMap()->getTile(myTile->getX() + x, myTile->getY() + y);
+            if(tile != nullptr)
+                mTilesBorder.push_back(tile);
+            // Tile north-east
+            tile = getGameMap()->getTile(myTile->getX() - x, myTile->getY() + y);
+            if((x != 0) && (tile != nullptr))
+                mTilesBorder.push_back(tile);
+            // Tile south-west
+            tile = getGameMap()->getTile(myTile->getX() + x, myTile->getY() - y);
+            if(tile != nullptr)
+                mTilesBorder.push_back(tile);
+            // Tile south-east
+            tile = getGameMap()->getTile(myTile->getX() - x, myTile->getY() - y);
+            if((x != 0) && (tile != nullptr))
+                mTilesBorder.push_back(tile);
+            // Tile east-north
+            tile = getGameMap()->getTile(myTile->getX() - y, myTile->getY() + x);
+            if((x != y) && (tile != nullptr))
+                mTilesBorder.push_back(tile);
+            // Tile east-south
+            tile = getGameMap()->getTile(myTile->getX() - y, myTile->getY() - x);
+            if((x != 0) && (x != y) && (tile != nullptr))
+                mTilesBorder.push_back(tile);
+            // Tile west-north
+            tile = getGameMap()->getTile(myTile->getX() + y, myTile->getY() + x);
+            if((x != y) && (tile != nullptr))
+                mTilesBorder.push_back(tile);
+            // Tile west-south
+            tile = getGameMap()->getTile(myTile->getX() + y, myTile->getY() - x);
+            if((x != 0) && (x != y) && (tile != nullptr))
+                mTilesBorder.push_back(tile);
+
+            ++index;
+        }
+    }
+}
+
+bool RoomPortalWave::notifyRemovedFromGameMap(GameEntity* entity)
+{
+    if(entity->getObjectType() == GameEntityType::room)
+    {
+        Room* room = static_cast<Room*>(entity);
+        if(mTargetDungeon == room)
+            mTargetDungeon = nullptr;
+
+        return false;
+    }
+
+    return true;
+}
+
 void RoomPortalWave::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
     // Not buildable on game mode
@@ -889,4 +1153,18 @@ bool RoomPortalWave::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 Room* RoomPortalWave::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
     return new RoomPortalWave(gameMap);
+}
+
+std::ostream& operator<<(std::ostream& os, const RoomPortalWaveStrategy& type)
+{
+    os << static_cast<int32_t>(type);
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, RoomPortalWaveStrategy& type)
+{
+    int32_t tmp;
+    OD_ASSERT_TRUE(is >> tmp);
+    type = static_cast<RoomPortalWaveStrategy>(tmp);
+    return is;
 }

@@ -2137,7 +2137,7 @@ ProtectDungeonTemple	NULL
 35	95
 35	96
 35	97
-9	100
+9	100	0	0	-
 [Waves]
 [Wave]
 SpawnTurnMin	0
