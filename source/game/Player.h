@@ -164,7 +164,11 @@ public:
     //! the place where the fight is happening and player is the Player actually fighting
     void notifyTeamFighting(Player* player, Tile* tile);
 
-    //! \brief Notify the player is fighting
+    //! \brief Notify the player that they are not research anything
+    //! Should be called on the server game map for human players only
+    void notifyNoResearchInQueue();
+
+    //! \brief Notify the player that no treasury tiles are available for gold storage
     //! Should be called on the server game map for human players only
     void notifyNoTreasuryAvailable();
 
@@ -174,7 +178,7 @@ public:
     //! the time remaining of PlayerEvent class is not relevant on client side
     void updateEvents(const std::vector<PlayerEvent*>& events);
 
-    //! \brief get the next event. After index. If index > events size, the first one is
+    //! \brief Get the next event. After index. If index > events size, the first one is
     //! sent. When the function returns, index is set to the index of the returned event
     //! and it returns the PlayerEvent if any (nullptr is none).
     //! Note that on client side, PlayerEvent::mTimeRemain is not relevant
@@ -211,6 +215,10 @@ private:
 
     //! True: player is human. False: player is a computer/inactive.
     bool mIsHuman;
+
+    //! \brief This counter tells for how much time is left before considering
+    //! the player should be notified again that he has not queued a research.
+    float mNoResearchInQueueTime;
 
     //! \brief This counter tells for how much time is left before considering
     //! the player should be notified again that he has no free space to store gold.

@@ -1072,6 +1072,10 @@ void Seat::setNextResearch(ResearchType researchedType)
     if(mResearchPending.empty())
     {
         mCurrentResearchType = ResearchType::nullResearchType;
+        // Notify the player that no research is in the queue
+        // TODO: Do not notify if there is nothing left to research in the tree
+        if(getPlayer() != nullptr && getPlayer()->getIsHuman())
+            getPlayer()->notifyNoResearchInQueue();
         return;
     }
 
