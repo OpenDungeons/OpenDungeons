@@ -434,6 +434,9 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
             mNoResearchInQueueTime -= timeSinceLastUpkeep;
         else
             mNoResearchInQueueTime = 0.0f;
+            // Reprint the warning if there is still no research being done
+            if(getSeat() != nullptr and !getSeat()->isResearching())
+                notifyNoResearchInQueue();
     }
 
     if(mNoTreasuryAvailableTime > 0.0f)
