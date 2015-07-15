@@ -1032,85 +1032,84 @@ void RoomPortalWave::handleFirstUpkeep()
                 mAttackableSeats.push_back(roomSeat);
             }
         }
+        return;
     }
-    else
+
+    double squaredRange = static_cast<double>(mRangeTilesAttack) * static_cast<double>(mRangeTilesAttack);
+    std::vector<Room*> dungeonTemples = getGameMap()->getRoomsByType(RoomType::dungeonTemple);
+    for(Room* room : dungeonTemples)
     {
-        double squaredRange = static_cast<double>(mRangeTilesAttack) * static_cast<double>(mRangeTilesAttack);
-        std::vector<Room*> dungeonTemples = getGameMap()->getRoomsByType(RoomType::dungeonTemple);
-        for(Room* room : dungeonTemples)
+        Seat* roomSeat = room->getSeat();
+        if(roomSeat->isAlliedSeat(getSeat()))
+            continue;
+
+        if((mStrategy == RoomPortalWaveStrategy::fixedTeamIds) &&
+           (std::find(mTargetTeams.begin(), mTargetTeams.end(), roomSeat->getTeamId()) == mTargetTeams.end()))
         {
-            Seat* roomSeat = room->getSeat();
-            if(roomSeat->isAlliedSeat(getSeat()))
-                continue;
-
-            if((mStrategy == RoomPortalWaveStrategy::fixedTeamIds) &&
-               (std::find(mTargetTeams.begin(), mTargetTeams.end(), roomSeat->getTeamId()) == mTargetTeams.end()))
-            {
-                continue;
-            }
-
-            Tile* centralTile = room->getCentralTile();
-            double dist = Pathfinding::squaredDistanceTile(*centralTile, *myTile);
-            if(dist > squaredRange)
-                continue;
-
-            if(std::find(mAttackableSeats.begin(), mAttackableSeats.end(), roomSeat) == mAttackableSeats.end())
-            {
-                mAttackableSeats.push_back(roomSeat);
-            }
+            continue;
         }
 
-        // We only keep the tiles on the border. That means that if a player starts with claimed
-        // tiles in range of the portal (but not its dungeon heart), it will not get attacked until
-        // he starts claiming tiles on the portal's border. That is acceptable and will avoid to
-        // check all the tiles in range to focus on the border only (which will cover 99% of the
-        // real cases).
-        int32_t index = 0;
-        while(true)
+        Tile* centralTile = room->getCentralTile();
+        double dist = Pathfinding::squaredDistanceTile(*centralTile, *myTile);
+        if(dist > squaredRange)
+            continue;
+
+        if(std::find(mAttackableSeats.begin(), mAttackableSeats.end(), roomSeat) == mAttackableSeats.end())
         {
-            int32_t x = index;
-            double yDouble = std::sqrt(squaredRange - static_cast<double>(x * x));
-            int32_t y = Helper::round(yDouble);
-            // If x > y, we should have read all tiles
-            if(x > y)
-                break;
-
-            Tile* tile;
-            // Tile north-west
-            tile = getGameMap()->getTile(myTile->getX() + x, myTile->getY() + y);
-            if(tile != nullptr)
-                mTilesBorder.push_back(tile);
-            // Tile north-east
-            tile = getGameMap()->getTile(myTile->getX() - x, myTile->getY() + y);
-            if((x != 0) && (tile != nullptr))
-                mTilesBorder.push_back(tile);
-            // Tile south-west
-            tile = getGameMap()->getTile(myTile->getX() + x, myTile->getY() - y);
-            if(tile != nullptr)
-                mTilesBorder.push_back(tile);
-            // Tile south-east
-            tile = getGameMap()->getTile(myTile->getX() - x, myTile->getY() - y);
-            if((x != 0) && (tile != nullptr))
-                mTilesBorder.push_back(tile);
-            // Tile east-north
-            tile = getGameMap()->getTile(myTile->getX() - y, myTile->getY() + x);
-            if((x != y) && (tile != nullptr))
-                mTilesBorder.push_back(tile);
-            // Tile east-south
-            tile = getGameMap()->getTile(myTile->getX() - y, myTile->getY() - x);
-            if((x != 0) && (x != y) && (tile != nullptr))
-                mTilesBorder.push_back(tile);
-            // Tile west-north
-            tile = getGameMap()->getTile(myTile->getX() + y, myTile->getY() + x);
-            if((x != y) && (tile != nullptr))
-                mTilesBorder.push_back(tile);
-            // Tile west-south
-            tile = getGameMap()->getTile(myTile->getX() + y, myTile->getY() - x);
-            if((x != 0) && (x != y) && (tile != nullptr))
-                mTilesBorder.push_back(tile);
-
-            ++index;
+            mAttackableSeats.push_back(roomSeat);
         }
+    }
+
+    // We only keep the tiles on the border. That means that if a player starts with claimed
+    // tiles in range of the portal (but not its dungeon heart), it will not get attacked until
+    // he starts claiming tiles on the portal's border. That is acceptable and will avoid to
+    // check all the tiles in range to focus on the border only (which will cover 99% of the
+    // real cases).
+    int32_t index = 0;
+    while(true)
+    {
+        int32_t x = index;
+        double yDouble = std::sqrt(squaredRange - static_cast<double>(x * x));
+        int32_t y = Helper::round(yDouble);
+        // If x > y, we should have read all tiles
+        if(x > y)
+            break;
+
+        Tile* tile;
+        // Tile north-west
+        tile = getGameMap()->getTile(myTile->getX() + x, myTile->getY() + y);
+        if(tile != nullptr)
+            mTilesBorder.push_back(tile);
+        // Tile north-east
+        tile = getGameMap()->getTile(myTile->getX() - x, myTile->getY() + y);
+        if((x != 0) && (tile != nullptr))
+            mTilesBorder.push_back(tile);
+        // Tile south-west
+        tile = getGameMap()->getTile(myTile->getX() + x, myTile->getY() - y);
+        if(tile != nullptr)
+            mTilesBorder.push_back(tile);
+        // Tile south-east
+        tile = getGameMap()->getTile(myTile->getX() - x, myTile->getY() - y);
+        if((x != 0) && (tile != nullptr))
+            mTilesBorder.push_back(tile);
+        // Tile east-north
+        tile = getGameMap()->getTile(myTile->getX() - y, myTile->getY() + x);
+        if((x != y) && (tile != nullptr))
+            mTilesBorder.push_back(tile);
+        // Tile east-south
+        tile = getGameMap()->getTile(myTile->getX() - y, myTile->getY() - x);
+        if((x != 0) && (x != y) && (tile != nullptr))
+            mTilesBorder.push_back(tile);
+        // Tile west-north
+        tile = getGameMap()->getTile(myTile->getX() + y, myTile->getY() + x);
+        if((x != y) && (tile != nullptr))
+            mTilesBorder.push_back(tile);
+        // Tile west-south
+        tile = getGameMap()->getTile(myTile->getX() + y, myTile->getY() - x);
+        if((x != 0) && (x != y) && (tile != nullptr))
+            mTilesBorder.push_back(tile);
+
+        ++index;
     }
 }
 
