@@ -1074,7 +1074,7 @@ void Seat::setNextResearch(ResearchType researchedType)
         mCurrentResearchType = ResearchType::nullResearchType;
 
         // Notify the player that no research is in the queue if there are still available researches
-        if(ResearchManager::getRemainingResearchesForSeat(this).size() == 0)
+        if(ResearchManager::isAllResearchesDoneForSeat(this))
             return;
 
         if(getPlayer() != nullptr && getPlayer()->getIsHuman())

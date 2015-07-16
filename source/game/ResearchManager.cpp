@@ -457,6 +457,22 @@ bool ResearchManager::isTrapAvailable(TrapType type, const Seat* seat)
     return seat->isResearchDone(resType);
 }
 
+bool ResearchManager::isAllResearchesDoneForSeat(const Seat* seat)
+{
+    if(seat->isResearching())
+        return false;
+
+    for(const ResearchDef* research : getResearchManager().mResearches)
+    {
+        if(research == nullptr)
+            continue;
+
+        if(research->mResearch->canBeResearched(seat->getResearchDone()) && !seat->isResearchDone(research->mResearch->getType()))
+            return false;
+    }
+    return true;
+}
+
 const Research* ResearchManager::getResearch(ResearchType resType)
 {
     uint32_t index = static_cast<uint32_t>(resType);
@@ -473,22 +489,6 @@ const Research* ResearchManager::getResearch(ResearchType resType)
         return nullptr;
     }
     return research->mResearch;
-}
-
-std::vector<ResearchType> ResearchManager::getRemainingResearchesForSeat(const Seat* seat)
-{
-    std::vector<ResearchType> allowedResTypes;
-    for(const ResearchDef* research : getResearchManager().mResearches)
-    {
-        if(research == nullptr)
-            continue;
-
-        if(research->mResearch->canBeResearched(seat->getResearchDone()))
-        {
-            allowedResTypes.push_back(research->mResearch->getType());
-        }
-    }
-    return allowedResTypes;
 }
 
 void ResearchManager::listAllResearches(const std::function<void(const std::string&, const std::string&,
