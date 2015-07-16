@@ -466,9 +466,11 @@ bool ResearchManager::isAllResearchesDoneForSeat(const Seat* seat)
     {
         if(research == nullptr)
             continue;
-
-        if(research->mResearch->canBeResearched(seat->getResearchDone()) && !seat->isResearchDone(research->mResearch->getType()))
-            return false;
+        if(seat->isResearchDone(research->mResearch->getType()))
+            continue;
+        if(!research->mResearch->canBeResearched(seat->getResearchDone()))
+            continue;
+        return false;
     }
     return true;
 }

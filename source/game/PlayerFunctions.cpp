@@ -438,7 +438,7 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
         else
             mNoResearchInQueueTime = 0.0f;
             // Reprint the warning if there is still no research being done
-            if(getSeat() != nullptr and !getSeat()->isResearching() and !ResearchManager::isAllResearchesDoneForSeat(getSeat()))
+            if(getSeat() != nullptr && !getSeat()->isResearching() && !ResearchManager::isAllResearchesDoneForSeat(getSeat()))
                 notifyNoResearchInQueue();
     }
 
