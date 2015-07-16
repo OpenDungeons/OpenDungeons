@@ -40,9 +40,11 @@ const float BATTLE_TIME_COUNT = 10.0f;
 //! Note that the distance is squared (100 would mean 10 tiles)
 const int MIN_DIST_EVENT_SQUARED = 100;
 
-//! \brief The number of seconds the local player will not be notified again for looping notifications
-//! (no treasury tile available, no research in queue, etc.)
-const float NOTIFICATION_TIME_COUNT = 30.0f;
+//! \brief The number of seconds the local player will not be notified again if the research queue is empty
+const float NO_RESEARCH_TIME_COUNT = 60.0f;
+
+//! \brief The number of seconds the local player will not be notified again if no treasury is available
+const float NO_TREASURY_TIME_COUNT = 30.0f;
 
 void PlayerEvent::exportToPacket(GameMap* gameMap, ODPacket& os)
 {
@@ -255,7 +257,7 @@ void Player::notifyNoResearchInQueue()
 {
     if(mNoResearchInQueueTime == 0.0f)
     {
-        mNoResearchInQueueTime = NOTIFICATION_TIME_COUNT;
+        mNoResearchInQueueTime = NO_RESEARCH_TIME_COUNT;
 
         std::string chatMsg = "Your research queue is empty, while there are still skills that could be unlocked.";
         ServerNotification *serverNotification = new ServerNotification(
@@ -269,7 +271,7 @@ void Player::notifyNoTreasuryAvailable()
 {
     if(mNoTreasuryAvailableTime == 0.0f)
     {
-        mNoTreasuryAvailableTime = NOTIFICATION_TIME_COUNT;
+        mNoTreasuryAvailableTime = NO_TREASURY_TIME_COUNT;
 
         std::string chatMsg = "No treasury available. You should build a bigger one.";
         ServerNotification *serverNotification = new ServerNotification(

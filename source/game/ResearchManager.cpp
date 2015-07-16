@@ -475,6 +475,22 @@ const Research* ResearchManager::getResearch(ResearchType resType)
     return research->mResearch;
 }
 
+std::vector<ResearchType> ResearchManager::getRemainingResearchesForSeat(const Seat* seat)
+{
+    std::vector<ResearchType> allowedResTypes;
+    for(const ResearchDef* research : getResearchManager().mResearches)
+    {
+        if(research == nullptr)
+            continue;
+
+        if(research->mResearch->canBeResearched(seat->getResearchDone()))
+        {
+            allowedResTypes.push_back(research->mResearch->getType());
+        }
+    }
+    return allowedResTypes;
+}
+
 void ResearchManager::listAllResearches(const std::function<void(const std::string&, const std::string&,
         const std::string&, ResearchType)>& func)
 {

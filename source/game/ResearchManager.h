@@ -72,6 +72,8 @@ public:
 
     static const Research* getResearch(ResearchType resType);
 
+    static std::vector<ResearchType> getRemainingResearchesForSeat(const Seat* seat);
+
     static void listAllResearches(const std::function<void(const std::string&, const std::string&,
         const std::string&, ResearchType)>& func);
 
