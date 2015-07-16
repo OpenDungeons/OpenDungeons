@@ -19,6 +19,7 @@
 
 #include "entities/GameEntity.h"
 #include "entities/Tile.h"
+#include "game/ResearchManager.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
@@ -437,7 +438,7 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
         else
             mNoResearchInQueueTime = 0.0f;
             // Reprint the warning if there is still no research being done
-            if(getSeat() != nullptr and !getSeat()->isResearching())
+            if(getSeat() != nullptr and !getSeat()->isResearching() and !ResearchManager::isAllResearchesDoneForSeat(getSeat()))
                 notifyNoResearchInQueue();
     }
 
