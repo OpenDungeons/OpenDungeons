@@ -19,6 +19,7 @@
 
 #include "entities/GameEntity.h"
 #include "entities/Tile.h"
+#include "game/ResearchManager.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
@@ -39,6 +40,9 @@ const float BATTLE_TIME_COUNT = 10.0f;
 //! \brief Minimum distance to consider that a new event of the same type is in another place
 //! Note that the distance is squared (100 would mean 10 tiles)
 const int MIN_DIST_EVENT_SQUARED = 100;
+
+//! \brief The number of seconds the local player will not be notified again if the research queue is empty
+const float NO_RESEARCH_TIME_COUNT = 60.0f;
 
 //! \brief The number of seconds the local player will not be notified again if no treasury is available
 const float NO_TREASURY_TIME_COUNT = 30.0f;
@@ -250,13 +254,27 @@ void Player::notifyTeamFighting(Player* player, Tile* tile)
     fireEvents();
 }
 
+void Player::notifyNoResearchInQueue()
+{
+    if(mNoResearchInQueueTime == 0.0f)
+    {
+        mNoResearchInQueueTime = NO_RESEARCH_TIME_COUNT;
+
+        std::string chatMsg = "Your research queue is empty, while there are still skills that could be unlocked.";
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::chatServer, this);
+        serverNotification->mPacket << chatMsg << EventShortNoticeType::genericGameInfo;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+}
+
 void Player::notifyNoTreasuryAvailable()
 {
     if(mNoTreasuryAvailableTime == 0.0f)
     {
         mNoTreasuryAvailableTime = NO_TREASURY_TIME_COUNT;
 
-        std::string chatMsg = "No treasury available. You should build a bigger one";
+        std::string chatMsg = "No treasury available. You should build a bigger one.";
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::chatServer, this);
         serverNotification->mPacket << chatMsg << EventShortNoticeType::genericGameInfo;
@@ -411,6 +429,17 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::playerNoMoreFighting, this);
         ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+
+    if(mNoResearchInQueueTime > 0.0f)
+    {
+        if(mNoResearchInQueueTime > timeSinceLastUpkeep)
+            mNoResearchInQueueTime -= timeSinceLastUpkeep;
+        else
+            mNoResearchInQueueTime = 0.0f;
+            // Reprint the warning if there is still no research being done
+            if(getSeat() != nullptr && !getSeat()->isResearching() && !ResearchManager::isAllResearchesDoneForSeat(getSeat()))
+                notifyNoResearchInQueue();
     }
 
     if(mNoTreasuryAvailableTime > 0.0f)

@@ -457,6 +457,24 @@ bool ResearchManager::isTrapAvailable(TrapType type, const Seat* seat)
     return seat->isResearchDone(resType);
 }
 
+bool ResearchManager::isAllResearchesDoneForSeat(const Seat* seat)
+{
+    if(seat->isResearching())
+        return false;
+
+    for(const ResearchDef* research : getResearchManager().mResearches)
+    {
+        if(research == nullptr)
+            continue;
+        if(seat->isResearchDone(research->mResearch->getType()))
+            continue;
+        if(!research->mResearch->canBeResearched(seat->getResearchDone()))
+            continue;
+        return false;
+    }
+    return true;
+}
+
 const Research* ResearchManager::getResearch(ResearchType resType)
 {
     uint32_t index = static_cast<uint32_t>(resType);

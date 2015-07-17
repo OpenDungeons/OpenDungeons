@@ -70,6 +70,9 @@ public:
     //! should be done on server side to avoid cheating
     static bool isTrapAvailable(TrapType type, const Seat* seat);
 
+    //! \brief Checks if the given seat has already researched all the allowed researches
+    static bool isAllResearchesDoneForSeat(const Seat* seat);
+
     static const Research* getResearch(ResearchType resType);
 
     static void listAllResearches(const std::function<void(const std::string&, const std::string&,
