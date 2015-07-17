@@ -25,7 +25,6 @@
 #include "entities/ChickenEntity.h"
 #include "entities/CreatureAction.h"
 #include "entities/CreatureDefinition.h"
-#include "entities/CreatureSound.h"
 #include "entities/MissileOneHit.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
@@ -643,7 +642,7 @@ void Creature::drop(const Ogre::Vector3& v)
     if(getHasVisualDebuggingEntities())
         computeVisualDebugEntities();
 
-    fireCreatureSound(CreatureSoundType::DROP);
+    fireCreatureSound(InterfaceSound::CREATURE_DROP);
 }
 
 void Creature::setHP(double nHP)
@@ -1821,7 +1820,7 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
                 pushAction(CreatureActionType::walkToTile, false, true);
             }
             //Set sound position and play dig sound.
-            fireCreatureSound(CreatureSoundType::DIGGING);
+            fireCreatureSound(InterfaceSound::CREATURE_DIGGING);
         }
         else
         {
@@ -2509,7 +2508,7 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
     walkDirection.normalise();
     setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
 
-    fireCreatureSound(CreatureSoundType::ATTACK);
+    fireCreatureSound(InterfaceSound::CREATURE_ATTACK);
 
     mNbTurnsWithoutBattle = 0;
 
@@ -4329,7 +4328,7 @@ void Creature::setupDefinition(GameMap& gameMap, const CreatureDefinition& defau
 }
 
 
-void Creature::fireCreatureSound(CreatureSoundType sound)
+void Creature::fireCreatureSound(InterfaceSound sound)
 {
     Tile* posTile = getPositionTile();
     if(posTile == nullptr)
@@ -4342,11 +4341,9 @@ void Creature::fireCreatureSound(CreatureSoundType sound)
         if(!seat->getPlayer()->getIsHuman())
             continue;
 
-        const std::string& name = getDefinition()->getClassName();
-        const Ogre::Vector3& position = getPosition();
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::playCreatureSound, seat->getPlayer());
-        serverNotification->mPacket << name << sound << position;
+            ServerNotificationType::playSpatialSound, seat->getPlayer());
+        serverNotification->mPacket << sound << posTile->getX() << posTile->getY();
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }

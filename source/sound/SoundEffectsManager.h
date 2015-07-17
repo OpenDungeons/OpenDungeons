@@ -26,7 +26,6 @@
 
 // Forward declarations
 class CreatureDefinition;
-class CreatureSound;
 class ODPacket;
 namespace Ogre
 {
@@ -75,6 +74,27 @@ private:
     std::string mFilename;
 };
 
+//! \brief The different interface sound types.
+enum class InterfaceSound
+{
+    BUTTONCLICK = 0,
+    DIGSELECT,
+    BUILDROOM,
+    BUILDTRAP,
+    ROCKFALLING,
+    CLAIMED,
+    DEPOSITGOLD,
+    CANNONFIRING,
+    CREATURE_DROP,
+    CREATURE_DIGGING,
+    CREATURE_ATTACK,
+    NUM_INTERFACE_SOUNDS
+};
+
+//! \brief Used to transfer InterfaceSounds type over the network.
+ODPacket& operator<<(ODPacket& os, const InterfaceSound& st);
+ODPacket& operator>>(ODPacket& is, InterfaceSound& st);
+
 //! \brief Helper class to manage sound effects.
 class SoundEffectsManager: public Ogre::Singleton<SoundEffectsManager>
 {
@@ -85,25 +105,8 @@ public:
     //! \brief Deletes both sound caches.
     virtual ~SoundEffectsManager();
 
-    //! \brief The different interface sound types.
-    enum InterfaceSound
-    {
-        BUTTONCLICK = 0,
-        DIGSELECT,
-        BUILDROOM,
-        BUILDTRAP,
-        ROCKFALLING,
-        CLAIMED,
-        DEPOSITGOLD,
-        CANNONFIRING,
-        NUM_INTERFACE_SOUNDS
-    };
-
     //! \brief Init the interface sounds.
     void initializeInterfaceSounds();
-
-    //! \brief Init the default creature sounds.
-    void initializeDefaultCreatureSounds();
 
     void setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation);
 
@@ -117,29 +120,14 @@ public:
     void playInterfaceSound(InterfaceSound soundType, const Ogre::Vector3& position)
     { playInterfaceSound(soundType, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
 
-    //! \brief Gives the creature sounds list relative to the creature class.
-    //! \warning The CreatureSound* object is to be deleted only by the sound manager.
-    CreatureSound* getCreatureClassSounds(const std::string& className);
-
-    //! \brief Used to transfer InterfaceSounds type over the network.
-    friend ODPacket& operator<<(ODPacket& os, const SoundEffectsManager::InterfaceSound& st);
-    friend ODPacket& operator>>(ODPacket& is, SoundEffectsManager::InterfaceSound& st);
-
 private:
     //! \brief Every interface or generic in game sounds
     //! \note the GameSound here are handled by the game sound cache.
-    std::map<InterfaceSound, std::vector<GameSound*> > mInterfaceSounds;
-
-    //! \brief The list of available sound effects per creature class.
-    //! \brief The CreatureSounds here must be deleted at destruction.
-    std::map<std::string, CreatureSound*> mCreatureSoundCache;
+    std::vector<std::vector<GameSound*> > mInterfaceSounds;
 
     //! \brief The sound cache, containing the sound references, used by game entities.
     //! \brief The GameSounds here must be deleted at destruction.
     std::map<std::string, GameSound*> mGameSoundCache;
-
-    //! \brief Create a new creature sound list for the given class and register it to the cache.
-    void createCreatureClassSounds(const std::string& className);
 
     //! \brief Returns a game sounds from the cache.
     //! \param filename The sound filename.

@@ -19,7 +19,6 @@
 
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
-#include "entities/CreatureSound.h"
 #include "entities/EntityLoading.h"
 #include "entities/MapLight.h"
 #include "entities/RenderedMovableEntity.h"
@@ -648,7 +647,7 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotificationType::playSpatialSound:
         {
-            SoundEffectsManager::InterfaceSound soundType;
+            InterfaceSound soundType;
             int xPos;
             int yPos;
             OD_ASSERT_TRUE(packetReceived >> soundType >> xPos >> yPos);
@@ -771,23 +770,6 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotificationType::playCreatureSound:
-        {
-            std::string name;
-            CreatureSoundType soundType;
-            Ogre::Vector3 position;
-            OD_ASSERT_TRUE(packetReceived >> name >> soundType >> position);
-            CreatureSound* creatureSound = SoundEffectsManager::getSingleton().getCreatureClassSounds(name);
-            if(creatureSound == nullptr)
-            {
-                OD_LOG_ERR("name=" + name);
-                break;
-            }
-
-            creatureSound->play(soundType, position.x, position.y, position.z);
-            break;
-        }
-
         case ServerNotificationType::refreshTiles:
         {
             uint32_t nbTiles;
@@ -813,7 +795,7 @@ bool ODClient::processOneClientSocketMessage()
             uint32_t nbTiles;
             OD_ASSERT_TRUE(packetReceived >> digSet >> nbTiles);
 
-            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::DIGSELECT);
+            SoundEffectsManager::getSingleton().playInterfaceSound(InterfaceSound::DIGSELECT);
 
             Player* player = getPlayer();
             while(nbTiles > 0)

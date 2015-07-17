@@ -135,7 +135,7 @@ CEGUI::Window* Gui::getGuiSheet(guiSheet sheet)
 
 bool Gui::playButtonClickSound(const CEGUI::EventArgs&)
 {
-    mSoundEffectsManager->playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    mSoundEffectsManager->playInterfaceSound(InterfaceSound::BUTTONCLICK);
     return true;
 }
 

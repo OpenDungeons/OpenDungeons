@@ -70,7 +70,6 @@ enum class ServerNotificationType
     refreshSeatVisDebug,
 
     playSpatialSound, // Makes the client play a sound at tile coordinates.
-    playCreatureSound, // Play a creature sound at the given position
 
     markTiles,
     refreshTiles,
