@@ -43,7 +43,7 @@ class Weapon;
 
 enum class CreatureEffectType;
 enum class CreatureMoodLevel;
-enum class InterfaceSound;
+enum class SpacialSound;
 enum class ResearchType;
 
 namespace CEGUI
@@ -399,7 +399,7 @@ public:
     bool canSlap(Seat* seat);
     void slap();
 
-    void fireCreatureSound(InterfaceSound sound);
+    void fireCreatureSound(SpacialSound sound);
 
     void itsPayDay();
 

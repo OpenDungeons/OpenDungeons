@@ -75,7 +75,7 @@ private:
 };
 
 //! \brief The different interface sound types.
-enum class InterfaceSound
+enum class SpacialSound
 {
     BUTTONCLICK = 0,
     DIGSELECT,
@@ -91,9 +91,9 @@ enum class InterfaceSound
     NUM_INTERFACE_SOUNDS
 };
 
-//! \brief Used to transfer InterfaceSounds type over the network.
-ODPacket& operator<<(ODPacket& os, const InterfaceSound& st);
-ODPacket& operator>>(ODPacket& is, InterfaceSound& st);
+//! \brief Used to transfer SpacialSounds type over the network.
+ODPacket& operator<<(ODPacket& os, const SpacialSound& st);
+ODPacket& operator>>(ODPacket& is, SpacialSound& st);
 
 //! \brief Helper class to manage sound effects.
 class SoundEffectsManager: public Ogre::Singleton<SoundEffectsManager>
@@ -106,24 +106,24 @@ public:
     virtual ~SoundEffectsManager();
 
     //! \brief Init the interface sounds.
-    void initializeInterfaceSounds();
+    void initializeSpacialSounds();
 
     void setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation);
 
     //! \brief Plays a spatial sound at the given tile position.
-    void playInterfaceSound(InterfaceSound soundType, float XPos, float YPos, float height = TILE_ZPOS);
+    void playSpacialSound(SpacialSound soundType, float XPos, float YPos, float height = TILE_ZPOS);
 
     //! \brief Proxy used for sounds that aren't spatial and can be heard everywhere.
-    void playInterfaceSound(InterfaceSound soundType)
-    { playInterfaceSound(soundType, 0.0f, 0.0f); }
+    void playSpacialSound(SpacialSound soundType)
+    { playSpacialSound(soundType, 0.0f, 0.0f); }
 
-    void playInterfaceSound(InterfaceSound soundType, const Ogre::Vector3& position)
-    { playInterfaceSound(soundType, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
+    void playSpacialSound(SpacialSound soundType, const Ogre::Vector3& position)
+    { playSpacialSound(soundType, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
 
 private:
     //! \brief Every interface or generic in game sounds
     //! \note the GameSound here are handled by the game sound cache.
-    std::vector<std::vector<GameSound*> > mInterfaceSounds;
+    std::vector<std::vector<GameSound*> > mSpacialSounds;
 
     //! \brief The sound cache, containing the sound references, used by game entities.
     //! \brief The GameSounds here must be deleted at destruction.

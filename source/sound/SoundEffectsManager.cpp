@@ -102,9 +102,9 @@ void GameSound::play(float x, float y, float z)
 template<> SoundEffectsManager* Ogre::Singleton<SoundEffectsManager>::msSingleton = nullptr;
 
 SoundEffectsManager::SoundEffectsManager() :
-    mInterfaceSounds(static_cast<uint32_t>(InterfaceSound::NUM_INTERFACE_SOUNDS))
+    mSpacialSounds(static_cast<uint32_t>(SpacialSound::NUM_INTERFACE_SOUNDS))
 {
-    initializeInterfaceSounds();
+    initializeSpacialSounds();
 }
 
 SoundEffectsManager::~SoundEffectsManager()
@@ -119,10 +119,10 @@ SoundEffectsManager::~SoundEffectsManager()
     }
 }
 
-void SoundEffectsManager::initializeInterfaceSounds()
+void SoundEffectsManager::initializeSpacialSounds()
 {
     // Test wether the interface sounds are already loaded.
-    if (mInterfaceSounds.empty() == false)
+    if (mSpacialSounds.empty() == false)
         return;
 
     Ogre::String soundFolderPath = ResourceManager::getSingletonPtr()->getSoundPath();
@@ -132,35 +132,35 @@ void SoundEffectsManager::initializeInterfaceSounds()
     {
         GameSound* gm = getGameSound(soundFolderPath + "Game/click.ogg", false);
         if (gm != nullptr)
-            mInterfaceSounds[static_cast<uint32_t>(InterfaceSound::BUTTONCLICK)].push_back(gm);
+            mSpacialSounds[static_cast<uint32_t>(SpacialSound::BUTTONCLICK)].push_back(gm);
     }
 
     // Only one dig select sound atm...
     {
         GameSound* gm = getGameSound(soundFolderPath + "Game/PickSelector.ogg", false);
         if (gm != nullptr)
-            mInterfaceSounds[static_cast<uint32_t>(InterfaceSound::DIGSELECT)].push_back(gm);
+            mSpacialSounds[static_cast<uint32_t>(SpacialSound::DIGSELECT)].push_back(gm);
     }
 
     // Only one build room sound atm...
     {
         GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_room.ogg", false);
         if (gm != nullptr)
-            mInterfaceSounds[static_cast<uint32_t>(InterfaceSound::BUILDROOM)].push_back(gm);
+            mSpacialSounds[static_cast<uint32_t>(SpacialSound::BUILDROOM)].push_back(gm);
     }
 
     // Only one build trap sound atm...
     {
         GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_trap.ogg", false);
         if (gm != nullptr)
-            mInterfaceSounds[static_cast<uint32_t>(InterfaceSound::BUILDTRAP)].push_back(gm);
+            mSpacialSounds[static_cast<uint32_t>(SpacialSound::BUILDTRAP)].push_back(gm);
     }
 
     // Cannon firing sound
     {
         GameSound* gm = getGameSound(soundFolderPath + "Traps/cannon_firing.ogg", false);
         if (gm != nullptr)
-            mInterfaceSounds[static_cast<uint32_t>(InterfaceSound::CANNONFIRING)].push_back(gm);
+            mSpacialSounds[static_cast<uint32_t>(SpacialSound::CANNONFIRING)].push_back(gm);
     }
 
     // Rock falling sounds
@@ -170,7 +170,7 @@ void SoundEffectsManager::initializeInterfaceSounds()
     {
         GameSound* gm = getGameSound(soundFilenames[i], true);
         if (gm != nullptr)
-            mInterfaceSounds[static_cast<uint32_t>(InterfaceSound::ROCKFALLING)].push_back(gm);
+            mSpacialSounds[static_cast<uint32_t>(SpacialSound::ROCKFALLING)].push_back(gm);
     }
 
     // Claim sounds
@@ -180,7 +180,7 @@ void SoundEffectsManager::initializeInterfaceSounds()
     {
         GameSound* gm = getGameSound(soundFilenames[i], true);
         if (gm != nullptr)
-            mInterfaceSounds[static_cast<uint32_t>(InterfaceSound::CLAIMED)].push_back(gm);
+            mSpacialSounds[static_cast<uint32_t>(SpacialSound::CLAIMED)].push_back(gm);
     }
 
     // Deposit gold sounds
@@ -190,7 +190,7 @@ void SoundEffectsManager::initializeInterfaceSounds()
     {
         GameSound* gm = getGameSound(soundFilenames[i], true);
         if (gm != nullptr)
-            mInterfaceSounds[static_cast<uint32_t>(InterfaceSound::DEPOSITGOLD)].push_back(gm);
+            mSpacialSounds[static_cast<uint32_t>(SpacialSound::DEPOSITGOLD)].push_back(gm);
     }
 }
 
@@ -204,21 +204,20 @@ void SoundEffectsManager::setListenerPosition(const Ogre::Vector3& position, con
     sf::Listener::setDirection(-vDir.x, -vDir.y, -vDir.z);
 }
 
-void SoundEffectsManager::playInterfaceSound(InterfaceSound soundType, float XPos, float YPos, float height)
+void SoundEffectsManager::playSpacialSound(SpacialSound soundType, float XPos, float YPos, float height)
 {
     uint32_t indexSound = static_cast<uint32_t>(soundType);
-    if(indexSound >= mInterfaceSounds.size())
+    if(indexSound >= mSpacialSounds.size())
     {
-        OD_LOG_ERR("sound=" + Helper::toString(indexSound) + ", size=" + Helper::toString(mInterfaceSounds.size()));
+        OD_LOG_ERR("sound=" + Helper::toString(indexSound) + ", size=" + Helper::toString(mSpacialSounds.size()));
         return;
     }
 
-    std::vector<GameSound*>& sounds = mInterfaceSounds[indexSound];
-
-    unsigned int soundId = Random::Uint(0, sounds.size() - 1);
-    if (soundId < 0)
+    std::vector<GameSound*>& sounds = mSpacialSounds[indexSound];
+    if(sounds.empty())
         return;
 
+    unsigned int soundId = Random::Uint(0, sounds.size() - 1);
     sounds[soundId]->play(XPos, YPos, height);
 }
 
@@ -247,16 +246,16 @@ GameSound* SoundEffectsManager::getGameSound(const std::string& filename, bool s
     return it->second;
 }
 
-ODPacket& operator<<(ODPacket& os, const InterfaceSound& st)
+ODPacket& operator<<(ODPacket& os, const SpacialSound& st)
 {
     os << static_cast<int32_t>(st);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, InterfaceSound& st)
+ODPacket& operator>>(ODPacket& is, SpacialSound& st)
 {
     int32_t tmp;
     is >> tmp;
-    st = static_cast<InterfaceSound>(tmp);
+    st = static_cast<SpacialSound>(tmp);
     return is;
 }

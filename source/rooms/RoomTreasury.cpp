@@ -163,7 +163,7 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
 
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::playSpatialSound, nullptr);
-        serverNotification->mPacket << InterfaceSound::DEPOSITGOLD << tile->getX() << tile->getY();
+        serverNotification->mPacket << SpacialSound::DEPOSITGOLD << tile->getX() << tile->getY();
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 

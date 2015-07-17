@@ -642,7 +642,7 @@ void Creature::drop(const Ogre::Vector3& v)
     if(getHasVisualDebuggingEntities())
         computeVisualDebugEntities();
 
-    fireCreatureSound(InterfaceSound::CREATURE_DROP);
+    fireCreatureSound(SpacialSound::CREATURE_DROP);
 }
 
 void Creature::setHP(double nHP)
@@ -1820,7 +1820,7 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
                 pushAction(CreatureActionType::walkToTile, false, true);
             }
             //Set sound position and play dig sound.
-            fireCreatureSound(InterfaceSound::CREATURE_DIGGING);
+            fireCreatureSound(SpacialSound::CREATURE_DIGGING);
         }
         else
         {
@@ -2508,7 +2508,7 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
     walkDirection.normalise();
     setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
 
-    fireCreatureSound(InterfaceSound::CREATURE_ATTACK);
+    fireCreatureSound(SpacialSound::CREATURE_ATTACK);
 
     mNbTurnsWithoutBattle = 0;
 
@@ -4328,7 +4328,7 @@ void Creature::setupDefinition(GameMap& gameMap, const CreatureDefinition& defau
 }
 
 
-void Creature::fireCreatureSound(InterfaceSound sound)
+void Creature::fireCreatureSound(SpacialSound sound)
 {
     Tile* posTile = getPositionTile();
     if(posTile == nullptr)

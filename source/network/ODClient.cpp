@@ -647,11 +647,11 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotificationType::playSpatialSound:
         {
-            InterfaceSound soundType;
+            SpacialSound soundType;
             int xPos;
             int yPos;
             OD_ASSERT_TRUE(packetReceived >> soundType >> xPos >> yPos);
-            SoundEffectsManager::getSingleton().playInterfaceSound(soundType,
+            SoundEffectsManager::getSingleton().playSpacialSound(soundType,
                                                                    xPos, yPos);
             break;
         }
@@ -795,7 +795,7 @@ bool ODClient::processOneClientSocketMessage()
             uint32_t nbTiles;
             OD_ASSERT_TRUE(packetReceived >> digSet >> nbTiles);
 
-            SoundEffectsManager::getSingleton().playInterfaceSound(InterfaceSound::DIGSELECT);
+            SoundEffectsManager::getSingleton().playSpacialSound(SpacialSound::DIGSELECT);
 
             Player* player = getPlayer();
             while(nbTiles > 0)
