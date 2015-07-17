@@ -25,6 +25,20 @@
 
 class CreatureDefinition;
 
+enum class RoomPortalWaveStrategy
+{
+    // Checks for the closest dungeon and attack it until it is destroyed. Then, go to the next closest dungeon
+    closestDungeon,
+    // At each wave, the portal will choose randomly an accessible player and spend a go to war spell if the way is clear or
+    // try to dig otherwise.
+    randomPlayer,
+    // Picks randomly a player of one of the chosen team
+    fixedTeamIds
+};
+
+std::ostream& operator<<(std::ostream& os, const RoomPortalWaveStrategy& type);
+std::istream& operator>>(std::istream& is, RoomPortalWaveStrategy& type);
+
 class RoomPortalWaveData
 {
 public:
@@ -39,7 +53,7 @@ public:
     std::vector<std::pair<std::string, uint32_t>> mSpawnCreatureClassName;
 };
 
-class RoomPortalWave: public Room
+class RoomPortalWave: public Room, public GameEntityListener
 {
 public:
     RoomPortalWave(GameMap* gameMap);
@@ -85,6 +99,17 @@ public:
 
     void addRoomPortalWaveData(RoomPortalWaveData* roomPortalWaveData);
 
+    //! \brief implementation of GameEntityListener
+    std::string getListenerName() const override
+    { return getName(); }
+    bool notifyDead(GameEntity* entity) override
+    { return true; }
+    bool notifyRemovedFromGameMap(GameEntity* entity) override;
+    bool notifyPickedUp(GameEntity* entity) override
+    { return true; }
+    bool notifyDropped(GameEntity* entity) override
+    { return true; }
+
     static void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet);
     static void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
@@ -118,7 +143,21 @@ private:
     //! Stores the tiles to dig to go to the enemy dungeon temple. That allows
     //! to change at runtime the way if a tile is claimed while going there
     std::vector<Tile*> mMarkedTilesToEnemy;
-    std::string mTargetDungeon;
+    //! Stores seats that we currently want to attack depending on the strategy
+    std::vector<Seat*> mTargetSeats;
+    Room* mTargetDungeon;
+
+    bool mIsFirstUpkeep;
+    RoomPortalWaveStrategy mStrategy;
+    //! \brief Range to attack. If a player starts claiming tiles within range, the portal will try to dig to the corresponding
+    //! dungeon temple. If -1, there is no limit
+    int32_t mRangeTilesAttack;
+    std::vector<int> mTargetTeams;
+
+    //! \brief Tiles that will be checked if claimed by an enemy. If yes, the corresponding player will get attacked
+    std::vector<Tile*> mTilesBorder;
+    //! \brief List of the seats that can be attacked by the portal
+    std::vector<Seat*> mAttackableSeats;
 
     //! \brief Updates the portal mesh position.
     void updatePortalPosition();
@@ -129,16 +168,29 @@ private:
     //! Returns true if a path was found to the dungeon and false otherwise
     bool findBestDiggablePath(Tile* tileStart, Tile* tileDest, Creature* creature, std::vector<Tile*>& tiles);
 
-    //! Spawns a wave
+    //! \brief Spawns a wave
     void spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t maxCreaturesToSpawn);
 
-    //! Marks needed tiles to try to get to some player's dungeon. Returns true if an enemy dungeon
+    //! \brief Marks needed tiles to try to get to some player's dungeon. Returns true if an enemy dungeon
     //! is reachable by digging and marks corresponding tiles.
     bool handleDigging();
 
-    //! Searches for the best foe we can fight. Returns true if an enemy dungeon is reachable
+    //! \brief Searches for the best foe we can fight. Returns true if an enemy dungeon is reachable
     //! without digging and false otherwise
     bool handleSearchFoe();
+
+    //! \brief Handles the first upkeep by filling the tiles in range, checking if there is a dungeon in range, ...
+    void handleFirstUpkeep();
+
+    //! \brief Handles the attack, check if there is already a target and tries to reach it if so. If not,
+    //! tries to find a suitable target according to target seats
+    void handleAttack();
+
+    //! \brief Handles spawning a new wave
+    void handleSpawnWave();
+
+    //! \brief Handles choosing a target according to the portal strategy
+    void handleChooseTarget();
 };
 
 #endif // ROOMPORTALWAVE_H
