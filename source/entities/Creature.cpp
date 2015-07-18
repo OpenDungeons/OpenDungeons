@@ -629,22 +629,6 @@ void Creature::setPosition(const Ogre::Vector3& v)
         mCarriedEntity->notifyCarryMove(v);
 }
 
-void Creature::drop(const Ogre::Vector3& v)
-{
-    setPosition(v);
-    if(!getIsOnServerMap())
-    {
-        mDropCooldown = 2;
-        return;
-    }
-
-    mForceAction = forcedActionSearchAction;
-    if(getHasVisualDebuggingEntities())
-        computeVisualDebugEntities();
-
-    fireCreatureSound(SpacialSound::CREATURE_DROP);
-}
-
 void Creature::setHP(double nHP)
 {
     if (nHP > mMaxHP)
@@ -754,6 +738,8 @@ void Creature::doUpkeep()
         if (mDeathCounter == 0)
         {
             OD_LOG_INF("Creature=" + getName() + " RIP");
+
+            fireCreatureSound(CreatureSound::Die);
             stopJob();
             stopEating();
             clearDestinations(EntityAnimation::die_anim, false);
@@ -1820,7 +1806,7 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
                 pushAction(CreatureActionType::walkToTile, false, true);
             }
             //Set sound position and play dig sound.
-            fireCreatureSound(SpacialSound::CREATURE_DIGGING);
+            fireCreatureSound(CreatureSound::Dig);
         }
         else
         {
@@ -2508,7 +2494,7 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
     walkDirection.normalise();
     setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
 
-    fireCreatureSound(SpacialSound::CREATURE_ATTACK);
+    fireCreatureSound(CreatureSound::Attack);
 
     mNbTurnsWithoutBattle = 0;
 
@@ -3747,6 +3733,8 @@ void Creature::pickup()
 
     if(getHasVisualDebuggingEntities())
         computeVisualDebugEntities();
+
+    fireCreatureSound(CreatureSound::Pickup);
 }
 
 bool Creature::canGoThroughTile(Tile* tile) const
@@ -3819,6 +3807,22 @@ bool Creature::tryDrop(Seat* seat, Tile* tile)
         return true;
 
     return false;
+}
+
+void Creature::drop(const Ogre::Vector3& v)
+{
+    setPosition(v);
+    if(!getIsOnServerMap())
+    {
+        mDropCooldown = 2;
+        return;
+    }
+
+    mForceAction = forcedActionSearchAction;
+    if(getHasVisualDebuggingEntities())
+        computeVisualDebugEntities();
+
+    fireCreatureSound(CreatureSound::Drop);
 }
 
 bool Creature::setDestination(Tile* tile)
@@ -4161,6 +4165,8 @@ void Creature::slap()
     if(!getIsOnServerMap())
         return;
 
+    fireCreatureSound(CreatureSound::Slap);
+
     // In editor mode, we remove the creature
     if(getGameMap()->isInEditorMode())
     {
@@ -4327,12 +4333,37 @@ void Creature::setupDefinition(GameMap& gameMap, const CreatureDefinition& defau
     }
 }
 
-
-void Creature::fireCreatureSound(SpacialSound sound)
+void Creature::fireCreatureSound(CreatureSound sound)
 {
     Tile* posTile = getPositionTile();
     if(posTile == nullptr)
         return;
+
+    std::string soundFamily;
+    switch(sound)
+    {
+        case CreatureSound::Pickup:
+            soundFamily = getDefinition()->getSoundFamilyPickup();
+            break;
+        case CreatureSound::Drop:
+            soundFamily = getDefinition()->getSoundFamilyDrop();
+            break;
+        case CreatureSound::Attack:
+            soundFamily = getDefinition()->getSoundFamilyAttack();
+            break;
+        case CreatureSound::Die:
+            soundFamily = getDefinition()->getSoundFamilyDie();
+            break;
+        case CreatureSound::Slap:
+            soundFamily = getDefinition()->getSoundFamilySlap();
+            break;
+        case CreatureSound::Dig:
+            soundFamily = "Default/Dig";
+            break;
+        default:
+            OD_LOG_ERR("Wrong CreatureSound value=" + Helper::toString(static_cast<uint32_t>(sound)));
+            return;
+    }
 
     for(Seat* seat : mSeatsWithVisionNotified)
     {
@@ -4343,7 +4374,7 @@ void Creature::fireCreatureSound(SpacialSound sound)
 
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::playSpatialSound, seat->getPlayer());
-        serverNotification->mPacket << sound << posTile->getX() << posTile->getY();
+        serverNotification->mPacket << SpacialSoundType::Creatures << soundFamily << posTile->getX() << posTile->getY();
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }

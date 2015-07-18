@@ -43,7 +43,6 @@ class Weapon;
 
 enum class CreatureEffectType;
 enum class CreatureMoodLevel;
-enum class SpacialSound;
 enum class ResearchType;
 
 namespace CEGUI
@@ -55,6 +54,16 @@ namespace Ogre
 {
 class ParticleSystem;
 }
+
+enum class CreatureSound
+{
+    Pickup,
+    Drop,
+    Attack,
+    Die,
+    Slap,
+    Dig
+};
 
 //! Class used on server side to link creature effects (spells, slap, ...) with particle effects
 class CreatureParticuleEffect : public EntityParticleEffect
@@ -178,8 +187,6 @@ public:
     virtual void update(Ogre::Real timeSinceLastFrame);
 
     bool setDestination(Tile* tile);
-
-    void drop(const Ogre::Vector3& v) override;
 
     void setHP(double nHP);
 
@@ -337,9 +344,10 @@ public:
     //! \brief Checks if the creature can be picked up. If yes, this function does the needed
     //! to prepare for the pickup (removing creature from GameMap, changing states, ...).
     //! Returns true if the creature can be picked up
-    bool tryPickup(Seat* seat);
-    void pickup();
-    bool tryDrop(Seat* seat, Tile* tile);
+    bool tryPickup(Seat* seat) override;
+    void pickup() override;
+    bool tryDrop(Seat* seat, Tile* tile) override;
+    void drop(const Ogre::Vector3& v) override;
 
     //! \brief sets the speed modifier. If 1.0, resets to default speed
     void setMoveSpeedModifier(double modifier);
@@ -399,7 +407,7 @@ public:
     bool canSlap(Seat* seat);
     void slap();
 
-    void fireCreatureSound(SpacialSound sound);
+    void fireCreatureSound(CreatureSound sound);
 
     void itsPayDay();
 

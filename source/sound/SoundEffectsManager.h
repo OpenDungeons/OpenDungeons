@@ -32,6 +32,13 @@ namespace Ogre
     class Quaternion;
 }
 
+namespace InterfaceSounds
+{
+    const std::string Click = "Click";
+    const std::string PickSelector = "PickSelector";
+    const std::string DepositGold = "DepositGold";
+}
+
 // The Z value to use for tile positioned sounds.
 // Tiles are from -0.25 to 3.0 in z value, the floor is at 0,
 // and we're using an pseudo-average value.
@@ -75,25 +82,19 @@ private:
 };
 
 //! \brief The different interface sound types.
-enum class SpacialSound
+enum class SpacialSoundType
 {
-    BUTTONCLICK = 0,
-    DIGSELECT,
-    BUILDROOM,
-    BUILDTRAP,
-    ROCKFALLING,
-    CLAIMED,
-    DEPOSITGOLD,
-    CANNONFIRING,
-    CREATURE_DROP,
-    CREATURE_DIGGING,
-    CREATURE_ATTACK,
-    NUM_INTERFACE_SOUNDS
+    Game = 0,
+    Creatures,
+    Rooms,
+    Traps,
+    Spells,
+    nbSounds
 };
 
 //! \brief Used to transfer SpacialSounds type over the network.
-ODPacket& operator<<(ODPacket& os, const SpacialSound& st);
-ODPacket& operator>>(ODPacket& is, SpacialSound& st);
+ODPacket& operator<<(ODPacket& os, const SpacialSoundType& st);
+ODPacket& operator>>(ODPacket& is, SpacialSoundType& st);
 
 //! \brief Helper class to manage sound effects.
 class SoundEffectsManager: public Ogre::Singleton<SoundEffectsManager>
@@ -111,19 +112,21 @@ public:
     void setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation);
 
     //! \brief Plays a spatial sound at the given tile position.
-    void playSpacialSound(SpacialSound soundType, float XPos, float YPos, float height = TILE_ZPOS);
+    void playSpacialSound(SpacialSoundType soundType, const std::string& family,
+        float XPos, float YPos, float height = TILE_ZPOS);
 
     //! \brief Proxy used for sounds that aren't spatial and can be heard everywhere.
-    void playSpacialSound(SpacialSound soundType)
-    { playSpacialSound(soundType, 0.0f, 0.0f); }
+    void playSpacialSound(SpacialSoundType soundType, const std::string& family)
+    { playSpacialSound(soundType, family, 0.0f, 0.0f); }
 
-    void playSpacialSound(SpacialSound soundType, const Ogre::Vector3& position)
-    { playSpacialSound(soundType, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
+    void playSpacialSound(SpacialSoundType soundType, const std::string& family, const Ogre::Vector3& position)
+    { playSpacialSound(soundType, family, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
 
 private:
-    //! \brief Every interface or generic in game sounds
+    //! \brief Every game sounds (interface or creature). The sounds are read when launching the
+    //! game by browsing the sound directory
     //! \note the GameSound here are handled by the game sound cache.
-    std::vector<std::vector<GameSound*> > mSpacialSounds;
+    std::vector<std::map<std::string, std::vector<GameSound*>>> mSpacialSounds;
 
     //! \brief The sound cache, containing the sound references, used by game entities.
     //! \brief The GameSounds here must be deleted at destruction.
@@ -138,8 +141,13 @@ private:
     //! \warning Returns nullptr if the filename is an invalid/unreadable sound.
     GameSound* getGameSound(const std::string& filename, bool spatialSound = false);
 
-    //! \brief The list of available sound to play per type.
-    std::vector<std::pair<std::vector<GameSound*>,int>> mSoundsPerType;
+    //! \brief Reads the path associated to the given soundType and fills the corresponding map
+    void readSounds(SpacialSoundType soundType);
+
+    //! \brief Recursive function that fills the sound map with sound files found and reads
+    //! child directories
+    void readSounds(std::map<std::string, std::vector<GameSound*>>& soundsFamily,
+        const std::string& parentPath, const std::string& parentFamily);
 };
 
 #endif // SOUNDEFFECTSMANAGER_H_

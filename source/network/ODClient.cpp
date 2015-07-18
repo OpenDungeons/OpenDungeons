@@ -647,12 +647,13 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotificationType::playSpatialSound:
         {
-            SpacialSound soundType;
+            SpacialSoundType soundType;
+            std::string family;
             int xPos;
             int yPos;
-            OD_ASSERT_TRUE(packetReceived >> soundType >> xPos >> yPos);
-            SoundEffectsManager::getSingleton().playSpacialSound(soundType,
-                                                                   xPos, yPos);
+            OD_ASSERT_TRUE(packetReceived >> soundType >> family >> xPos >> yPos);
+            SoundEffectsManager::getSingleton().playSpacialSound(soundType, family,
+                xPos, yPos);
             break;
         }
 
@@ -795,7 +796,8 @@ bool ODClient::processOneClientSocketMessage()
             uint32_t nbTiles;
             OD_ASSERT_TRUE(packetReceived >> digSet >> nbTiles);
 
-            SoundEffectsManager::getSingleton().playSpacialSound(SpacialSound::DIGSELECT);
+            SoundEffectsManager::getSingleton().playSpacialSound(SpacialSoundType::Game,
+                InterfaceSounds::PickSelector);
 
             Player* player = getPlayer();
             while(nbTiles > 0)

@@ -2348,6 +2348,11 @@ MineNGold	50
     SleepHeal	1
     WeaponSpawnL	none
     WeaponSpawnL	none
+    SoundFamilyPickup	Default/Pickup
+    SoundFamilyDrop	Default/Drop
+    SoundFamilyAttack	Default/Attack
+    SoundFamilyDie	Default/Die
+    SoundFamilySlap	Default/Slap
     [/Stats]
     [RoomAffinity]
     [/RoomAffinity]

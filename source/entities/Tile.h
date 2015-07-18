@@ -57,6 +57,13 @@ enum class TileType
     countTileType
 };
 
+enum class TileSound
+{
+    ClaimGround,
+    ClaimWall,
+    Digged
+};
+
 ODPacket& operator<<(ODPacket& os, const TileType& type);
 ODPacket& operator>>(ODPacket& is, TileType& type);
 std::ostream& operator<<(std::ostream& os, const TileType& type);
@@ -367,6 +374,8 @@ public:
     { return mIsRoom; }
     inline bool getIsTrap() const
     { return mIsTrap; }
+
+    void fireTileSound(TileSound sound);
 
 protected:
     virtual void createMeshLocal();

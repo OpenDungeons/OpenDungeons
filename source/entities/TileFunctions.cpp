@@ -24,8 +24,11 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
 #include "render/RenderManager.h"
 #include "rooms/Room.h"
+#include "sound/SoundEffectsManager.h"
 #include "traps/Trap.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -47,11 +50,16 @@ void Tile::setFullness(double f)
         setMarkedForDiggingForAllPlayersExcept(false, nullptr);
     }
 
-    if ((oldFullness > 0.0) && (mFullness == 0.0) && !getGameMap()->isInEditorMode())
+    if ((oldFullness > 0.0) && (mFullness == 0.0))
     {
-        // Do a flood fill to update the contiguous region touching the tile.
-        for(Seat* seat : mGameMap->getSeats())
-            getGameMap()->refreshFloodFill(seat, this);
+        fireTileSound(TileSound::Digged);
+
+        if(!getGameMap()->isInEditorMode())
+        {
+            // Do a flood fill to update the contiguous region touching the tile.
+            for(Seat* seat : mGameMap->getSeats())
+                getGameMap()->refreshFloodFill(seat, this);
+        }
     }
 }
 
@@ -365,6 +373,11 @@ void Tile::claimTile(Seat* seat)
     // We need this because if we are a client, the tile may be from a non allied seat
     setSeat(seat);
     mClaimedPercentage = 1.0;
+
+    if(isFullTile())
+        fireTileSound(TileSound::ClaimWall);
+    else
+        fireTileSound(TileSound::ClaimGround);
 
     // If an enemy player had marked this tile to dig, we disable it
     setMarkedForDiggingForAllPlayersExcept(false, seat);
@@ -787,4 +800,37 @@ bool Tile::permitsVision()
     }
 
     return true;
+}
+
+void Tile::fireTileSound(TileSound sound)
+{
+    std::string soundFamily;
+    switch(sound)
+    {
+        case TileSound::ClaimGround:
+            soundFamily = "ClaimTile";
+            break;
+        case TileSound::ClaimWall:
+            soundFamily = "ClaimTile";
+            break;
+        case TileSound::Digged:
+            soundFamily = "RocksFalling";
+            break;
+        default:
+            OD_LOG_ERR("Wrong TileSound value=" + Helper::toString(static_cast<uint32_t>(sound)));
+            return;
+    }
+
+    for(Seat* seat : mSeatsWithVision)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::playSpatialSound, seat->getPlayer());
+        serverNotification->mPacket << SpacialSoundType::Game << soundFamily << getX() << getY();
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }

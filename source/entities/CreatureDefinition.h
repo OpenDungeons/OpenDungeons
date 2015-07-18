@@ -157,7 +157,12 @@ public:
         mFeePerLevel        (feePerLevel),
         mSleepHeal          (sleepHeal),
         mWeaponSpawnL       ("none"),
-        mWeaponSpawnR       ("none")
+        mWeaponSpawnR       ("none"),
+        mSoundFamilyPickup  ("Default/Pickup"),
+        mSoundFamilyDrop    ("Default/Drop"),
+        mSoundFamilyAttack  ("Default/Attack"),
+        mSoundFamilyDie     ("Default/Die"),
+        mSoundFamilySlap    ("Default/Slap")
     {
         mXPTable.assign(MAX_LEVEL - 1, 100.0);
     }
@@ -230,8 +235,8 @@ public:
 
     inline double               getWeakCoef () const            { return mWeakCoef; }
 
-    const std::string&          getWeaponSpawnL () const        { return mWeaponSpawnL; }
-    const std::string&          getWeaponSpawnR () const        { return mWeaponSpawnR; }
+    inline const std::string&   getWeaponSpawnL () const        { return mWeaponSpawnL; }
+    inline const std::string&   getWeaponSpawnR () const        { return mWeaponSpawnR; }
 
     int32_t                     getFee (unsigned int level) const;
 
@@ -241,13 +246,24 @@ public:
 
     //! \brief Returns the creature affinity. The returned vector is assumed to be
     //! sorted so that highest likeness is at first
-    const std::vector<CreatureRoomAffinity>& getRoomAffinity() const
+    inline const std::vector<CreatureRoomAffinity>& getRoomAffinity() const
     { return mRoomAffinity; }
 
     const CreatureRoomAffinity& getRoomAffinity(RoomType roomType) const;
 
     inline const std::string& getMoodModifierName() const
     { return mMoodModifierName; }
+
+    inline const std::string& getSoundFamilyPickup() const
+    { return mSoundFamilyPickup; }
+    inline const std::string& getSoundFamilyDrop() const
+    { return mSoundFamilyDrop; }
+    inline const std::string& getSoundFamilyAttack() const
+    { return mSoundFamilyAttack; }
+    inline const std::string& getSoundFamilyDie() const
+    { return mSoundFamilyDie; }
+    inline const std::string& getSoundFamilySlap() const
+    { return mSoundFamilySlap; }
 
 private:
     //! \brief The job of the creature (e.g. worker, fighter, ...)
@@ -359,6 +375,13 @@ private:
     //! \brief The rooms the creature mood modifier that should be used to compute
     //! creature mood
     std::string mMoodModifierName;
+
+    //! \brief Sound family used by the creature
+    std::string mSoundFamilyPickup;
+    std::string mSoundFamilyDrop;
+    std::string mSoundFamilyAttack;
+    std::string mSoundFamilyDie;
+    std::string mSoundFamilySlap;
 
     //! \brief Loads the creature XP values for the given definition.
     static void loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef);

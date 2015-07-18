@@ -99,6 +99,12 @@ namespace Helper
     int round(double d);
     int round(float d);
 
+    //! \brief Fills listDir with the absolute path of directories in the given directory.
+    //! Returns true on success, false otherwise
+    bool fillDirList(const std::string& path,
+                       std::vector<std::string>& listDir,
+                       bool absoluteDir);
+
     //! \brief Fills listFiles with the absolute path of files in the given directory
     //! matching fileExtension. Returns true on success, false otherwise
     bool fillFilesList(const std::string& path,

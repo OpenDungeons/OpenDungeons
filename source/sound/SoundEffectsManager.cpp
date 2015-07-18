@@ -102,7 +102,7 @@ void GameSound::play(float x, float y, float z)
 template<> SoundEffectsManager* Ogre::Singleton<SoundEffectsManager>::msSingleton = nullptr;
 
 SoundEffectsManager::SoundEffectsManager() :
-    mSpacialSounds(static_cast<uint32_t>(SpacialSound::NUM_INTERFACE_SOUNDS))
+    mSpacialSounds(static_cast<uint32_t>(SpacialSoundType::nbSounds))
 {
     initializeSpacialSounds();
 }
@@ -121,76 +121,94 @@ SoundEffectsManager::~SoundEffectsManager()
 
 void SoundEffectsManager::initializeSpacialSounds()
 {
-    // Test wether the interface sounds are already loaded.
-    if (mSpacialSounds.empty() == false)
+
+    // We read the sound directory
+    for(uint32_t i = 0; i < static_cast<uint32_t>(SpacialSoundType::nbSounds); ++i)
+    {
+        SpacialSoundType sound = static_cast<SpacialSoundType>(i);
+        readSounds(sound);
+    }
+}
+
+void SoundEffectsManager::readSounds(SpacialSoundType soundType)
+{
+    uint32_t indexSound = static_cast<uint32_t>(soundType);
+    if(indexSound >= mSpacialSounds.size())
+    {
+        OD_LOG_ERR("soundType=" + Helper::toString(indexSound) + ", size=" + Helper::toString(mSpacialSounds.size()));
         return;
-
-    Ogre::String soundFolderPath = ResourceManager::getSingletonPtr()->getSoundPath();
-
-    // TODO: Dehard-code it and place the sound filename in a config file.
-    // Only one click sounds atm...
-    {
-        GameSound* gm = getGameSound(soundFolderPath + "Game/click.ogg", false);
-        if (gm != nullptr)
-            mSpacialSounds[static_cast<uint32_t>(SpacialSound::BUTTONCLICK)].push_back(gm);
     }
 
-    // Only one dig select sound atm...
+    std::map<std::string, std::vector<GameSound*>>& soundsFamily = mSpacialSounds[indexSound];
+    const std::string& soundFolderPath = ResourceManager::getSingletonPtr()->getSoundPath();
+    std::string path;
+    switch(soundType)
     {
-        GameSound* gm = getGameSound(soundFolderPath + "Game/PickSelector.ogg", false);
-        if (gm != nullptr)
-            mSpacialSounds[static_cast<uint32_t>(SpacialSound::DIGSELECT)].push_back(gm);
+        case SpacialSoundType::Game:
+            path = "Game";
+            break;
+        case SpacialSoundType::Creatures:
+            path = "Creatures";
+            break;
+        case SpacialSoundType::Rooms:
+            path = "Rooms";
+            break;
+        case SpacialSoundType::Traps:
+            path = "Traps";
+            break;
+        case SpacialSoundType::Spells:
+            path = "Spells";
+            break;
+        default:
+            OD_LOG_ERR("Unexpected soundType=" + Helper::toString(indexSound));
+            return;
     }
 
-    // Only one build room sound atm...
+    OD_LOG_INF("Loading sounds for path=" + path);
+    readSounds(soundsFamily, soundFolderPath + path, "");
+}
+
+void SoundEffectsManager::readSounds(std::map<std::string, std::vector<GameSound*>>& soundsFamily,
+        const std::string& parentPath, const std::string& parentFamily)
+{
+    std::vector<std::string> directories;
+    if(!Helper::fillDirList(parentPath, directories, false))
     {
-        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_room.ogg", false);
-        if (gm != nullptr)
-            mSpacialSounds[static_cast<uint32_t>(SpacialSound::BUILDROOM)].push_back(gm);
+        OD_LOG_ERR("Error while loading sounds in directory=" + parentPath);
+        return;
     }
 
-    // Only one build trap sound atm...
+    for(const std::string& directory : directories)
     {
-        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_trap.ogg", false);
-        if (gm != nullptr)
-            mSpacialSounds[static_cast<uint32_t>(SpacialSound::BUILDTRAP)].push_back(gm);
-    }
+        // We read sub directories
+        std::string fullDir = parentPath + "/" + directory;
+        std::string fullFamily = parentFamily.empty() ? directory : parentFamily + "/" + directory;
+        readSounds(soundsFamily, fullDir, fullFamily);
 
-    // Cannon firing sound
-    {
-        GameSound* gm = getGameSound(soundFolderPath + "Traps/cannon_firing.ogg", false);
-        if (gm != nullptr)
-            mSpacialSounds[static_cast<uint32_t>(SpacialSound::CANNONFIRING)].push_back(gm);
-    }
+        std::vector<std::string> soundFilenames;
+        if(!Helper::fillFilesList(fullDir, soundFilenames, ".ogg"))
+        {
+            OD_LOG_ERR("Cannot load sounds from=" + fullDir);
+            continue;
+        }
 
-    // Rock falling sounds
-    std::vector<std::string> soundFilenames;
-    Helper::fillFilesList(soundFolderPath + "Game/RocksFalling/", soundFilenames, ".ogg");
-    for (unsigned int i = 0; i < soundFilenames.size(); ++i)
-    {
-        GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != nullptr)
-            mSpacialSounds[static_cast<uint32_t>(SpacialSound::ROCKFALLING)].push_back(gm);
-    }
+        // We do not create entries for empty directories
+        if(soundFilenames.empty())
+            continue;
 
-    // Claim sounds
-    soundFilenames.clear();
-    Helper::fillFilesList(soundFolderPath + "Game/ClaimTile/", soundFilenames, ".ogg");
-    for (unsigned int i = 0; i < soundFilenames.size(); ++i)
-    {
-        GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != nullptr)
-            mSpacialSounds[static_cast<uint32_t>(SpacialSound::CLAIMED)].push_back(gm);
-    }
+        std::vector<GameSound*>& sounds = soundsFamily[fullFamily];
+        for(const std::string& soundFilename : soundFilenames)
+        {
+            GameSound* gm = getGameSound(soundFilename, true);
+            if (gm == nullptr)
+            {
+                OD_LOG_ERR("Cannot load sound=" + soundFilename);
+                continue;
+            }
 
-    // Deposit gold sounds
-    soundFilenames.clear();
-    Helper::fillFilesList(soundFolderPath + "Game/DepositGold/", soundFilenames, ".ogg");
-    for (unsigned int i = 0; i < soundFilenames.size(); ++i)
-    {
-        GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != nullptr)
-            mSpacialSounds[static_cast<uint32_t>(SpacialSound::DEPOSITGOLD)].push_back(gm);
+            OD_LOG_INF("Sound loaded family=" + fullFamily + ", filename=" + soundFilename);
+            sounds.push_back(gm);
+        }
     }
 }
 
@@ -204,7 +222,8 @@ void SoundEffectsManager::setListenerPosition(const Ogre::Vector3& position, con
     sf::Listener::setDirection(-vDir.x, -vDir.y, -vDir.z);
 }
 
-void SoundEffectsManager::playSpacialSound(SpacialSound soundType, float XPos, float YPos, float height)
+void SoundEffectsManager::playSpacialSound(SpacialSoundType soundType, const std::string& family,
+        float XPos, float YPos, float height)
 {
     uint32_t indexSound = static_cast<uint32_t>(soundType);
     if(indexSound >= mSpacialSounds.size())
@@ -213,9 +232,20 @@ void SoundEffectsManager::playSpacialSound(SpacialSound soundType, float XPos, f
         return;
     }
 
-    std::vector<GameSound*>& sounds = mSpacialSounds[indexSound];
-    if(sounds.empty())
+    std::map<std::string, std::vector<GameSound*>>& soundsFamily = mSpacialSounds[indexSound];
+    auto it = soundsFamily.find(family);
+    if(it == soundsFamily.end())
+    {
+        OD_LOG_ERR("Couldn't find sound=" + Helper::toString(indexSound) + " family=" + family);
         return;
+    }
+
+    std::vector<GameSound*>& sounds = it->second;
+    if(sounds.empty())
+    {
+        OD_LOG_ERR("No sound found for sound=" + Helper::toString(indexSound) + " family=" + family);
+        return;
+    }
 
     unsigned int soundId = Random::Uint(0, sounds.size() - 1);
     sounds[soundId]->play(XPos, YPos, height);
@@ -246,16 +276,16 @@ GameSound* SoundEffectsManager::getGameSound(const std::string& filename, bool s
     return it->second;
 }
 
-ODPacket& operator<<(ODPacket& os, const SpacialSound& st)
+ODPacket& operator<<(ODPacket& os, const SpacialSoundType& st)
 {
     os << static_cast<int32_t>(st);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, SpacialSound& st)
+ODPacket& operator>>(ODPacket& is, SpacialSoundType& st)
 {
     int32_t tmp;
     is >> tmp;
-    st = static_cast<SpacialSound>(tmp);
+    st = static_cast<SpacialSoundType>(tmp);
     return is;
 }
