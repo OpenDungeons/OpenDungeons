@@ -34,10 +34,6 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-//TODO: THis is currently duplicated here and in tile
-const std::string TILE_PREFIX = "Tile_";
-const std::string TILE_SCANF = TILE_PREFIX + "%i_%i";
-
 void Tile::setFullness(double f)
 {
     double oldFullness = getFullness();

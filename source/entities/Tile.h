@@ -116,6 +116,9 @@ public:
     virtual ~Tile();
 
     static const uint32_t NO_FLOODFILL;
+    static const std::string TILE_PREFIX;
+    static const std::string TILE_SCANF;
+
     virtual GameEntityType getObjectType() const
     { return GameEntityType::tile; }
 
