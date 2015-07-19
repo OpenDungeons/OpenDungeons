@@ -141,6 +141,9 @@ class GameMode final : public GameEditorModeBase, public InputCommand
     //! \param forceRefresh Refresh the gui even if no changes was declared by the local player Seat.
     void refreshGuiResearch(bool forceRefresh = false);
 
+    //! \brief Called at each frame. Updates spell cooldowns.
+    void refreshSpellButtonCoolDowns();
+
 protected:
     bool onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/);
 
@@ -191,6 +194,12 @@ private:
     //! \note: Called by refreshGuiResearch() for each researchType.
     void refreshResearchButtonState(const std::string& researchButton, const std::string& castButton,
         const std::string& researchProgressBar, ResearchType resType);
+
+    //! \brief Set the state of the given spell button accordingly to the research type given.
+    //! \note: Called by refreshSpellButtonCoolDowns() for each spellType.
+    void getSpellButtonNames(SpellType spellType,
+                             std::string& spellProgressBar,
+                             std::string& maxCoolDownParam);
 
     //! \brief Tells whether the latest mouse click was made on a relevant CEGUI widget,
     //! and thus, the game should ignore it.

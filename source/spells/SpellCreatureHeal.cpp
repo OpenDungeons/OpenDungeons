@@ -187,6 +187,8 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
         creature->addCreatureEffect(effect);
     }
 
+    player->setSpellCooldownTurns(SpellType::creatureHeal, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureHealCooldown"));
+
     return true;
 }
 

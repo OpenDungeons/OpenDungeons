@@ -1131,6 +1131,7 @@
     </WidgetLook>
 
     <WidgetLook name="OD/ProgressBar">
+        <PropertyDefinition initialValue="OpenDungeonsSkin/ProgressBarLitSegment" name="ProgressImage" redrawOnWrite="true" />
         <NamedArea name="ProgressArea">
             <Area>
                 <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsSkin/ProgressBarLeft" /></Dim>
@@ -1182,7 +1183,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeonsSkin/ProgressBarLitSegment" />
+                <ImageProperty name="ProgressImage" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>

@@ -166,6 +166,8 @@ bool SpellCreatureHaste::castSpell(GameMap* gameMap, Player* player, ODPacket& p
     CreatureEffectSpeedChange* effect = new CreatureEffectSpeedChange(duration, value, "SpellCreatureHaste");
     creature->addCreatureEffect(effect);
 
+    player->setSpellCooldownTurns(SpellType::creatureHaste, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureHasteCooldown"));
+
     return true;
 }
 
