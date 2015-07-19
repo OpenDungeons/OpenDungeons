@@ -102,9 +102,9 @@ void GameSound::play(float x, float y, float z)
 template<> SoundEffectsManager* Ogre::Singleton<SoundEffectsManager>::msSingleton = nullptr;
 
 SoundEffectsManager::SoundEffectsManager() :
-    mSpacialSounds(static_cast<uint32_t>(SpatialSoundType::nbSounds))
+    mSpatialSounds(static_cast<uint32_t>(SpatialSoundType::nbSounds))
 {
-    initializeSpacialSounds();
+    initializeSpatialSounds();
 }
 
 SoundEffectsManager::~SoundEffectsManager()
@@ -119,7 +119,7 @@ SoundEffectsManager::~SoundEffectsManager()
     }
 }
 
-void SoundEffectsManager::initializeSpacialSounds()
+void SoundEffectsManager::initializeSpatialSounds()
 {
 
     // We read the sound directory
@@ -133,13 +133,13 @@ void SoundEffectsManager::initializeSpacialSounds()
 void SoundEffectsManager::readSounds(SpatialSoundType soundType)
 {
     uint32_t indexSound = static_cast<uint32_t>(soundType);
-    if(indexSound >= mSpacialSounds.size())
+    if(indexSound >= mSpatialSounds.size())
     {
-        OD_LOG_ERR("soundType=" + Helper::toString(indexSound) + ", size=" + Helper::toString(mSpacialSounds.size()));
+        OD_LOG_ERR("soundType=" + Helper::toString(indexSound) + ", size=" + Helper::toString(mSpatialSounds.size()));
         return;
     }
 
-    std::map<std::string, std::vector<GameSound*>>& soundsFamily = mSpacialSounds[indexSound];
+    std::map<std::string, std::vector<GameSound*>>& soundsFamily = mSpatialSounds[indexSound];
     const std::string& soundFolderPath = ResourceManager::getSingletonPtr()->getSoundPath();
     std::string path;
     switch(soundType)
@@ -222,17 +222,17 @@ void SoundEffectsManager::setListenerPosition(const Ogre::Vector3& position, con
     sf::Listener::setDirection(-vDir.x, -vDir.y, -vDir.z);
 }
 
-void SoundEffectsManager::playSpacialSound(SpatialSoundType soundType, const std::string& family,
+void SoundEffectsManager::playSpatialSound(SpatialSoundType soundType, const std::string& family,
         float XPos, float YPos, float height)
 {
     uint32_t indexSound = static_cast<uint32_t>(soundType);
-    if(indexSound >= mSpacialSounds.size())
+    if(indexSound >= mSpatialSounds.size())
     {
-        OD_LOG_ERR("sound=" + Helper::toString(indexSound) + ", size=" + Helper::toString(mSpacialSounds.size()));
+        OD_LOG_ERR("sound=" + Helper::toString(indexSound) + ", size=" + Helper::toString(mSpatialSounds.size()));
         return;
     }
 
-    std::map<std::string, std::vector<GameSound*>>& soundsFamily = mSpacialSounds[indexSound];
+    std::map<std::string, std::vector<GameSound*>>& soundsFamily = mSpatialSounds[indexSound];
     auto it = soundsFamily.find(family);
     if(it == soundsFamily.end())
     {

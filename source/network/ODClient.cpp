@@ -652,7 +652,7 @@ bool ODClient::processOneClientSocketMessage()
             int xPos;
             int yPos;
             OD_ASSERT_TRUE(packetReceived >> soundType >> family >> xPos >> yPos);
-            SoundEffectsManager::getSingleton().playSpacialSound(soundType, family,
+            SoundEffectsManager::getSingleton().playSpatialSound(soundType, family,
                 xPos, yPos);
             break;
         }
@@ -796,7 +796,7 @@ bool ODClient::processOneClientSocketMessage()
             uint32_t nbTiles;
             OD_ASSERT_TRUE(packetReceived >> digSet >> nbTiles);
 
-            SoundEffectsManager::getSingleton().playSpacialSound(SpatialSoundType::Game,
+            SoundEffectsManager::getSingleton().playSpatialSound(SpatialSoundType::Game,
                 InterfaceSounds::PickSelector);
 
             Player* player = getPlayer();

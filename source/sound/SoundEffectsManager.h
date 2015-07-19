@@ -92,7 +92,7 @@ enum class SpatialSoundType
     nbSounds
 };
 
-//! \brief Used to transfer SpacialSounds type over the network.
+//! \brief Used to transfer SpatialSounds type over the network.
 ODPacket& operator<<(ODPacket& os, const SpatialSoundType& st);
 ODPacket& operator>>(ODPacket& is, SpatialSoundType& st);
 
@@ -107,26 +107,26 @@ public:
     virtual ~SoundEffectsManager();
 
     //! \brief Init the interface sounds.
-    void initializeSpacialSounds();
+    void initializeSpatialSounds();
 
     void setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation);
 
     //! \brief Plays a spatial sound at the given tile position.
-    void playSpacialSound(SpatialSoundType soundType, const std::string& family,
+    void playSpatialSound(SpatialSoundType soundType, const std::string& family,
         float XPos, float YPos, float height = TILE_ZPOS);
 
     //! \brief Proxy used for sounds that aren't spatial and can be heard everywhere.
-    void playSpacialSound(SpatialSoundType soundType, const std::string& family)
-    { playSpacialSound(soundType, family, 0.0f, 0.0f); }
+    void playSpatialSound(SpatialSoundType soundType, const std::string& family)
+    { playSpatialSound(soundType, family, 0.0f, 0.0f); }
 
-    void playSpacialSound(SpatialSoundType soundType, const std::string& family, const Ogre::Vector3& position)
-    { playSpacialSound(soundType, family, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
+    void playSpatialSound(SpatialSoundType soundType, const std::string& family, const Ogre::Vector3& position)
+    { playSpatialSound(soundType, family, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
 
 private:
     //! \brief Every game sounds (interface or creature). The sounds are read when launching the
     //! game by browsing the sound directory
     //! \note the GameSound here are handled by the game sound cache.
-    std::vector<std::map<std::string, std::vector<GameSound*>>> mSpacialSounds;
+    std::vector<std::map<std::string, std::vector<GameSound*>>> mSpatialSounds;
 
     //! \brief The sound cache, containing the sound references, used by game entities.
     //! \brief The GameSounds here must be deleted at destruction.
