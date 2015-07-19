@@ -41,12 +41,15 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
   - Initial spell logic: cooldown, targets and cost (#683)
   - Spells are triggered only when relevant and "Spawn Worker" has no
     cooldown (#710)
+  - Spell cooldown is shown visually on the spell icon (#867)
   - Handle spells through a spell manager (#727)
 * Reworked library logic:
   - Working at the library generates grimoires that represent a fixed
     amount of skill points (#817)
   - Rooms and spells are unlocked when their skill points requirements are
     fulfilled (#817)
+  - Easily configurable research queue (#817 #869)
+  - Handle researches through a research manager (#843)
 * Implemented doors (#732)
 * Warn the player when they place a trap without having a workshop to craft
   it (#671)
@@ -56,19 +59,21 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
   unless the creature leave the dungeon (#704)
 * Improved fighter creature behaviour so that they go to sleep or eat when
   tired or hungry, if they are not forced to do a given task (#807)
+* Portal wave AI configuration: range and strategy (#855)
 
 **Levels:**
 
 * Removed levels redundancy between skirmish and multiplayer maps:
   multiplayer maps can now be loaded in singleplayer vs AI from the skirmish
   menu (#696)
+* New multiplayer map "Ruins of the Confluent" (#847)
 * Improvements to the "The Bridge" level (#673)
 * Drop unused intermediate tile fullness values in the editor (#590)
 
 **Graphics:**
 
 * Better-looking claimed walls models (#808 #818)
-* Fixed tileset glitches (#273 #694)
+* Many tileset improvements (#273 #694)
 * Particle effects support on entities (#683 #709 #710 #711)
 * Add a random offset to creature position on their tile to prevent
   meshes overlap (#660 #697)
@@ -82,6 +87,7 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
 * In-game and editor tabs are now displayed as thematic icons (#742)
 * Research UI improvements:
   - Customisable research order with automatic dependency management (#577)
+  - Progress bar for the research icons (#840 #867)
 * Creature overlays improvements:
   - Display 8 health states instead of 4 in the skull flags (#733)
   - Display an overlay with the creature's mood (#734)

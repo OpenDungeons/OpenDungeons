@@ -64,22 +64,23 @@ schemas/
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
 multiplayer/
--> GreedOrMight.level                  Akien                   GPLv3+
--> ScreamInTheDark.level               Bertram                 GPLv3+
--> TestBigMap.level                    hwoarangmy              GPLv3+
--> TestMultiplayerSmall1v1.level       hwoarangmy              GPLv3+
--> TestMultiplayerSmallAlliance.level  hwoarangmy              GPLv3+
--> TestMultiplayerSmallFreeForAll.level hwoarangmy             GPLv3+
--> TheBridge.level                     Bertram                 GPLv3+
+-> GreedOrMight.level                  OD Team                 GPLv3+
+-> RuinsOfTheConfluent.level           OD Team                 GPLv3+
+-> ScreamInTheDark.level               OD Team                 GPLv3+
+-> TestBigMap.level                    OD Team                 GPLv3+
+-> TestMultiplayerSmall1v1.level       OD Team                 GPLv3+
+-> TestMultiplayerSmallAlliance.level  OD Team                 GPLv3+
+-> TestMultiplayerSmallFreeForAll.level OD Team                GPLv3+
+-> TheBridge.level                     OD Team                 GPLv3+
 
 skirmish/
--> FallingKeeper.level                 hwoarangmy              GPLv3+
--> StonekeepSiege.level                Danimal                 GPLv3+
+-> FallingKeeper.level                 OD Team                 GPLv3+
+-> StonekeepSiege.level                OD Team                 GPLv3+
 -> TestLegacy.level                    OD Team                 GPLv3+
--> TestModelsFair.level                Akien                   GPLv3+
--> TestSingleplayerSmall.level         hwoarangmy              GPLv3+
--> TestSingleplayerSmallEmpty.level    hwoarangmy              GPLv3+
--> TestSingleplayerSmallPassability.level hwoarangmy           GPLv3+
+-> TestModelsFair.level                OD Team                 GPLv3+
+-> TestSingleplayerSmall.level         OD Team                 GPLv3+
+-> TestSingleplayerSmallEmpty.level    OD Team                 GPLv3+
+-> TestSingleplayerSmallPassability.level OD Team              GPLv3+
 
 template.level                         OD Team                 GPLv3+
 
