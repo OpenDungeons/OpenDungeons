@@ -135,7 +135,7 @@ CEGUI::Window* Gui::getGuiSheet(guiSheet sheet)
 
 bool Gui::playButtonClickSound(const CEGUI::EventArgs&)
 {
-    mSoundEffectsManager->playSpacialSound(SpacialSoundType::Game, InterfaceSounds::Click);
+    mSoundEffectsManager->playSpacialSound(SpatialSoundType::Game, InterfaceSounds::Click);
     return true;
 }
 

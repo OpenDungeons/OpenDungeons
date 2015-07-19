@@ -102,7 +102,7 @@ void GameSound::play(float x, float y, float z)
 template<> SoundEffectsManager* Ogre::Singleton<SoundEffectsManager>::msSingleton = nullptr;
 
 SoundEffectsManager::SoundEffectsManager() :
-    mSpacialSounds(static_cast<uint32_t>(SpacialSoundType::nbSounds))
+    mSpacialSounds(static_cast<uint32_t>(SpatialSoundType::nbSounds))
 {
     initializeSpacialSounds();
 }
@@ -123,14 +123,14 @@ void SoundEffectsManager::initializeSpacialSounds()
 {
 
     // We read the sound directory
-    for(uint32_t i = 0; i < static_cast<uint32_t>(SpacialSoundType::nbSounds); ++i)
+    for(uint32_t i = 0; i < static_cast<uint32_t>(SpatialSoundType::nbSounds); ++i)
     {
-        SpacialSoundType sound = static_cast<SpacialSoundType>(i);
+        SpatialSoundType sound = static_cast<SpatialSoundType>(i);
         readSounds(sound);
     }
 }
 
-void SoundEffectsManager::readSounds(SpacialSoundType soundType)
+void SoundEffectsManager::readSounds(SpatialSoundType soundType)
 {
     uint32_t indexSound = static_cast<uint32_t>(soundType);
     if(indexSound >= mSpacialSounds.size())
@@ -144,19 +144,19 @@ void SoundEffectsManager::readSounds(SpacialSoundType soundType)
     std::string path;
     switch(soundType)
     {
-        case SpacialSoundType::Game:
+        case SpatialSoundType::Game:
             path = "Game";
             break;
-        case SpacialSoundType::Creatures:
+        case SpatialSoundType::Creatures:
             path = "Creatures";
             break;
-        case SpacialSoundType::Rooms:
+        case SpatialSoundType::Rooms:
             path = "Rooms";
             break;
-        case SpacialSoundType::Traps:
+        case SpatialSoundType::Traps:
             path = "Traps";
             break;
-        case SpacialSoundType::Spells:
+        case SpatialSoundType::Spells:
             path = "Spells";
             break;
         default:
@@ -222,7 +222,7 @@ void SoundEffectsManager::setListenerPosition(const Ogre::Vector3& position, con
     sf::Listener::setDirection(-vDir.x, -vDir.y, -vDir.z);
 }
 
-void SoundEffectsManager::playSpacialSound(SpacialSoundType soundType, const std::string& family,
+void SoundEffectsManager::playSpacialSound(SpatialSoundType soundType, const std::string& family,
         float XPos, float YPos, float height)
 {
     uint32_t indexSound = static_cast<uint32_t>(soundType);
@@ -276,16 +276,16 @@ GameSound* SoundEffectsManager::getGameSound(const std::string& filename, bool s
     return it->second;
 }
 
-ODPacket& operator<<(ODPacket& os, const SpacialSoundType& st)
+ODPacket& operator<<(ODPacket& os, const SpatialSoundType& st)
 {
     os << static_cast<int32_t>(st);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, SpacialSoundType& st)
+ODPacket& operator>>(ODPacket& is, SpatialSoundType& st)
 {
     int32_t tmp;
     is >> tmp;
-    st = static_cast<SpacialSoundType>(tmp);
+    st = static_cast<SpatialSoundType>(tmp);
     return is;
 }

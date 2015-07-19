@@ -826,7 +826,7 @@ void Tile::fireTileSound(TileSound sound)
 
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::playSpatialSound, seat->getPlayer());
-        serverNotification->mPacket << SpacialSoundType::Game << soundFamily << getX() << getY();
+        serverNotification->mPacket << SpatialSoundType::Game << soundFamily << getX() << getY();
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }

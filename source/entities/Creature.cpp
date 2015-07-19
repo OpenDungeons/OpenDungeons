@@ -4374,7 +4374,7 @@ void Creature::fireCreatureSound(CreatureSound sound)
 
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::playSpatialSound, seat->getPlayer());
-        serverNotification->mPacket << SpacialSoundType::Creatures << soundFamily << posTile->getX() << posTile->getY();
+        serverNotification->mPacket << SpatialSoundType::Creatures << soundFamily << posTile->getX() << posTile->getY();
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }

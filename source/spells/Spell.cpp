@@ -186,7 +186,7 @@ void Spell::fireSpellSound(Tile* tile, const std::string& soundFamily)
 
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::playSpatialSound, seat->getPlayer());
-        serverNotification->mPacket << SpacialSoundType::Spells << soundFamily << tile->getX() << tile->getY();
+        serverNotification->mPacket << SpatialSoundType::Spells << soundFamily << tile->getX() << tile->getY();
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }

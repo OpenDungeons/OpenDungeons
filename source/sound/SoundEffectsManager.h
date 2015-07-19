@@ -82,7 +82,7 @@ private:
 };
 
 //! \brief The different interface sound types.
-enum class SpacialSoundType
+enum class SpatialSoundType
 {
     Game = 0,
     Creatures,
@@ -93,8 +93,8 @@ enum class SpacialSoundType
 };
 
 //! \brief Used to transfer SpacialSounds type over the network.
-ODPacket& operator<<(ODPacket& os, const SpacialSoundType& st);
-ODPacket& operator>>(ODPacket& is, SpacialSoundType& st);
+ODPacket& operator<<(ODPacket& os, const SpatialSoundType& st);
+ODPacket& operator>>(ODPacket& is, SpatialSoundType& st);
 
 //! \brief Helper class to manage sound effects.
 class SoundEffectsManager: public Ogre::Singleton<SoundEffectsManager>
@@ -112,14 +112,14 @@ public:
     void setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation);
 
     //! \brief Plays a spatial sound at the given tile position.
-    void playSpacialSound(SpacialSoundType soundType, const std::string& family,
+    void playSpacialSound(SpatialSoundType soundType, const std::string& family,
         float XPos, float YPos, float height = TILE_ZPOS);
 
     //! \brief Proxy used for sounds that aren't spatial and can be heard everywhere.
-    void playSpacialSound(SpacialSoundType soundType, const std::string& family)
+    void playSpacialSound(SpatialSoundType soundType, const std::string& family)
     { playSpacialSound(soundType, family, 0.0f, 0.0f); }
 
-    void playSpacialSound(SpacialSoundType soundType, const std::string& family, const Ogre::Vector3& position)
+    void playSpacialSound(SpatialSoundType soundType, const std::string& family, const Ogre::Vector3& position)
     { playSpacialSound(soundType, family, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
 
 private:
@@ -142,7 +142,7 @@ private:
     GameSound* getGameSound(const std::string& filename, bool spatialSound = false);
 
     //! \brief Reads the path associated to the given soundType and fills the corresponding map
-    void readSounds(SpacialSoundType soundType);
+    void readSounds(SpatialSoundType soundType);
 
     //! \brief Recursive function that fills the sound map with sound files found and reads
     //! child directories
