@@ -2022,14 +2022,17 @@ BigKnight	5
 [Trap]
 4	DoorWooden_3	5	1
 30	24	1
+1
 [/Trap]
 [Trap]
 4	DoorWooden_4	5	1
 35	37	1
+1
 [/Trap]
 [Trap]
 4	DoorWooden_5	5	1
 30	31	1
+1
 [/Trap]
 [Trap]
 2	Spike_6	5	1

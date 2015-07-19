@@ -233,7 +233,7 @@ protected:
     virtual void notifyActiveSpotRemoved(Tile* tile);
 
     //! \brief Triggered when the trap is activated
-    virtual void activate(Tile* tile);
+    void activate(Tile* tile);
 
     //! \brief Triggered when deactivated.
     virtual void deactivate(Tile* tile);

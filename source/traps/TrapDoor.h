@@ -50,8 +50,6 @@ public:
     virtual bool shouldDisplayGroundTile() const override
     { return true; }
 
-    virtual void activate(Tile* tile) override;
-
     virtual void notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile);
 
     virtual TrapEntity* getTrapEntity(Tile* tile) override;
@@ -64,6 +62,9 @@ public:
 
     virtual bool permitsVision(Tile* tile) override;
 
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+
     static void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet);
     static void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
@@ -72,7 +73,12 @@ public:
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream& is);
 
 private:
+    //! \brief Wanted state for the door (changes when the player slaps the door)
     bool mIsLocked;
+    //! \brief Current state of the door
+    bool mIsLockedState;
+
+    void changeDoorState(DoorEntity* doorEntity, Tile* tile, bool locked);
 };
 
 #endif // TRAPDOOR_H

@@ -42,7 +42,8 @@ const std::string TrapDoor::ANIMATION_CLOSE = "Close";
 
 TrapDoor::TrapDoor(GameMap* gameMap) :
     Trap(gameMap),
-    mIsLocked(false)
+    mIsLocked(false),
+    mIsLockedState(false)
 {
     mReloadTime = 0;
     mMinDamage = 0;
@@ -68,12 +69,6 @@ TrapEntity* TrapDoor::getTrapEntity(Tile* tile)
         ANIMATION_OPEN, false);
 }
 
-void TrapDoor::activate(Tile* tile)
-{
-    Trap::activate(tile);
-    getGameMap()->doorLock(tile, getSeat(), mIsLocked);
-}
-
 void TrapDoor::doUpkeep()
 {
     for(Tile* tile : mCoveredTiles)
@@ -93,10 +88,34 @@ void TrapDoor::doUpkeep()
         // We need to look for destroyed door before calling Trap::doUpkeep otherwise, they will be removed
         // from covered tiles
         if (mTileData[tile]->mHP <= 0.0)
-        {
             getGameMap()->doorLock(tile, getSeat(), false);
+        else if(mIsLockedState != mIsLocked)
+        {
+            RenderedMovableEntity* entity = getBuildingObjectFromTile(tile);
+            if(entity == nullptr)
+            {
+                OD_LOG_ERR("nullptr entity trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
+                continue;
+            }
+
+            if(entity->getObjectType() != GameEntityType::trapEntity)
+            {
+                OD_LOG_ERR("wrong entity type trap=" + getName() + ", tile=" + Tile::displayAsString(tile) + ", entity=" + entity->getName());
+                continue;
+            }
+
+            TrapEntity* trapEntity = static_cast<TrapEntity*>(entity);
+            if(trapEntity->getTrapEntityType() != TrapEntityType::doorEntity)
+            {
+                OD_LOG_ERR("wrong entity type trap=" + getName() + ", tile=" + Tile::displayAsString(tile) + ", entity=" + entity->getName());
+                continue;
+            }
+
+            DoorEntity* doorEntity = static_cast<DoorEntity*>(entity);
+            changeDoorState(doorEntity, tile, mIsLocked);
         }
     }
+    mIsLockedState = mIsLocked;
 
     Trap::doUpkeep();
 }
@@ -104,8 +123,14 @@ void TrapDoor::doUpkeep()
 void TrapDoor::notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile)
 {
     mIsLocked = !mIsLocked;
+    changeDoorState(doorEntity, tile, mIsLocked);
 
-    if(mIsLocked)
+    mIsLockedState = mIsLocked;
+}
+
+void TrapDoor::changeDoorState(DoorEntity* doorEntity, Tile* tile, bool locked)
+{
+    if(locked)
         doorEntity->setAnimationState(ANIMATION_CLOSE, false);
     else
         doorEntity->setAnimationState(ANIMATION_OPEN, false);
@@ -113,7 +138,7 @@ void TrapDoor::notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile)
     if(!isActivated(tile))
         return;
 
-    getGameMap()->doorLock(tile, getSeat(), mIsLocked);
+    getGameMap()->doorLock(tile, getSeat(), locked);
 }
 
 void TrapDoor::checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
@@ -350,7 +375,7 @@ bool TrapDoor::permitsVision(Tile* tile)
     if (!trapTileData->isActivated())
         return true;
 
-    return !mIsLocked;
+    return !mIsLockedState;
 }
 
 bool TrapDoor::canCreatureGoThroughTile(const Creature* creature, Tile* tile) const
@@ -359,7 +384,7 @@ bool TrapDoor::canCreatureGoThroughTile(const Creature* creature, Tile* tile) co
     if (!trapTileData->isActivated())
         return true;
 
-    if(!mIsLocked)
+    if(!mIsLockedState)
         return true;
 
     // Enemy units can go through doors. We need that otherwise, they won't be able to
@@ -375,6 +400,20 @@ bool TrapDoor::canCreatureGoThroughTile(const Creature* creature, Tile* tile) co
     }
 
     return true;
+}
+
+void TrapDoor::exportToStream(std::ostream& os) const
+{
+    Trap::exportToStream(os);
+
+    os << mIsLocked << "\n";
+}
+
+void TrapDoor::importFromStream(std::istream& is)
+{
+    Trap::importFromStream(is);
+
+    OD_ASSERT_TRUE(is >> mIsLocked);
 }
 
 Trap* TrapDoor::getTrapFromStream(GameMap* gameMap, std::istream& is)
