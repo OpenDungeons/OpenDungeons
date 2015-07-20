@@ -35,17 +35,13 @@ spellCreatureExplosion
 trapSpike
 [/ResearchNotAllowed]
 [ResearchPending]
-roomTrainingHall
-spellCallToWar
-roomWorkshop
-roomCrypt
 [/ResearchPending]
 [/Seat]
 [Seat]
 seatId	2
 teamId	1/2
 player	AI
-faction	Hero
+faction	Choice
 startingX	10
 startingY	40
 colorId	2
@@ -63,12 +59,15 @@ spellSummonWorker
 [ResearchNotAllowed]
 [/ResearchNotAllowed]
 [ResearchPending]
-roomTrainingHall
 spellCallToWar
-trapSpike
+spellCreatureHeal
+spellCreatureExplosion
+roomTrainingHall
 roomWorkshop
+spellCreatureHaste
 roomCrypt
-trapBoulder
+trapDoorWooden
+trapSpike
 [/ResearchPending]
 [/Seat]
 [Seat]
@@ -93,12 +92,6 @@ spellSummonWorker
 [ResearchNotAllowed]
 [/ResearchNotAllowed]
 [ResearchPending]
-roomTrainingHall
-spellCallToWar
-trapSpike
-roomWorkshop
-roomCrypt
-trapBoulder
 [/ResearchPending]
 [/Seat]
 [Seat]
@@ -123,12 +116,6 @@ spellSummonWorker
 [ResearchNotAllowed]
 [/ResearchNotAllowed]
 [ResearchPending]
-roomTrainingHall
-spellCallToWar
-trapSpike
-roomWorkshop
-roomCrypt
-trapBoulder
 [/ResearchPending]
 [/Seat]
 [/Seats]
@@ -180,6 +167,16 @@ ProtectDungeonTemple	NULL
 1	22	1	0	1
 1	24	2	100
 1	25	2	100
+1	31	1	0	2
+1	32	1	0	2
+1	33	1	0	2
+1	34	1	0	2
+1	35	1	0	2
+1	37	1	0	2
+1	38	1	0	2
+1	39	1	0	2
+1	40	1	0	2
+1	41	1	0	2
 2	1	1	0
 2	8	1	100	3
 2	9	1	0	3
@@ -198,6 +195,16 @@ ProtectDungeonTemple	NULL
 2	22	1	0	1
 2	24	2	100
 2	25	2	100
+2	31	1	0	2
+2	32	1	0	2
+2	33	1	0	2
+2	34	1	0	2
+2	35	1	0	2
+2	37	1	0	2
+2	38	1	0	2
+2	39	1	0	2
+2	40	1	0	2
+2	41	1	0	2
 3	1	1	0
 3	8	1	100	3
 3	9	1	0	3
@@ -216,6 +223,16 @@ ProtectDungeonTemple	NULL
 3	22	1	0	1
 3	24	2	100
 3	25	2	100
+3	31	1	0	2
+3	32	1	0	2
+3	33	1	0	2
+3	34	1	0	2
+3	35	1	0	2
+3	37	1	0	2
+3	38	1	0	2
+3	39	1	0	2
+3	40	1	0	2
+3	41	1	0	2
 4	1	1	0
 4	9	1	100	3
 4	10	1	100	3
@@ -225,6 +242,16 @@ ProtectDungeonTemple	NULL
 4	20	1	100	1
 4	24	2	100
 4	25	2	100
+4	31	1	0	2
+4	32	1	0	2
+4	33	1	0	2
+4	34	1	0	2
+4	35	1	0	2
+4	37	1	0	2
+4	38	1	0	2
+4	39	1	0	2
+4	40	1	0	2
+4	41	1	0	2
 5	1	1	0
 5	7	1	0
 5	9	1	0
@@ -235,9 +262,21 @@ ProtectDungeonTemple	NULL
 5	20	1	0	1
 5	24	2	100
 5	25	2	100
+5	31	1	0	2
+5	32	1	0	2
+5	33	1	0	2
+5	34	1	0	2
+5	35	1	0	2
+5	37	1	0	2
+5	38	1	0	2
+5	39	1	0	2
+5	40	1	0	2
+5	41	1	0	2
 6	1	1	0
 6	24	2	100
 6	25	2	100
+6	35	1	0
+6	37	1	0
 7	1	1	0
 7	7	1	0	1
 7	8	1	0	1
@@ -250,6 +289,12 @@ ProtectDungeonTemple	NULL
 7	15	1	0
 7	24	2	100
 7	25	2	100
+7	31	1	0	2
+7	32	1	0	2
+7	33	1	0	2
+7	34	1	0	2
+7	35	1	0	2
+7	36	1	0
 7	37	1	0	2
 7	38	1	0	2
 7	39	1	0	2
@@ -271,6 +316,11 @@ ProtectDungeonTemple	NULL
 8	15	1	0
 8	24	2	100
 8	25	2	100
+8	31	1	0	2
+8	32	1	0	2
+8	33	1	0	2
+8	34	1	0	2
+8	35	1	0	2
 8	37	1	0	2
 8	38	1	0	2
 8	39	1	0	2
@@ -295,6 +345,11 @@ ProtectDungeonTemple	NULL
 9	15	1	0
 9	24	2	100
 9	25	2	100
+9	31	1	0	2
+9	32	1	0	2
+9	33	1	0	2
+9	34	1	0	2
+9	35	1	0	2
 9	37	1	0	2
 9	38	1	0	2
 9	39	1	0	2
@@ -319,6 +374,11 @@ ProtectDungeonTemple	NULL
 10	15	1	0
 10	24	2	100
 10	25	2	100
+10	31	1	0	2
+10	32	1	0	2
+10	33	1	0	2
+10	34	1	0	2
+10	35	1	0	2
 10	37	1	0	2
 10	38	1	0	2
 10	39	1	0	2
@@ -343,6 +403,11 @@ ProtectDungeonTemple	NULL
 11	15	1	0
 11	24	2	100
 11	25	2	100
+11	31	1	0	2
+11	32	1	0	2
+11	33	1	0	2
+11	34	1	0	2
+11	35	1	0	2
 11	37	1	0	2
 11	38	1	0	2
 11	39	1	0	2
@@ -963,6 +1028,35 @@ DwarfWorker	1
 20	34
 [/Room]
 [Room]
+2	Dormitory3	2	25
+1	37
+1	38
+1	39
+1	40
+1	41
+2	37
+2	38
+2	39
+2	40
+2	41
+3	37
+3	38
+3	39
+3	40
+3	41
+4	37
+4	38
+4	39
+4	40
+4	41
+5	37
+5	38
+5	39
+5	40
+5	41
+0
+[/Room]
+[Room]
 1	DungeonTemple4	2	25
 7	37
 7	38
@@ -989,6 +1083,63 @@ DwarfWorker	1
 11	39
 11	40
 11	41
+[/Room]
+[Room]
+8	Farm2	2	25
+7	31
+7	32
+7	33
+7	34
+7	35
+8	31
+8	32
+8	33
+8	34
+8	35
+9	31
+9	32
+9	33
+9	34
+9	35
+10	31
+10	32
+10	33
+10	34
+10	35
+11	31
+11	32
+11	33
+11	34
+11	35
+[/Room]
+[Room]
+7	Library4	2	25
+1	31
+1	32
+1	33
+1	34
+1	35
+2	31
+2	32
+2	33
+2	34
+2	35
+3	31
+3	32
+3	33
+3	34
+3	35
+4	31
+4	32
+4	33
+4	34
+4	35
+5	31
+5	32
+5	33
+5	34
+5	35
+0
 [/Room]
 [Room]
 4	Portal5	2	9
@@ -1266,6 +1417,7 @@ DwarfWorker	1
 0	Wyvern2	Wyvern.mesh	18	32	0	Wyvern	1	0	max	100	0	0	none	none	0	none	1	1	100	SpellCreatureExplosion	0.01
 1	TentacleAlbine6	TentacleAlbine	11	5	0	TentacleAlbine	1	0	max	100	0	0	none	none	0	none	0
 0	Wizard1	Wizard.mesh	20	19	0	Wizard	1	0	max	100	0	0	RustyShield	none	0	none	0
+2	Wyvern3	Wyvern.mesh	7	37	0	Wyvern	1	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
 [Spells]

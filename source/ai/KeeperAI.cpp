@@ -51,7 +51,8 @@ KeeperAI::KeeperAI(GameMap& gameMap, Player& player, const std::string& paramete
     mCooldownLookingForGold(0),
     mCooldownDefense(0),
     mCooldownWorkers(0),
-    mCooldownRepairRooms(0)
+    mCooldownRepairRooms(0),
+    mIsFirstUpkeepDone(false)
 {
 }
 
@@ -60,6 +61,12 @@ bool KeeperAI::doTurn(double timeSinceLastTurn)
     // If we have no dungeon temple, we are dead
     if(getDungeonTemple() == nullptr)
         return false;
+
+    if(!mIsFirstUpkeepDone)
+    {
+        mIsFirstUpkeepDone = true;
+        handleFirstTurn();
+    }
 
     saveWoundedCreatures();
 
@@ -777,4 +784,14 @@ bool KeeperAI::repairRooms()
     }
 
     return false;
+}
+
+void KeeperAI::handleFirstTurn()
+{
+    Seat* seat = mPlayer.getSeat();
+    // We set the researches. We start with pending researches to not modify research
+    // order if it was already set in the level
+    std::vector<ResearchType> researches = seat->getResearchPending();
+    ResearchManager::buildRandomPendingResearchesForSeat(researches, seat);
+    seat->setResearchTree(researches);
 }
