@@ -493,6 +493,46 @@ const Research* ResearchManager::getResearch(ResearchType resType)
     return research->mResearch;
 }
 
+void ResearchManager::buildRandomPendingResearchesForSeat(std::vector<ResearchType>& researches,
+        const Seat* seat)
+{
+    const std::vector<ResearchType>& researchNotAllowed = seat->getResearchNotAllowed();
+    std::vector<const ResearchDef*> availableResearches;
+    // We consider as done researches already done for the given seat as well as the researches
+    // already pending
+    std::vector<ResearchType> doneResearches = seat->getResearchDone();
+    doneResearches.insert(doneResearches.begin(), researches.begin(), researches.end());
+    // We fill availableResearches with all the researches that are not already done and
+    // that can be researched
+    for(const ResearchDef* research : getResearchManager().mResearches)
+    {
+        if(research == nullptr)
+            continue;
+
+        ResearchType resType = research->mResearch->getType();
+        // We do not consider researches already pending or done
+        if(std::find(doneResearches.begin(), doneResearches.end(), resType) != doneResearches.end())
+            continue;
+
+        if(research->mResearch->dependsOn(researchNotAllowed))
+            continue;
+
+        availableResearches.push_back(research);
+        doneResearches.push_back(resType);
+    }
+
+    // Now, availableResearches only contains researches that can be done (but unsorted).
+    // We need to shuffle that and fill researches.
+    doneResearches = seat->getResearchDone();
+    std::random_shuffle(availableResearches.begin(), availableResearches.end());
+    for(const ResearchDef* research : availableResearches)
+    {
+        // Since buildDependencies guarantees to not add duplicate researches, it is safe
+        // to call it for every research not already done
+        research->mResearch->buildDependencies(doneResearches, researches);
+    }
+}
+
 void ResearchManager::listAllResearches(const std::function<void(const std::string&, const std::string&,
         const std::string&, ResearchType)>& func)
 {

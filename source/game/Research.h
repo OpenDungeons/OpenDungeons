@@ -79,9 +79,16 @@ public:
     //! excluding researches already done in researchesDone including the research itself. Note that the returned vector
     //! will contain needed researches ordered by feasible researches (the first one will have no needed dependencies,
     //! the second none other than the first, ...)
+    //! Note 1: dependencies will not be added twice in dependencies even if there are 2 dependencies that depends
+    //! on the same research
+    //! Note 2: if dependencies is not empty when calling this function, its content will be used like researches already
+    //! done and not checked if available or correctly ordered. This function will only append additional required dependencies.
     void buildDependencies(const std::vector<ResearchType>& researchesDone, std::vector<ResearchType>& dependencies) const;
 
-    //! \brief Returns true if the research depends on the given type and false otherwise
+    //! \brief Cals dependsOn for each ResearchType
+    bool dependsOn(const std::vector<ResearchType>& researches) const;
+
+    //! \brief Returns true if the research is or depends on the given type and false otherwise
     bool dependsOn(ResearchType type) const;
 
     //! \brief The research name as used in level files.

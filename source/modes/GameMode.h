@@ -105,6 +105,8 @@ class GameMode final : public GameEditorModeBase, public InputCommand
     bool hideResearchWindow(const CEGUI::EventArgs& = {});
     bool toggleResearchWindow(const CEGUI::EventArgs& = {});
     bool applyResearchWindow(const CEGUI::EventArgs& = {});
+    bool unselectAllResearchWindow(const CEGUI::EventArgs& = {});
+    bool autoFillResearchWindow(const CEGUI::EventArgs& = {});
     void closeResearchWindow(bool saveResearch);
 
     //! \brief Shows/hides/toggles the options window

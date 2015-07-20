@@ -113,6 +113,18 @@ GameMode::GameMode(ModeManager *modeManager):
         )
     );
     addEventConnection(
+        guiSheet->getChild("ResearchTreeWindow/AutoFill")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::autoFillResearchWindow, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("ResearchTreeWindow/UnselectAll")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::unselectAllResearchWindow, this)
+        )
+    );
+    addEventConnection(
         guiSheet->getChild("ResearchTreeWindow/CancelButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&GameMode::hideResearchWindow, this)
@@ -1062,6 +1074,13 @@ bool GameMode::hideResearchWindow(const CEGUI::EventArgs&)
     return true;
 }
 
+bool GameMode::unselectAllResearchWindow(const CEGUI::EventArgs&)
+{
+    mResearchPending.clear();
+    refreshGuiResearch(true);
+    return true;
+}
+
 bool GameMode::applyResearchWindow(const CEGUI::EventArgs& e)
 {
     closeResearchWindow(true);
@@ -1623,6 +1642,14 @@ bool GameMode::researchButtonTreeClicked(ResearchType type)
     for(ResearchType researchType : researchToAdd)
         mResearchPending.push_back(researchType);
 
+    return true;
+}
+
+bool GameMode::autoFillResearchWindow(const CEGUI::EventArgs&)
+{
+    ResearchManager::buildRandomPendingResearchesForSeat(mResearchPending,
+        mGameMap->getLocalPlayer()->getSeat());
+    refreshGuiResearch(true);
     return true;
 }
 
