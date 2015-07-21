@@ -2183,10 +2183,10 @@ BigKnight	5
 2	DefaultWorker3	Kobold.mesh	7	49	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 3	DefaultWorker4	Kobold.mesh	48	47	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 4	DefaultWorker5	Kobold.mesh	47	10	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
-1	VeteranScarab1	Scarab.mesh	5	8	0	Scarab	1	0	max	100	0	0	none	none	0	none	0
-2	VeteranScarab2	Scarab.mesh	7	57	0	Scarab	1	0	max	100	0	0	none	none	0	none	0
-3	VeterabScarab3	Scarab.mesh	54	49	0	Scarab	1	0	max	100	0	0	none	none	0	none	0
-4	VeteranScarab4	Scarab.mesh	47	3	0	Scarab	1	0	max	100	0	0	none	none	0	none	0
+1	VeteranScarab1	Scarab.mesh	5	8	0	VeteranScarab	1	0	max	100	0	0	none	none	0	none	0
+2	VeteranScarab2	Scarab.mesh	7	57	0	VeteranScarab	1	0	max	100	0	0	none	none	0	none	0
+3	VeterabScarab3	Scarab.mesh	54	49	0	VeteranScarab	1	0	max	100	0	0	none	none	0	none	0
+4	VeteranScarab4	Scarab.mesh	47	3	0	VeteranScarab	1	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
 [Spells]
