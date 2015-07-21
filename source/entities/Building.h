@@ -154,6 +154,18 @@ public:
     inline const std::vector<Tile*>& getCoveredTilesDestroyed() const
     { return mCoveredTilesDestroyed; }
 
+    virtual bool isTileVisibleForSeat(Tile* tile, Seat* seat) const
+    { return true; }
+
+    virtual void notifySeatVision(Tile* tile, Seat* seat);
+
+    virtual bool canCreatureGoThroughTile(const Creature* creature, Tile* tile) const
+    { return true; }
+
+    virtual bool permitsVision(Tile* tile)
+    { return true; }
+
+protected:
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;
     //! Allows to export/import specific data for child classes. Note that every tile
@@ -167,18 +179,6 @@ public:
     virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
     {}
 
-    virtual bool isTileVisibleForSeat(Tile* tile, Seat* seat) const
-    { return true; }
-
-    virtual void notifySeatVision(Tile* tile, Seat* seat);
-
-    virtual bool canCreatureGoThroughTile(const Creature* creature, Tile* tile) const
-    { return true; }
-
-    virtual bool permitsVision(Tile* tile)
-    { return true; }
-
-protected:
     //! This will be called when tiles will be added to the building. By overriding it,
     //! child classes can expand TileData and add the data they need
     virtual TileData* createTileData(Tile* tile);

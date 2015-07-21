@@ -267,15 +267,10 @@ public:
     //! \brief Tells whether a room can be built upon this tile.
     bool isBuildableUpon(Seat* seat) const;
 
-    void exportToStream(std::ostream& os) const;
-
     static std::string getFormat();
 
     //! \brief Loads the tile data from a level line.
     static void loadFromLine(const std::string& line, Tile *t);
-
-    //! \brief Override of packet export function from gameEntity. Should not be used
-    void exportToPacket(ODPacket& os) const;
 
     /*! \brief Updates the tile from the data sent by the server so that it is correctly displayed and used
      *  The packet is filled in Seat::exportTileToPacket
@@ -380,7 +375,14 @@ public:
 
     void fireTileSound(TileSound sound);
 
+    static void exportToStream(Tile* tile, std::ostream& os);
+
 protected:
+    void exportToStream(std::ostream& os) const;
+    //! \brief Override of packet export function from gameEntity. Should not be used
+    void exportToPacket(ODPacket& os) const;
+
+
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
 private:

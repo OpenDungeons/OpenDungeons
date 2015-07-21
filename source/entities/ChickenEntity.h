@@ -54,12 +54,13 @@ public:
     void slap() override
     { mIsSlapped = true; }
 
-    void exportToStream(std::ostream& os) const override;
-    void importFromStream(std::istream& is) override;
-
     static ChickenEntity* getChickenEntityFromStream(GameMap* gameMap, std::istream& is);
     static ChickenEntity* getChickenEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static std::string getChickenEntityStreamFormat();
+protected:
+    void exportToStream(std::ostream& os) const override;
+    void importFromStream(std::istream& is) override;
+
 private:
     enum ChickenState
     {

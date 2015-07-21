@@ -48,5 +48,6 @@ BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap) :
 BuildingObject* BuildingObject::getBuildingObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
     BuildingObject* obj = new BuildingObject(gameMap, false);
+    obj->importFromPacket(is);
     return obj;
 }

@@ -213,5 +213,7 @@ bool RoomDungeonTemple::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 
 Room* RoomDungeonTemple::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new RoomDungeonTemple(gameMap);
+    RoomDungeonTemple* room = new RoomDungeonTemple(gameMap);
+    room->importFromStream(is);
+    return room;
 }

@@ -129,5 +129,7 @@ bool TrapCannon::buildTrapOnTiles(GameMap* gameMap, Player* player, const std::v
 
 Trap* TrapCannon::getTrapFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new TrapCannon(gameMap);
+    TrapCannon* trap = new TrapCannon(gameMap);
+    trap->importFromStream(is);
+    return trap;
 }

@@ -53,9 +53,10 @@ public:
     void seatSawTriggering(Seat* seat);
     void notifySeatsWithVision(const std::vector<Seat*>& seats) override;
 
-    virtual void exportHeadersToPacket(ODPacket& os) const override;
-
     static TrapEntity* getTrapEntityFromPacket(GameMap* gameMap, ODPacket& is);
+
+protected:
+    virtual void exportHeadersToPacket(ODPacket& os) const override;
 
 private:
     //! List of all the seats (including owning seat) that have vision on this trap (for enemy seats, that means that

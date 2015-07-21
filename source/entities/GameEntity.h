@@ -241,6 +241,24 @@ class GameEntity : public EntityBase
 
     static std::string getGameEntityStreamFormat();
 
+    virtual void destroyMeshLocal();
+
+    //! Used on client side to correct drop position to avoid all dropped entities
+    //! to be on the exact same position (center of the tile)
+    virtual void correctDropPosition(Ogre::Vector3& position)
+    {}
+
+    //! \brief Called while moving the entity to add it to the tile it gets on
+    virtual void addEntityToPositionTile();
+    //! \brief Called while moving the entity to remove it from the tile it gets off
+    virtual void removeEntityFromPositionTile();
+
+    void addGameEntityListener(GameEntityListener* listener);
+    void removeGameEntityListener(GameEntityListener* listener);
+
+    static void exportToStream(GameEntity* entity, std::ostream& os);
+
+  protected:
     /*! \brief Exports the headers needed to recreate the GameEntity. For example, for missile objects
      * type cannon, it exports GameEntityType::missileObject and MissileType::oneHit. The content of the
      * GameEntityType will be exported by exportToPacket. exportHeadersTo* should export the needed information
@@ -260,22 +278,6 @@ class GameEntity : public EntityBase
     virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
-    virtual void destroyMeshLocal();
-
-    //! Used on client side to correct drop position to avoid all dropped entities
-    //! to be on the exact same position (center of the tile)
-    virtual void correctDropPosition(Ogre::Vector3& position)
-    {}
-
-    //! \brief Called while moving the entity to add it to the tile it gets on
-    virtual void addEntityToPositionTile();
-    //! \brief Called while moving the entity to remove it from the tile it gets off
-    virtual void removeEntityFromPositionTile();
-
-    void addGameEntityListener(GameEntityListener* listener);
-    void removeGameEntityListener(GameEntityListener* listener);
-
-  protected:
     //! \brief Fires a add entity message to the player of the given seat
     virtual void fireAddEntity(Seat* seat, bool async) = 0;
     //! \brief Fires a remove creature message to the player of the given seat (if not null). If null, it fires to

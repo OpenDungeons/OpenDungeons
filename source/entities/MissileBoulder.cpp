@@ -78,12 +78,14 @@ bool MissileBoulder::wallHitNextDirection(const Ogre::Vector3& actDirection, Til
 MissileBoulder* MissileBoulder::getMissileBoulderFromStream(GameMap* gameMap, std::istream& is)
 {
     MissileBoulder* obj = new MissileBoulder(gameMap, true);
+    obj->importFromStream(is);
     return obj;
 }
 
-MissileBoulder* MissileBoulder::getMissileBoulderFromPacket(GameMap* gameMap, ODPacket& packet)
+MissileBoulder* MissileBoulder::getMissileBoulderFromPacket(GameMap* gameMap, ODPacket& is)
 {
     MissileBoulder* obj = new MissileBoulder(gameMap, false);
+    obj->importFromPacket(is);
     return obj;
 }
 

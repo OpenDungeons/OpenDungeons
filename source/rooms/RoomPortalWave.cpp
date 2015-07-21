@@ -1156,7 +1156,9 @@ bool RoomPortalWave::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 
 Room* RoomPortalWave::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new RoomPortalWave(gameMap);
+    RoomPortalWave* room = new RoomPortalWave(gameMap);
+    room->importFromStream(is);
+    return room;
 }
 
 std::ostream& operator<<(std::ostream& os, const RoomPortalWaveStrategy& type)

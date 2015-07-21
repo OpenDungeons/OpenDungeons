@@ -422,7 +422,9 @@ bool RoomTreasury::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 
 Room* RoomTreasury::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new RoomTreasury(gameMap);
+    RoomTreasury* room = new RoomTreasury(gameMap);
+    room->importFromStream(is);
+    return room;
 }
 
 int32_t RoomTreasury::getRoomCostForPlayer(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)

@@ -463,3 +463,9 @@ void GameEntity::fireEntityRemoveFromGameMap()
         it = mGameEntityListeners.erase(it);
     }
 }
+
+void GameEntity::exportToStream(GameEntity* entity, std::ostream& os)
+{
+    entity->exportHeadersToStream(os);
+    entity->exportToStream(os);
+}

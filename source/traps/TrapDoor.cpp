@@ -418,5 +418,7 @@ void TrapDoor::importFromStream(std::istream& is)
 
 Trap* TrapDoor::getTrapFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new TrapDoor(gameMap);
+    TrapDoor* trap = new TrapDoor(gameMap);
+    trap->importFromStream(is);
+    return trap;
 }

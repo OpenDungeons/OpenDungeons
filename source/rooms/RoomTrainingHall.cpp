@@ -354,5 +354,7 @@ bool RoomTrainingHall::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 
 Room* RoomTrainingHall::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new RoomTrainingHall(gameMap);
+    RoomTrainingHall* room = new RoomTrainingHall(gameMap);
+    room->importFromStream(is);
+    return room;
 }

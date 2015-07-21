@@ -94,12 +94,14 @@ void CraftedTrap::notifyEntityCarryOff(const Ogre::Vector3& position)
 CraftedTrap* CraftedTrap::getCraftedTrapFromStream(GameMap* gameMap, std::istream& is)
 {
     CraftedTrap* obj = new CraftedTrap(gameMap, true);
+    obj->importFromStream(is);
     return obj;
 }
 
 CraftedTrap* CraftedTrap::getCraftedTrapFromPacket(GameMap* gameMap, ODPacket& is)
 {
     CraftedTrap* obj = new CraftedTrap(gameMap, false);
+    obj->importFromPacket(is);
     return obj;
 }
 

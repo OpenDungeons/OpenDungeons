@@ -52,13 +52,6 @@ public:
 
     static std::string getRoomStreamFormat();
 
-    /*! \brief Exports the headers needed to recreate the Room. It allows to extend Room as much as wanted.
-     * The content of the Room will be exported by exportToPacket.
-     */
-    virtual void exportHeadersToStream(std::ostream& os) const override;
-    void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const;
-    void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData);
-
     virtual RoomType getType() const = 0;
 
     static std::string formatRoomPrice(RoomType type, uint32_t price);
@@ -107,6 +100,13 @@ public:
     static bool sortForMapSave(Room* r1, Room* r2);
 
 protected:
+    /*! \brief Exports the headers needed to recreate the Room. It allows to extend Room as much as wanted.
+     * The content of the Room will be exported by exportToPacket.
+     */
+    virtual void exportHeadersToStream(std::ostream& os) const override;
+    void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const;
+    void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData);
+
     enum ActiveSpotPlace
     {
         activeSpotCenter,

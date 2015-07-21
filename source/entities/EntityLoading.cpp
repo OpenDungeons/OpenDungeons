@@ -131,7 +131,6 @@ GameEntity* getGameEntityFromStream(GameMap* gameMap, GameEntityType type, std::
         return nullptr;
     }
 
-    entity->importFromStream(is);
     return entity;
 }
 
@@ -221,7 +220,6 @@ GameEntity* getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
         return nullptr;
     }
 
-    entity->importFromPacket(is);
     return entity;
 }
 } //namespace Entities

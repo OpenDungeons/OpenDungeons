@@ -436,5 +436,7 @@ void RoomLibrary::importFromStream(std::istream& is)
 
 Room* RoomLibrary::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new RoomLibrary(gameMap);
+    RoomLibrary* room = new RoomLibrary(gameMap);
+    room->importFromStream(is);
+    return room;
 }

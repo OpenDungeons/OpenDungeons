@@ -119,12 +119,13 @@ public:
     static MapLight* getMapLightFromPacket(GameMap* gameMap, ODPacket& is);
 
     static std::string getMapLightStreamFormat();
+
+protected:
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;
     virtual void exportToPacket(ODPacket& os) const override;
     virtual void importFromPacket(ODPacket& is) override;
 
-protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
     virtual void fireAddEntity(Seat* seat, bool async);

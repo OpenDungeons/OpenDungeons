@@ -496,12 +496,14 @@ Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
     //TODO - Handle load errors
     Creature* creature = new Creature(gameMap, true);
+    creature->importFromStream(is);
     return creature;
 }
 
 Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
 {
     Creature* creature = new Creature(gameMap, false);
+    creature->importFromPacket(is);
     return creature;
 }
 

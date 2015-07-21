@@ -138,9 +138,6 @@ public:
     void absorbRoom(Room *r) override;
     bool removeCoveredTile(Tile* t) override;
 
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-
     virtual void restoreInitialEntityState() override;
 
     // Functions specific to this class.
@@ -157,6 +154,9 @@ public:
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
 
 protected:
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+
     RoomDormitoryTileData* createTileData(Tile* tile);
     // Because dormitory do not use active spots, we don't want the default
     // behaviour (removing the active spot tile) as it could result in removing an

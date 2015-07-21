@@ -368,5 +368,7 @@ bool RoomDormitory::buildRoomOnTiles(GameMap* gameMap, Player* player, const std
 
 Room* RoomDormitory::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new RoomDormitory(gameMap);
+    RoomDormitory* room = new RoomDormitory(gameMap);
+    room->importFromStream(is);
+    return room;
 }

@@ -92,9 +92,6 @@ public:
 
     virtual void setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles) override;
 
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-
     virtual void restoreInitialEntityState() override;
 
     void addRoomPortalWaveData(RoomPortalWaveData* roomPortalWaveData);
@@ -117,6 +114,9 @@ public:
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
 
 protected:
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+
     void destroyMeshLocal() override;
 
     void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override

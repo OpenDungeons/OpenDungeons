@@ -518,5 +518,7 @@ bool RoomWorkshop::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 
 Room* RoomWorkshop::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new RoomWorkshop(gameMap);
+    RoomWorkshop* room = new RoomWorkshop(gameMap);
+    room->importFromStream(is);
+    return room;
 }

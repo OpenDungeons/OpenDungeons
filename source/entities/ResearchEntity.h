@@ -49,12 +49,13 @@ public:
     virtual void notifyEntityCarryOn(Creature* carrier) override;
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position) override;
 
-    void exportToStream(std::ostream& os) const override;
-    void importFromStream(std::istream& is) override;
-
     static ResearchEntity* getResearchEntityFromStream(GameMap* gameMap, std::istream& is);
     static ResearchEntity* getResearchEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static std::string getResearchEntityStreamFormat();
+protected:
+    void exportToStream(std::ostream& os) const override;
+    void importFromStream(std::istream& is) override;
+
 private:
     int32_t mResearchPoints;
 };

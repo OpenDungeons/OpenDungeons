@@ -65,12 +65,14 @@ void MissileOneHit::hitTargetBuilding(Tile* tile, Building* target)
 MissileOneHit* MissileOneHit::getMissileOneHitFromStream(GameMap* gameMap, std::istream& is)
 {
     MissileOneHit* obj = new MissileOneHit(gameMap, true);
+    obj->importFromStream(is);
     return obj;
 }
 
-MissileOneHit* MissileOneHit::getMissileOneHitFromPacket(GameMap* gameMap, ODPacket& packet)
+MissileOneHit* MissileOneHit::getMissileOneHitFromPacket(GameMap* gameMap, ODPacket& is)
 {
     MissileOneHit* obj = new MissileOneHit(gameMap, false);
+    obj->importFromPacket(is);
     return obj;
 }
 

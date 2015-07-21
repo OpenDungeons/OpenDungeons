@@ -50,6 +50,7 @@ PersistentObject::PersistentObject(GameMap* gameMap, bool isOnServerMap) :
 PersistentObject* PersistentObject::getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
     PersistentObject* obj = new PersistentObject(gameMap, false);
+    obj->importFromPacket(is);
     return obj;
 }
 

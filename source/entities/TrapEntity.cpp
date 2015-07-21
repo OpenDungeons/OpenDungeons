@@ -56,8 +56,15 @@ TrapEntity* TrapEntity::getTrapEntityFromPacket(GameMap* gameMap, ODPacket& is)
             break;
         default:
             OD_LOG_ERR("Unknown TrapEntityType=" + Helper::toString(static_cast<uint32_t>(trapEntityType)));
-            break;
+            return nullptr;
     }
+    if(trapEntity == nullptr)
+    {
+        OD_LOG_ERR("nullptr trapEntity read from packet type=" + Helper::toString(static_cast<uint32_t>(trapEntityType)));
+        return nullptr;
+    }
+
+    trapEntity->importFromPacket(is);
     return trapEntity;
 }
 

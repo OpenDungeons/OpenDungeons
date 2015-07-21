@@ -158,7 +158,7 @@ Command::Result cList(const Command::ArgumentList_t& args, ConsoleInterface& c, 
         stringStr << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
         for (Creature* creature : gameMap->getCreatures())
         {
-            creature->exportToStream(stringStr);
+            GameEntity::exportToStream(creature, stringStr);
             stringStr << std::endl;
         }
     }

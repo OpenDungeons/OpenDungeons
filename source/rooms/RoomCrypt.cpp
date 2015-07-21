@@ -330,5 +330,7 @@ bool RoomCrypt::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::ve
 
 Room* RoomCrypt::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new RoomCrypt(gameMap);
+    RoomCrypt* room = new RoomCrypt(gameMap);
+    room->importFromStream(is);
+    return room;
 }

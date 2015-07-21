@@ -42,11 +42,12 @@ public:
     virtual bool hitCreature(GameEntity* entity) override;
     virtual bool wallHitNextDirection(const Ogre::Vector3& actDirection, Tile* tile, Ogre::Vector3& nextDirection) override;
 
+    static MissileBoulder* getMissileBoulderFromStream(GameMap* gameMap, std::istream& is);
+    static MissileBoulder* getMissileBoulderFromPacket(GameMap* gameMap, ODPacket& is);
+protected:
     void exportToStream(std::ostream& os) const override;
     void importFromStream(std::istream& is) override;
 
-    static MissileBoulder* getMissileBoulderFromStream(GameMap* gameMap, std::istream& is);
-    static MissileBoulder* getMissileBoulderFromPacket(GameMap* gameMap, ODPacket& packet);
 private:
     double mDamage;
     int mNbHits;
