@@ -2095,7 +2095,7 @@ BigKnight	5
     GroundSpeed/Level	0.012
     WaterSpeed/Level	0.005
     LavaSpeed/Level	0
-    PhysicalAttack	16.0
+    PhysicalAttack	16
     PhysicalAtk/Level	0.8
     MagicalAttack	0
     MagicalAtk/Level	0
@@ -2103,14 +2103,15 @@ BigKnight	5
     PhysicalDef/Level	0.2
     MagicalDefense	3
     MagicalDef/Level	0
-    AttackRange	1.0
+    AttackRange	1
     AtkRange/Level	0
     AttackWarmupTime	1.7
+    WeakCoef	0.3
     FeeBase	300
     FeePerLevel	70
-    SleepHeal	1.0
-    CreatureMoodName	MoodTier3
-    WeakCoef	0.3
+    SleepHeal	1
+    WeaponSpawnL	none
+    WeaponSpawnL	none
     [/Stats]
     [RoomAffinity]
     TrainingHall	100	1.2
@@ -2173,10 +2174,10 @@ BigKnight	5
 2	DefaultWorker3	Kobold.mesh	7	49	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 3	DefaultWorker4	Kobold.mesh	48	47	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 4	DefaultWorker5	Kobold.mesh	47	10	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
-1	VeteranScarab1	Scarab.mesh	5	8	0	Scarab	1	0	max	100	0	0	none	none	0	none	0
-2	VeteranScarab2	Scarab.mesh	7	57	0	Scarab	1	0	max	100	0	0	none	none	0	none	0
-3	VeterabScarab3	Scarab.mesh	54	49	0	Scarab	1	0	max	100	0	0	none	none	0	none	0
-4	VeteranScarab4	Scarab.mesh	47	3	0	Scarab	1	0	max	100	0	0	none	none	0	none	0
+1	VeteranScarab1	Scarab.mesh	5	8	0	VeteranScarab	1	0	max	100	0	0	none	none	0	none	0
+2	VeteranScarab2	Scarab.mesh	7	57	0	VeteranScarab	1	0	max	100	0	0	none	none	0	none	0
+3	VeterabScarab3	Scarab.mesh	54	49	0	VeteranScarab	1	0	max	100	0	0	none	none	0	none	0
+4	VeteranScarab4	Scarab.mesh	47	3	0	VeteranScarab	1	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
 [Spells]
