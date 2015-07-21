@@ -796,7 +796,7 @@ bool ODClient::processOneClientSocketMessage()
             uint32_t nbTiles;
             OD_ASSERT_TRUE(packetReceived >> digSet >> nbTiles);
 
-            SoundEffectsManager::getSingleton().playSpatialSound(SpatialSoundType::Game,
+            SoundEffectsManager::getSingleton().playSpatialSound(SpatialSoundType::Interface,
                 InterfaceSounds::PickSelector);
 
             Player* player = getPlayer();

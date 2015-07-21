@@ -142,8 +142,13 @@ void SoundEffectsManager::readSounds(SpatialSoundType soundType)
     std::map<std::string, std::vector<GameSound*>>& soundsFamily = mSpatialSounds[indexSound];
     const std::string& soundFolderPath = ResourceManager::getSingletonPtr()->getSoundPath();
     std::string path;
+    bool spacialSound = true;
     switch(soundType)
     {
+        case SpatialSoundType::Interface:
+            path = "Interface";
+            spacialSound = false;
+            break;
         case SpatialSoundType::Game:
             path = "Game";
             break;
@@ -165,11 +170,11 @@ void SoundEffectsManager::readSounds(SpatialSoundType soundType)
     }
 
     OD_LOG_INF("Loading sounds for path=" + path);
-    readSounds(soundsFamily, soundFolderPath + path, "");
+    readSounds(soundsFamily, soundFolderPath + path, "", spacialSound);
 }
 
 void SoundEffectsManager::readSounds(std::map<std::string, std::vector<GameSound*>>& soundsFamily,
-        const std::string& parentPath, const std::string& parentFamily)
+        const std::string& parentPath, const std::string& parentFamily, bool spacialSound)
 {
     std::vector<std::string> directories;
     if(!Helper::fillDirList(parentPath, directories, false))
@@ -183,7 +188,7 @@ void SoundEffectsManager::readSounds(std::map<std::string, std::vector<GameSound
         // We read sub directories
         std::string fullDir = parentPath + "/" + directory;
         std::string fullFamily = parentFamily.empty() ? directory : parentFamily + "/" + directory;
-        readSounds(soundsFamily, fullDir, fullFamily);
+        readSounds(soundsFamily, fullDir, fullFamily, spacialSound);
 
         std::vector<std::string> soundFilenames;
         if(!Helper::fillFilesList(fullDir, soundFilenames, ".ogg"))
@@ -199,7 +204,7 @@ void SoundEffectsManager::readSounds(std::map<std::string, std::vector<GameSound
         std::vector<GameSound*>& sounds = soundsFamily[fullFamily];
         for(const std::string& soundFilename : soundFilenames)
         {
-            GameSound* gm = getGameSound(soundFilename, true);
+            GameSound* gm = getGameSound(soundFilename, spacialSound);
             if (gm == nullptr)
             {
                 OD_LOG_ERR("Cannot load sound=" + soundFilename);
