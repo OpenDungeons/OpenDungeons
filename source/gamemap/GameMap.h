@@ -535,10 +535,10 @@ public:
     const std::vector<int>& getTeamIds() const
     { return mTeamIds; }
 
-    //! \brief Fires to the human seats in the given seat vector the spacial sound. This
+    //! \brief Fires to the human seats in the given seat vector the spatial sound. This
     //! function is provided to gather calls asking to play a sound (since they have many
     //! origins
-    void fireSpacialSound(const std::vector<Seat*>& seats, SpatialSoundType soundType,
+    void fireSpatialSound(const std::vector<Seat*>& seats, SpatialSoundType soundType,
         const std::string& soundFamily, Tile* tile);
 
 private:

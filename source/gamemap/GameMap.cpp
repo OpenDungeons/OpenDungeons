@@ -3386,7 +3386,7 @@ void GameMap::notifySeatsConfigured()
     enableFloodFill();
 }
 
-void GameMap::fireSpacialSound(const std::vector<Seat*>& seats, SpatialSoundType soundType,
+void GameMap::fireSpatialSound(const std::vector<Seat*>& seats, SpatialSoundType soundType,
         const std::string& soundFamily, Tile* tile)
 {
     for(Seat* seat : seats)

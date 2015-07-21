@@ -152,7 +152,7 @@ private:
     //! \brief Recursive function that fills the sound map with sound files found and reads
     //! child directories
     void readSounds(std::map<std::string, std::vector<GameSound*>>& soundsFamily,
-        const std::string& parentPath, const std::string& parentFamily, bool spacialSound);
+        const std::string& parentPath, const std::string& parentFamily, bool spatialSound);
 };
 
 #endif // SOUNDEFFECTSMANAGER_H_

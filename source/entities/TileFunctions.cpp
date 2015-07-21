@@ -817,6 +817,6 @@ void Tile::fireTileSound(TileSound sound)
             return;
     }
 
-    getGameMap()->fireSpacialSound(mSeatsWithVision, SpatialSoundType::Game,
+    getGameMap()->fireSpatialSound(mSeatsWithVision, SpatialSoundType::Game,
         soundFamily, this);
 }

@@ -85,7 +85,7 @@ public:
     //! done and not checked if available or correctly ordered. This function will only append additional required dependencies.
     void buildDependencies(const std::vector<ResearchType>& researchesDone, std::vector<ResearchType>& dependencies) const;
 
-    //! \brief Cals dependsOn for each ResearchType
+    //! \brief Calls dependsOn for each ResearchType
     bool dependsOn(const std::vector<ResearchType>& researches) const;
 
     //! \brief Returns true if the research is or depends on the given type and false otherwise

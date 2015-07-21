@@ -4367,7 +4367,7 @@ void Creature::fireCreatureSound(CreatureSound sound)
             return;
     }
 
-    getGameMap()->fireSpacialSound(mSeatsWithVisionNotified, SpatialSoundType::Creatures,
+    getGameMap()->fireSpatialSound(mSeatsWithVisionNotified, SpatialSoundType::Creatures,
         soundFamily, posTile);
 }
 
