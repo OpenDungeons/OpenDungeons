@@ -4367,18 +4367,8 @@ void Creature::fireCreatureSound(CreatureSound sound)
             return;
     }
 
-    for(Seat* seat : mSeatsWithVisionNotified)
-    {
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::playSpatialSound, seat->getPlayer());
-        serverNotification->mPacket << SpatialSoundType::Creatures << soundFamily << posTile->getX() << posTile->getY();
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
+    getGameMap()->fireSpacialSound(mSeatsWithVisionNotified, SpatialSoundType::Creatures,
+        soundFamily, posTile);
 }
 
 void Creature::itsPayDay()

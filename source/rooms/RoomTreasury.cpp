@@ -152,21 +152,8 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
 
     // Tells the client to play a deposit gold sound. For now, we only send it to the players
     // with vision on tile
-    for(Seat* seat : getGameMap()->getSeats())
-    {
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-        if(!seat->hasVisionOnTile(tile))
-            continue;
-
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::playSpatialSound, nullptr);
-        serverNotification->mPacket << SpatialSoundType::Game << GameSounds::DepositGold;
-        serverNotification->mPacket << tile->getX() << tile->getY();
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
+    getGameMap()->fireSpacialSound(tile->getSeatsWithVision(), SpatialSoundType::Game,
+        GameSounds::DepositGold, tile);
 
     return wasDeposited;
 }

@@ -48,6 +48,7 @@
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
 #include "spells/Spell.h"
+#include "sound/SoundEffectsManager.h"
 #include "traps/Trap.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -3383,4 +3384,21 @@ void GameMap::notifySeatsConfigured()
     }
     // Now that team ids are set and tiles are configured, we can compute floodfill
     enableFloodFill();
+}
+
+void GameMap::fireSpacialSound(const std::vector<Seat*>& seats, SpatialSoundType soundType,
+        const std::string& soundFamily, Tile* tile)
+{
+    for(Seat* seat : seats)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::playSpatialSound, seat->getPlayer());
+        serverNotification->mPacket << soundType << soundFamily << tile->getX() << tile->getY();
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }

@@ -817,16 +817,6 @@ void Tile::fireTileSound(TileSound sound)
             return;
     }
 
-    for(Seat* seat : mSeatsWithVision)
-    {
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::playSpatialSound, seat->getPlayer());
-        serverNotification->mPacket << SpatialSoundType::Game << soundFamily << getX() << getY();
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
+    getGameMap()->fireSpacialSound(mSeatsWithVision, SpatialSoundType::Game,
+        soundFamily, this);
 }

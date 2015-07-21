@@ -58,6 +58,7 @@ class TileSetValue;
 enum class GameEntityType;
 enum class FloodFillType;
 enum class RoomType;
+enum class SpatialSoundType;
 enum class SpellType;
 
 enum class SelectionTileAllowed
@@ -521,10 +522,10 @@ public:
     void playerSelects(std::vector<EntityBase*>& entities, int tileX1, int tileY1, int tileX2,
         int tileY2, SelectionTileAllowed tileAllowed, SelectionEntityWanted entityWanted, Player* player);
 
-    //! Called on client side each time a new turn is received
+    //! \brief Called on client side each time a new turn is received
     void clientUpKeep(int64_t turnNumber);
 
-    //! Updates floodfill for the given seat. If locked is true, creatures from the given seat would
+    //! \brief Updates floodfill for the given seat. If locked is true, creatures from the given seat would
     //! not be allowed to go through the tile. If locked is false, creatures from the given seat will be
     //! allowed to go through tile
     void doorLock(Tile* tileDoor, Seat* seat, bool locked);
@@ -533,6 +534,12 @@ public:
 
     const std::vector<int>& getTeamIds() const
     { return mTeamIds; }
+
+    //! \brief Fires to the human seats in the given seat vector the spacial sound. This
+    //! function is provided to gather calls asking to play a sound (since they have many
+    //! origins
+    void fireSpacialSound(const std::vector<Seat*>& seats, SpatialSoundType soundType,
+        const std::string& soundFamily, Tile* tile);
 
 private:
     void replaceFloodFill(Seat* seat, FloodFillType floodFillType, uint32_t colorOld, uint32_t colorNew);
