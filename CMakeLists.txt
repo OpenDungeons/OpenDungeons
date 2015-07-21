@@ -265,7 +265,6 @@ set(OD_SOURCEFILES
     ${SRC}/entities/Creature.cpp
     ${SRC}/entities/CreatureAction.cpp
     ${SRC}/entities/CreatureDefinition.cpp
-    ${SRC}/entities/CreatureSound.cpp
     ${SRC}/entities/DoorEntity.cpp
     ${SRC}/entities/EntityBase.cpp
     ${SRC}/entities/EntityLoading.cpp

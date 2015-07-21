@@ -97,6 +97,11 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mMoodModifierName;
     os << c->mWeaponSpawnL;
     os << c->mWeaponSpawnR;
+    os << c->mSoundFamilyPickup;
+    os << c->mSoundFamilyDrop;
+    os << c->mSoundFamilyAttack;
+    os << c->mSoundFamilyDie;
+    os << c->mSoundFamilySlap;
 
     for (unsigned int i = 0; i < c->mXPTable.size(); ++i)
         os << c->mXPTable[i];
@@ -133,6 +138,11 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mMoodModifierName;
     is >> c->mWeaponSpawnL;
     is >> c->mWeaponSpawnR;
+    is >> c->mSoundFamilyPickup;
+    is >> c->mSoundFamilyDrop;
+    is >> c->mSoundFamilyAttack;
+    is >> c->mSoundFamilyDie;
+    is >> c->mSoundFamilySlap;
 
     for (unsigned int i = 0; i < c->mXPTable.size(); ++i)
     {
@@ -492,6 +502,31 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 defFile >> creatureDef->mWeaponSpawnR;
                 continue;
             }
+            else if (nextParam == "SoundFamilyPickup")
+            {
+                defFile >> creatureDef->mSoundFamilyPickup;
+                continue;
+            }
+            else if (nextParam == "moundFamilyDrop")
+            {
+                defFile >> creatureDef->mSoundFamilyDrop;
+                continue;
+            }
+            else if (nextParam == "SoundFamilyAttack")
+            {
+                defFile >> creatureDef->mSoundFamilyAttack;
+                continue;
+            }
+            else if (nextParam == "SoundFamilyDie")
+            {
+                defFile >> creatureDef->mSoundFamilyDie;
+                continue;
+            }
+            else if (nextParam == "SoundFamilySlap")
+            {
+                defFile >> creatureDef->mSoundFamilySlap;
+                continue;
+            }
         }
     }
 
@@ -651,6 +686,21 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
 
     if(def1 == nullptr || (def1->mWeaponSpawnR.compare(def2->mWeaponSpawnR) != 0))
         file << "    WeaponSpawnL\t" << def2->mWeaponSpawnR << std::endl;
+
+    if(def1 == nullptr || (def1->mSoundFamilyPickup.compare(def2->mSoundFamilyPickup) != 0))
+        file << "    SoundFamilyPickup\t" << def2->mSoundFamilyPickup << std::endl;
+
+    if(def1 == nullptr || (def1->mSoundFamilyDrop.compare(def2->mSoundFamilyDrop) != 0))
+        file << "    SoundFamilyDrop\t" << def2->mSoundFamilyDrop << std::endl;
+
+    if(def1 == nullptr || (def1->mSoundFamilyAttack.compare(def2->mSoundFamilyAttack) != 0))
+        file << "    SoundFamilyAttack\t" << def2->mSoundFamilyAttack << std::endl;
+
+    if(def1 == nullptr || (def1->mSoundFamilyDie.compare(def2->mSoundFamilyDie) != 0))
+        file << "    SoundFamilyDie\t" << def2->mSoundFamilyDie << std::endl;
+
+    if(def1 == nullptr || (def1->mSoundFamilySlap.compare(def2->mSoundFamilySlap) != 0))
+        file << "    SoundFamilySlap\t" << def2->mSoundFamilySlap << std::endl;
 
     file << "    [/Stats]" << std::endl;
 

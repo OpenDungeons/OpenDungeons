@@ -88,6 +88,27 @@ namespace Helper
         return static_cast<int>(f + 0.5f);
     }
 
+    bool fillDirList(const std::string& path,
+                       std::vector<std::string>& listDir,
+                       bool absoluteDir)
+    {
+        const boost::filesystem::path dir_path(path);
+        if (!boost::filesystem::exists(dir_path))
+            return false;
+        boost::filesystem::directory_iterator end_itr;
+        for (boost::filesystem::directory_iterator itr(dir_path); itr != end_itr; ++itr)
+        {
+            if(!boost::filesystem::is_directory(itr->status()))
+                continue;
+
+            if(absoluteDir)
+                listDir.push_back(boost::filesystem::canonical(itr->path()).string());
+            else
+                listDir.push_back(itr->path().filename().string());
+        }
+        return true;
+    }
+
     bool fillFilesList(const std::string& path,
                        std::vector<std::string>& listFiles,
                        const std::string& fileExtension)

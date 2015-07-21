@@ -62,6 +62,8 @@ public:
     virtual void exportHeadersToStream(std::ostream& os) const override;
     virtual void exportHeadersToPacket(ODPacket& os) const override;
 
+    static void fireSpellSound(Tile* tile, const std::string& soundFamily);
+
     static std::string getSpellStreamFormat();
 
 protected:

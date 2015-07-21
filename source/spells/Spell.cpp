@@ -18,21 +18,19 @@
 #include "spells/Spell.h"
 
 #include "entities/Tile.h"
-
 #include "game/Player.h"
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
-
 #include "network/ODPacket.h"
-
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
+#include "sound/SoundEffectsManager.h"
 #include "spells/SpellSummonWorker.h"
 #include "spells/SpellCallToWar.h"
 #include "spells/SpellCreatureHeal.h"
 #include "spells/SpellCreatureExplosion.h"
 #include "spells/SpellManager.h"
 #include "spells/SpellType.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -175,6 +173,22 @@ std::string Spell::getSpellStreamFormat()
 std::string Spell::formatSpellPrice(SpellType type, uint32_t price)
 {
     return SpellManager::getSpellNameFromSpellType(type) + " [" + Helper::toString(price)+ " Mana]";
+}
+
+void Spell::fireSpellSound(Tile* tile, const std::string& soundFamily)
+{
+    for(Seat* seat : tile->getSeatsWithVision())
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::playSpatialSound, seat->getPlayer());
+        serverNotification->mPacket << SpatialSoundType::Spells << soundFamily << tile->getX() << tile->getY();
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }
 
 void Spell::exportHeadersToStream(std::ostream& os) const

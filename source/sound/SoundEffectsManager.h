@@ -26,11 +26,17 @@
 
 // Forward declarations
 class CreatureDefinition;
-class CreatureSound;
 class ODPacket;
 namespace Ogre
 {
     class Quaternion;
+}
+
+namespace InterfaceSounds
+{
+    const std::string Click = "Click";
+    const std::string PickSelector = "PickSelector";
+    const std::string DepositGold = "DepositGold";
 }
 
 // The Z value to use for tile positioned sounds.
@@ -75,6 +81,21 @@ private:
     std::string mFilename;
 };
 
+//! \brief The different interface sound types.
+enum class SpatialSoundType
+{
+    Game = 0,
+    Creatures,
+    Rooms,
+    Traps,
+    Spells,
+    nbSounds
+};
+
+//! \brief Used to transfer SpatialSounds type over the network.
+ODPacket& operator<<(ODPacket& os, const SpatialSoundType& st);
+ODPacket& operator>>(ODPacket& is, SpatialSoundType& st);
+
 //! \brief Helper class to manage sound effects.
 class SoundEffectsManager: public Ogre::Singleton<SoundEffectsManager>
 {
@@ -85,61 +106,31 @@ public:
     //! \brief Deletes both sound caches.
     virtual ~SoundEffectsManager();
 
-    //! \brief The different interface sound types.
-    enum InterfaceSound
-    {
-        BUTTONCLICK = 0,
-        DIGSELECT,
-        BUILDROOM,
-        BUILDTRAP,
-        ROCKFALLING,
-        CLAIMED,
-        DEPOSITGOLD,
-        CANNONFIRING,
-        NUM_INTERFACE_SOUNDS
-    };
-
     //! \brief Init the interface sounds.
-    void initializeInterfaceSounds();
-
-    //! \brief Init the default creature sounds.
-    void initializeDefaultCreatureSounds();
+    void initializeSpatialSounds();
 
     void setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation);
 
     //! \brief Plays a spatial sound at the given tile position.
-    void playInterfaceSound(InterfaceSound soundType, float XPos, float YPos, float height = TILE_ZPOS);
+    void playSpatialSound(SpatialSoundType soundType, const std::string& family,
+        float XPos, float YPos, float height = TILE_ZPOS);
 
     //! \brief Proxy used for sounds that aren't spatial and can be heard everywhere.
-    void playInterfaceSound(InterfaceSound soundType)
-    { playInterfaceSound(soundType, 0.0f, 0.0f); }
+    void playSpatialSound(SpatialSoundType soundType, const std::string& family)
+    { playSpatialSound(soundType, family, 0.0f, 0.0f); }
 
-    void playInterfaceSound(InterfaceSound soundType, const Ogre::Vector3& position)
-    { playInterfaceSound(soundType, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
-
-    //! \brief Gives the creature sounds list relative to the creature class.
-    //! \warning The CreatureSound* object is to be deleted only by the sound manager.
-    CreatureSound* getCreatureClassSounds(const std::string& className);
-
-    //! \brief Used to transfer InterfaceSounds type over the network.
-    friend ODPacket& operator<<(ODPacket& os, const SoundEffectsManager::InterfaceSound& st);
-    friend ODPacket& operator>>(ODPacket& is, SoundEffectsManager::InterfaceSound& st);
+    void playSpatialSound(SpatialSoundType soundType, const std::string& family, const Ogre::Vector3& position)
+    { playSpatialSound(soundType, family, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
 
 private:
-    //! \brief Every interface or generic in game sounds
+    //! \brief Every game sounds (interface or creature). The sounds are read when launching the
+    //! game by browsing the sound directory
     //! \note the GameSound here are handled by the game sound cache.
-    std::map<InterfaceSound, std::vector<GameSound*> > mInterfaceSounds;
-
-    //! \brief The list of available sound effects per creature class.
-    //! \brief The CreatureSounds here must be deleted at destruction.
-    std::map<std::string, CreatureSound*> mCreatureSoundCache;
+    std::vector<std::map<std::string, std::vector<GameSound*>>> mSpatialSounds;
 
     //! \brief The sound cache, containing the sound references, used by game entities.
     //! \brief The GameSounds here must be deleted at destruction.
     std::map<std::string, GameSound*> mGameSoundCache;
-
-    //! \brief Create a new creature sound list for the given class and register it to the cache.
-    void createCreatureClassSounds(const std::string& className);
 
     //! \brief Returns a game sounds from the cache.
     //! \param filename The sound filename.
@@ -150,8 +141,13 @@ private:
     //! \warning Returns nullptr if the filename is an invalid/unreadable sound.
     GameSound* getGameSound(const std::string& filename, bool spatialSound = false);
 
-    //! \brief The list of available sound to play per type.
-    std::vector<std::pair<std::vector<GameSound*>,int>> mSoundsPerType;
+    //! \brief Reads the path associated to the given soundType and fills the corresponding map
+    void readSounds(SpatialSoundType soundType);
+
+    //! \brief Recursive function that fills the sound map with sound files found and reads
+    //! child directories
+    void readSounds(std::map<std::string, std::vector<GameSound*>>& soundsFamily,
+        const std::string& parentPath, const std::string& parentFamily);
 };
 
 #endif // SOUNDEFFECTSMANAGER_H_

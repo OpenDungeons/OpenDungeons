@@ -1651,19 +1651,6 @@ ProtectDungeonTemple	NULL
 [Rooms]
 # typeRoom	name	seatId	numTiles		Subsequent Lines: tileX	tileY
 [Room]
-4	Portal23	0	9
-14	28
-14	29
-14	30
-15	28
-15	29
-15	30
-16	28
-16	29
-16	30
-9	5
-[/Room]
-[Room]
 4	Portal24	0	9
 48	26
 48	27
@@ -1674,6 +1661,19 @@ ProtectDungeonTemple	NULL
 50	26
 50	27
 50	28
+9	5
+[/Room]
+[Room]
+4	Portal23	0	9
+14	28
+14	29
+14	30
+15	28
+15	29
+15	30
+16	28
+16	29
+16	30
 9	5
 [/Room]
 [Room]
@@ -2022,14 +2022,17 @@ BigKnight	5
 [Trap]
 4	DoorWooden_3	5	1
 30	24	1
+1
 [/Trap]
 [Trap]
 4	DoorWooden_4	5	1
 35	37	1
+1
 [/Trap]
 [Trap]
 4	DoorWooden_5	5	1
 30	31	1
+1
 [/Trap]
 [Trap]
 2	Spike_6	5	1
@@ -2095,7 +2098,7 @@ BigKnight	5
     GroundSpeed/Level	0.012
     WaterSpeed/Level	0.005
     LavaSpeed/Level	0
-    PhysicalAttack	16.0
+    PhysicalAttack	16
     PhysicalAtk/Level	0.8
     MagicalAttack	0
     MagicalAtk/Level	0
@@ -2103,14 +2106,21 @@ BigKnight	5
     PhysicalDef/Level	0.2
     MagicalDefense	3
     MagicalDef/Level	0
-    AttackRange	1.0
+    AttackRange	1
     AtkRange/Level	0
     AttackWarmupTime	1.7
+    WeakCoef	0.3
     FeeBase	300
     FeePerLevel	70
-    SleepHeal	1.0
     CreatureMoodName	MoodTier3
-    WeakCoef	0.3
+    SleepHeal	1
+    WeaponSpawnL	none
+    WeaponSpawnL	none
+    SoundFamilyPickup	Default/Pickup
+    SoundFamilyDrop	Default/Drop
+    SoundFamilyAttack	Default/Attack
+    SoundFamilyDie	Default/Die
+    SoundFamilySlap	Default/Slap
     [/Stats]
     [RoomAffinity]
     TrainingHall	100	1.2

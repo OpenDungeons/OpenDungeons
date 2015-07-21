@@ -17,7 +17,6 @@
 
 #include "sound/SoundEffectsManager.h"
 
-#include "entities/CreatureSound.h"
 #include "utils/Helper.h"
 #include "utils/ResourceManager.h"
 #include "utils/Random.h"
@@ -102,10 +101,10 @@ void GameSound::play(float x, float y, float z)
 // SoundEffectsManager class
 template<> SoundEffectsManager* Ogre::Singleton<SoundEffectsManager>::msSingleton = nullptr;
 
-SoundEffectsManager::SoundEffectsManager()
+SoundEffectsManager::SoundEffectsManager() :
+    mSpatialSounds(static_cast<uint32_t>(SpatialSoundType::nbSounds))
 {
-    initializeInterfaceSounds();
-    initializeDefaultCreatureSounds();
+    initializeSpatialSounds();
 }
 
 SoundEffectsManager::~SoundEffectsManager()
@@ -118,152 +117,99 @@ SoundEffectsManager::~SoundEffectsManager()
         if (it->second != nullptr)
             delete it->second;
     }
+}
 
-    std::map<std::string, CreatureSound*>::iterator it2 = mCreatureSoundCache.begin();
-    std::map<std::string, CreatureSound*>::iterator it2_end = mCreatureSoundCache.end();
-    for (; it2 != it2_end; ++it2)
+void SoundEffectsManager::initializeSpatialSounds()
+{
+
+    // We read the sound directory
+    for(uint32_t i = 0; i < static_cast<uint32_t>(SpatialSoundType::nbSounds); ++i)
     {
-        if (it2->second != nullptr)
-            delete it2->second;
+        SpatialSoundType sound = static_cast<SpatialSoundType>(i);
+        readSounds(sound);
     }
 }
 
-void SoundEffectsManager::initializeInterfaceSounds()
+void SoundEffectsManager::readSounds(SpatialSoundType soundType)
 {
-    // Test wether the interface sounds are already loaded.
-    if (mInterfaceSounds.empty() == false)
+    uint32_t indexSound = static_cast<uint32_t>(soundType);
+    if(indexSound >= mSpatialSounds.size())
+    {
+        OD_LOG_ERR("soundType=" + Helper::toString(indexSound) + ", size=" + Helper::toString(mSpatialSounds.size()));
         return;
-
-    Ogre::String soundFolderPath = ResourceManager::getSingletonPtr()->getSoundPath();
-
-    // TODO: Dehard-code it and place the sound filename in a config file.
-
-    // Initializes vectors for interface sounds
-    for (unsigned int i = 0; i < NUM_INTERFACE_SOUNDS; ++i)
-        mInterfaceSounds.insert(std::make_pair(static_cast<InterfaceSound>(i), std::vector<GameSound*>()));
-
-    // Only one click sounds atm...
-    {
-        GameSound* gm = getGameSound(soundFolderPath + "Game/click.ogg", false);
-        if (gm != nullptr)
-            mInterfaceSounds[BUTTONCLICK].push_back(gm);
     }
 
-    // Only one dig select sound atm...
+    std::map<std::string, std::vector<GameSound*>>& soundsFamily = mSpatialSounds[indexSound];
+    const std::string& soundFolderPath = ResourceManager::getSingletonPtr()->getSoundPath();
+    std::string path;
+    switch(soundType)
     {
-        GameSound* gm = getGameSound(soundFolderPath + "Game/PickSelector.ogg", false);
-        if (gm != nullptr)
-            mInterfaceSounds[DIGSELECT].push_back(gm);
+        case SpatialSoundType::Game:
+            path = "Game";
+            break;
+        case SpatialSoundType::Creatures:
+            path = "Creatures";
+            break;
+        case SpatialSoundType::Rooms:
+            path = "Rooms";
+            break;
+        case SpatialSoundType::Traps:
+            path = "Traps";
+            break;
+        case SpatialSoundType::Spells:
+            path = "Spells";
+            break;
+        default:
+            OD_LOG_ERR("Unexpected soundType=" + Helper::toString(indexSound));
+            return;
     }
 
-    // Only one build room sound atm...
-    {
-        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_room.ogg", false);
-        if (gm != nullptr)
-            mInterfaceSounds[BUILDROOM].push_back(gm);
-    }
-
-    // Only one build trap sound atm...
-    {
-        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_trap.ogg", false);
-        if (gm != nullptr)
-            mInterfaceSounds[BUILDTRAP].push_back(gm);
-    }
-
-    // Cannon firing sound
-    {
-        GameSound* gm = getGameSound(soundFolderPath + "Traps/cannon_firing.ogg", false);
-        if (gm != nullptr)
-            mInterfaceSounds[CANNONFIRING].push_back(gm);
-    }
-
-    // Rock falling sounds
-    std::vector<std::string> soundFilenames;
-    Helper::fillFilesList(soundFolderPath + "Game/RocksFalling/", soundFilenames, ".ogg");
-    for (unsigned int i = 0; i < soundFilenames.size(); ++i)
-    {
-        GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != nullptr)
-            mInterfaceSounds[ROCKFALLING].push_back(gm);
-    }
-
-    // Claim sounds
-    soundFilenames.clear();
-    Helper::fillFilesList(soundFolderPath + "Game/ClaimTile/", soundFilenames, ".ogg");
-    for (unsigned int i = 0; i < soundFilenames.size(); ++i)
-    {
-        GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != nullptr)
-            mInterfaceSounds[CLAIMED].push_back(gm);
-    }
-
-    // Deposit gold sounds
-    soundFilenames.clear();
-    Helper::fillFilesList(soundFolderPath + "Game/DepositGold/", soundFilenames, ".ogg");
-    for (unsigned int i = 0; i < soundFilenames.size(); ++i)
-    {
-        GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != nullptr)
-            mInterfaceSounds[DEPOSITGOLD].push_back(gm);
-    }
+    OD_LOG_INF("Loading sounds for path=" + path);
+    readSounds(soundsFamily, soundFolderPath + path, "");
 }
 
-void SoundEffectsManager::initializeDefaultCreatureSounds()
+void SoundEffectsManager::readSounds(std::map<std::string, std::vector<GameSound*>>& soundsFamily,
+        const std::string& parentPath, const std::string& parentFamily)
 {
-    if (mCreatureSoundCache.empty() == false)
+    std::vector<std::string> directories;
+    if(!Helper::fillDirList(parentPath, directories, false))
+    {
+        OD_LOG_ERR("Error while loading sounds in directory=" + parentPath);
         return;
-
-    Ogre::String soundFolderPath = ResourceManager::getSingletonPtr()->getSoundPath();
-
-    // Create and populate a new "Default" creature sound library
-    CreatureSound* crSound = new CreatureSound();
-    // TODO: Everything is hard-coded here, later we might want to make this more dynamic.
-
-    // Battle sounds
-    std::vector<std::string> soundFilenames;
-    Helper::fillFilesList(soundFolderPath + "Creatures/Default/Battle/", soundFilenames, ".ogg");
-    std::vector<GameSound*>& attackSounds = crSound->mSoundsPerType[static_cast<uint32_t>(CreatureSoundType::ATTACK)];
-    for (unsigned int i = 0; i < soundFilenames.size(); ++i)
-    {
-        GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != nullptr)
-            attackSounds.push_back(gm);
     }
 
-    // Digging sounds
-    soundFilenames.clear();
-    Helper::fillFilesList(soundFolderPath + "Creatures/Default/Digging/", soundFilenames, ".ogg");
-    std::vector<GameSound*>& diggingSounds = crSound->mSoundsPerType[static_cast<uint32_t>(CreatureSoundType::DIGGING)];
-    for (unsigned int i = 0; i < soundFilenames.size(); ++i)
+    for(const std::string& directory : directories)
     {
-        GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != nullptr)
-            diggingSounds.push_back(gm);
+        // We read sub directories
+        std::string fullDir = parentPath + "/" + directory;
+        std::string fullFamily = parentFamily.empty() ? directory : parentFamily + "/" + directory;
+        readSounds(soundsFamily, fullDir, fullFamily);
+
+        std::vector<std::string> soundFilenames;
+        if(!Helper::fillFilesList(fullDir, soundFilenames, ".ogg"))
+        {
+            OD_LOG_ERR("Cannot load sounds from=" + fullDir);
+            continue;
+        }
+
+        // We do not create entries for empty directories
+        if(soundFilenames.empty())
+            continue;
+
+        std::vector<GameSound*>& sounds = soundsFamily[fullFamily];
+        for(const std::string& soundFilename : soundFilenames)
+        {
+            GameSound* gm = getGameSound(soundFilename, true);
+            if (gm == nullptr)
+            {
+                OD_LOG_ERR("Cannot load sound=" + soundFilename);
+                continue;
+            }
+
+            OD_LOG_INF("Sound loaded family=" + fullFamily + ", filename=" + soundFilename);
+            sounds.push_back(gm);
+        }
     }
-
-    // Pickup sounds - PICKUP
-    // 1 sound atm...
-    {
-        std::vector<GameSound*>& pickupSounds = crSound->mSoundsPerType[static_cast<uint32_t>(CreatureSoundType::PICKUP)];
-        GameSound* gm = getGameSound(soundFolderPath + "Game/click.ogg", true);
-        if (gm != nullptr)
-            pickupSounds.push_back(gm);
-    }
-
-    // Drop sounds - DROP
-    // 1 sound atm...
-    {
-        std::vector<GameSound*>& dropSounds = crSound->mSoundsPerType[static_cast<uint32_t>(CreatureSoundType::DROP)];
-        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_trap.ogg", true);
-        if(gm != nullptr)
-            dropSounds.push_back(gm);
-    }
-
-    // Idle sounds, none atm... - IDLE, WALK, HURT, DYING.
-
-    // Now that the default creature sounds have been created, we register
-    // the new creature sound library in the corresponding cache.
-    mCreatureSoundCache["Default"] = crSound;
 }
 
 void SoundEffectsManager::setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation)
@@ -276,36 +222,33 @@ void SoundEffectsManager::setListenerPosition(const Ogre::Vector3& position, con
     sf::Listener::setDirection(-vDir.x, -vDir.y, -vDir.z);
 }
 
-void SoundEffectsManager::playInterfaceSound(InterfaceSound soundType, float XPos, float YPos, float height)
+void SoundEffectsManager::playSpatialSound(SpatialSoundType soundType, const std::string& family,
+        float XPos, float YPos, float height)
 {
-    OD_ASSERT_TRUE(soundType < mInterfaceSounds.size());
-    if (soundType >= mInterfaceSounds.size())
+    uint32_t indexSound = static_cast<uint32_t>(soundType);
+    if(indexSound >= mSpatialSounds.size())
+    {
+        OD_LOG_ERR("sound=" + Helper::toString(indexSound) + ", size=" + Helper::toString(mSpatialSounds.size()));
         return;
+    }
 
-    std::vector<GameSound*>& sounds = mInterfaceSounds[soundType];
+    std::map<std::string, std::vector<GameSound*>>& soundsFamily = mSpatialSounds[indexSound];
+    auto it = soundsFamily.find(family);
+    if(it == soundsFamily.end())
+    {
+        OD_LOG_ERR("Couldn't find sound=" + Helper::toString(indexSound) + " family=" + family);
+        return;
+    }
+
+    std::vector<GameSound*>& sounds = it->second;
+    if(sounds.empty())
+    {
+        OD_LOG_ERR("No sound found for sound=" + Helper::toString(indexSound) + " family=" + family);
+        return;
+    }
 
     unsigned int soundId = Random::Uint(0, sounds.size() - 1);
-    if (soundId < 0)
-        return;
-
     sounds[soundId]->play(XPos, YPos, height);
-}
-
-CreatureSound* SoundEffectsManager::getCreatureClassSounds(const std::string& /*className*/)
-{
-    // For now, every creature shares the same creature sound library
-    // TODO: Later, one will have to register the sounds according to the class name if not found here,
-    // while making to check whether a sound isn't already in the game sound cache,
-    // and then reuse in that case.
-    return mCreatureSoundCache["Default"];
-}
-
-void SoundEffectsManager::createCreatureClassSounds(const std::string& /*className*/)
-{
-    // Not implemented yet
-    // TODO: Later, one will have to register the sounds according to the class name,
-    // while making to check whether a sound isn't already in the game sound cache,
-    // and then reuse in that case.
 }
 
 GameSound* SoundEffectsManager::getGameSound(const std::string& filename, bool spatialSound)
@@ -333,16 +276,16 @@ GameSound* SoundEffectsManager::getGameSound(const std::string& filename, bool s
     return it->second;
 }
 
-ODPacket& operator<<(ODPacket& os, const SoundEffectsManager::InterfaceSound& st)
+ODPacket& operator<<(ODPacket& os, const SpatialSoundType& st)
 {
     os << static_cast<int32_t>(st);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, SoundEffectsManager::InterfaceSound& st)
+ODPacket& operator>>(ODPacket& is, SpatialSoundType& st)
 {
     int32_t tmp;
     is >> tmp;
-    st = static_cast<SoundEffectsManager::InterfaceSound>(tmp);
+    st = static_cast<SpatialSoundType>(tmp);
     return is;
 }

@@ -36,10 +36,10 @@
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
-const std::string TILE_PREFIX = "Tile_";
-const std::string TILE_SCANF = TILE_PREFIX + "%i_%i";
 
 const uint32_t Tile::NO_FLOODFILL = 0;
+const std::string Tile::TILE_PREFIX = "Tile_";
+const std::string Tile::TILE_SCANF = TILE_PREFIX + "%i_%i";
 
 Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, double fullness) :
     EntityBase({}, {}),

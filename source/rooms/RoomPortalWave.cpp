@@ -727,6 +727,7 @@ bool RoomPortalWave::handleDigging()
     {
         if(mTargetDungeon->numCoveredTiles() == 0)
         {
+            mTargetDungeon->removeGameEntityListener(this);
             mTargetDungeon = nullptr;
         }
     }
@@ -810,8 +811,12 @@ bool RoomPortalWave::handleDigging()
             continue;
         }
 
+        if(mTargetDungeon != nullptr)
+            mTargetDungeon->removeGameEntityListener(this);
+
         mTargetDungeon = p.first->getCoveringRoom();
         mTargetDungeon->addGameEntityListener(this);
+        OD_LOG_INF("PortalWave=" + getName()+ " wants to attack dungeon=" + mTargetDungeon->getName());
         isWayFound = true;
         for(Tile* tile : mMarkedTilesToEnemy)
             tilesToMark.push_back(tile);
