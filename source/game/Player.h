@@ -73,6 +73,10 @@ public:
     inline void setTimeRemain(float timeRemain)
     { mTimeRemain = timeRemain; }
 
+    static PlayerEvent* getPlayerEventFromPacket(GameMap* gameMap, ODPacket& is);
+    static void exportPlayerEventToPacket(PlayerEvent* event, GameMap* gameMap, ODPacket& is);
+
+protected:
     void exportToPacket(GameMap* gameMap, ODPacket& os);
     void importFromPacket(GameMap* gameMap, ODPacket& is);
 

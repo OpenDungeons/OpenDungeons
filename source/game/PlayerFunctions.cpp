@@ -47,6 +47,18 @@ const float NO_RESEARCH_TIME_COUNT = 60.0f;
 //! \brief The number of seconds the local player will not be notified again if no treasury is available
 const float NO_TREASURY_TIME_COUNT = 30.0f;
 
+PlayerEvent* PlayerEvent::getPlayerEventFromPacket(GameMap* gameMap, ODPacket& is)
+{
+    PlayerEvent* event = new PlayerEvent;
+    event->importFromPacket(gameMap, is);
+    return event;
+}
+
+void PlayerEvent::exportPlayerEventToPacket(PlayerEvent* event, GameMap* gameMap, ODPacket& is)
+{
+    event->exportToPacket(gameMap, is);
+}
+
 void PlayerEvent::exportToPacket(GameMap* gameMap, ODPacket& os)
 {
     os << mType;
@@ -293,7 +305,10 @@ void Player::fireEvents()
     uint32_t nbItems = mEvents.size();
     serverNotification->mPacket << nbItems;
     for(PlayerEvent* event : mEvents)
-        event->exportToPacket(mGameMap, serverNotification->mPacket);
+    {
+        PlayerEvent::exportPlayerEventToPacket(event, mGameMap,
+            serverNotification->mPacket);
+    }
 
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }

@@ -907,8 +907,12 @@ bool ODClient::processOneClientSocketMessage()
             while(nbItems > 0)
             {
                 nbItems--;
-                PlayerEvent* event = new PlayerEvent;
-                event->importFromPacket(gameMap, packetReceived);
+                PlayerEvent* event = PlayerEvent::getPlayerEventFromPacket(gameMap, packetReceived);
+                if(event == nullptr)
+                {
+                    OD_LOG_ERR("Error while reading PlayerEvent from packet");
+                    continue;
+                }
                 events.push_back(event);
             }
 
