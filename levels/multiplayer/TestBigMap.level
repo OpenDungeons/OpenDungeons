@@ -5835,6 +5835,11 @@ ProtectDungeonTemple	NULL
 197	210
 [/Room]
 [Room]
+3	Treasury3	1	2
+193	205
+194	205
+[/Room]
+[Room]
 4	Portal2	1	9
 189	213
 189	214
@@ -5846,11 +5851,6 @@ ProtectDungeonTemple	NULL
 187	214
 187	215
 9	5
-[/Room]
-[Room]
-3	Treasury3	1	2
-193	205
-194	205
 [/Room]
 [Room]
 1	DungeonTemple4	2	25
@@ -5881,6 +5881,18 @@ ProtectDungeonTemple	NULL
 254	214
 [/Room]
 [Room]
+3	Treasury7	2	9
+254	218
+254	219
+254	220
+255	218
+255	219
+255	220
+256	218
+256	219
+256	220
+[/Room]
+[Room]
 4	Portal6	2	9
 254	221
 254	222
@@ -5892,18 +5904,6 @@ ProtectDungeonTemple	NULL
 256	222
 256	223
 9	5
-[/Room]
-[Room]
-3	Treasury7	2	9
-254	218
-254	219
-254	220
-255	218
-255	219
-255	220
-256	218
-256	219
-256	220
 [/Room]
 [Room]
 5	Workshop5	2	16
@@ -5954,6 +5954,14 @@ ProtectDungeonTemple	NULL
 169	107
 [/Room]
 [Room]
+3	Treasury10	3	5
+165	102
+166	102
+167	102
+168	102
+169	102
+[/Room]
+[Room]
 4	Portal9	3	9
 159	105
 159	106
@@ -5965,14 +5973,6 @@ ProtectDungeonTemple	NULL
 157	106
 157	107
 9	5
-[/Room]
-[Room]
-3	Treasury10	3	5
-165	102
-166	102
-167	102
-168	102
-169	102
 [/Room]
 [Room]
 1	DungeonTemple11	4	20
@@ -5998,6 +5998,14 @@ ProtectDungeonTemple	NULL
 267	95
 [/Room]
 [Room]
+3	Treasury13	4	5
+276	91
+276	92
+276	93
+276	94
+276	95
+[/Room]
+[Room]
 4	Portal12	4	9
 271	91
 271	92
@@ -6009,14 +6017,6 @@ ProtectDungeonTemple	NULL
 273	92
 273	93
 9	5
-[/Room]
-[Room]
-3	Treasury13	4	5
-276	91
-276	92
-276	93
-276	94
-276	95
 [/Room]
 [/Rooms]
 

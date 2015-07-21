@@ -172,6 +172,10 @@ ProtectDungeonTemple	NULL
 3	3
 [/Room]
 [Room]
+3	Treasury3	1	1
+0	6
+[/Room]
+[Room]
 4	Portal2	1	9
 1	4
 1	5
@@ -183,10 +187,6 @@ ProtectDungeonTemple	NULL
 3	5
 3	6
 9	5
-[/Room]
-[Room]
-3	Treasury3	1	1
-0	6
 [/Room]
 [/Rooms]
 

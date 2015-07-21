@@ -684,10 +684,13 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     }
     levelFile << "[/Rooms]" << std::endl;
 
+    std::vector<Trap*> traps = gameMap.getTraps();
+    std::sort(traps.begin(), traps.end(), Trap::sortForMapSave);
+
     // Write out the traps to the file
     levelFile << "\n[Traps]\n";
     levelFile << "# " << Trap::getTrapStreamFormat() << "\n";
-    for (Trap* trap : gameMap.getTraps())
+    for (Trap* trap : traps)
     {
         // In editor mode, we don't use upkeep so there might be some traps with
         // 0 tiles (if a trap has been erased for example). For this reason, we don't save traps with 0 tiles
