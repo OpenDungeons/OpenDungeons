@@ -46,19 +46,41 @@ bool Research::canBeResearched(const std::vector<ResearchType>& researchesDone) 
 
 void Research::buildDependencies(const std::vector<ResearchType>& researchesDone, std::vector<ResearchType>& dependencies) const
 {
+    // If the current research is already in the dependencies list, no need to process it
+    if(std::find(dependencies.begin(), dependencies.end(), getType()) != dependencies.end())
+        return;
+
     for(const Research* research : mResearchDepends)
     {
-        if(std::find(researchesDone.begin(), researchesDone.end(), research->getType()) != researchesDone.end())
+        ResearchType resType = research->getType();
+        if(std::find(researchesDone.begin(), researchesDone.end(), resType) != researchesDone.end())
+            continue;
+
+        if(std::find(dependencies.begin(), dependencies.end(), resType) != dependencies.end())
             continue;
 
         research->buildDependencies(researchesDone, dependencies);
     }
 
-    dependencies.push_back(getType());
+    if(std::find(dependencies.begin(), dependencies.end(), getType()) == dependencies.end())
+        dependencies.push_back(getType());
+}
+
+bool Research::dependsOn(const std::vector<ResearchType>& researches) const
+{
+    for(ResearchType resType : researches)
+    {
+        if(dependsOn(resType))
+            return true;
+    }
+    return false;
 }
 
 bool Research::dependsOn(ResearchType type) const
 {
+    if(getType() == type)
+        return true;
+
     for(const Research* research : mResearchDepends)
     {
         if(research->getType() == type)

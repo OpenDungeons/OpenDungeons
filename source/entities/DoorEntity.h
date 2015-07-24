@@ -40,8 +40,10 @@ public:
     void slap();
 
     static DoorEntity* getDoorEntityFromPacket(GameMap* gameMap, ODPacket& is);
+protected:
     virtual void exportToPacket(ODPacket& os) const override;
     virtual void importFromPacket(ODPacket& is) override;
+
 };
 
 #endif // DOORENTITY_H

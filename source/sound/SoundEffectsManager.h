@@ -36,6 +36,10 @@ namespace InterfaceSounds
 {
     const std::string Click = "Click";
     const std::string PickSelector = "PickSelector";
+}
+
+namespace GameSounds
+{
     const std::string DepositGold = "DepositGold";
 }
 
@@ -53,7 +57,7 @@ public:
     //! \param filename The sound filename used to load the sound.
     //! \param spatialSound tells whether the sound should be prepared to be a spatial sound.
     //! with a position, strength and attenuation relative to the camera position.
-    GameSound(const std::string& filename, bool spatialSound = true);
+    GameSound(const std::string& filename, bool spatialSound);
 
     ~GameSound();
 
@@ -84,7 +88,8 @@ private:
 //! \brief The different interface sound types.
 enum class SpatialSoundType
 {
-    Game = 0,
+    Interface = 0,
+    Game,
     Creatures,
     Rooms,
     Traps,
@@ -147,7 +152,7 @@ private:
     //! \brief Recursive function that fills the sound map with sound files found and reads
     //! child directories
     void readSounds(std::map<std::string, std::vector<GameSound*>>& soundsFamily,
-        const std::string& parentPath, const std::string& parentFamily);
+        const std::string& parentPath, const std::string& parentFamily, bool spatialSound);
 };
 
 #endif // SOUNDEFFECTSMANAGER_H_

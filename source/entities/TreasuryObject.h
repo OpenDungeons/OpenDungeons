@@ -42,11 +42,6 @@ public:
     virtual bool tryDrop(Seat* seat, Tile* tile) override;
     void mergeGold(TreasuryObject* obj);
 
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-    virtual void exportToPacket(ODPacket& os) const override;
-    virtual void importFromPacket(ODPacket& is) override;
-
     virtual EntityCarryType getEntityCarryType() override;
     virtual void notifyEntityCarryOn(Creature* carrier) override;
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position) override;
@@ -58,6 +53,12 @@ public:
     static TreasuryObject* getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is);
 
     virtual void addEntityToPositionTile() override;
+
+protected:
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
 
 private:
     int mGoldValue;

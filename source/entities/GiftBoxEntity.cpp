@@ -76,21 +76,28 @@ GiftBoxEntity* GiftBoxEntity::getGiftBoxEntityFromStream(GameMap* gameMap, std::
 {
     GiftBoxType type;
     is >> type;
+    GiftBoxEntity* entity;
     switch(type)
     {
         case GiftBoxType::research:
-            return new GiftBoxResearch(gameMap, true);
+            entity = new GiftBoxResearch(gameMap, true);
+            break;
 
         default:
             OD_LOG_ERR("Unknown GiftBoxType=" + Helper::toString(static_cast<uint32_t>(type)));
             return nullptr;
     }
+
+    entity->importFromStream(is);
+    return entity;
 }
 
 GiftBoxEntity* GiftBoxEntity::getGiftBoxEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
     // On client side, we always use a GiftBoxEntity because we don't want clients to know what the gift box is
-    return new GiftBoxEntity(gameMap, false);
+    GiftBoxEntity* entity = new GiftBoxEntity(gameMap, false);
+    entity->importFromPacket(is);
+    return entity;
 }
 
 void GiftBoxEntity::exportHeadersToStream(std::ostream& os) const

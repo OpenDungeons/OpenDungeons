@@ -56,8 +56,6 @@ public:
     virtual void notifySeatsWithVision(const std::vector<Seat*>& seats) override;
     virtual void fireRemoveEntityToSeatsWithVision() override;
 
-    virtual void exportToPacket(ODPacket& os) const override;
-    virtual void importFromPacket(ODPacket& is) override;
     virtual bool notifyRemoveAsked() override;
 
     const std::vector<Seat*>& getSeatsAlreadyNotifiedOnce() const
@@ -66,6 +64,9 @@ public:
     static PersistentObject* getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is);
 
 protected:
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
+
     std::vector<Seat*> mSeatsAlreadyNotifiedOnce;
 
 private:

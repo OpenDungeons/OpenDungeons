@@ -44,13 +44,14 @@ public:
 
     virtual void hitTargetBuilding(Tile* tile, Building* target) override;
 
+    static MissileOneHit* getMissileOneHitFromStream(GameMap* gameMap, std::istream& is);
+    static MissileOneHit* getMissileOneHitFromPacket(GameMap* gameMap, ODPacket& is);
+protected:
     void exportToStream(std::ostream& os) const override;
     void importFromStream(std::istream& is) override;
     void exportToPacket(ODPacket& os) const override;
     void importFromPacket(ODPacket& is) override;
 
-    static MissileOneHit* getMissileOneHitFromStream(GameMap* gameMap, std::istream& is);
-    static MissileOneHit* getMissileOneHitFromPacket(GameMap* gameMap, ODPacket& packet);
 private:
     double mPhysicalDamage;
     double mMagicalDamage;

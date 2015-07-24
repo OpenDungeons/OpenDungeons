@@ -291,5 +291,7 @@ bool RoomPortal::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 
 Room* RoomPortal::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new RoomPortal(gameMap);
+    RoomPortal* room = new RoomPortal(gameMap);
+    room->importFromStream(is);
+    return room;
 }

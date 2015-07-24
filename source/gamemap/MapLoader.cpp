@@ -273,8 +273,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
         }
 
-        tempRoom->importFromStream(levelFile);
-
         tempRoom->addToGameMap();
 
         levelFile >> nextParam;
@@ -309,7 +307,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
         }
 
-        tempTrap->importFromStream(levelFile);
         tempTrap->addToGameMap();
 
         levelFile >> nextParam;
@@ -345,7 +342,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             OD_LOG_ERR("unexpected null map light");
             return false;
         }
-        tempLight->importFromStream(ss);
         tempLight->setName(gameMap.nextUniqueNameMapLight());
         tempLight->addToGameMap();
     }
@@ -511,7 +507,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
         }
 
-        tempCreature->importFromStream(ss);
         tempCreature->addToGameMap();
         ++nbCreatures;
     }
@@ -663,7 +658,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             if (!tempTile->isClaimed() && tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
-            tempTile->exportToStream(levelFile);
+            Tile::exportToStream(tempTile, levelFile);
             levelFile << std::endl;
         }
     }
@@ -684,16 +679,18 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             continue;
 
         levelFile << "[Room]" << std::endl;
-        room->exportHeadersToStream(levelFile);
-        room->exportToStream(levelFile);
+        GameEntity::exportToStream(room, levelFile);
         levelFile << "[/Room]" << std::endl;
     }
     levelFile << "[/Rooms]" << std::endl;
 
+    std::vector<Trap*> traps = gameMap.getTraps();
+    std::sort(traps.begin(), traps.end(), Trap::sortForMapSave);
+
     // Write out the traps to the file
     levelFile << "\n[Traps]\n";
     levelFile << "# " << Trap::getTrapStreamFormat() << "\n";
-    for (Trap* trap : gameMap.getTraps())
+    for (Trap* trap : traps)
     {
         // In editor mode, we don't use upkeep so there might be some traps with
         // 0 tiles (if a trap has been erased for example). For this reason, we don't save traps with 0 tiles
@@ -701,8 +698,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             continue;
 
         levelFile << "[Trap]" << std::endl;
-        trap->exportHeadersToStream(levelFile);
-        trap->exportToStream(levelFile);
+        GameEntity::exportToStream(trap, levelFile);
         levelFile << "[/Trap]" << std::endl;
     }
     levelFile << "[/Traps]" << std::endl;
@@ -712,8 +708,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# " << MapLight::getMapLightStreamFormat() << "\n";
     for (MapLight* mapLight : gameMap.getMapLights())
     {
-        mapLight->exportHeadersToStream(levelFile);
-        mapLight->exportToStream(levelFile);
+        GameEntity::exportToStream(mapLight, levelFile);
         levelFile << std::endl;
     }
     levelFile << "[/Lights]" << std::endl;
@@ -731,8 +726,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# " << Creature::getCreatureStreamFormat() << "\n";
     for (Creature* creature : gameMap.getCreatures())
     {
-        creature->exportHeadersToStream(levelFile);
-        creature->exportToStream(levelFile);
+        GameEntity::exportToStream(creature, levelFile);
         levelFile << std::endl;
     }
     levelFile << "[/Creatures]" << std::endl;
@@ -743,8 +737,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# " << Spell::getSpellStreamFormat() << "\n";
     for (Spell* spell : gameMap.getSpells())
     {
-        spell->exportHeadersToStream(levelFile);
-        spell->exportToStream(levelFile);
+        GameEntity::exportToStream(spell, levelFile);
         levelFile << std::endl;
     }
     levelFile << "[/Spells]" << std::endl;
@@ -756,8 +749,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         if(rendered->getObjectType() != GameEntityType::craftedTrap)
             continue;
 
-        rendered->exportHeadersToStream(levelFile);
-        rendered->exportToStream(levelFile);
+        GameEntity::exportToStream(rendered, levelFile);
         levelFile << std::endl;
     }
     levelFile << "[/CraftedTraps]" << std::endl;
@@ -769,8 +761,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         if(rendered->getObjectType() != GameEntityType::researchEntity)
             continue;
 
-        rendered->exportHeadersToStream(levelFile);
-        rendered->exportToStream(levelFile);
+        GameEntity::exportToStream(rendered, levelFile);
         levelFile << std::endl;
     }
     levelFile << "[/ResearchEntity]" << std::endl;
@@ -782,8 +773,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         if(rendered->getObjectType() != GameEntityType::giftBoxEntity)
             continue;
 
-        rendered->exportHeadersToStream(levelFile);
-        rendered->exportToStream(levelFile);
+        GameEntity::exportToStream(rendered, levelFile);
         levelFile << std::endl;
     }
     levelFile << "[/GiftBoxEntity]" << std::endl;
@@ -795,8 +785,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         if(rendered->getObjectType() != GameEntityType::missileObject)
             continue;
 
-        rendered->exportHeadersToStream(levelFile);
-        rendered->exportToStream(levelFile);
+        GameEntity::exportToStream(rendered, levelFile);
         levelFile << std::endl;
     }
     levelFile << "[/Missiles]" << std::endl;
@@ -808,8 +797,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         if(rendered->getObjectType() != GameEntityType::treasuryObject)
             continue;
 
-        rendered->exportHeadersToStream(levelFile);
-        rendered->exportToStream(levelFile);
+        GameEntity::exportToStream(rendered, levelFile);
         levelFile << std::endl;
     }
     levelFile << "[/TreasuryObject]" << std::endl;
@@ -821,8 +809,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         if(rendered->getObjectType() != GameEntityType::chickenEntity)
             continue;
 
-        rendered->exportHeadersToStream(levelFile);
-        rendered->exportToStream(levelFile);
+        GameEntity::exportToStream(rendered, levelFile);
         levelFile << std::endl;
     }
     levelFile << "[/Chickens]" << std::endl;

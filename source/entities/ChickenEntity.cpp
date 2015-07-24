@@ -276,12 +276,14 @@ bool ChickenEntity::canSlap(Seat* seat)
 ChickenEntity* ChickenEntity::getChickenEntityFromStream(GameMap* gameMap, std::istream& is)
 {
     ChickenEntity* obj = new ChickenEntity(gameMap, true);
+    obj->importFromStream(is);
     return obj;
 }
 
 ChickenEntity* ChickenEntity::getChickenEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
     ChickenEntity* obj = new ChickenEntity(gameMap, false);
+    obj->importFromPacket(is);
     return obj;
 }
 

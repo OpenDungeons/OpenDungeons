@@ -114,5 +114,7 @@ bool TrapSpike::buildTrapOnTiles(GameMap* gameMap, Player* player, const std::ve
 
 Trap* TrapSpike::getTrapFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new TrapSpike(gameMap);
+    TrapSpike* trap = new TrapSpike(gameMap);
+    trap->importFromStream(is);
+    return trap;
 }

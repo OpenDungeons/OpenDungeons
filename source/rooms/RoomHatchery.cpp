@@ -145,5 +145,7 @@ bool RoomHatchery::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 
 Room* RoomHatchery::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new RoomHatchery(gameMap);
+    RoomHatchery* room = new RoomHatchery(gameMap);
+    room->importFromStream(is);
+    return room;
 }

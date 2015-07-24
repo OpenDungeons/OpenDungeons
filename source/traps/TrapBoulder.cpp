@@ -134,5 +134,7 @@ bool TrapBoulder::buildTrapOnTiles(GameMap* gameMap, Player* player, const std::
 
 Trap* TrapBoulder::getTrapFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new TrapBoulder(gameMap);
+    TrapBoulder* trap = new TrapBoulder(gameMap);
+    trap->importFromStream(is);
+    return trap;
 }

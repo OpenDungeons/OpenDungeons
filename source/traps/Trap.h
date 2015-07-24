@@ -207,10 +207,6 @@ public:
 
     virtual bool isTileVisibleForSeat(Tile* tile, Seat* seat) const override;
 
-    virtual void exportHeadersToStream(std::ostream& os) const override;
-    virtual void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const override;
-    virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData) override;
-
     static std::string getTrapStreamFormat();
 
     static std::string formatTrapPrice(TrapType type, uint32_t price);
@@ -225,7 +221,13 @@ public:
     static void checkBuildTrapDefaultEditor(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildTrapDefaultEditor(GameMap* gameMap, Trap* trap, ODPacket& packet);
 
+    static bool sortForMapSave(Trap* t1, Trap* t2);
+
 protected:
+    virtual void exportHeadersToStream(std::ostream& os) const override;
+    virtual void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const override;
+    virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData) override;
+
     virtual TrapTileData* createTileData(Tile* tile) override;
 
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);

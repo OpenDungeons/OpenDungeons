@@ -264,12 +264,14 @@ std::string MapLight::getMapLightStreamFormat()
 MapLight* MapLight::getMapLightFromStream(GameMap* gameMap, std::istream& is)
 {
     MapLight* mapLight = new MapLight(gameMap, true);
+    mapLight->importFromStream(is);
     return mapLight;
 }
 
 MapLight* MapLight::getMapLightFromPacket(GameMap* gameMap, ODPacket& is)
 {
     MapLight* mapLight = new MapLight(gameMap, false);
+    mapLight->importFromPacket(is);
     return mapLight;
 }
 

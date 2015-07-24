@@ -142,11 +142,15 @@ bool SpellCallToWar::castSpell(GameMap* gameMap, Player* player, ODPacket& packe
 
 Spell* SpellCallToWar::getSpellFromStream(GameMap* gameMap, std::istream &is)
 {
-    return new SpellCallToWar(gameMap, true);
+    SpellCallToWar* spell = new SpellCallToWar(gameMap, true);
+    spell->importFromStream(is);
+    return spell;
 }
 
 Spell* SpellCallToWar::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
 {
-    return new SpellCallToWar(gameMap, false);
+    SpellCallToWar* spell = new SpellCallToWar(gameMap, false);
+    spell->importFromPacket(is);
+    return spell;
 }
 

@@ -73,12 +73,14 @@ void ResearchEntity::notifyEntityCarryOff(const Ogre::Vector3& position)
 ResearchEntity* ResearchEntity::getResearchEntityFromStream(GameMap* gameMap, std::istream& is)
 {
     ResearchEntity* obj = new ResearchEntity(gameMap, true);
+    obj->importFromStream(is);
     return obj;
 }
 
 ResearchEntity* ResearchEntity::getResearchEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
     ResearchEntity* obj = new ResearchEntity(gameMap, false);
+    obj->importFromPacket(is);
     return obj;
 }
 

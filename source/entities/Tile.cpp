@@ -807,6 +807,11 @@ void Tile::setTeamsNumber(uint32_t nbTeams)
     mFloodFillColor = std::vector<std::vector<uint32_t>>(nbTeams, std::vector<uint32_t>(static_cast<uint32_t>(FloodFillType::nbValues), NO_FLOODFILL));
 }
 
+void Tile::exportToStream(Tile* tile, std::ostream& os)
+{
+    tile->exportToStream(os);
+}
+
 std::string Tile::displayAsString(const Tile* tile)
 {
     return "[" + Helper::toString(tile->getX()) + ","

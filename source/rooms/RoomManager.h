@@ -94,9 +94,7 @@ public:
     static void checkBuildRoomEditor(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildRoomEditor(GameMap* gameMap, RoomType type, ODPacket& packet);
 
-    /*! \brief Exports the headers needed to recreate the Room. It allows to extend Rooms as much as wanted.
-     * The content of the Room will be exported by exportToStream.
-     */
+    //! \brief Constructs a room according to the data in the stream
     static Room* getRoomFromStream(GameMap* gameMap, std::istream &is);
 
     static const std::string& getRoomNameFromRoomType(RoomType type);

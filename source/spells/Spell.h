@@ -56,17 +56,17 @@ public:
 
     virtual void doUpkeep();
 
+    static void fireSpellSound(Tile* tile, const std::string& soundFamily);
+
+    static std::string getSpellStreamFormat();
+
+protected:
     /*! \brief Exports the headers needed to recreate the Spell. It allows to extend Spells as much as wanted.
      * The content of the Spell will be exported by exportToPacket.
      */
     virtual void exportHeadersToStream(std::ostream& os) const override;
     virtual void exportHeadersToPacket(ODPacket& os) const override;
 
-    static void fireSpellSound(Tile* tile, const std::string& soundFamily);
-
-    static std::string getSpellStreamFormat();
-
-protected:
     static std::string formatSpellPrice(SpellType type, uint32_t price);
 private:
     //! \brief Number of turns the spell should be displayed before automatic deletion.

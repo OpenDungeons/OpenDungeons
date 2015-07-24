@@ -51,12 +51,13 @@ public:
     virtual void notifyEntityCarryOn(Creature* carrier) override;
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position) override;
 
-    void exportToStream(std::ostream& os) const override;
-    void importFromStream(std::istream& is) override;
-
     static CraftedTrap* getCraftedTrapFromStream(GameMap* gameMap, std::istream& is);
     static CraftedTrap* getCraftedTrapFromPacket(GameMap* gameMap, ODPacket& is);
     static std::string getCraftedTrapStreamFormat();
+protected:
+    void exportToStream(std::ostream& os) const override;
+    void importFromStream(std::istream& is) override;
+
 private:
     TrapType mTrapType;
 

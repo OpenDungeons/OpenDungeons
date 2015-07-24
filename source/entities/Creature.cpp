@@ -496,12 +496,14 @@ Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
     //TODO - Handle load errors
     Creature* creature = new Creature(gameMap, true);
+    creature->importFromStream(is);
     return creature;
 }
 
 Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
 {
     Creature* creature = new Creature(gameMap, false);
+    creature->importFromPacket(is);
     return creature;
 }
 
@@ -4365,18 +4367,8 @@ void Creature::fireCreatureSound(CreatureSound sound)
             return;
     }
 
-    for(Seat* seat : mSeatsWithVisionNotified)
-    {
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::playSpatialSound, seat->getPlayer());
-        serverNotification->mPacket << SpatialSoundType::Creatures << soundFamily << posTile->getX() << posTile->getY();
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
+    getGameMap()->fireSpatialSound(mSeatsWithVisionNotified, SpatialSoundType::Creatures,
+        soundFamily, posTile);
 }
 
 void Creature::itsPayDay()

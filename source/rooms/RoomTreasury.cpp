@@ -152,21 +152,8 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
 
     // Tells the client to play a deposit gold sound. For now, we only send it to the players
     // with vision on tile
-    for(Seat* seat : getGameMap()->getSeats())
-    {
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-        if(!seat->hasVisionOnTile(tile))
-            continue;
-
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::playSpatialSound, nullptr);
-        serverNotification->mPacket << SpatialSoundType::Game << InterfaceSounds::DepositGold;
-        serverNotification->mPacket << tile->getX() << tile->getY();
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
+    getGameMap()->fireSpatialSound(tile->getSeatsWithVision(), SpatialSoundType::Game,
+        GameSounds::DepositGold, tile);
 
     return wasDeposited;
 }
@@ -422,7 +409,9 @@ bool RoomTreasury::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 
 Room* RoomTreasury::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    return new RoomTreasury(gameMap);
+    RoomTreasury* room = new RoomTreasury(gameMap);
+    room->importFromStream(is);
+    return room;
 }
 
 int32_t RoomTreasury::getRoomCostForPlayer(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)

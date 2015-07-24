@@ -99,16 +99,16 @@ public:
     inline Ogre::AnimationState* getAnimationState() const
     { return mAnimationState; }
 
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-    virtual void exportToPacket(ODPacket& os) const override;
-    virtual void importFromPacket(ODPacket& is) override;
-
     virtual void restoreEntityState() override;
 
     static std::string getMovableGameEntityStreamFormat();
 
 protected:
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
+
     std::deque<Ogre::Vector3> mWalkQueue;
     std::string mPrevAnimationState;
     bool mPrevAnimationStateLoop;

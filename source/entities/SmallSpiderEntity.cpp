@@ -150,5 +150,6 @@ void SmallSpiderEntity::addTileToListIfPossible(int x, int y, Room* currentCrypt
 SmallSpiderEntity* SmallSpiderEntity::getSmallSpiderEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
     SmallSpiderEntity* obj = new SmallSpiderEntity(gameMap, false);
+    obj->importFromPacket(is);
     return obj;
 }

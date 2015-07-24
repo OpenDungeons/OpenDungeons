@@ -58,9 +58,6 @@ public:
     virtual void removeCreatureUsingRoom(Creature* c) override;
     virtual void absorbRoom(Room *r) override;
 
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-
     static void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet);
     static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
@@ -69,6 +66,9 @@ public:
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
 
 protected:
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+
     RoomWorkshopTileData* createTileData(Tile* tile) override;
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;

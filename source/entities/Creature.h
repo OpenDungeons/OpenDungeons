@@ -329,18 +329,9 @@ public:
     static std::string getCreatureStreamFormat();
 
     //! \brief Get a creature from a stream
-    // NOTE: This function doesn't actually get a creature from stream,
-    // it simply creates a creature object.
     static Creature* getCreatureFromStream(GameMap* gameMap, std::istream& is);
     //! \brief Get a creature from a packet
-    // NOTE: This function doesn't actually get a creature the packet,
-    // it simply creates a creature object.
     static Creature* getCreatureFromPacket(GameMap* gameMap, ODPacket& is);
-    virtual void exportToPacket(ODPacket& os) const override;
-    virtual void importFromPacket(ODPacket& is) override;
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-
     //! \brief Checks if the creature can be picked up. If yes, this function does the needed
     //! to prepare for the pickup (removing creature from GameMap, changing states, ...).
     //! Returns true if the creature can be picked up
@@ -461,6 +452,11 @@ public:
     virtual void clientUpkeep() override;
 
 protected:
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
     virtual void fireAddEntity(Seat* seat, bool async);

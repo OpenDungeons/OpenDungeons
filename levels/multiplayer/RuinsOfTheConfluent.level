@@ -1651,19 +1651,6 @@ ProtectDungeonTemple	NULL
 [Rooms]
 # typeRoom	name	seatId	numTiles		Subsequent Lines: tileX	tileY
 [Room]
-4	Portal24	0	9
-48	26
-48	27
-48	28
-49	26
-49	27
-49	28
-50	26
-50	27
-50	28
-9	5
-[/Room]
-[Room]
 4	Portal23	0	9
 14	28
 14	29
@@ -1677,6 +1664,19 @@ ProtectDungeonTemple	NULL
 9	5
 [/Room]
 [Room]
+4	Portal24	0	9
+48	26
+48	27
+48	28
+49	26
+49	27
+49	28
+50	26
+50	27
+50	28
+9	5
+[/Room]
+[Room]
 1	DungeonTemple1	1	9
 8	8
 8	9
@@ -1687,19 +1687,6 @@ ProtectDungeonTemple	NULL
 10	8
 10	9
 10	10
-[/Room]
-[Room]
-4	Portal11	1	9
-2	8
-2	9
-2	10
-3	8
-3	9
-3	10
-4	8
-4	9
-4	10
-9	5
 [/Room]
 [Room]
 3	Treasury2	1	16
@@ -1721,6 +1708,19 @@ ProtectDungeonTemple	NULL
 11	11
 [/Room]
 [Room]
+4	Portal11	1	9
+2	8
+2	9
+2	10
+3	8
+3	9
+3	10
+4	8
+4	9
+4	10
+9	5
+[/Room]
+[Room]
 1	DungeonTemple14	2	9
 8	49
 8	50
@@ -1731,19 +1731,6 @@ ProtectDungeonTemple	NULL
 10	49
 10	50
 10	51
-[/Room]
-[Room]
-4	Portal13	2	9
-8	55
-8	56
-8	57
-9	55
-9	56
-9	57
-10	55
-10	56
-10	57
-9	5
 [/Room]
 [Room]
 3	Treasury16	2	16
@@ -1765,6 +1752,19 @@ ProtectDungeonTemple	NULL
 11	52
 [/Room]
 [Room]
+4	Portal13	2	9
+8	55
+8	56
+8	57
+9	55
+9	56
+9	57
+10	55
+10	56
+10	57
+9	5
+[/Room]
+[Room]
 1	DungeonTemple17	3	9
 49	48
 49	49
@@ -1775,19 +1775,6 @@ ProtectDungeonTemple	NULL
 51	48
 51	49
 51	50
-[/Room]
-[Room]
-4	Portal18	3	9
-55	48
-55	49
-55	50
-56	48
-56	49
-56	50
-57	48
-57	49
-57	50
-9	5
 [/Room]
 [Room]
 3	Treasury19	3	16
@@ -1809,6 +1796,19 @@ ProtectDungeonTemple	NULL
 52	51
 [/Room]
 [Room]
+4	Portal18	3	9
+55	48
+55	49
+55	50
+56	48
+56	49
+56	50
+57	48
+57	49
+57	50
+9	5
+[/Room]
+[Room]
 1	DungeonTemple20	4	9
 48	8
 48	9
@@ -1819,19 +1819,6 @@ ProtectDungeonTemple	NULL
 50	8
 50	9
 50	10
-[/Room]
-[Room]
-4	Portal21	4	9
-48	2
-48	3
-48	4
-49	2
-49	3
-49	4
-50	2
-50	3
-50	4
-9	5
 [/Room]
 [Room]
 3	Treasury22	4	16
@@ -1853,9 +1840,73 @@ ProtectDungeonTemple	NULL
 51	11
 [/Room]
 [Room]
-9	Crypt2	5	2
-27	18
-27	19
+4	Portal21	4	9
+48	2
+48	3
+48	4
+49	2
+49	3
+49	4
+50	2
+50	3
+50	4
+9	5
+[/Room]
+[Room]
+2	Dormitory9	5	9
+28	32
+28	33
+29	32
+29	33
+30	33
+30	34
+30	35
+31	35
+31	36
+0
+[/Room]
+[Room]
+5	Workshop14	5	11
+24	17
+24	18
+24	19
+24	20
+25	18
+25	19
+25	20
+26	17
+26	18
+26	19
+26	20
+0	0
+[/Room]
+[Room]
+6	Dojo13	5	11
+25	25
+25	26
+25	27
+26	25
+26	26
+26	27
+27	24
+27	25
+27	26
+27	27
+28	26
+[/Room]
+[Room]
+7	Library17	5	11
+31	28
+31	29
+31	30
+32	27
+32	28
+32	29
+32	30
+33	28
+33	29
+33	30
+34	30
 0
 [/Room]
 [Room]
@@ -1863,6 +1914,17 @@ ProtectDungeonTemple	NULL
 25	15
 26	14
 26	15
+0
+[/Room]
+[Room]
+9	Crypt11	5	1
+38	38
+0
+[/Room]
+[Room]
+9	Crypt2	5	2
+27	18
+27	19
 0
 [/Room]
 [Room]
@@ -1893,53 +1955,6 @@ ProtectDungeonTemple	NULL
 9	Crypt7	5	2
 29	22
 29	23
-0
-[/Room]
-[Room]
-9	Crypt11	5	1
-38	38
-0
-[/Room]
-[Room]
-6	Dojo13	5	11
-25	25
-25	26
-25	27
-26	25
-26	26
-26	27
-27	24
-27	25
-27	26
-27	27
-28	26
-[/Room]
-[Room]
-2	Dormitory9	5	9
-28	32
-28	33
-29	32
-29	33
-30	33
-30	34
-30	35
-31	35
-31	36
-0
-[/Room]
-[Room]
-7	Library17	5	11
-31	28
-31	29
-31	30
-32	27
-32	28
-32	29
-32	30
-33	28
-33	29
-33	30
-34	30
 0
 [/Room]
 [Room]
@@ -1992,21 +2007,6 @@ BigKnight	5
 [/Wave]
 [/Waves]
 [/Room]
-[Room]
-5	Workshop14	5	11
-24	17
-24	18
-24	19
-24	20
-25	18
-25	19
-25	20
-26	17
-26	18
-26	19
-26	20
-0	0
-[/Room]
 [/Rooms]
 
 [Traps]
@@ -2016,8 +2016,36 @@ BigKnight	5
 28	20	1
 [/Trap]
 [Trap]
+1	Cannon_10	5	1
+37	35	1
+[/Trap]
+[Trap]
+1	Cannon_11	5	1
+26	12	1
+[/Trap]
+[Trap]
+1	Cannon_12	5	1
+29	34	1
+[/Trap]
+[Trap]
+1	Cannon_9	5	1
+25	29	1
+[/Trap]
+[Trap]
 2	Spike_2	5	1
 28	21	1
+[/Trap]
+[Trap]
+2	Spike_6	5	1
+25	22	1
+[/Trap]
+[Trap]
+2	Spike_7	5	1
+35	36	1
+[/Trap]
+[Trap]
+3	Boulder_8	5	1
+35	32	1
 [/Trap]
 [Trap]
 4	DoorWooden_3	5	1
@@ -2033,34 +2061,6 @@ BigKnight	5
 4	DoorWooden_5	5	1
 30	31	1
 1
-[/Trap]
-[Trap]
-2	Spike_6	5	1
-25	22	1
-[/Trap]
-[Trap]
-2	Spike_7	5	1
-35	36	1
-[/Trap]
-[Trap]
-3	Boulder_8	5	1
-35	32	1
-[/Trap]
-[Trap]
-1	Cannon_9	5	1
-25	29	1
-[/Trap]
-[Trap]
-1	Cannon_10	5	1
-37	35	1
-[/Trap]
-[Trap]
-1	Cannon_11	5	1
-26	12	1
-[/Trap]
-[Trap]
-1	Cannon_12	5	1
-29	34	1
 [/Trap]
 [/Traps]
 
@@ -2112,8 +2112,8 @@ BigKnight	5
     WeakCoef	0.3
     FeeBase	300
     FeePerLevel	70
-    CreatureMoodName	MoodTier3
     SleepHeal	1
+    CreatureMoodName	MoodTier3
     WeaponSpawnL	none
     WeaponSpawnL	none
     SoundFamilyPickup	Default/Pickup

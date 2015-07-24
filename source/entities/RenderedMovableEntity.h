@@ -81,15 +81,15 @@ public:
     virtual bool notifyRemoveAsked()
     { return true; }
 
+    static std::string getRenderedMovableEntityStreamFormat();
+
+protected:
     //! \brief Exports the data of the RenderedMovableEntity
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;
     virtual void exportToPacket(ODPacket& os) const override;
     virtual void importFromPacket(ODPacket& is) override;
 
-    static std::string getRenderedMovableEntityStreamFormat();
-
-protected:
     virtual void createMeshLocal() override;
     virtual void destroyMeshLocal() override;
     virtual void fireAddEntity(Seat* seat, bool async) override;

@@ -54,8 +54,6 @@ public:
     virtual void notifyEntityCarryOn(Creature* carrier) override;
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position) override;
 
-    virtual void exportHeadersToStream(std::ostream& os) const override;
-
     //! \brief Server side function that will be called when the gift box is carried to the dungeon temple. It should be
     //! called by the overriding classes to do what they need. However, this function is not pure virtual because on client side,
     //! we don't want to make a difference
@@ -65,6 +63,9 @@ public:
     static GiftBoxEntity* getGiftBoxEntityFromStream(GameMap* gameMap, std::istream& is);
     static GiftBoxEntity* getGiftBoxEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static std::string getGiftBoxEntityStreamFormat();
+protected:
+    virtual void exportHeadersToStream(std::ostream& os) const override;
+
 private:
     GiftBoxType mGiftBoxType;
 };

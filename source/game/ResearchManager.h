@@ -73,6 +73,15 @@ public:
     //! \brief Checks if the given seat has already researched all the allowed researches
     static bool isAllResearchesDoneForSeat(const Seat* seat);
 
+    //! \brief Builds randomly a pending research list for the given seat. Note that the
+    //! given pending vector may not be empty. In this case, it will be filled by the
+    //! not already selected researches
+    //! Note that this function will only use the seat for knowing already done or not allowed
+    //! researches, not the currently pending ones. If they are to be used, researches should
+    //! be initialized with them
+    static void buildRandomPendingResearchesForSeat(std::vector<ResearchType>& researches,
+        const Seat* seat);
+
     static const Research* getResearch(ResearchType resType);
 
     static void listAllResearches(const std::function<void(const std::string&, const std::string&,

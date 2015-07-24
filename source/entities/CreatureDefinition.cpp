@@ -681,6 +681,9 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
     if(def1 == nullptr || (def1->mSleepHeal != def2->mSleepHeal))
         file << "    SleepHeal\t" << def2->mSleepHeal << std::endl;
 
+    if(!def2->mMoodModifierName.empty() && (def1 == nullptr || (def1->mMoodModifierName != def2->mMoodModifierName)))
+        file << "    CreatureMoodName\t" << def2->mMoodModifierName << std::endl;
+
     if(def1 == nullptr || (def1->mWeaponSpawnL.compare(def2->mWeaponSpawnL) != 0))
         file << "    WeaponSpawnL\t" << def2->mWeaponSpawnL << std::endl;
 

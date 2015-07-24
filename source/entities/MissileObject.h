@@ -90,6 +90,11 @@ public:
 
     virtual MissileObjectType getMissileType() const = 0;
 
+    static std::string getMissileObjectStreamFormat();
+
+    static MissileObject* getMissileObjectFromStream(GameMap* gameMap, std::istream& is);
+    static MissileObject* getMissileObjectFromPacket(GameMap* gameMap, ODPacket& is);
+protected:
     virtual void exportHeadersToStream(std::ostream& os) const override;
     virtual void exportHeadersToPacket(ODPacket& os) const override;
     void exportToStream(std::ostream& os) const override;
@@ -97,10 +102,6 @@ public:
     void exportToPacket(ODPacket& os) const override;
     void importFromPacket(ODPacket& is) override;
 
-    static std::string getMissileObjectStreamFormat();
-
-    static MissileObject* getMissileObjectFromStream(GameMap* gameMap, std::istream& is);
-    static MissileObject* getMissileObjectFromPacket(GameMap* gameMap, ODPacket& is);
 private:
     bool computeDestination(const Ogre::Vector3& position, double moveDist, const Ogre::Vector3& direction,
         Ogre::Vector3& destination, std::list<Tile*>& tiles);

@@ -57,6 +57,10 @@ protected:
     //! Returns true if the action has been done and false if nothing has been done
     bool repairRooms();
 
+    //! \brief This function will be called once only during this player's first upkeep
+    //! It should setup what is needed for the AI
+    void handleFirstTurn();
+
 private:
     bool buildMostNeededRoom();
 
@@ -70,6 +74,7 @@ private:
     int mCooldownDefense;
     int mCooldownWorkers;
     int mCooldownRepairRooms;
+    bool mIsFirstUpkeepDone;
 };
 
 #endif // KEEPERAI_H

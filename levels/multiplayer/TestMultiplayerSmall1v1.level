@@ -480,6 +480,12 @@ ProtectDungeonTemple	NULL
 11	11
 [/Room]
 [Room]
+3	Treasury3	1	3
+12	7
+12	8
+12	9
+[/Room]
+[Room]
 4	Portal2	1	9
 7	12
 7	13
@@ -491,12 +497,6 @@ ProtectDungeonTemple	NULL
 9	13
 9	14
 9	5
-[/Room]
-[Room]
-3	Treasury3	1	3
-12	7
-12	8
-12	9
 [/Room]
 [Room]
 1	DungeonTemple4	2	25
@@ -527,6 +527,12 @@ ProtectDungeonTemple	NULL
 11	41
 [/Room]
 [Room]
+3	Treasury6	2	3
+12	37
+12	38
+12	39
+[/Room]
+[Room]
 4	Portal5	2	9
 7	42
 7	43
@@ -538,12 +544,6 @@ ProtectDungeonTemple	NULL
 9	43
 9	44
 9	5
-[/Room]
-[Room]
-3	Treasury6	2	3
-12	37
-12	38
-12	39
 [/Room]
 [/Rooms]
 

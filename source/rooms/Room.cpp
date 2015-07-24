@@ -654,10 +654,13 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
     // We sort room by seat id then meshName
     int seatId1 = r1->getSeat()->getId();
     int seatId2 = r2->getSeat()->getId();
-    if(seatId1 == seatId2)
-        return r1->getMeshName().compare(r2->getMeshName()) < 0;
+    if(seatId1 != seatId2)
+        return seatId1 < seatId2;
 
-    return seatId1 < seatId2;
+    if(r1->getType() != r2->getType())
+        return static_cast<uint32_t>(r1->getType()) < static_cast<uint32_t>(r2->getType());
+
+    return r1->getName().compare(r2->getName()) < 0;
 }
 
 std::string Room::formatRoomPrice(RoomType type, uint32_t price)

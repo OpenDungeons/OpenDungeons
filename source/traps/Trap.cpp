@@ -811,3 +811,17 @@ bool Trap::buildTrapDefaultEditor(GameMap* gameMap, Trap* trap, ODPacket& packet
 
     return buildTrapDefault(gameMap, trap, seatTrap, tiles);
 }
+
+bool Trap::sortForMapSave(Trap* t1, Trap* t2)
+{
+    // We sort room by seat id then meshName
+    int seatId1 = t1->getSeat()->getId();
+    int seatId2 = t2->getSeat()->getId();
+    if(seatId1 != seatId2)
+        return seatId1 < seatId2;
+
+    if(t1->getType() != t2->getType())
+        return static_cast<uint32_t>(t1->getType()) < static_cast<uint32_t>(t2->getType());
+
+    return t1->getName().compare(t2->getName()) < 0;
+}
