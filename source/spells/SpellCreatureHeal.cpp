@@ -32,7 +32,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellCreatureHeal> reg(SpellType::creatureHeal, "creatureHeal");
+static SpellManagerRegister<SpellCreatureHeal> reg(SpellType::creatureHeal, "creatureHeal", "CreatureHealCooldown");
 
 void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
@@ -186,8 +186,6 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
         CreatureEffectHeal* effect = new CreatureEffectHeal(duration, value, "SpellCreatureHeal");
         creature->addCreatureEffect(effect);
     }
-
-    player->setSpellCooldownTurns(SpellType::creatureHeal, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureHealCooldown"));
 
     return true;
 }

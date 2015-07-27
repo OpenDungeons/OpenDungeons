@@ -32,7 +32,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellCreatureExplosion> reg(SpellType::creatureExplosion, "creatureExplosion");
+static SpellManagerRegister<SpellCreatureExplosion> reg(SpellType::creatureExplosion, "creatureExplosion", "CreatureExplosionCooldown");
 
 void SpellCreatureExplosion::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
@@ -186,8 +186,6 @@ bool SpellCreatureExplosion::castSpell(GameMap* gameMap, Player* player, ODPacke
         CreatureEffectExplosion* effect = new CreatureEffectExplosion(duration, value, "SpellCreatureExplosion");
         creature->addCreatureEffect(effect);
     }
-
-    player->setSpellCooldownTurns(SpellType::creatureExplosion, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureExplosionCooldown"));
 
     return true;
 }
