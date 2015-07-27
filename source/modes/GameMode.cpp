@@ -1396,59 +1396,21 @@ void GameMode::refreshGuiResearch(bool forceRefresh)
     });
 }
 
-void GameMode::getSpellButtonNames(SpellType spellType,
-                                   std::string& spellProgressBar,
-                                   std::string& maxCoolDownParam)
-{
-    switch (spellType)
-    {
-        case SpellType::summonWorker:
-            spellProgressBar = "MainTabControl/Spells/SummonWorkerButton/SummonWorkerButtonProgressBar";
-            maxCoolDownParam = "SummonWorkerCooldown";
-            return;
-        case SpellType::callToWar:
-            spellProgressBar = "MainTabControl/Spells/CallToWarButton/CallToWarButtonProgressBar";
-            maxCoolDownParam = "CallToWarCooldown";
-            return;
-        case SpellType::creatureExplosion:
-            spellProgressBar = "MainTabControl/Spells/CreatureExplosionButton/CreatureExplosionButtonProgressBar";
-            maxCoolDownParam = "CreatureExplosionCooldown";
-            return;
-        case SpellType::creatureHeal:
-            spellProgressBar = "MainTabControl/Spells/CreatureHealButton/CreatureHealButtonProgressBar";
-            maxCoolDownParam = "CreatureHealCooldown";
-            return;
-        case SpellType::creatureHaste:
-            spellProgressBar = "MainTabControl/Spells/CreatureHasteButton/CreatureHasteButtonProgressBar";
-            maxCoolDownParam = "CreatureHasteCooldown";
-            return;
-        default:
-            OD_LOG_ERR("Unknown spell type given=" + Helper::toString(static_cast<uint32_t>(spellType)));
-            break;
-    }
-}
-
 void GameMode::refreshSpellButtonCoolDowns()
 {
     Player* player = mGameMap->getLocalPlayer();
-
     if (player == nullptr)
-        return;
-
-    for (uint32_t i = static_cast<uint32_t>(SpellType::summonWorker);
-         i < static_cast<uint32_t>(SpellType::nbSpells); ++i)
     {
-        SpellType spType = static_cast<SpellType>(i);
-        std::string spellProgressBar;
-        std::string maxCoolDownParam;
-        getSpellButtonNames(spType, spellProgressBar, maxCoolDownParam);
+        OD_LOG_ERR("No local player");
+        return;
+    }
 
-        if (spellProgressBar.empty() || maxCoolDownParam.empty())
-            continue;
-
-        CEGUI::ProgressBar* progressBar = static_cast<CEGUI::ProgressBar*>(mRootWindow->getChild(spellProgressBar));
-        uint32_t maxCoolDown = ConfigManager::getSingleton().getSpellConfigUInt32(maxCoolDownParam);
-        uint32_t coolDown = player->getSpellCooldownTurns(spType);
+    // We show/hide each icon depending on available researches
+    ResearchManager::listAllSpellsProgressBars([this, player](SpellType spellType, const std::string& castProgressBarName)
+    {
+        CEGUI::ProgressBar* progressBar = static_cast<CEGUI::ProgressBar*>(mRootWindow->getChild(castProgressBarName));
+        uint32_t maxCoolDown = SpellManager::getSpellCooldown(spellType);
+        uint32_t coolDown = player->getSpellCooldownTurns(spellType);
         float progress = static_cast<float>(coolDown) / static_cast<float>(maxCoolDown);
         if (coolDown > 0)
         {
@@ -1459,7 +1421,7 @@ void GameMode::refreshSpellButtonCoolDowns()
         {
             progressBar->hide();
         }
-    }
+    });
 }
 
 void GameMode::selectSquaredTiles(int tileX1, int tileY1, int tileX2, int tileY2)

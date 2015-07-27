@@ -82,6 +82,8 @@ public:
     const std::string mButtonName;
     const Research* mResearch;
 
+    virtual ResearchFamily getResearchFamily() const = 0;
+
     virtual void connectGuiButtons(GameEditorModeBase* mode, CEGUI::Window* rootWindow, PlayerSelection& playerSelection) const = 0;
 
     virtual const std::string& getGuiPath() const = 0;
@@ -98,6 +100,9 @@ public:
         mRoomType(roomType)
     {
     }
+
+    ResearchFamily getResearchFamily() const
+    { return ResearchFamily::rooms; }
 
     void connectGuiButtons(GameEditorModeBase* mode, CEGUI::Window* rootWindow, PlayerSelection& playerSelection) const override
     {
@@ -141,6 +146,9 @@ public:
     {
     }
 
+    ResearchFamily getResearchFamily() const
+    { return ResearchFamily::traps; }
+
     void connectGuiButtons(GameEditorModeBase* mode, CEGUI::Window* rootWindow, PlayerSelection& playerSelection) const override
     {
         mode->addEventConnection(
@@ -182,6 +190,9 @@ public:
         mSpellType(spellType)
     {
     }
+
+    ResearchFamily getResearchFamily() const
+    { return ResearchFamily::spells; }
 
     void connectGuiButtons(GameEditorModeBase* mode, CEGUI::Window* rootWindow, PlayerSelection& playerSelection) const override
     {
@@ -544,6 +555,43 @@ void ResearchManager::listAllResearches(const std::function<void(const std::stri
         func(research->mResearchFamily + research->mButtonName, research->getGuiPath() + research->mButtonName,
              research->mResearchFamily + research->mButtonName + "/" + research->mButtonName + "ProgressBar",
              research->mResearch->getType());
+    }
+}
+
+void ResearchManager::listAllSpellsProgressBars(const std::function<void(SpellType spellType, const std::string&)>& func)
+{
+    std::vector<const ResearchDef*>& researches = getResearchManager().mResearches;
+    uint32_t index = static_cast<uint32_t>(ResearchFamily::spells);
+    std::vector<ResearchType>& family = getResearchManager().mResearchesFamily.at(index);
+    uint32_t nbSpells = static_cast<uint32_t>(SpellType::nbSpells);
+    for(uint32_t i = 0; i < nbSpells; ++i)
+    {
+        if(i >= family.size())
+        {
+            OD_LOG_ERR("wrong index=" + Helper::toString(i) + ", size=" + Helper::toString(family.size()));
+            return;
+        }
+
+        ResearchType resType = family[i];
+        if(resType == ResearchType::nullResearchType)
+            continue;
+
+        index = static_cast<uint32_t>(resType);
+        if(index >= researches.size())
+        {
+            OD_LOG_ERR("wrong index=" + Helper::toString(index) + ", size=" + Helper::toString(getResearchManager().mResearches.size()));
+            continue;
+        }
+
+        const ResearchDef* research = researches[index];
+        if(research == nullptr)
+        {
+            OD_LOG_ERR("null research index=" + Helper::toString(index));
+            continue;
+        }
+
+        SpellType spellType = static_cast<SpellType>(i);
+        func(spellType, research->getGuiPath() + research->mButtonName + "/" + research->mButtonName + "ProgressBar");
     }
 }
 
