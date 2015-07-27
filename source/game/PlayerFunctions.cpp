@@ -447,15 +447,19 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
-    if(mNoResearchInQueueTime > 0.0f)
+    // Do not notify research queue empty if no library
+    if(getSeat()->getNbRooms(RoomType::library) > 0)
     {
         if(mNoResearchInQueueTime > timeSinceLastUpkeep)
             mNoResearchInQueueTime -= timeSinceLastUpkeep;
         else
+        {
             mNoResearchInQueueTime = 0.0f;
+
             // Reprint the warning if there is still no research being done
             if(getSeat() != nullptr && !getSeat()->isResearching() && !ResearchManager::isAllResearchesDoneForSeat(getSeat()))
                 notifyNoResearchInQueue();
+        }
     }
 
     if(mNoTreasuryAvailableTime > 0.0f)

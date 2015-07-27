@@ -516,7 +516,20 @@ void Seat::computeSeatBeforeSendingToClient()
 {
     if(mPlayer != nullptr)
     {
-        mNbTreasuries = mGameMap->numRoomsByTypeAndSeat(RoomType::treasury, this);
+        std::fill(mNbRooms.begin(), mNbRooms.end(), 0);
+        for(Room* room : mGameMap->getRooms())
+        {
+            if(room->getSeat() != this)
+                continue;
+
+            uint32_t index = static_cast<uint32_t>(room->getType());
+            if(index >= mNbRooms.size())
+            {
+                OD_LOG_ERR("wrong index=" + Helper::toString(index) + ", size=" + Helper::toString(mNbRooms.size()));
+                return;
+            }
+            ++mNbRooms[index];
+        }
     }
 }
 
@@ -1077,8 +1090,14 @@ void Seat::setNextResearch(ResearchType researchedType)
         if(ResearchManager::isAllResearchesDoneForSeat(this))
             return;
 
-        if(getPlayer() != nullptr && getPlayer()->getIsHuman())
-            getPlayer()->notifyNoResearchInQueue();
+        if(getPlayer() == nullptr)
+            return;
+        if(getPlayer()->getIsHuman())
+            return;
+        if(getNbRooms(RoomType::library) > 0)
+            return;
+
+        getPlayer()->notifyNoResearchInQueue();
         return;
     }
 
@@ -1537,7 +1556,10 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
     os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
     os << s->mNumCreaturesFighters << s->mNumCreaturesFightersMax;
     os << s->mHasGoalsChanged;
-    os << s->mNbTreasuries;
+    for(const uint32_t& nbRooms : s->mNbRooms)
+    {
+        os << nbRooms;
+    }
     os << s->mCurrentResearchType;
     os << s->mCurrentResearchProgress;
     uint32_t nb;
@@ -1562,7 +1584,10 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mNumCreaturesFighters >> s->mNumCreaturesFightersMax;
     is >> s->mHasGoalsChanged;
-    is >> s->mNbTreasuries;
+    for(uint32_t& nbRooms : s->mNbRooms)
+    {
+        is >> nbRooms;
+    }
     is >> s->mCurrentResearchType;
     is >> s->mCurrentResearchProgress;
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);

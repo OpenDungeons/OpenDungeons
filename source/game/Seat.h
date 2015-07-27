@@ -203,8 +203,7 @@ public:
     inline bool getIsDebuggingVision()
     { return mIsDebuggingVision; }
 
-    inline int getNbTreasuries() const
-    { return mNbTreasuries; }
+    uint32_t getNbRooms(RoomType roomType) const;
 
     inline const std::string& getPlayerType() const
     { return mPlayerType; }
@@ -444,8 +443,9 @@ private:
     //! and never changed after
     uint32_t mTeamIndex;
 
-    //! \brief The number of treasuries the player owns. Useful to display the first free tile on client side.
-    int mNbTreasuries;
+    //! \brief The number of rooms the player owns (room index being room type).
+    //! Useful to display the first free tile on client side for example
+    std::vector<uint32_t> mNbRooms;
 
     bool mIsDebuggingVision;
 
