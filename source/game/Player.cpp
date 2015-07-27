@@ -140,19 +140,19 @@ float Player::getSpellCooldownSmooth(SpellType spellType) const
     }
 
     const std::pair<uint32_t, float>& cooldown = mSpellsCooldown.at(spellIndex);
-    uint32_t coolDownTurns = cooldown.first;
-    if(coolDownTurns <= 0)
+    uint32_t cooldownTurns = cooldown.first;
+    if(cooldownTurns <= 0)
         return 0.0f;
 
-    uint32_t maxCoolDownTurns = SpellManager::getSpellCooldown(spellType);
-    if(maxCoolDownTurns <= 0)
+    uint32_t maxCooldownTurns = SpellManager::getSpellCooldown(spellType);
+    if(maxCooldownTurns <= 0)
         return 0.0f;
 
-    float coolDownTime = static_cast<float>(coolDownTurns) / ODApplication::turnsPerSecond;
-    coolDownTime += cooldown.second;
-    float maxCoolDownTime = static_cast<float>(maxCoolDownTurns) / ODApplication::turnsPerSecond;
+    float cooldownTime = static_cast<float>(cooldownTurns) / ODApplication::turnsPerSecond;
+    cooldownTime += cooldown.second;
+    float maxCooldownTime = static_cast<float>(maxCooldownTurns) / ODApplication::turnsPerSecond;
 
-    return coolDownTime / maxCoolDownTime;
+    return cooldownTime / maxCooldownTime;
 }
 
 void Player::decreaseSpellCooldowns()

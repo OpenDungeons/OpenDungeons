@@ -81,7 +81,7 @@ public:
 
     //! \brief Called on server side. Casts the spell according to the information in the packet
     //! returns true if the spell was correctly cast and false otherwise
-    //! Note that this function do not set the cooldown
+    //! Note that this function does not set the cooldown
     static bool castSpell(GameMap* gameMap, SpellType type, Player* player, ODPacket& packet);
 
     //! \brief Gets the spell cooldown according to the given type
