@@ -256,7 +256,8 @@ void GameEditorModeBase::syncTabButtonTooltips(const CEGUI::String& tabControlNa
         if (tabButton == nullptr)
             continue;
 
-        tabButton->setTooltipText(paneWin->getProperty<CEGUI::String>("TooltipText"));
+        CEGUI::String propTooltip = paneWin->getProperty("TooltipText");
+        tabButton->setTooltipText(propTooltip);
     }
 }
 
