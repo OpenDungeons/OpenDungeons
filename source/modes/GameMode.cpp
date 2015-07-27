@@ -984,6 +984,14 @@ void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
 
     refreshGuiResearch();
     refreshSpellButtonCoolDowns();
+
+    Player* player = mGameMap->getLocalPlayer();
+    if (player == nullptr)
+    {
+        OD_LOG_ERR("No local player");
+        return;
+    }
+    player->frameStarted(evt.timeSinceLastFrame);
 }
 
 void GameMode::onFrameEnded(const Ogre::FrameEvent& evt)
@@ -1409,10 +1417,8 @@ void GameMode::refreshSpellButtonCoolDowns()
     ResearchManager::listAllSpellsProgressBars([this, player](SpellType spellType, const std::string& castProgressBarName)
     {
         CEGUI::ProgressBar* progressBar = static_cast<CEGUI::ProgressBar*>(mRootWindow->getChild(castProgressBarName));
-        uint32_t maxCoolDown = SpellManager::getSpellCooldown(spellType);
-        uint32_t coolDown = player->getSpellCooldownTurns(spellType);
-        float progress = static_cast<float>(coolDown) / static_cast<float>(maxCoolDown);
-        if (coolDown > 0)
+        float progress = player->getSpellCooldownSmooth(spellType);
+        if (progress > 0.0)
         {
             progressBar->show();
             progressBar->setProgress(progress);

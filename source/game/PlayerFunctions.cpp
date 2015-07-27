@@ -34,6 +34,7 @@
 #include "traps/Trap.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "ODApplication.h"
 
 //! \brief The number of seconds the local player must stay out of danger to trigger the calm music again.
 const float BATTLE_TIME_COUNT = 10.0f;
@@ -478,7 +479,7 @@ void Player::setSpellCooldownTurns(SpellType spellType, uint32_t cooldown)
         return;
     }
 
-    mSpellsCooldown[spellIndex] = cooldown;
+    mSpellsCooldown[spellIndex] = std::pair<uint32_t, float>(cooldown, 1.0f / ODApplication::turnsPerSecond);
     if(mGameMap->isServerGameMap() && getIsHuman())
     {
         ServerNotification *serverNotification = new ServerNotification(
