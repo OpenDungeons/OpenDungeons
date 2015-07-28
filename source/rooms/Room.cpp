@@ -663,9 +663,9 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
     return r1->getName().compare(r2->getName()) < 0;
 }
 
-std::string Room::formatRoomPrice(RoomType type, uint32_t price)
+std::string Room::formatBuildRoom(RoomType type, uint32_t price)
 {
-    return RoomManager::getRoomReadableName(type) + " [" + Helper::toString(price)+ " gold]";
+    return "Build " + RoomManager::getRoomReadableName(type) + " [" + Helper::toString(price)+ " gold]";
 }
 
 void Room::checkBuildRoomDefault(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand)
@@ -677,12 +677,12 @@ void Room::checkBuildRoomDefault(GameMap* gameMap, RoomType type, const InputMan
     {
         if(playerGold < pricePerTarget)
         {
-            std::string txt = formatRoomPrice(type, pricePerTarget);
+            std::string txt = formatBuildRoom(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatRoomPrice(type, pricePerTarget);
+            std::string txt = formatBuildRoom(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
@@ -698,7 +698,7 @@ void Room::checkBuildRoomDefault(GameMap* gameMap, RoomType type, const InputMan
 
     if(buildableTiles.empty())
     {
-        std::string txt = formatRoomPrice(type, 0);
+        std::string txt = formatBuildRoom(type, 0);
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         return;
     }
@@ -706,12 +706,12 @@ void Room::checkBuildRoomDefault(GameMap* gameMap, RoomType type, const InputMan
     int32_t priceTotal = static_cast<int32_t>(buildableTiles.size()) * pricePerTarget;
     if(playerGold < priceTotal)
     {
-        std::string txt = formatRoomPrice(type, priceTotal);
+        std::string txt = formatBuildRoom(type, priceTotal);
         inputCommand.displayText(Ogre::ColourValue::Red, txt);
         return;
     }
 
-    std::string txt = formatRoomPrice(type, priceTotal);
+    std::string txt = formatBuildRoom(type, priceTotal);
     inputCommand.displayText(Ogre::ColourValue::White, txt);
 
     if(inputManager.mCommandState != InputCommandState::validated)

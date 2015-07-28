@@ -159,12 +159,12 @@ void TrapDoor::checkBuildTrap(GameMap* gameMap, const InputManager& inputManager
     {
         if(playerGold < pricePerTarget)
         {
-            std::string txt = formatTrapPrice(type, pricePerTarget);
+            std::string txt = formatBuildTrap(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatTrapPrice(type, pricePerTarget);
+            std::string txt = formatBuildTrap(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
@@ -184,12 +184,12 @@ void TrapDoor::checkBuildTrap(GameMap* gameMap, const InputManager& inputManager
         }
         else if(playerGold < pricePerTarget)
         {
-            std::string txt = formatTrapPrice(type, pricePerTarget);
+            std::string txt = formatBuildTrap(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatTrapPrice(type, pricePerTarget);
+            std::string txt = formatBuildTrap(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         return;

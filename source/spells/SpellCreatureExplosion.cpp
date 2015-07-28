@@ -44,12 +44,12 @@ void SpellCreatureExplosion::checkSpellCast(GameMap* gameMap, const InputManager
     {
         if(playerMana < pricePerTarget)
         {
-            std::string txt = formatSpellPrice(SpellType::creatureExplosion, pricePerTarget);
+            std::string txt = formatCastSpell(SpellType::creatureExplosion, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatSpellPrice(SpellType::creatureExplosion, pricePerTarget);
+            std::string txt = formatCastSpell(SpellType::creatureExplosion, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
@@ -69,7 +69,7 @@ void SpellCreatureExplosion::checkSpellCast(GameMap* gameMap, const InputManager
 
     if(targets.empty())
     {
-        std::string txt = formatSpellPrice(SpellType::creatureExplosion, 0);
+        std::string txt = formatCastSpell(SpellType::creatureExplosion, 0);
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         return;
     }
@@ -99,7 +99,7 @@ void SpellCreatureExplosion::checkSpellCast(GameMap* gameMap, const InputManager
         playerMana -= pricePerTarget;
     }
 
-    std::string txt = formatSpellPrice(SpellType::creatureExplosion, priceTotal);
+    std::string txt = formatCastSpell(SpellType::creatureExplosion, priceTotal);
     inputCommand.displayText(Ogre::ColourValue::White, txt);
 
     if(inputManager.mCommandState != InputCommandState::validated)

@@ -581,9 +581,9 @@ void Trap::claimForSeat(Seat* seat, Tile* tile, double danceRate)
     trapTileData->mHP = 0.0;
     tile->claimTile(seat);
 }
-std::string Trap::formatTrapPrice(TrapType type, uint32_t price)
+std::string Trap::formatBuildTrap(TrapType type, uint32_t price)
 {
-    return TrapManager::getTrapReadableName(type) + " [" + Helper::toString(price)+ " gold]";
+    return "Build " + TrapManager::getTrapReadableName(type) + " [" + Helper::toString(price)+ " gold]";
 }
 
 void Trap::checkBuildTrapDefault(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand)
@@ -595,12 +595,12 @@ void Trap::checkBuildTrapDefault(GameMap* gameMap, TrapType type, const InputMan
     {
         if(playerGold < pricePerTarget)
         {
-            std::string txt = formatTrapPrice(type, pricePerTarget);
+            std::string txt = formatBuildTrap(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatTrapPrice(type, pricePerTarget);
+            std::string txt = formatBuildTrap(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
@@ -616,7 +616,7 @@ void Trap::checkBuildTrapDefault(GameMap* gameMap, TrapType type, const InputMan
 
     if(buildableTiles.empty())
     {
-        std::string txt = formatTrapPrice(type, 0);
+        std::string txt = formatBuildTrap(type, 0);
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         return;
     }
@@ -624,12 +624,12 @@ void Trap::checkBuildTrapDefault(GameMap* gameMap, TrapType type, const InputMan
     int32_t priceTotal = static_cast<int32_t>(buildableTiles.size()) * pricePerTarget;
     if(playerGold < priceTotal)
     {
-        std::string txt = formatTrapPrice(type, priceTotal);
+        std::string txt = formatBuildTrap(type, priceTotal);
         inputCommand.displayText(Ogre::ColourValue::Red, txt);
         return;
     }
 
-    std::string txt = formatTrapPrice(type, priceTotal);
+    std::string txt = formatBuildTrap(type, priceTotal);
     inputCommand.displayText(Ogre::ColourValue::White, txt);
 
     if(inputManager.mCommandState != InputCommandState::validated)
