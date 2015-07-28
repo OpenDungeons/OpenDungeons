@@ -33,6 +33,38 @@ class Window;
 enum class SpellType;
 enum class ResearchType;
 
+//! \brief utility class to store and display the current research completion. To make clearer
+//! if it fills up or down, we fill it smoothly each time the player opens the research tree
+class ResearchCurrentCompletion
+{
+public:
+    ResearchCurrentCompletion()
+    {
+        resetValue();
+    }
+
+    void resetValue()
+    {
+        mProgressBar = nullptr;
+        mCompleteness = 0;
+        mCompletenessDisplayed = 0;
+    }
+
+    void setValue(CEGUI::ProgressBar* progressBar, float completeness)
+    {
+        mProgressBar = progressBar;
+        mCompleteness = completeness;
+        mCompletenessDisplayed = 0;
+    }
+
+    //! \brief The progressbar to update at each frame update
+    CEGUI::ProgressBar* mProgressBar;
+    //! \brief The completeness
+    float mCompleteness;
+    //! \brief Value currently displayed [0-completeness]
+    float mCompletenessDisplayed;
+};
+
 class GameMode final : public GameEditorModeBase, public InputCommand
 {
  public:
@@ -179,6 +211,8 @@ private:
     //! \brief Researches pending (Client side). This is copied from the seat for temporary changes while the
     //! player clicks on the research tree window
     std::vector<ResearchType> mResearchPending;
+
+    ResearchCurrentCompletion mResearchCurrentCompletion;
 
     bool mIsResearchWindowOpen;
 
