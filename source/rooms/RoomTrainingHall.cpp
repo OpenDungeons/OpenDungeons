@@ -29,7 +29,7 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-static RoomManagerRegister<RoomTrainingHall> reg(RoomType::trainingHall, "TrainingHall");
+static RoomManagerRegister<RoomTrainingHall> reg(RoomType::trainingHall, "TrainingHall", "Training hall room");
 
 const Ogre::Real RoomTrainingHall::OFFSET_CREATURE = 0.3;
 const Ogre::Real RoomTrainingHall::OFFSET_DUMMY = 0.3;

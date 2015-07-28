@@ -583,7 +583,7 @@ void Trap::claimForSeat(Seat* seat, Tile* tile, double danceRate)
 }
 std::string Trap::formatTrapPrice(TrapType type, uint32_t price)
 {
-    return TrapManager::getTrapNameFromTrapType(type) + " [" + Helper::toString(price)+ " gold]";
+    return TrapManager::getTrapReadableName(type) + " [" + Helper::toString(price)+ " gold]";
 }
 
 void Trap::checkBuildTrapDefault(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand)
@@ -727,7 +727,7 @@ bool Trap::buildTrapDefault(GameMap* gameMap, Trap* trap, Seat* seat, const std:
 
 void Trap::checkBuildTrapDefaultEditor(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    std::string txt = TrapManager::getTrapNameFromTrapType(type);
+    std::string txt = TrapManager::getTrapReadableName(type);
     inputCommand.displayText(Ogre::ColourValue::White, txt);
     if(inputManager.mCommandState == InputCommandState::infoOnly)
     {

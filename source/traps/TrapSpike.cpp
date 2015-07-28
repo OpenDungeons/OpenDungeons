@@ -27,7 +27,7 @@
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
-static TrapManagerRegister<TrapSpike> reg(TrapType::spike, "Spike");
+static TrapManagerRegister<TrapSpike> reg(TrapType::spike, "Spike", "Spike trap");
 
 const std::string TrapSpike::MESH_SPIKE = "Spiketrap";
 

@@ -172,7 +172,7 @@ std::string Spell::getSpellStreamFormat()
 
 std::string Spell::formatSpellPrice(SpellType type, uint32_t price)
 {
-    return SpellManager::getSpellNameFromSpellType(type) + " [" + Helper::toString(price)+ " Mana]";
+    return SpellManager::getSpellReadableName(type) + " [" + Helper::toString(price)+ " Mana]";
 }
 
 void Spell::fireSpellSound(Tile* tile, const std::string& soundFamily)

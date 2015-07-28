@@ -27,7 +27,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static RoomManagerRegister<RoomDormitory> reg(RoomType::dormitory, "Dormitory");
+static RoomManagerRegister<RoomDormitory> reg(RoomType::dormitory, "Dormitory", "Dormitory room");
 
 RoomDormitory::RoomDormitory(GameMap* gameMap) :
     Room(gameMap)

@@ -28,7 +28,7 @@
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
-static TrapManagerRegister<TrapBoulder> reg(TrapType::boulder, "Boulder");
+static TrapManagerRegister<TrapBoulder> reg(TrapType::boulder, "Boulder", "Boulder trap");
 
 const std::string TrapBoulder::MESH_BOULDER = "Boulder";
 

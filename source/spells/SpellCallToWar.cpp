@@ -31,7 +31,7 @@
 #include "utils/LogManager.h"
 
 
-static SpellManagerRegister<SpellCallToWar> reg(SpellType::callToWar, "callToWar", "CallToWarCooldown");
+static SpellManagerRegister<SpellCallToWar> reg(SpellType::callToWar, "callToWar", "Call to war", "CallToWarCooldown");
 
 // TODO : use the correct mesh when available
 SpellCallToWar::SpellCallToWar(GameMap* gameMap, bool isOnServerMap) :

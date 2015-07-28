@@ -32,7 +32,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker, "summonWorker", "SummonWorkerCooldown");
+static SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker, "summonWorker", "Summon worker", "SummonWorkerCooldown");
 
 void SpellSummonWorker::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {

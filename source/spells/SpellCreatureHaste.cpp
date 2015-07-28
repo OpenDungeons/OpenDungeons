@@ -33,7 +33,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellCreatureHaste> reg(SpellType::creatureHaste, "creatureHaste", "CreatureHasteCooldown");
+static SpellManagerRegister<SpellCreatureHaste> reg(SpellType::creatureHaste, "creatureHaste", "Creature haste", "CreatureHasteCooldown");
 
 void SpellCreatureHaste::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {

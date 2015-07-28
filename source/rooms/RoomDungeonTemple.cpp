@@ -27,7 +27,7 @@
 #include "rooms/RoomManager.h"
 #include "utils/LogManager.h"
 
-static RoomManagerRegister<RoomDungeonTemple> reg(RoomType::dungeonTemple, "DungeonTemple");
+static RoomManagerRegister<RoomDungeonTemple> reg(RoomType::dungeonTemple, "DungeonTemple", "Dungeon temple room");
 
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),

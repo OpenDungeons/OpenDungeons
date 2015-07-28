@@ -36,7 +36,7 @@
 
 #include <string>
 
-static RoomManagerRegister<RoomTreasury> reg(RoomType::treasury, "Treasury");
+static RoomManagerRegister<RoomTreasury> reg(RoomType::treasury, "Treasury", "Treasury room");
 
 static const int maxGoldinTile = 1000;
 

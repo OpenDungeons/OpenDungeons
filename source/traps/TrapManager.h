@@ -69,6 +69,7 @@ public:
 
 private:
     std::string mName;
+    std::string mReadableName;
     CheckBuildTrapFunc mCheckBuildTrapFunc;
     BuildTrapFunc mBuildTrapFunc;
     CheckBuildTrapFunc mCheckBuildTrapEditorFunc;
@@ -100,7 +101,11 @@ public:
      */
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream &is);
 
+    //! \brief Gets the trap identification name
     static const std::string& getTrapNameFromTrapType(TrapType type);
+
+    //! \brief Gets the trap readable name
+    static const std::string& getTrapReadableName(TrapType type);
 
     static TrapType getTrapTypeFromTrapName(const std::string& name);
 
@@ -132,7 +137,7 @@ public:
     static int32_t getNeededWorkshopPointsPerTrap(TrapType trapType);
 
 private:
-    static void registerTrap(TrapType type, const std::string& name,
+    static void registerTrap(TrapType type, const std::string& name, const std::string& readableName,
         TrapFunctions::CheckBuildTrapFunc checkBuildTrapFunc,
         TrapFunctions::BuildTrapFunc buildTrapFunc,
         TrapFunctions::CheckBuildTrapFunc checkBuildTrapEditorFunc,
@@ -176,9 +181,9 @@ template <typename T>
 class TrapManagerRegister
 {
 public:
-    TrapManagerRegister(TrapType type, const std::string& name)
+    TrapManagerRegister(TrapType type, const std::string& name, const std::string& readableName)
     {
-        TrapManager::registerTrap(type, name, &TrapManager::checkBuildTrapReg<T>,
+        TrapManager::registerTrap(type, name, readableName, &TrapManager::checkBuildTrapReg<T>,
             &TrapManager::buildTrapReg<T>, &TrapManager::checkBuildTrapEditorReg<T>,
             &TrapManager::buildTrapEditorReg<T>, &TrapManager::getTrapFromStreamReg<T>);
     }

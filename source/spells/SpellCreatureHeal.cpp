@@ -32,7 +32,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellCreatureHeal> reg(SpellType::creatureHeal, "creatureHeal", "CreatureHealCooldown");
+static SpellManagerRegister<SpellCreatureHeal> reg(SpellType::creatureHeal, "creatureHeal", "Creature heal", "CreatureHealCooldown");
 
 void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {

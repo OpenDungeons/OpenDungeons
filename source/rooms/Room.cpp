@@ -665,7 +665,7 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
 
 std::string Room::formatRoomPrice(RoomType type, uint32_t price)
 {
-    return RoomManager::getRoomNameFromRoomType(type) + " [" + Helper::toString(price)+ " gold]";
+    return RoomManager::getRoomReadableName(type) + " [" + Helper::toString(price)+ " gold]";
 }
 
 void Room::checkBuildRoomDefault(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand)
@@ -810,7 +810,7 @@ bool Room::buildRoomDefault(GameMap* gameMap, Room* room, Seat* seat, const std:
 
 void Room::checkBuildRoomDefaultEditor(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    std::string txt = RoomManager::getRoomNameFromRoomType(type);
+    std::string txt = RoomManager::getRoomReadableName(type);
     inputCommand.displayText(Ogre::ColourValue::White, txt);
     if(inputManager.mCommandState == InputCommandState::infoOnly)
     {
