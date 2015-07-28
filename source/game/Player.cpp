@@ -148,7 +148,7 @@ float Player::getSpellCooldownSmooth(SpellType spellType) const
     if(maxCooldownTurns <= 0)
         return 0.0f;
 
-    float cooldownTime = static_cast<float>(cooldownTurns) / ODApplication::turnsPerSecond;
+    float cooldownTime = static_cast<float>(cooldownTurns - 1) / ODApplication::turnsPerSecond;
     cooldownTime += cooldown.second;
     float maxCooldownTime = static_cast<float>(maxCooldownTurns) / ODApplication::turnsPerSecond;
 
