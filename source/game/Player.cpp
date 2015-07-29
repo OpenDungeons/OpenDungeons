@@ -25,6 +25,7 @@
 #include "network/ODPacket.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "ODApplication.h"
 
 #include <cmath>
 
@@ -36,7 +37,7 @@ Player::Player(GameMap* gameMap, int32_t id) :
     mNoResearchInQueueTime(0.0f),
     mNoTreasuryAvailableTime(0.0f),
     mHasLost(false),
-    mSpellsCooldown(std::vector<uint32_t>(static_cast<uint32_t>(SpellType::nbSpells), 0))
+    mSpellsCooldown(std::vector<std::pair<uint32_t, float>>(static_cast<uint32_t>(SpellType::nbSpells), std::pair<uint32_t, float>(0,0.0f)))
 {
 }
 
@@ -117,7 +118,7 @@ const PlayerEvent* Player::getNextEvent(uint32_t& index) const
     return mEvents[index];
 }
 
-uint32_t Player::getSpellCooldownTurns(SpellType spellType)
+uint32_t Player::getSpellCooldownTurns(SpellType spellType) const
 {
     uint32_t spellIndex = static_cast<uint32_t>(spellType);
     if(spellIndex >= mSpellsCooldown.size())
@@ -126,16 +127,59 @@ uint32_t Player::getSpellCooldownTurns(SpellType spellType)
         return 0;
     }
 
-    return mSpellsCooldown[spellIndex];
+    return mSpellsCooldown.at(spellIndex).first;
+}
+
+float Player::getSpellCooldownSmooth(SpellType spellType) const
+{
+    uint32_t spellIndex = static_cast<uint32_t>(spellType);
+    if(spellIndex >= mSpellsCooldown.size())
+    {
+        OD_LOG_ERR("seatId=" + Helper::toString(getId()) + ", spellType=" + SpellManager::getSpellNameFromSpellType(spellType));
+        return 0;
+    }
+
+    const std::pair<uint32_t, float>& cooldown = mSpellsCooldown.at(spellIndex);
+    uint32_t cooldownTurns = cooldown.first;
+    if(cooldownTurns <= 0)
+        return 0.0f;
+
+    uint32_t maxCooldownTurns = SpellManager::getSpellCooldown(spellType);
+    if(maxCooldownTurns <= 0)
+        return 0.0f;
+
+    float cooldownTime = static_cast<float>(cooldownTurns) / ODApplication::turnsPerSecond;
+    cooldownTime += cooldown.second;
+    float maxCooldownTime = static_cast<float>(maxCooldownTurns) / ODApplication::turnsPerSecond;
+
+    return cooldownTime / maxCooldownTime;
 }
 
 void Player::decreaseSpellCooldowns()
 {
-    for(uint32_t& cooldown : mSpellsCooldown)
+    for(std::pair<uint32_t, float>& cooldown : mSpellsCooldown)
     {
-        if(cooldown <= 0)
+        if(cooldown.first <= 0)
             continue;
 
-        --cooldown;
+        --cooldown.first;
+        cooldown.second = 1.0f / ODApplication::turnsPerSecond;
+    }
+}
+
+void Player::frameStarted(float timeSinceLastFrame)
+{
+    // Update the smooth spell cooldown
+    for(std::pair<uint32_t, float>& cooldown : mSpellsCooldown)
+    {
+        if(cooldown.first <= 0)
+            continue;
+        if(timeSinceLastFrame > cooldown.second)
+        {
+            cooldown.second = 0.0f;
+            continue;
+        }
+
+        cooldown.second -= timeSinceLastFrame;
     }
 }

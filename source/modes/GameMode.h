@@ -197,12 +197,6 @@ private:
     void refreshResearchButtonState(const std::string& researchButton, const std::string& castButton,
         const std::string& researchProgressBar, ResearchType resType);
 
-    //! \brief Set the state of the given spell button accordingly to the research type given.
-    //! \note: Called by refreshSpellButtonCoolDowns() for each spellType.
-    void getSpellButtonNames(SpellType spellType,
-                             std::string& spellProgressBar,
-                             std::string& maxCoolDownParam);
-
     //! \brief Tells whether the latest mouse click was made on a relevant CEGUI widget,
     //! and thus, the game should ignore it.
     bool isMouseDownOnCEGUIWindow();

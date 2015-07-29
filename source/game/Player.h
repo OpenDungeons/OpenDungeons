@@ -191,7 +191,12 @@ public:
     //! \brief Marks the tiles for digging and send the refresh event to concerned player if human
     void markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, bool asyncMsg);
 
-    uint32_t getSpellCooldownTurns(SpellType spellType);
+    //! \brief Gets the spell cooldown in turns for the given spell
+    uint32_t getSpellCooldownTurns(SpellType spellType) const;
+
+    //! \brief Gets the spell cooldown as a smooth value 0 being no cooldown and 1
+    //! max cooldown for the given spell
+    float getSpellCooldownSmooth(SpellType spellType) const;
 
     void setSpellCooldownTurns(SpellType spellType, uint32_t cooldown);
 
@@ -200,6 +205,9 @@ public:
 
     //! \brief Decreases cooldown for all spells. Used on both server and client sides
     void decreaseSpellCooldowns();
+
+    //! \brief Called each time a frame is displayed. Called on client side
+    void frameStarted(float timeSinceLastFrame);
 
 private:
     //! \brief Player ID is only used during seat configuration phase
@@ -233,7 +241,11 @@ private:
     //! \brief List of tiles there is an event on. Used on client and server
     std::vector<PlayerEvent*> mEvents;
 
-    std::vector<uint32_t> mSpellsCooldown;
+    //! \brief Cooldown for every spells. Used on client and server.
+    //! the first value is the cooldown in turn. The second is the smooth time (set to
+    //! 1 turn duration at each refresh)
+    //! Note that the second value is used on client side only
+    std::vector<std::pair<uint32_t, float>> mSpellsCooldown;
 
     //! \brief A simple mutator function to put the given entity into the player's hand,
     //! note this should NOT be called directly for creatures on the map,

@@ -31,7 +31,7 @@
 #include "utils/LogManager.h"
 
 
-static SpellManagerRegister<SpellCallToWar> reg(SpellType::callToWar, "callToWar");
+static SpellManagerRegister<SpellCallToWar> reg(SpellType::callToWar, "callToWar", "CallToWarCooldown");
 
 // TODO : use the correct mesh when available
 SpellCallToWar::SpellCallToWar(GameMap* gameMap, bool isOnServerMap) :
@@ -125,8 +125,6 @@ bool SpellCallToWar::castSpell(GameMap* gameMap, Player* player, ODPacket& packe
 
     if(!player->getSeat()->takeMana(manaCost))
         return false;
-
-    player->setSpellCooldownTurns(SpellType::callToWar, ConfigManager::getSingleton().getSpellConfigUInt32("CallToWarCooldown"));
 
     SpellCallToWar* spell = new SpellCallToWar(gameMap, true);
     spell->setSeat(player->getSeat());

@@ -62,7 +62,7 @@ Seat::Seat(GameMap* gameMap) :
     mGold(0),
     mId(-1),
     mTeamIndex(0),
-    mNbTreasuries(0),
+    mNbRooms(std::vector<uint32_t>(static_cast<uint32_t>(RoomType::nbRooms), 0)),
     mIsDebuggingVision(false),
     mResearchPoints(0),
     mCurrentResearchType(ResearchType::nullResearchType),
@@ -338,7 +338,7 @@ void Seat::refreshFromSeat(Seat* s)
     mNumCreaturesFighters = s->mNumCreaturesFighters;
     mNumCreaturesFightersMax = s->mNumCreaturesFightersMax;
     mHasGoalsChanged = s->mHasGoalsChanged;
-    mNbTreasuries = s->mNbTreasuries;
+    mNbRooms = s->mNbRooms;
     mCurrentResearchType = s->mCurrentResearchType;
     mCurrentResearchProgress = s->mCurrentResearchProgress;
 }
@@ -350,6 +350,18 @@ bool Seat::takeMana(double mana)
 
     mMana -= mana;
     return true;
+}
+
+uint32_t Seat::getNbRooms(RoomType roomType) const
+{
+    uint32_t index = static_cast<uint32_t>(roomType);
+    if(index >= mNbRooms.size())
+    {
+        OD_LOG_ERR("wrong index=" + Helper::toString(index) + ", size=" + Helper::toString(mNbRooms.size()));
+        return 0;
+    }
+
+    return mNbRooms.at(index);
 }
 
 bool Seat::sortForMapSave(Seat* s1, Seat* s2)

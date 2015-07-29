@@ -262,7 +262,7 @@ RoomTreasuryTileData* RoomTreasury::createTileData(Tile* tile)
 void RoomTreasury::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
     Player* player = gameMap->getLocalPlayer();
-    int nbTreasuries = player->getSeat()->getNbTreasuries();
+    int nbTreasuries = player->getSeat()->getNbRooms(RoomType::treasury);
     int32_t pricePerTarget = RoomManager::costPerTile(RoomType::treasury);
     int32_t playerGold = static_cast<int32_t>(player->getSeat()->getGold());
     if(inputManager.mCommandState == InputCommandState::infoOnly)

@@ -32,7 +32,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker, "summonWorker");
+static SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker, "summonWorker", "SummonWorkerCooldown");
 
 void SpellSummonWorker::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
@@ -194,8 +194,6 @@ bool SpellSummonWorker::summonWorkersOnTiles(GameMap* gameMap, Player* player, c
         newCreature->createMesh();
         newCreature->setPosition(spawnPosition);
     }
-
-    player->setSpellCooldownTurns(SpellType::summonWorker, ConfigManager::getSingleton().getSpellConfigUInt32("SummonWorkerCooldown"));
 
     return true;
 }

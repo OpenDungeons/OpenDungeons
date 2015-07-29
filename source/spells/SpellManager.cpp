@@ -26,6 +26,7 @@
 #include "network/ClientNotification.h"
 #include "network/ODPacket.h"
 #include "spells/SpellType.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -175,7 +176,7 @@ SpellType SpellManager::getSpellTypeFromSpellName(const std::string& name)
     return SpellType::nullSpellType;
 }
 
-void SpellManager::registerSpell(SpellType type, const std::string& name,
+void SpellManager::registerSpell(SpellType type, const std::string& name, const std::string& cooldownKey,
     SpellFunctions::CheckSpellCastFunc checkSpellCastFunc,
     SpellFunctions::CastSpellFunc castSpellFunc,
     SpellFunctions::GetSpellFromStreamFunc getSpellFromStreamFunc,
@@ -190,6 +191,7 @@ void SpellManager::registerSpell(SpellType type, const std::string& name,
 
     SpellFunctions& spellFuncs = getSpellFunctions()[index];
     spellFuncs.mName = name;
+    spellFuncs.mCooldownKey = cooldownKey;
     spellFuncs.mCheckSpellCastFunc = checkSpellCastFunc;
     spellFuncs.mCastSpellFunc = castSpellFunc;
     spellFuncs.mGetSpellFromStreamFunc = getSpellFromStreamFunc;
@@ -201,4 +203,16 @@ ClientNotification* SpellManager::createSpellClientNotification(SpellType type)
     ClientNotification *clientNotification = new ClientNotification(ClientNotificationType::askCastSpell);
     clientNotification->mPacket << type;
     return clientNotification;
+}
+
+uint32_t SpellManager::getSpellCooldown(SpellType type)
+{
+    uint32_t index = static_cast<uint32_t>(type);
+    if(index >= getSpellFunctions().size())
+    {
+        OD_LOG_ERR("type=" + Helper::toString(index));
+        return 0;
+    }
+    SpellFunctions& spellFuncs = getSpellFunctions()[index];
+    return ConfigManager::getSingleton().getSpellConfigUInt32(spellFuncs.mCooldownKey);
 }

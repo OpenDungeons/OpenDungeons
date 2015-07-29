@@ -33,7 +33,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellCreatureHaste> reg(SpellType::creatureHaste, "creatureHaste");
+static SpellManagerRegister<SpellCreatureHaste> reg(SpellType::creatureHaste, "creatureHaste", "CreatureHasteCooldown");
 
 void SpellCreatureHaste::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
@@ -165,8 +165,6 @@ bool SpellCreatureHaste::castSpell(GameMap* gameMap, Player* player, ODPacket& p
     double value = ConfigManager::getSingleton().getSpellConfigDouble("CreatureHasteValue");
     CreatureEffectSpeedChange* effect = new CreatureEffectSpeedChange(duration, value, "SpellCreatureHaste");
     creature->addCreatureEffect(effect);
-
-    player->setSpellCooldownTurns(SpellType::creatureHaste, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureHasteCooldown"));
 
     return true;
 }

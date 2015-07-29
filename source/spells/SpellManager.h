@@ -61,6 +61,7 @@ public:
 
 private:
     std::string mName;
+    std::string mCooldownKey;
     CheckSpellCastFunc mCheckSpellCastFunc;
     CastSpellFunc mCastSpellFunc;
     GetSpellFromStreamFunc mGetSpellFromStreamFunc;
@@ -80,7 +81,11 @@ public:
 
     //! \brief Called on server side. Casts the spell according to the information in the packet
     //! returns true if the spell was correctly cast and false otherwise
+    //! Note that this function does not set the cooldown
     static bool castSpell(GameMap* gameMap, SpellType type, Player* player, ODPacket& packet);
+
+    //! \brief Gets the spell cooldown according to the given type
+    static uint32_t getSpellCooldown(SpellType type);
 
     /*! \brief Exports the headers needed to recreate the Spell. It allows to extend Spells as much as wanted.
      * The content of the Spell will be exported by exportToPacket.
@@ -100,7 +105,7 @@ public:
     static ClientNotification* createSpellClientNotification(SpellType type);
 
 private:
-    static void registerSpell(SpellType type, const std::string& name,
+    static void registerSpell(SpellType type, const std::string& name, const std::string& cooldownKey,
         SpellFunctions::CheckSpellCastFunc checkSpellCastFunc,
         SpellFunctions::CastSpellFunc castSpellFunc,
         SpellFunctions::GetSpellFromStreamFunc getSpellFromStreamFunc,
@@ -137,9 +142,9 @@ template <typename T>
 class SpellManagerRegister
 {
 public:
-    SpellManagerRegister(SpellType spellType, const std::string& name)
+    SpellManagerRegister(SpellType spellType, const std::string& name, const std::string& cooldownKey)
     {
-        SpellManager::registerSpell(spellType, name, &SpellManager::checkSpellCastReg<T>,
+        SpellManager::registerSpell(spellType, name, cooldownKey, &SpellManager::checkSpellCastReg<T>,
             &SpellManager::castSpellReg<T>, &SpellManager::getSpellFromStreamReg<T>,
             &SpellManager::getSpellFromPacketReg<T>);
     }

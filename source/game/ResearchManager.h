@@ -84,8 +84,18 @@ public:
 
     static const Research* getResearch(ResearchType resType);
 
+    //! \brief Lists all the researches and calls the given function for each one with parameters:
+    //! - Gui research button name
+    //! - Gui use button name
+    //! - Gui research button progressbar name
+    //! - The corresponding research type
     static void listAllResearches(const std::function<void(const std::string&, const std::string&,
         const std::string&, ResearchType)>& func);
+
+    //! \brief Lists all the researches and calls the given function for each one with parameters:
+    //! - SpellType
+    //! - Gui use button progressbar name
+    static void listAllSpellsProgressBars(const std::function<void(SpellType spellType, const std::string&)>& func);
 
     static void connectResearches(GameMode* mode, CEGUI::Window* rootWindow);
 
