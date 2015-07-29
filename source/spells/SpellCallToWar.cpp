@@ -31,7 +31,7 @@
 #include "utils/LogManager.h"
 
 
-static SpellManagerRegister<SpellCallToWar> reg(SpellType::callToWar, "callToWar", "CallToWarCooldown");
+static SpellManagerRegister<SpellCallToWar> reg(SpellType::callToWar, "callToWar", "Call to war", "CallToWarCooldown");
 
 // TODO : use the correct mesh when available
 SpellCallToWar::SpellCallToWar(GameMap* gameMap, bool isOnServerMap) :
@@ -81,12 +81,12 @@ void SpellCallToWar::checkSpellCast(GameMap* gameMap, const InputManager& inputM
     {
         if(playerMana < price)
         {
-            std::string txt = formatSpellPrice(SpellType::callToWar, price);
+            std::string txt = formatCastSpell(SpellType::callToWar, price);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatSpellPrice(SpellType::callToWar, price);
+            std::string txt = formatCastSpell(SpellType::callToWar, price);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
@@ -96,7 +96,7 @@ void SpellCallToWar::checkSpellCast(GameMap* gameMap, const InputManager& inputM
 
     if(inputManager.mCommandState == InputCommandState::building)
     {
-        std::string txt = formatSpellPrice(SpellType::callToWar, price);
+        std::string txt = formatCastSpell(SpellType::callToWar, price);
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         std::vector<Tile*> tiles;
         tiles.push_back(tile);

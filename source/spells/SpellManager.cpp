@@ -162,6 +162,18 @@ const std::string& SpellManager::getSpellNameFromSpellType(SpellType type)
     return spellFuncs.mName;
 }
 
+const std::string& SpellManager::getSpellReadableName(SpellType type)
+{
+    uint32_t index = static_cast<uint32_t>(type);
+    if(index >= getSpellFunctions().size())
+    {
+        OD_LOG_ERR("type=" + Helper::toString(index));
+        return EMPTY_STRING;
+    }
+    SpellFunctions& spellFuncs = getSpellFunctions()[index];
+    return spellFuncs.mReadableName;
+}
+
 SpellType SpellManager::getSpellTypeFromSpellName(const std::string& name)
 {
     uint32_t nbSpells = static_cast<uint32_t>(SpellType::nbSpells);
@@ -176,7 +188,8 @@ SpellType SpellManager::getSpellTypeFromSpellName(const std::string& name)
     return SpellType::nullSpellType;
 }
 
-void SpellManager::registerSpell(SpellType type, const std::string& name, const std::string& cooldownKey,
+void SpellManager::registerSpell(SpellType type, const std::string& name, const std::string& readableName,
+    const std::string& cooldownKey,
     SpellFunctions::CheckSpellCastFunc checkSpellCastFunc,
     SpellFunctions::CastSpellFunc castSpellFunc,
     SpellFunctions::GetSpellFromStreamFunc getSpellFromStreamFunc,
@@ -191,6 +204,7 @@ void SpellManager::registerSpell(SpellType type, const std::string& name, const 
 
     SpellFunctions& spellFuncs = getSpellFunctions()[index];
     spellFuncs.mName = name;
+    spellFuncs.mReadableName = readableName;
     spellFuncs.mCooldownKey = cooldownKey;
     spellFuncs.mCheckSpellCastFunc = checkSpellCastFunc;
     spellFuncs.mCastSpellFunc = castSpellFunc;

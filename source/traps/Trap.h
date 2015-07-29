@@ -209,7 +209,7 @@ public:
 
     static std::string getTrapStreamFormat();
 
-    static std::string formatTrapPrice(TrapType type, uint32_t price);
+    static std::string formatBuildTrap(TrapType type, uint32_t price);
 
     //! \brief Computes the trap cost by checking the buildable tiles according to the given inputManager
     //! and updates the inputCommand with (price/buildable tiles)

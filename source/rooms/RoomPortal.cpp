@@ -33,7 +33,7 @@
 
 #include <cmath>
 
-static RoomManagerRegister<RoomPortal> reg(RoomType::portal, "Portal");
+static RoomManagerRegister<RoomPortal> reg(RoomType::portal, "Portal", "Portal room");
 
 const double CLAIMED_VALUE_PER_TILE = 1.0;
 

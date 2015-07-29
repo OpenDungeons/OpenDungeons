@@ -61,6 +61,7 @@ public:
 
 private:
     std::string mName;
+    std::string mReadableName;
     std::string mCooldownKey;
     CheckSpellCastFunc mCheckSpellCastFunc;
     CastSpellFunc mCastSpellFunc;
@@ -94,7 +95,11 @@ public:
     static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
     static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
 
+    //! \brief Gets the spell identification name
     static const std::string& getSpellNameFromSpellType(SpellType type);
+
+    //! \brief Gets the spell readable name
+    static const std::string& getSpellReadableName(SpellType type);
 
     static SpellType getSpellTypeFromSpellName(const std::string& name);
 
@@ -105,7 +110,8 @@ public:
     static ClientNotification* createSpellClientNotification(SpellType type);
 
 private:
-    static void registerSpell(SpellType type, const std::string& name, const std::string& cooldownKey,
+    static void registerSpell(SpellType type, const std::string& name, const std::string& readableName,
+        const std::string& cooldownKey,
         SpellFunctions::CheckSpellCastFunc checkSpellCastFunc,
         SpellFunctions::CastSpellFunc castSpellFunc,
         SpellFunctions::GetSpellFromStreamFunc getSpellFromStreamFunc,
@@ -142,9 +148,11 @@ template <typename T>
 class SpellManagerRegister
 {
 public:
-    SpellManagerRegister(SpellType spellType, const std::string& name, const std::string& cooldownKey)
+    SpellManagerRegister(SpellType spellType, const std::string& name,
+        const std::string& readableName, const std::string& cooldownKey)
     {
-        SpellManager::registerSpell(spellType, name, cooldownKey, &SpellManager::checkSpellCastReg<T>,
+        SpellManager::registerSpell(spellType, name, readableName, cooldownKey,
+            &SpellManager::checkSpellCastReg<T>,
             &SpellManager::castSpellReg<T>, &SpellManager::getSpellFromStreamReg<T>,
             &SpellManager::getSpellFromPacketReg<T>);
     }

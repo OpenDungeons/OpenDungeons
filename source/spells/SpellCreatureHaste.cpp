@@ -33,7 +33,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellCreatureHaste> reg(SpellType::creatureHaste, "creatureHaste", "CreatureHasteCooldown");
+static SpellManagerRegister<SpellCreatureHaste> reg(SpellType::creatureHaste, "creatureHaste", "Creature haste", "CreatureHasteCooldown");
 
 void SpellCreatureHaste::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
@@ -44,12 +44,12 @@ void SpellCreatureHaste::checkSpellCast(GameMap* gameMap, const InputManager& in
     {
         if(playerMana < pricePerTarget)
         {
-            std::string txt = formatSpellPrice(SpellType::creatureHaste, pricePerTarget);
+            std::string txt = formatCastSpell(SpellType::creatureHaste, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatSpellPrice(SpellType::creatureHaste, pricePerTarget);
+            std::string txt = formatCastSpell(SpellType::creatureHaste, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
@@ -98,12 +98,12 @@ void SpellCreatureHaste::checkSpellCast(GameMap* gameMap, const InputManager& in
 
     if(closestCreature == nullptr)
     {
-        std::string txt = formatSpellPrice(SpellType::creatureHaste, 0);
+        std::string txt = formatCastSpell(SpellType::creatureHaste, 0);
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         return;
     }
 
-    std::string txt = formatSpellPrice(SpellType::creatureHaste, pricePerTarget);
+    std::string txt = formatCastSpell(SpellType::creatureHaste, pricePerTarget);
     inputCommand.displayText(Ogre::ColourValue::White, txt);
 
     if(inputManager.mCommandState != InputCommandState::validated)

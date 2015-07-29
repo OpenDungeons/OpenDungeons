@@ -33,7 +33,7 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-static RoomManagerRegister<RoomWorkshop> reg(RoomType::workshop, "Workshop");
+static RoomManagerRegister<RoomWorkshop> reg(RoomType::workshop, "Workshop", "Workshop room");
 
 const Ogre::Real X_OFFSET_CREATURE = 0.7;
 const Ogre::Real Y_OFFSET_CREATURE = 0.0;

@@ -15,7 +15,7 @@
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
             <Window type="OD/ProgressBar" name="SummonWorkerButtonProgressBar" >
-                <Property name="Area" value="{{0.0,-20},{0.0,-20},{1.0,20},{1.0,20}}" />
+                <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
                 <Property name="InheritsTooltipText" value="True" />
                 <Property name="CurrentProgress" value="0.0" />
                 <Property name="MousePassThroughEnabled" value="True" />
@@ -33,7 +33,7 @@
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
             <Window type="OD/ProgressBar" name="CallToWarButtonProgressBar" >
-                <Property name="Area" value="{{0.0,-20},{0.0,-20},{1.0,20},{1.0,20}}" />
+                <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
                 <Property name="InheritsTooltipText" value="True" />
                 <Property name="CurrentProgress" value="0.0" />
                 <Property name="MousePassThroughEnabled" value="True" />
@@ -51,7 +51,7 @@
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
             <Window type="OD/ProgressBar" name="CreatureHealButtonProgressBar" >
-                <Property name="Area" value="{{0.0,-20},{0.0,-20},{1.0,20},{1.0,20}}" />
+                <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
                 <Property name="InheritsTooltipText" value="True" />
                 <Property name="CurrentProgress" value="0.0" />
                 <Property name="MousePassThroughEnabled" value="True" />
@@ -69,7 +69,7 @@
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
             <Window type="OD/ProgressBar" name="CreatureExplosionButtonProgressBar" >
-                <Property name="Area" value="{{0.0,-20},{0.0,-20},{1.0,20},{1.0,20}}" />
+                <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
                 <Property name="InheritsTooltipText" value="True" />
                 <Property name="CurrentProgress" value="0.0" />
                 <Property name="MousePassThroughEnabled" value="True" />
@@ -87,7 +87,7 @@
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
             <Window type="OD/ProgressBar" name="CreatureHasteButtonProgressBar" >
-                <Property name="Area" value="{{0.0,-20},{0.0,-20},{1.0,20},{1.0,20}}" />
+                <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
                 <Property name="InheritsTooltipText" value="True" />
                 <Property name="CurrentProgress" value="0.0" />
                 <Property name="MousePassThroughEnabled" value="True" />

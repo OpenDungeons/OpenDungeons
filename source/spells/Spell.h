@@ -67,7 +67,7 @@ protected:
     virtual void exportHeadersToStream(std::ostream& os) const override;
     virtual void exportHeadersToPacket(ODPacket& os) const override;
 
-    static std::string formatSpellPrice(SpellType type, uint32_t price);
+    static std::string formatCastSpell(SpellType type, uint32_t price);
 private:
     //! \brief Number of turns the spell should be displayed before automatic deletion.
     //! If < 0, the Spell will not be removed automatically

@@ -179,6 +179,18 @@ const std::string& TrapManager::getTrapNameFromTrapType(TrapType type)
     return trapFuncs.mName;
 }
 
+const std::string& TrapManager::getTrapReadableName(TrapType type)
+{
+    uint32_t index = static_cast<uint32_t>(type);
+    if(index >= getTrapFunctions().size())
+    {
+        OD_LOG_ERR("type=" + Helper::toString(index));
+        return EMPTY_STRING;
+    }
+    TrapFunctions& trapFuncs = getTrapFunctions()[index];
+    return trapFuncs.mReadableName;
+}
+
 TrapType TrapManager::getTrapTypeFromTrapName(const std::string& name)
 {
     uint32_t nbTraps = static_cast<uint32_t>(TrapType::nbTraps);
@@ -193,7 +205,7 @@ TrapType TrapManager::getTrapTypeFromTrapName(const std::string& name)
     return TrapType::nullTrapType;
 }
 
-void TrapManager::registerTrap(TrapType type, const std::string& name,
+void TrapManager::registerTrap(TrapType type, const std::string& name, const std::string& readableName,
     TrapFunctions::CheckBuildTrapFunc checkBuildTrapFunc,
     TrapFunctions::BuildTrapFunc buildTrapFunc,
     TrapFunctions::CheckBuildTrapFunc checkBuildTrapEditorFunc,
@@ -209,6 +221,7 @@ void TrapManager::registerTrap(TrapType type, const std::string& name,
 
     TrapFunctions& trapFuncs = getTrapFunctions()[index];
     trapFuncs.mName = name;
+    trapFuncs.mReadableName = readableName;
     trapFuncs.mCheckBuildTrapFunc = checkBuildTrapFunc;
     trapFuncs.mBuildTrapFunc = buildTrapFunc;
     trapFuncs.mCheckBuildTrapEditorFunc = checkBuildTrapEditorFunc;

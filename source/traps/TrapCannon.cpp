@@ -28,7 +28,7 @@
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
-static TrapManagerRegister<TrapCannon> reg(TrapType::cannon, "Cannon");
+static TrapManagerRegister<TrapCannon> reg(TrapType::cannon, "Cannon", "Cannon trap");
 
 const std::string TrapCannon::MESH_CANON = "Cannon";
 const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;

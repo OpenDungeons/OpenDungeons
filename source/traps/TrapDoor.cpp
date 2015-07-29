@@ -34,7 +34,7 @@
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
-static TrapManagerRegister<TrapDoor> reg(TrapType::doorWooden, "DoorWooden");
+static TrapManagerRegister<TrapDoor> reg(TrapType::doorWooden, "DoorWooden", "Wooden door");
 
 const std::string TrapDoor::MESH_DOOR = "WoodenDoor";
 const std::string TrapDoor::ANIMATION_OPEN = "Open";
@@ -159,12 +159,12 @@ void TrapDoor::checkBuildTrap(GameMap* gameMap, const InputManager& inputManager
     {
         if(playerGold < pricePerTarget)
         {
-            std::string txt = formatTrapPrice(type, pricePerTarget);
+            std::string txt = formatBuildTrap(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatTrapPrice(type, pricePerTarget);
+            std::string txt = formatBuildTrap(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
@@ -184,12 +184,12 @@ void TrapDoor::checkBuildTrap(GameMap* gameMap, const InputManager& inputManager
         }
         else if(playerGold < pricePerTarget)
         {
-            std::string txt = formatTrapPrice(type, pricePerTarget);
+            std::string txt = formatBuildTrap(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatTrapPrice(type, pricePerTarget);
+            std::string txt = formatBuildTrap(type, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         return;
@@ -250,7 +250,7 @@ void TrapDoor::checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputM
 
     if(inputManager.mCommandState == InputCommandState::infoOnly)
     {
-        std::string txt = TrapManager::getTrapNameFromTrapType(type);
+        const std::string& txt = TrapManager::getTrapReadableName(type);
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
             inputManager.mYPos);
@@ -270,7 +270,7 @@ void TrapDoor::checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputM
         }
         else
         {
-            std::string txt = TrapManager::getTrapNameFromTrapType(type);
+            const std::string& txt = TrapManager::getTrapReadableName(type);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         return;

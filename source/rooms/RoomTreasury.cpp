@@ -36,7 +36,7 @@
 
 #include <string>
 
-static RoomManagerRegister<RoomTreasury> reg(RoomType::treasury, "Treasury");
+static RoomManagerRegister<RoomTreasury> reg(RoomType::treasury, "Treasury", "Treasury room");
 
 static const int maxGoldinTile = 1000;
 
@@ -273,12 +273,12 @@ void RoomTreasury::checkBuildRoom(GameMap* gameMap, const InputManager& inputMan
 
         if(playerGold < pricePerTarget)
         {
-            std::string txt = formatRoomPrice(RoomType::treasury, pricePerTarget);
+            std::string txt = formatBuildRoom(RoomType::treasury, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatRoomPrice(RoomType::treasury, pricePerTarget);
+            std::string txt = formatBuildRoom(RoomType::treasury, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
@@ -293,7 +293,7 @@ void RoomTreasury::checkBuildRoom(GameMap* gameMap, const InputManager& inputMan
 
     if(buildableTiles.empty())
     {
-        std::string txt = formatRoomPrice(RoomType::treasury, 0);
+        std::string txt = formatBuildRoom(RoomType::treasury, 0);
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         return;
     }
@@ -305,12 +305,12 @@ void RoomTreasury::checkBuildRoom(GameMap* gameMap, const InputManager& inputMan
 
     if(playerGold < priceTotal)
     {
-        std::string txt = formatRoomPrice(RoomType::treasury, priceTotal);
+        std::string txt = formatBuildRoom(RoomType::treasury, priceTotal);
         inputCommand.displayText(Ogre::ColourValue::Red, txt);
         return;
     }
 
-    std::string txt = formatRoomPrice(RoomType::treasury, priceTotal);
+    std::string txt = formatBuildRoom(RoomType::treasury, priceTotal);
     inputCommand.displayText(Ogre::ColourValue::White, txt);
 
     if(inputManager.mCommandState != InputCommandState::validated)

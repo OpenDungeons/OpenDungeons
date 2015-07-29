@@ -179,6 +179,18 @@ const std::string& RoomManager::getRoomNameFromRoomType(RoomType type)
     return roomFuncs.mName;
 }
 
+const std::string& RoomManager::getRoomReadableName(RoomType type)
+{
+    uint32_t index = static_cast<uint32_t>(type);
+    if(index >= getRoomFunctions().size())
+    {
+        OD_LOG_ERR("type=" + Helper::toString(index));
+        return EMPTY_STRING;
+    }
+    RoomFunctions& roomFuncs = getRoomFunctions()[index];
+    return roomFuncs.mReadableName;
+}
+
 RoomType RoomManager::getRoomTypeFromRoomName(const std::string& name)
 {
     uint32_t nbRooms = static_cast<uint32_t>(RoomType::nbRooms);
@@ -193,7 +205,7 @@ RoomType RoomManager::getRoomTypeFromRoomName(const std::string& name)
     return RoomType::nullRoomType;
 }
 
-void RoomManager::registerRoom(RoomType type, const std::string& name,
+void RoomManager::registerRoom(RoomType type, const std::string& name, const std::string& readableName,
     RoomFunctions::CheckBuildRoomFunc checkBuildRoomFunc,
     RoomFunctions::BuildRoomFunc buildRoomFunc,
     RoomFunctions::CheckBuildRoomFunc checkBuildRoomEditorFunc,
@@ -209,6 +221,7 @@ void RoomManager::registerRoom(RoomType type, const std::string& name,
 
     RoomFunctions& roomFuncs = getRoomFunctions()[index];
     roomFuncs.mName = name;
+    roomFuncs.mReadableName = readableName;
     roomFuncs.mCheckBuildRoomFunc = checkBuildRoomFunc;
     roomFuncs.mBuildRoomFunc = buildRoomFunc;
     roomFuncs.mCheckBuildRoomEditorFunc = checkBuildRoomEditorFunc;

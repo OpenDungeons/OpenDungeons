@@ -54,7 +54,7 @@ public:
 
     virtual RoomType getType() const = 0;
 
-    static std::string formatRoomPrice(RoomType type, uint32_t price);
+    static std::string formatBuildRoom(RoomType type, uint32_t price);
 
     //! \brief Computes the room cost by checking the buildable tiles according to the given inputManager
     //! and updates the inputCommand with (price/buildable tiles)

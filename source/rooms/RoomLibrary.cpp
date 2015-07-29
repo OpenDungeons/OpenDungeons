@@ -32,7 +32,7 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-static RoomManagerRegister<RoomLibrary> reg(RoomType::library, "Library");
+static RoomManagerRegister<RoomLibrary> reg(RoomType::library, "Library", "Library room");
 
 const Ogre::Real OFFSET_CREATURE = 0.3;
 const Ogre::Real OFFSET_SPOT = 0.3;

@@ -36,7 +36,7 @@
 
 #include <vector>
 
-static RoomManagerRegister<RoomPortalWave> reg(RoomType::portalWave, "PortalWave");
+static RoomManagerRegister<RoomPortalWave> reg(RoomType::portalWave, "PortalWave", "Wave portal room");
 
 class TileSearch
 {

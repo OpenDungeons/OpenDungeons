@@ -32,7 +32,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker, "summonWorker", "SummonWorkerCooldown");
+static SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker, "summonWorker", "Summon worker", "SummonWorkerCooldown");
 
 void SpellSummonWorker::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
@@ -44,12 +44,12 @@ void SpellSummonWorker::checkSpellCast(GameMap* gameMap, const InputManager& inp
         int32_t price = getNextWorkerPriceForPlayer(gameMap, player);
         if(playerMana < price)
         {
-            std::string txt = formatSpellPrice(SpellType::summonWorker, price);
+            std::string txt = formatCastSpell(SpellType::summonWorker, price);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatSpellPrice(SpellType::summonWorker, price);
+            std::string txt = formatCastSpell(SpellType::summonWorker, price);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos, inputManager.mYPos);
@@ -101,7 +101,7 @@ void SpellSummonWorker::checkSpellCast(GameMap* gameMap, const InputManager& inp
 
     if(inputManager.mCommandState == InputCommandState::building)
     {
-        std::string txt = formatSpellPrice(SpellType::summonWorker, priceTotal);
+        std::string txt = formatCastSpell(SpellType::summonWorker, priceTotal);
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         inputCommand.selectTiles(tiles);
         return;

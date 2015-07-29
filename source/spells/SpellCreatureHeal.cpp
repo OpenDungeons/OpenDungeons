@@ -32,7 +32,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellCreatureHeal> reg(SpellType::creatureHeal, "creatureHeal", "CreatureHealCooldown");
+static SpellManagerRegister<SpellCreatureHeal> reg(SpellType::creatureHeal, "creatureHeal", "Creature heal", "CreatureHealCooldown");
 
 void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
@@ -44,12 +44,12 @@ void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inp
     {
         if(playerMana < pricePerTarget)
         {
-            std::string txt = formatSpellPrice(SpellType::creatureHeal, pricePerTarget);
+            std::string txt = formatCastSpell(SpellType::creatureHeal, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
         else
         {
-            std::string txt = formatSpellPrice(SpellType::creatureHeal, pricePerTarget);
+            std::string txt = formatCastSpell(SpellType::creatureHeal, pricePerTarget);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
         }
         inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
@@ -69,7 +69,7 @@ void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inp
 
     if(targets.empty())
     {
-        std::string txt = formatSpellPrice(SpellType::creatureHeal, 0);
+        std::string txt = formatCastSpell(SpellType::creatureHeal, 0);
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         return;
     }
@@ -99,7 +99,7 @@ void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inp
         playerMana -= pricePerTarget;
     }
 
-    std::string txt = formatSpellPrice(SpellType::creatureHeal, priceTotal);
+    std::string txt = formatCastSpell(SpellType::creatureHeal, priceTotal);
     inputCommand.displayText(Ogre::ColourValue::White, txt);
 
     if(inputManager.mCommandState != InputCommandState::validated)

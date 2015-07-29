@@ -69,6 +69,7 @@ public:
 
 private:
     std::string mName;
+    std::string mReadableName;
     CheckBuildRoomFunc mCheckBuildRoomFunc;
     BuildRoomFunc mBuildRoomFunc;
     CheckBuildRoomFunc mCheckBuildRoomEditorFunc;
@@ -97,7 +98,11 @@ public:
     //! \brief Constructs a room according to the data in the stream
     static Room* getRoomFromStream(GameMap* gameMap, std::istream &is);
 
+    //! \brief Gets the room identification name
     static const std::string& getRoomNameFromRoomType(RoomType type);
+
+    //! \brief Gets the room readable name
+    static const std::string& getRoomReadableName(RoomType type);
 
     static RoomType getRoomTypeFromRoomName(const std::string& name);
 
@@ -127,7 +132,7 @@ public:
     static ClientNotification* createRoomClientNotificationEditor(RoomType type);
 
 private:
-    static void registerRoom(RoomType type, const std::string& name,
+    static void registerRoom(RoomType type, const std::string& name, const std::string& readableName,
         RoomFunctions::CheckBuildRoomFunc checkBuildRoomFunc,
         RoomFunctions::BuildRoomFunc buildRoomFunc,
         RoomFunctions::CheckBuildRoomFunc checkBuildRoomEditorFunc,
@@ -171,9 +176,9 @@ template <typename T>
 class RoomManagerRegister
 {
 public:
-    RoomManagerRegister(RoomType type, const std::string& name)
+    RoomManagerRegister(RoomType type, const std::string& name, const std::string& readableName)
     {
-        RoomManager::registerRoom(type, name, &RoomManager::checkBuildRoomReg<T>,
+        RoomManager::registerRoom(type, name, readableName, &RoomManager::checkBuildRoomReg<T>,
             &RoomManager::buildRoomReg<T>, &RoomManager::checkBuildRoomEditorReg<T>,
             &RoomManager::buildRoomEditorReg<T>, &RoomManager::getRoomFromStreamReg<T>);
     }

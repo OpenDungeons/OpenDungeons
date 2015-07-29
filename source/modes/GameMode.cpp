@@ -18,7 +18,6 @@
 #include "modes/GameMode.h"
 
 #include "modes/GameEditorModeConsole.h"
-
 #include "ODApplication.h"
 #include "camera/CameraManager.h"
 #include "entities/Creature.h"
@@ -41,13 +40,13 @@
 #include "sound/SoundEffectsManager.h"
 #include "spells/SpellManager.h"
 #include "spells/SpellType.h"
+#include "traps/Trap.h"
+#include "traps/TrapManager.h"
+#include "traps/TrapType.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
-#include "traps/Trap.h"
-#include "traps/TrapManager.h"
-#include "traps/TrapType.h"
 
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
@@ -992,6 +991,22 @@ void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
         return;
     }
     player->frameStarted(evt.timeSinceLastFrame);
+
+    if((mResearchCurrentCompletion.mProgressBar != nullptr) &&
+       (mResearchCurrentCompletion.mCompletenessDisplayed < mResearchCurrentCompletion.mCompleteness))
+    {
+        const float completeTime = 3.0f;
+        // We update current research completeness. Because the required amount of research
+        // may be pretty high between the lowest and highest researches, we cannot fill it
+        // linearly according to this amount (it would be too fast for cheap researches or
+        // too slow for expensive ones).
+        // We want to fill it so that a 100% research is filled in 'completeTime' seconds
+        float progress = evt.timeSinceLastFrame / completeTime;
+        mResearchCurrentCompletion.mCompletenessDisplayed = std::min(mResearchCurrentCompletion.mCompleteness,
+            mResearchCurrentCompletion.mCompletenessDisplayed + progress);
+
+        mResearchCurrentCompletion.mProgressBar->setProgress(mResearchCurrentCompletion.mCompletenessDisplayed);
+    }
 }
 
 void GameMode::onFrameEnded(const Ogre::FrameEvent& evt)
@@ -1085,6 +1100,7 @@ bool GameMode::hideResearchWindow(const CEGUI::EventArgs&)
 bool GameMode::unselectAllResearchWindow(const CEGUI::EventArgs&)
 {
     mResearchPending.clear();
+    mResearchCurrentCompletion.resetValue();
     refreshGuiResearch(true);
     return true;
 }
@@ -1332,8 +1348,14 @@ void GameMode::refreshResearchButtonState(const std::string& researchButtonName,
         researchButton->setEnabled(true);
         if (curResearchProgress > 0.0f)
         {
+            // We reload the values is the current research changed or if its value changed
             researchProgressBar->show();
-            researchProgressBar->setProgress(curResearchProgress);
+            if((mResearchCurrentCompletion.mProgressBar != researchProgressBar) ||
+               (mResearchCurrentCompletion.mCompleteness != curResearchProgress))
+            {
+                mResearchCurrentCompletion.setValue(researchProgressBar, curResearchProgress);
+                researchProgressBar->setProgress(0);
+            }
         }
         else
         {
@@ -1548,6 +1570,7 @@ void GameMode::handlePlayerActionSelectTile()
 void GameMode::resetResearchTree()
 {
     mResearchPending = mGameMap->getLocalPlayer()->getSeat()->getResearchPending();
+    mResearchCurrentCompletion.resetValue();
     mIsResearchWindowOpen = true;
 }
 
@@ -1637,6 +1660,7 @@ void GameMode::endResearchTree(bool apply)
     }
 
     mResearchPending.clear();
+    mResearchCurrentCompletion.resetValue();
     mIsResearchWindowOpen = false;
     refreshGuiResearch(true);
 }

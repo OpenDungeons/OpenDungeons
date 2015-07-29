@@ -25,7 +25,7 @@
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
-static RoomManagerRegister<RoomHatchery> reg(RoomType::hatchery, "Hatchery");
+static RoomManagerRegister<RoomHatchery> reg(RoomType::hatchery, "Hatchery", "Hatchery room");
 
 RoomHatchery::RoomHatchery(GameMap* gameMap) :
     Room(gameMap),
