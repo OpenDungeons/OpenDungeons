@@ -23,6 +23,7 @@
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
+#include "sound/SoundEffectsManager.h"
 #include "traps/TrapManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Random.h"
@@ -77,6 +78,10 @@ bool TrapCannon::shoot(Tile* tile)
     // we can safely call the missile doUpkeep as we know the engine will not call it the turn
     // it has been added
     missile->doUpkeep();
+
+    getGameMap()->fireSpatialSound(tile->getSeatsWithVision(), SpatialSoundType::Traps,
+        "CannonFire", tile);
+
     return true;
 }
 

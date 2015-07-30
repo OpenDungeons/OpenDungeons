@@ -61,7 +61,9 @@ enum class TileSound
 {
     ClaimGround,
     ClaimWall,
-    Digged
+    Digged,
+    BuildRoom,
+    BuildTrap
 };
 
 ODPacket& operator<<(ODPacket& os, const TileType& type);

@@ -26,6 +26,7 @@
 #include "modes/InputCommand.h"
 #include "modes/InputManager.h"
 #include "network/ODClient.h"
+#include "sound/SoundEffectsManager.h"
 #include "spells/SpellType.h"
 #include "spells/SpellManager.h"
 #include "utils/ConfigManager.h"
@@ -181,10 +182,29 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
 
     uint32_t duration = ConfigManager::getSingleton().getSpellConfigUInt32("CreatureHealDuration");
     double value = ConfigManager::getSingleton().getSpellConfigDouble("CreatureHealValue");
+    std::vector<Tile*> affectedTiles;
     for(Creature* creature : creatures)
     {
         CreatureEffectHeal* effect = new CreatureEffectHeal(duration, value, "SpellCreatureHeal");
         creature->addCreatureEffect(effect);
+
+        Tile* tile = creature->getPositionTile();
+        if(tile == nullptr)
+        {
+            OD_LOG_ERR("creature=" + creature->getName() + " on nullptr tile");
+            continue;
+        }
+
+        if(std::find(affectedTiles.begin(), affectedTiles.end(), tile) != affectedTiles.end())
+            continue;
+
+        affectedTiles.push_back(tile);
+    }
+
+    for(Tile* tile : affectedTiles)
+    {
+        gameMap->fireSpatialSound(tile->getSeatsWithVision(), SpatialSoundType::Spells,
+            "Heal", tile);
     }
 
     return true;
