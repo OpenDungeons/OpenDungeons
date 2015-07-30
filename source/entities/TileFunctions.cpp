@@ -110,8 +110,20 @@ void Tile::setCoveringBuilding(Building *building)
         }
     }
     mCoveringBuilding = building;
-    mIsRoom = (getCoveringRoom() != nullptr);
-    mIsTrap = (getCoveringTrap() != nullptr);
+    mIsRoom = false;
+    if(getCoveringRoom() != nullptr)
+    {
+        mIsRoom = true;
+        fireTileSound(TileSound::BuildRoom);
+    }
+
+    mIsTrap = false;
+    if(getCoveringTrap() != nullptr)
+    {
+        mIsTrap = true;
+        fireTileSound(TileSound::BuildTrap);
+    }
+
     if(mCoveringBuilding != nullptr)
     {
         for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
@@ -811,6 +823,12 @@ void Tile::fireTileSound(TileSound sound)
             break;
         case TileSound::Digged:
             soundFamily = "RocksFalling";
+            break;
+        case TileSound::BuildRoom:
+            soundFamily = "BuildRoom";
+            break;
+        case TileSound::BuildTrap:
+            soundFamily = "BuildTrap";
             break;
         default:
             OD_LOG_ERR("Wrong TileSound value=" + Helper::toString(static_cast<uint32_t>(sound)));
