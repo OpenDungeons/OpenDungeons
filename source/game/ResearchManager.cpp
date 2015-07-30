@@ -255,159 +255,165 @@ ResearchManager::ResearchManager() :
     ResearchDef* def;
     ResearchType resType;
     int32_t points;
-    std::vector<const Research*> depends;
+    std::vector<const Research*> emptyDepends;
+    std::vector<const Research*> lvl1depends;
+    std::vector<const Research*> lvl2depends;
+    std::vector<const Research*> lvl3depends;
     Research* research;
     uint32_t index;
 
-    // Free Researches
-    depends.clear();
-    resType = ResearchType::roomDormitory;
-    index = static_cast<uint32_t>(resType);
-    research = new Research(resType, 0, depends);
-    def = new ResearchDefRoom("TacticSkills/", "DormitoryButton", research, RoomType::dormitory);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
+    // Attack Skills
 
-    depends.clear();
-    resType = ResearchType::roomTreasury;
-    index = static_cast<uint32_t>(resType);
-    research = new Research(resType, 0, depends);
-    def = new ResearchDefRoom("TacticSkills/", "TreasuryButton", research, RoomType::treasury);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
-
-    depends.clear();
-    resType = ResearchType::roomHatchery;
-    index = static_cast<uint32_t>(resType);
-    research = new Research(resType, 0, depends);
-    def = new ResearchDefRoom("TacticSkills/", "HatcheryButton", research, RoomType::hatchery);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
-
-    depends.clear();
-    resType = ResearchType::roomLibrary;
-    research = new Research(resType, 0, depends);
-    index = static_cast<uint32_t>(resType);
-    def = new ResearchDefRoom("MagicSkills/", "LibraryButton", research, RoomType::library);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
-
-    depends.clear();
-    resType = ResearchType::spellSummonWorker;
-    index = static_cast<uint32_t>(resType);
-    research = new Research(resType, 0, depends);
-    def = new ResearchDefSpell("MagicSkills/", "SummonWorkerButton", research, SpellType::summonWorker);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
-
-    // Researches that may have dependencies
-    depends.clear();
+    // Lvl 1 researches
     resType = ResearchType::roomTrainingHall;
     index = static_cast<uint32_t>(resType);
     points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
-    research = new Research(resType, points, depends);
+    research = new Research(resType, points, emptyDepends);
     def = new ResearchDefRoom("AttackSkills/", "TrainingHallButton", research, RoomType::trainingHall);
     def->mapResearch(mResearchesFamily);
     mResearches[index] = def;
+    lvl1depends.push_back(research);
 
-    depends.clear();
-    // Workshop depends on training hall
-    depends.push_back(research);
-    resType = ResearchType::roomWorkshop;
-    index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
-    research = new Research(resType, points, depends);
-    def = new ResearchDefRoom("TacticSkills/", "WorkshopButton", research, RoomType::workshop);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
-
-    depends.clear();
-    // Crypt depends on Workshop
-    depends.push_back(research);
-    resType = ResearchType::roomCrypt;
-    index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
-    research = new Research(resType, points, depends);
-    def = new ResearchDefRoom("MagicSkills/", "CryptButton", research, RoomType::crypt);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
-
-    depends.clear();
-    resType = ResearchType::trapDoorWooden;
-    index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
-    research = new Research(resType, points, depends);
-    def = new ResearchDefTrap("TacticSkills/", "WoodenDoorTrapButton", research, TrapType::doorWooden);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
-
-    depends.clear();
-    resType = ResearchType::trapCannon;
-    index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
-    research = new Research(resType, points, depends);
-    def = new ResearchDefTrap("TacticSkills/", "CannonButton", research, TrapType::cannon);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
-
-    depends.clear();
-    // Spikes depends on Cannon
-    depends.push_back(research);
-    resType = ResearchType::trapSpike;
-    index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
-    research = new Research(resType, points, depends);
-    def = new ResearchDefTrap("TacticSkills/", "SpikeTrapButton", research, TrapType::spike);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
-
-    depends.clear();
-    // Boulder depends on spike
-    depends.push_back(research);
-    resType = ResearchType::trapBoulder;
-    index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
-    research = new Research(resType, points, depends);
-    def = new ResearchDefTrap("TacticSkills/", "BoulderTrapButton", research, TrapType::boulder);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
-
-    depends.clear();
+    // Lvl 2 researches
     resType = ResearchType::spellCallToWar;
     index = static_cast<uint32_t>(resType);
     points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
-    research = new Research(resType, points, depends);
+    research = new Research(resType, points, lvl1depends);
     def = new ResearchDefSpell("AttackSkills/", "CallToWarButton", research, SpellType::callToWar);
     def->mapResearch(mResearchesFamily);
     mResearches[index] = def;
 
-    depends.clear();
-    // CreatureHeal depends on CallToWar
-    depends.push_back(research);
-    resType = ResearchType::spellCreatureHeal;
-    index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
-    research = new Research(resType, points, depends);
-    def = new ResearchDefSpell("MagicSkills/", "CreatureHealButton", research, SpellType::creatureHeal);
-    def->mapResearch(mResearchesFamily);
-    mResearches[index] = def;
-
-    depends.clear();
-    // CreatureExplosion depends on CreatureHeal
-    depends.push_back(research);
+    // CreatureExplosion depends on Training Hall
     resType = ResearchType::spellCreatureExplosion;
     index = static_cast<uint32_t>(resType);
     points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
-    research = new Research(resType, points, depends);
+    research = new Research(resType, points, lvl1depends);
     def = new ResearchDefSpell("AttackSkills/", "CreatureExplosionButton", research, SpellType::creatureExplosion);
     def->mapResearch(mResearchesFamily);
     mResearches[index] = def;
 
-    depends.clear();
+    // Tech Skills
+    lvl1depends.clear();
+    lvl2depends.clear();
+    lvl3depends.clear();
+
+    resType = ResearchType::roomTreasury;
+    index = static_cast<uint32_t>(resType);
+    research = new Research(resType, 0, emptyDepends);
+    def = new ResearchDefRoom("TacticSkills/", "TreasuryButton", research, RoomType::treasury);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl1depends.push_back(research);
+
+    resType = ResearchType::roomHatchery;
+    index = static_cast<uint32_t>(resType);
+    research = new Research(resType, 0, emptyDepends);
+    def = new ResearchDefRoom("TacticSkills/", "HatcheryButton", research, RoomType::hatchery);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl1depends.push_back(research);
+
+    resType = ResearchType::roomDormitory;
+    index = static_cast<uint32_t>(resType);
+    research = new Research(resType, 0, emptyDepends);
+    def = new ResearchDefRoom("TacticSkills/", "DormitoryButton", research, RoomType::dormitory);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl1depends.push_back(research);
+
+    // Lvl 2 researches
+    resType = ResearchType::roomWorkshop;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl1depends);
+    def = new ResearchDefRoom("TacticSkills/", "WorkshopButton", research, RoomType::workshop);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl2depends.push_back(research);
+
+    resType = ResearchType::trapDoorWooden;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl1depends);
+    def = new ResearchDefTrap("TacticSkills/", "WoodenDoorTrapButton", research, TrapType::doorWooden);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl2depends.push_back(research);
+
+    // Lvl 3 researches
+    resType = ResearchType::trapCannon;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl2depends);
+    def = new ResearchDefTrap("TacticSkills/", "CannonButton", research, TrapType::cannon);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl3depends.push_back(research);
+
+    resType = ResearchType::trapSpike;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl2depends);
+    def = new ResearchDefTrap("TacticSkills/", "SpikeTrapButton", research, TrapType::spike);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl3depends.push_back(research);
+
+    // Lvl 4 research
+    resType = ResearchType::trapBoulder;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl3depends);
+    def = new ResearchDefTrap("TacticSkills/", "BoulderTrapButton", research, TrapType::boulder);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+
+    // Magic Skills
+    lvl1depends.clear();
+    lvl2depends.clear();
+    lvl3depends.clear();
+
+    // Lvl 1 researches
+    resType = ResearchType::roomLibrary;
+    research = new Research(resType, 0, emptyDepends);
+    index = static_cast<uint32_t>(resType);
+    def = new ResearchDefRoom("MagicSkills/", "LibraryButton", research, RoomType::library);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl1depends.push_back(research);
+
+    resType = ResearchType::spellSummonWorker;
+    index = static_cast<uint32_t>(resType);
+    research = new Research(resType, 0, emptyDepends);
+    def = new ResearchDefSpell("MagicSkills/", "SummonWorkerButton", research, SpellType::summonWorker);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl1depends.push_back(research);
+
+    // Lvl 2 researches
+    resType = ResearchType::roomCrypt;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl1depends);
+    def = new ResearchDefRoom("MagicSkills/", "CryptButton", research, RoomType::crypt);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl2depends.push_back(research);
+
+    resType = ResearchType::spellCreatureHeal;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl1depends);
+    def = new ResearchDefSpell("MagicSkills/", "CreatureHealButton", research, SpellType::creatureHeal);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl2depends.push_back(research);
+
+    // Lvl 3 researches
     resType = ResearchType::spellCreatureHaste;
     index = static_cast<uint32_t>(resType);
     points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
-    research = new Research(resType, points, depends);
+    research = new Research(resType, points, lvl2depends);
     def = new ResearchDefSpell("MagicSkills/", "CreatureHasteButton", research, SpellType::creatureHaste);
     def->mapResearch(mResearchesFamily);
     mResearches[index] = def;
