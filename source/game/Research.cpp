@@ -31,17 +31,14 @@ Research::Research(ResearchType type, int32_t neededResearchPoints, const std::v
 
 bool Research::canBeResearched(const std::vector<ResearchType>& researchesDone) const
 {
-    if(mResearchDepends.empty())
-        return true;
-
     for(const Research* research : mResearchDepends)
     {
-        if(std::find(researchesDone.begin(), researchesDone.end(), research->getType()) == researchesDone.end())
+        if(std::find(researchesDone.begin(), researchesDone.end(), research->getType()) != researchesDone.end())
             continue;
 
-        return true;
+        return false;
     }
-    return false;
+    return true;
 }
 
 void Research::buildDependencies(const std::vector<ResearchType>& researchesDone, std::vector<ResearchType>& dependencies) const
