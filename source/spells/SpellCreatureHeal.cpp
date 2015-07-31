@@ -66,7 +66,7 @@ void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inp
 
     std::vector<EntityBase*> targets;
     gameMap->playerSelects(targets, inputManager.mXPos, inputManager.mYPos, inputManager.mLStartDragX, inputManager.mLStartDragY,
-        SelectionTileAllowed::groundClaimedAllied, SelectionEntityWanted::creatureAliveOwned, player);
+        SelectionTileAllowed::groundClaimedAllied, SelectionEntityWanted::creatureAliveOwnedHurt, player);
 
     if(targets.empty())
     {
@@ -160,6 +160,12 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
         if(!pos->isClaimedForSeat(player->getSeat()))
         {
             OD_LOG_INF("WARNING : " + creatureName + ", tile=" + Tile::displayAsString(pos));
+            continue;
+        }
+        // That can happen if the creature is not in perfect synchronization and is full health on server side but not on client
+        if(!creature->isHurt())
+        {
+            OD_LOG_INF("WARNING : " + creatureName + " is not hurt. Heal cannot be cast on it");
             continue;
         }
 
