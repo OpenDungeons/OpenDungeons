@@ -74,6 +74,7 @@ enum class SelectionEntityWanted
     any,
     tiles,
     creatureAliveOwned,
+    creatureAliveOwnedHurt,
     creatureAliveAllied,
     creatureAliveEnemy,
     creatureAlive

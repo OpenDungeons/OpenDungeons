@@ -611,6 +611,23 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
 
                 break;
             }
+            case SelectionEntityWanted::creatureAliveOwnedHurt:
+            {
+                if(entity->getObjectType() != GameEntityType::creature)
+                    continue;
+
+                if(player->getSeat() != entity->getSeat())
+                    continue;
+
+                Creature* creature = static_cast<Creature*>(entity);
+                if(!creature->isAlive())
+                    continue;
+
+                if(!creature->isHurt())
+                    continue;
+
+                break;
+            }
             case SelectionEntityWanted::creatureAliveAllied:
             {
                 if(entity->getObjectType() != GameEntityType::creature)
