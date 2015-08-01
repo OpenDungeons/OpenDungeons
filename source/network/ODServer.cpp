@@ -1729,13 +1729,19 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
         OD_LOG_INF(message);
         if(std::string("ready").compare(clientSocket->getState()) == 0)
         {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotificationType::chatServer, nullptr);
-            std::string msg = nick.empty() ?
-                              "A client disconnected." :
-                              nick + " disconnected.";
-            serverNotification->mPacket << msg << EventShortNoticeType::genericGameInfo;
-            queueServerNotification(serverNotification);
+            for(Player* player : mGameMap->getPlayers())
+            {
+                if(!player->getIsHuman())
+                    continue;
+
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotificationType::chatServer, player);
+                std::string msg = nick.empty() ?
+                                  "A client disconnected." :
+                                  nick + " disconnected.";
+                serverNotification->mPacket << msg << EventShortNoticeType::genericGameInfo;
+                queueServerNotification(serverNotification);
+            }
         }
 
         if(mSeatsConfigured)
