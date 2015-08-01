@@ -269,7 +269,7 @@ void SettingsWindow::initConfig()
         videoCbText->setProperty("BackgroundEnabled", "False");
 
         CEGUI::Combobox* videoCb = static_cast<CEGUI::Combobox*>(videoTab->createChild("OD/Combobox", optionName));
-        videoCb->setArea(CEGUI::UDim(0, 300), CEGUI::UDim(0, 160 + offset), CEGUI::UDim(0, 130),
+        videoCb->setArea(CEGUI::UDim(0.5, 0), CEGUI::UDim(0, 160 + offset), CEGUI::UDim(0.5, -20),
                          CEGUI::UDim(0, config.possibleValues.size() * 17 + 30));
         videoCb->setReadOnly(true);
         videoCb->setSortingEnabled(true);
@@ -340,6 +340,7 @@ void SettingsWindow::saveConfig()
         }
         ogreRoot->setRenderSystem(renderer);
         config.setVideoValue(Config::RENDERER, renderer->getName());
+        config.saveUserConfig();
 
         // If render changed, we need to restart game.
         // Note that we do not change values according to the others inputs. The reason

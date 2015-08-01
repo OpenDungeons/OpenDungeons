@@ -2,7 +2,7 @@
 
 <GUILayout version="4" >
     <Window type="OD/FrameWindow" name="SettingsWindow" >
-        <Property name="Area" value="{{0,205},{0,128},{0,669},{0,600}}" />
+        <Property name="Area" value="{{0,205},{0,50},{0,850},{0,750}}" />
         <Property name="Text" value="Settings" />
         <Property name="SizingEnabled" value="False" />
         <Property name="AlwaysOnTop" value="True" />
