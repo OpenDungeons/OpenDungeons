@@ -48,7 +48,7 @@ MenuModeSkirmish::MenuModeSkirmish(ModeManager* modeManager):
     item->setSelectionBrushImage(selImg);
     levelTypeCb->addItem(item);
 
-    item = new CEGUI::ListboxTextItem("Lan Solo", 1);
+    item = new CEGUI::ListboxTextItem("Multiplayer Levels", 1);
     item->setSelectionBrushImage(selImg);
     levelTypeCb->addItem(item);
 
