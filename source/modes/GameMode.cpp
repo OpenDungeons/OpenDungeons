@@ -1223,19 +1223,23 @@ void GameMode::setHelpWindowText()
     const std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
     const std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
     std::stringstream txt("");
-    txt << "Welcome to the OpenDungeons quick help!" << std::endl << std::endl
-        << formatTitleOn << "Camera Controls" << formatTitleOff << std::endl
-        << "Camera translation: Arrow keys or WASD." << std::endl
-        << "Camera rotation: A (left) or E (right)." << std::endl
-        << "Camera zooming: Mouse wheel, Home (zoom out) or End (zoom in)." << std::endl
-        << "Camera tilting: Page Up (look up), Page Down (look down)." << std::endl << std::endl;
-    txt << formatTitleOn << "Keeper Hand Controls" << formatTitleOff << std::endl
-        << "Mouse left click: Select an action, Confirm an action." << std::endl
-        << "Mouse right click: Unselect an action, Slap a creature (grin)." << std::endl
-        << "Mouse middle click (on a creature): Show debugging information." << std::endl
+    txt << "Always skipping classes to play with kobolds in the torture room, were you?" << std::endl
+        << "Well, at least you don't seem as dumb as a pit demon, so let's cover the basics again." << std::endl << std::endl;
+    txt << formatTitleOn << "Camera controls" << formatTitleOff << std::endl
+        << "The camera is your eyes - be watchful! Take the time to learn how to use it efficiently:" << std::endl
+        << "  - Camera translation: Arrow keys or WASD." << std::endl
+        << "  - Camera rotation: A (left) or E (right)." << std::endl
+        << "  - Camera zooming: Mouse wheel, Home (zoom out) or End (zoom in)." << std::endl
+        << "  - Camera tilting: Page Up (look up), Page Down (look down)." << std::endl
+        << "  - Cycle through camera modes: V." << std::endl << std::endl;
+    txt << formatTitleOn << "Keeper hand controls" << formatTitleOff << std::endl
+        << "Use your hand wisely to keep all minions under control and let your dungeon thrive!" << std::endl
+        << "  - Mouse left click: Select an action, Confirm an action." << std::endl
+        << "  - Mouse right click: Unselect an action, Slap a creature (grin)." << std::endl
+        << "  - Mouse middle click (on a creature): Show debugging information." << std::endl
         << "You can select multiple tiles for some actions by left clicking and dragging the mouse." << std::endl << std::endl;
-    txt << formatTitleOn << "Basic gameplay" << formatTitleOff << std::endl
-        << "As an overlord of the underworld, your evil plan is to build a strong dungeon and to crush your neighbours." << std::endl
+    txt << formatTitleOn << "Basic workflow" << formatTitleOff << std::endl
+        << "As an overlord of the underworld, your evil plan is to build a strong dungeon and to crush your neighbours."
         << "To do so, you need to deploy your shadow arts to their full extent:" << std::endl
         << "  - Summon workers to do the dirty job: dirt digging and gold mining. Workers will also claim ground "
         << "and wall tiles for your glory when they have nothing better to do. You can order workers around by marking "
@@ -1244,6 +1248,8 @@ void GameMode::setHelpWindowText()
         << "in place (thanks to your evil tricks, the first tile is free!) so that your workers can store the gold they mine." << std::endl
         << "Be sure to build a dormitory and a hatchery to fulfill your creatures' lowest needs, and a library to research "
         << "new buildings, spells and traps. Varied buildings, wealth and great dungeons will attract more powerful creatures." << std::endl
+        << "  - Use the Research Manager (F4) to set the priority for the various skills that can be uncovered at the library."
+        << "Make sure to have intelligent creatures always at work at your library - if you can find any among your dumb minions!" << std::endl
         << "  - Once you have a workshop, set traps to protect your dungeon - your creatures will then craft them at the workshop." << std::endl
         << "  - Use spells to macro-manage your creatures more efficiently." << std::endl << std::endl;
     txt << formatTitleOn << "Tips and tricks" << formatTitleOff << std::endl

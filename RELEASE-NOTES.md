@@ -15,6 +15,7 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
 * Particle effects!
 * Reworked library logic and made research order configurable
 * New creature overlays that show the creatures' mood
+* Customisable creature sound effects!
 * Doors to better block enemies and macromanage allies
 * In-game settings menu support!
 * New claimed walls graphics and various other graphical improvements
@@ -41,7 +42,7 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
   - Initial spell logic: cooldown, targets and cost (#683)
   - Spells are triggered only when relevant and "Spawn Worker" has no
     cooldown (#710)
-  - Spell cooldown is shown visually on the spell icon (#867)
+  - Spell cooldown is shown on the spell icon via a smooth animation (#867)
   - Handle spells through a spell manager (#727)
 * Reworked library logic:
   - Working at the library generates grimoires that represent a fixed
@@ -81,6 +82,11 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
 * Rotate tables in the workshop and place creatures accordingly (#573)
 * Increase size of the scarab nose (#721)
 
+**Sounds:**
+
+* Add support for customisable creature sound effects (#126)
+* Normalised all sounds and made them mono (#888)
+
 **UI:**
 
 * In-game settings menu, replaces the default OGRE launcher (#3)
@@ -88,6 +94,7 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
 * Research UI improvements:
   - Customisable research order with automatic dependency management (#577)
   - Progress bar for the research icons (#840 #867)
+  - Buttons to unselect all skills or autofill the queue (#851)
 * Creature overlays improvements:
   - Display 8 health states instead of 4 in the skull flags (#733)
   - Display an overlay with the creature's mood (#734)
@@ -97,6 +104,8 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
 * Made UI buttons more responsive to multiple clicks (#343)
 * Allow to toggle the keeper hand and tile selector with F9 (#684)
 * Improved cost tooltips for rooms, traps and spells (#713)
+* Display human-readable name for rooms, traps and spells instead of engine
+  name (#863)
 
 ### Version 0.5.0 - 20 April 2015
 
