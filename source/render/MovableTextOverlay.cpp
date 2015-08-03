@@ -196,6 +196,18 @@ uint32_t MovableTextOverlay::createChildOverlay(const Ogre::String& fontName, Og
     return id;
 }
 
+void MovableTextOverlay::setVisible(bool visible)
+{
+    if(visible == mOverlay->isVisible())
+        return;
+
+    if(visible)
+        mOverlay->show();
+    else
+        mOverlay->hide();
+
+}
+
 void MovableTextOverlay::setCaption(uint32_t childOverlayId, const Ogre::String& caption)
 {
     if(childOverlayId >= mChildOverlays.size())
