@@ -86,6 +86,10 @@ void ChildOverlay::computeTextArea()
 
 void ChildOverlay::displayOverlay(Ogre::Real time)
 {
+    // If we are already displaying, we do not update time
+    if((mTimeToDisplay < 0) && (time > 0))
+        return;
+
     if((mTimeToDisplay == 0) && (time != 0))
     {
         mOverlayContainer->show();
