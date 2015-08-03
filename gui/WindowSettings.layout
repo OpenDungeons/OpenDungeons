@@ -7,15 +7,15 @@
         <Property name="SizingEnabled" value="False" />
         <Property name="AlwaysOnTop" value="True" />
         <Window type="OD/Button" name="CancelButton" >
-            <Property name="Area" value="{{0,219},{1,-50},{0,302},{1,-20}}" />
+            <Property name="Area" value="{{0.5,-90},{0,30},{0.5,-5},{0,60}}" />
             <Property name="Text" value="Cancel" />
         </Window>
         <Window type="OD/Button" name="ApplyButton" >
-            <Property name="Area" value="{{0,313},{1,-50},{0,399},{1,-20}}" />
+            <Property name="Area" value="{{0.5,5},{0,30},{0.5,90},{0,60}}" />
             <Property name="Text" value="Apply" />
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
-            <Property name="Area" value="{{0,10},{0,20},{1,-10},{1,-70}}" />
+            <Property name="Area" value="{{0,10},{0,70},{1,-10},{1,-20}}" />
             <Property name="TabHeight" value="{0,30}" />
             <Property name="RiseOnClickEnabled" value="False" />
             <Window type="DefaultWindow" name="Video" >
