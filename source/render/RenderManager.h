@@ -67,8 +67,8 @@ public:
     //! \brief Loop through the render requests in the queue and process them
     void updateRenderAnimations(Ogre::Real timeSinceLastFrame);
 
-    //! \brief Resets the renderer
-    void clearRenderer();
+    //! \brief Initialize the renderer when a new game (Game or Editor) is launched
+    void initRendererForNewGame(GameMap* gameMap);
 
     //! \brief starts the compositor compositorName.
     void triggerCompositor(const std::string& compositorName);
@@ -180,6 +180,11 @@ private:
     Ogre::Radian mCurrentFOVy;
     Ogre::Real mFactorWidth;
     Ogre::Real mFactorHeight;
+
+    // As a workaround for some issues, we create dummy entities too small to be seen
+    // and attach them to the keeper hand. This vector allows to keep a track and delete
+    // them/recreate when loading a new game
+    std::vector<Ogre::SceneNode*> mDummyEntities;
 
     //! \brief True if the creatures are currently displaying their text overlay
     bool mCreatureTextOverlayDisplayed;
