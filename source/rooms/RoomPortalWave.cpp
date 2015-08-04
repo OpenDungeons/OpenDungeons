@@ -770,7 +770,7 @@ bool RoomPortalWave::handleDigging()
     }
 
     // We sort the dungeon temples by distance. We will try to reach the closest accessible one
-    std::vector<std::pair<Tile*,Ogre::Real>> tileDungeons;
+    std::vector<std::pair<Room*,Ogre::Real>> tileDungeons;
     std::vector<Room*> dungeonTemples = getGameMap()->getRoomsByType(RoomType::dungeonTemple);
     for(Room* room : dungeonTemples)
     {
@@ -791,7 +791,7 @@ bool RoomPortalWave::handleDigging()
 
             ++it;
         }
-        tileDungeons.insert(it, std::pair<Tile*,Ogre::Real>(tile, templeDist));
+        tileDungeons.insert(it, std::pair<Room*,Ogre::Real>(room, templeDist));
     }
 
     if(tileDungeons.empty())
@@ -802,10 +802,14 @@ bool RoomPortalWave::handleDigging()
 
     bool isWayFound = false;
     tilesToMark.clear();
-    for(std::pair<Tile*,Ogre::Real>& p : tileDungeons)
+    for(std::pair<Room*,Ogre::Real>& p : tileDungeons)
     {
         mMarkedTilesToEnemy.clear();
-        if(!findBestDiggablePath(tileStart, p.first, creature, mMarkedTilesToEnemy) &&
+        Tile* tileDungeon = p.first->getCentralTile();
+        if(tileDungeon == nullptr)
+            continue;
+
+        if(!findBestDiggablePath(tileStart, tileDungeon, creature, mMarkedTilesToEnemy) &&
            mMarkedTilesToEnemy.empty())
         {
             continue;
@@ -814,7 +818,7 @@ bool RoomPortalWave::handleDigging()
         if(mTargetDungeon != nullptr)
             mTargetDungeon->removeGameEntityListener(this);
 
-        mTargetDungeon = p.first->getCoveringRoom();
+        mTargetDungeon = p.first;
         mTargetDungeon->addGameEntityListener(this);
         OD_LOG_INF("PortalWave=" + getName()+ " wants to attack dungeon=" + mTargetDungeon->getName());
         isWayFound = true;

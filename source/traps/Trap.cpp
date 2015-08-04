@@ -825,3 +825,18 @@ bool Trap::sortForMapSave(Trap* t1, Trap* t2)
 
     return t1->getName().compare(t2->getName()) < 0;
 }
+
+bool Trap::shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
+{
+    if(mTileData.count(tile) <= 0)
+    {
+        OD_LOG_ERR("trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
+        return true;
+    }
+
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData[tile]);
+    if(std::find(trapTileData->mSeatsVision.begin(), trapTileData->mSeatsVision.end(), seat) == trapTileData->mSeatsVision.end())
+        return false;
+
+    return true;
+}

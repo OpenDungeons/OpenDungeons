@@ -105,9 +105,55 @@ RenderManager::~RenderManager()
 {
 }
 
-void RenderManager::clearRenderer()
+void RenderManager::initRendererForNewGame(GameMap* gameMap)
 {
     mCreatureTextOverlayDisplayed = false;
+
+    for(Ogre::SceneNode* dummyNode : mDummyEntities)
+    {
+        Ogre::Entity* dummyEnt = mSceneManager->getEntity(dummyNode->getName() + "Ent");
+        if(dummyEnt != nullptr)
+        {
+            dummyNode->detachObject(dummyEnt);
+            mSceneManager->destroyEntity(dummyEnt);
+        }
+        mHandKeeperNode->removeChild(dummyNode);
+        mSceneManager->destroySceneNode(dummyNode);
+    }
+    mDummyEntities.clear();
+
+    //Add a too small to be visible dummy dirt tile to the hand node
+    //so that there will always be a dirt tile "visible"
+    //This is an ugly workaround for issue where destroying some entities messes
+    //up the lighing for some of the rtshader materials.
+    Ogre::SceneNode* dummyNode;
+    Ogre::Entity* dummyEnt;
+    dummyNode = mHandKeeperNode->createChildSceneNode("DummyNodeTile");
+    dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
+    const std::string& defaultTileMesh = gameMap->getMeshForDefaultTile();
+    dummyEnt = mSceneManager->createEntity(dummyNode->getName() + "Ent", defaultTileMesh);
+    dummyEnt->setLightMask(0);
+    dummyEnt->setCastShadows(false);
+    dummyNode->attachObject(dummyEnt);
+    mDummyEntities.push_back(dummyNode);
+
+    // We load every creature class and attach them to the keeper hand.
+    // That's an ugly workaround to avoid a crash that occurs when CEGUI refreshes
+    // ogre open gl renderer after removing some creatures
+    // Note that from what I've seen, loading only one creature like "Troll.mesh" should be
+    // enough. However, it doesn't work with other creatures (like "Kobold.mesh"). Since we
+    // don't really know why, it is safer to load every creature
+    for(uint32_t i = 0; i < gameMap->numClassDescriptions(); ++i)
+    {
+        const CreatureDefinition* def = gameMap->getClassDescription(i);
+        dummyNode = mHandKeeperNode->createChildSceneNode("Dummy_" + def->getClassName());
+        dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
+        dummyEnt = mSceneManager->createEntity(dummyNode->getName() + "Ent", def->getMeshName());
+        dummyEnt->setLightMask(0);
+        dummyEnt->setCastShadows(false);
+        dummyNode->attachObject(dummyEnt);
+        mDummyEntities.push_back(dummyNode);
+    }
 }
 
 void RenderManager::triggerCompositor(const std::string& compositorName)
@@ -164,17 +210,6 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandKeeperNode->setPosition(0.0f, 0.0f, -KEEPER_HAND_POS_Z);
     handKeeperOverlay->add3D(mHandKeeperNode);
     handKeeperOverlay->show();
-
-    //Add a too small to be visible dummy dirt tile to the hand node
-    //so that there will allways be a dirt tile "visible"
-    //This is an ugly workaround for issue where destroying some entities messes
-    //up the lighing for some of the rtshader materials.
-    Ogre::SceneNode* dummyNode = mHandKeeperNode->createChildSceneNode("Dummy_node");
-    dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
-    Ogre::Entity* dummyEnt = mSceneManager->createEntity("Dirt_fl_0000.mesh");
-    dummyEnt->setLightMask(0);
-    dummyEnt->setCastShadows(false);
-    dummyNode->attachObject(dummyEnt);
 
     // Create the light which follows the single tile selection mesh
     mHandLight = mSceneManager->createLight("MouseLight");

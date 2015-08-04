@@ -3030,6 +3030,12 @@ std::vector<Spell*> GameMap::getSpellsBySeatAndType(Seat* seat, SpellType type) 
     return ret;
 }
 
+const std::string& GameMap::getMeshForDefaultTile() const
+{
+    // 0 means tile not linked to any neighboor
+    return mTileSet->getTileValues(TileVisual::dirtFull).at(0).getMeshName();
+}
+
 const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
 {
     int index = 0;
