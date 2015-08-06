@@ -274,11 +274,6 @@ public:
     //! \brief Loads the tile data from a level line.
     static void loadFromLine(const std::string& line, Tile *t);
 
-    /*! \brief Updates the tile from the data sent by the server so that it is correctly displayed and used
-     *  The packet is filled in Seat::exportTileToPacket
-     */
-    void updateFromPacket(ODPacket& is);
-
     /*! \brief This is a helper function which just converts the tile type enum into a string.
      *
      * This function is used primarily in forming the mesh names to load from disk
@@ -378,6 +373,9 @@ public:
     void fireTileSound(TileSound sound);
 
     static void exportToStream(Tile* tile, std::ostream& os);
+
+    virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const override;
+    virtual void updateFromPacket(ODPacket& is) override;
 
 protected:
     virtual void exportHeadersToStream(std::ostream& os) const override

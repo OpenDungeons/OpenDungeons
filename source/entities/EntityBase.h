@@ -128,6 +128,15 @@ public:
     virtual void drop(const Ogre::Vector3& v)
     {}
 
+    //! \brief Exports the entity so that it can be updated on server side. exportToPacketForUpdate should be
+    //! called on server side and the packet should be given to the corresponding entity in updateFromPacket
+    //! exportToPacketForUpdate and updateFromPacket works like exportToPacket and importFromPacket but for entities
+    //! that already exist on client side and that we only want to update (for example a creature that levels up)
+    virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
+    {}
+    virtual void updateFromPacket(ODPacket& is)
+    {}
+
 protected:
     /*! \brief Exports the headers needed to recreate the entity. For example, for missile objects
      * type cannon, it exports GameEntityType::missileObject and MissileType::oneHit. The content of the

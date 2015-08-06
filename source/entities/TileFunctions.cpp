@@ -159,6 +159,10 @@ bool Tile::isGroundClaimable(Seat* seat) const
     return true;
 }
 
+void Tile::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
+{
+
+}
 
 void Tile::updateFromPacket(ODPacket& is)
 {

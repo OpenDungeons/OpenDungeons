@@ -61,7 +61,7 @@ enum class ServerNotificationType
 
     addEntity,
     removeEntity,
-    creatureRefresh,
+    entitiesRefresh,
     refreshPlayerSeat,
     setEntityOpacity,
     notifyCreatureInfo,

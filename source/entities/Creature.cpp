@@ -3171,17 +3171,45 @@ bool Creature::checkLevelUp()
     return true;
 }
 
-void Creature::refreshCreature(ODPacket& packet)
+void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
+{
+    int seatId = getSeat()->getId();
+    os << mLevel;
+    os << seatId;
+    os << mOverlayHealthValue;
+
+    // Only allied players should see creature mood
+    uint32_t moodValue = 0;
+    if(seat->isAlliedSeat(getSeat()))
+        moodValue = mOverlayMoodValue;
+
+    os << moodValue;
+    os << mGroundSpeed;
+    os << mWaterSpeed;
+    os << mLavaSpeed;
+    os << mSpeedModifier;
+
+    uint32_t nbCreatureEffect = mEntityParticleEffects.size();
+    os << nbCreatureEffect;
+    for(EntityParticleEffect* effect : mEntityParticleEffects)
+    {
+        os << effect->mName;
+        os << effect->mScript;
+        os << effect->mNbTurnsEffect;
+    }
+}
+
+void Creature::updateFromPacket(ODPacket& is)
 {
     int seatId;
-    OD_ASSERT_TRUE(packet >> mLevel);
-    OD_ASSERT_TRUE(packet >> seatId);
-    OD_ASSERT_TRUE(packet >> mOverlayHealthValue);
-    OD_ASSERT_TRUE(packet >> mOverlayMoodValue);
-    OD_ASSERT_TRUE(packet >> mGroundSpeed);
-    OD_ASSERT_TRUE(packet >> mWaterSpeed);
-    OD_ASSERT_TRUE(packet >> mLavaSpeed);
-    OD_ASSERT_TRUE(packet >> mSpeedModifier);
+    OD_ASSERT_TRUE(is >> mLevel);
+    OD_ASSERT_TRUE(is >> seatId);
+    OD_ASSERT_TRUE(is >> mOverlayHealthValue);
+    OD_ASSERT_TRUE(is >> mOverlayMoodValue);
+    OD_ASSERT_TRUE(is >> mGroundSpeed);
+    OD_ASSERT_TRUE(is >> mWaterSpeed);
+    OD_ASSERT_TRUE(is >> mLavaSpeed);
+    OD_ASSERT_TRUE(is >> mSpeedModifier);
     RenderManager::getSingleton().rrScaleEntity(this);
 
     if(getSeat()->getId() != seatId)
@@ -3198,7 +3226,7 @@ void Creature::refreshCreature(ODPacket& packet)
     }
 
     uint32_t nbEffects;
-    OD_ASSERT_TRUE(packet >> nbEffects);
+    OD_ASSERT_TRUE(is >> nbEffects);
 
     // We copy the list of effects currently on this creature. That will allow to
     // check if the effect is already known and only display the effect if it is not
@@ -3210,7 +3238,7 @@ void Creature::refreshCreature(ODPacket& packet)
         std::string effectName;
         std::string effectScript;
         uint32_t nbTurns;
-        OD_ASSERT_TRUE(packet >> effectName >> effectScript >> nbTurns);
+        OD_ASSERT_TRUE(is >> effectName >> effectScript >> nbTurns);
         bool isEffectAlreadyDisplayed = false;
         for(EntityParticleEffect* effect : currentEffects)
         {
@@ -4261,34 +4289,14 @@ void Creature::fireCreatureRefreshIfNeeded()
         if(!seat->getPlayer()->getIsHuman())
             continue;
 
-        int seatId = getSeat()->getId();
         const std::string& name = getName();
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::creatureRefresh, seat->getPlayer());
+            ServerNotificationType::entitiesRefresh, seat->getPlayer());
+        uint32_t nbCreature = 1;
+        serverNotification->mPacket << nbCreature;
+        serverNotification->mPacket << GameEntityType::creature;
         serverNotification->mPacket << name;
-        serverNotification->mPacket << mLevel;
-        serverNotification->mPacket << seatId;
-        serverNotification->mPacket << mOverlayHealthValue;
-
-        // Only allied players should see creature mood
-        uint32_t moodValue = 0;
-        if(seat->isAlliedSeat(getSeat()))
-            moodValue = mOverlayMoodValue;
-
-        serverNotification->mPacket << moodValue;
-        serverNotification->mPacket << mGroundSpeed;
-        serverNotification->mPacket << mWaterSpeed;
-        serverNotification->mPacket << mLavaSpeed;
-        serverNotification->mPacket << mSpeedModifier;
-
-        uint32_t nbCreatureEffect = mEntityParticleEffects.size();
-        serverNotification->mPacket << nbCreatureEffect;
-        for(EntityParticleEffect* effect : mEntityParticleEffects)
-        {
-            serverNotification->mPacket << effect->mName;
-            serverNotification->mPacket << effect->mScript;
-            serverNotification->mPacket << effect->mNbTurnsEffect;
-        }
+        exportToPacketForUpdate(serverNotification->mPacket, seat);
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
