@@ -9,6 +9,9 @@ art/ export-ignore
 # Set default behaviour, in case users don't have core.autocrlf set.
 *.cpp text eol=lf
 *.h text eol=lf
+*.cmake text eol=lf
+*.txt text eol=lf
+*.md text eol=lf
 
 # NOTE: We no more automatically change the line endings of such windows files
 # as it is triggering random line-endings changes on utf8 linux systems, for instance.
