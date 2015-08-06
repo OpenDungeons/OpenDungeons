@@ -517,7 +517,12 @@ public:
     inline const std::string& getTileSetName() const
     { return mTileSetName; }
 
+    //! \brief getMeshForDefaultTile returns a mesh for some default dirt tile. This
+    //! is used as a workaround to avoid lightning issues
+    const std::string& getMeshForDefaultTile() const;
+    //! \brief get the tileset infos for the given tile
     const TileSetValue& getMeshForTile(const Tile* tile) const;
+    //! \brief get the tileset global scale
     const Ogre::Vector3& getTileSetScale() const;
 
     void playerSelects(std::vector<EntityBase*>& entities, int tileX1, int tileY1, int tileX2,

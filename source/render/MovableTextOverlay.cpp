@@ -86,6 +86,10 @@ void ChildOverlay::computeTextArea()
 
 void ChildOverlay::displayOverlay(Ogre::Real time)
 {
+    // If we are already displaying, we do not update time
+    if((mTimeToDisplay < 0) && (time > 0))
+        return;
+
     if((mTimeToDisplay == 0) && (time != 0))
     {
         mOverlayContainer->show();
@@ -194,6 +198,18 @@ uint32_t MovableTextOverlay::createChildOverlay(const Ogre::String& fontName, Og
     mChildOverlays.push_back(childOverlay);
 
     return id;
+}
+
+void MovableTextOverlay::setVisible(bool visible)
+{
+    if(visible == mOverlay->isVisible())
+        return;
+
+    if(visible)
+        mOverlay->show();
+    else
+        mOverlay->hide();
+
 }
 
 void MovableTextOverlay::setCaption(uint32_t childOverlayId, const Ogre::String& caption)

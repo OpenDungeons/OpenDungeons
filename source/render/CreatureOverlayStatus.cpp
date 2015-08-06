@@ -176,6 +176,9 @@ void CreatureOverlayStatus::updateStatus(Ogre::Real timeSincelastFrame)
 
 void CreatureOverlayStatus::update(Ogre::Real timeSincelastFrame)
 {
+    // If the creature is not on map, we do not display the overlays
+    mMovableTextOverlay->setVisible(mCreature->getIsOnMap());
+
     updateHealth();
     updateStatus(timeSincelastFrame);
 

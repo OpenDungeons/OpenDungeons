@@ -370,7 +370,8 @@ bool ODClient::processOneClientSocketMessage()
             }
 
             // We reset the renderer
-            RenderManager::getSingleton().clearRenderer();
+            RenderManager::getSingleton().initRendererForNewGame(gameMap);
+
             // Move camera to starting position
             Ogre::Real startX = static_cast<Ogre::Real>(tempSeat->mStartingX);
             Ogre::Real startY = static_cast<Ogre::Real>(tempSeat->mStartingY);

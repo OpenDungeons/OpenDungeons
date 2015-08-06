@@ -200,8 +200,7 @@ public:
 
     virtual bool isAttackable(Tile* tile, Seat* seat) const;
 
-    virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
-    { return false; }
+    virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile);
 
     virtual void restoreInitialEntityState() override;
 

@@ -1092,9 +1092,9 @@ void Seat::setNextResearch(ResearchType researchedType)
 
         if(getPlayer() == nullptr)
             return;
-        if(getPlayer()->getIsHuman())
+        if(!getPlayer()->getIsHuman())
             return;
-        if(getNbRooms(RoomType::library) > 0)
+        if(getNbRooms(RoomType::library) <= 0)
             return;
 
         getPlayer()->notifyNoResearchInQueue();

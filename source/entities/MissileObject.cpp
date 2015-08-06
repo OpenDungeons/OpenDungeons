@@ -89,6 +89,12 @@ void MissileObject::doUpkeep()
         Tile* tmpTile = tiles.front();
         tiles.pop_front();
 
+        if(tmpTile == nullptr)
+        {
+            OD_LOG_ERR("Unexpected null tile when reading missile path name=" + getName() + ", lastTile=" + (lastTile == nullptr ? std::string("nullptr") : Tile::displayAsString(lastTile)));
+            continue;
+        }
+
         if(tmpTile->getFullness() > 0.0)
         {
             Ogre::Vector3 nextDirection;

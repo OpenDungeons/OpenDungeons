@@ -92,6 +92,9 @@ public:
     uint32_t createChildOverlay(const Ogre::String& fontName, Ogre::Real charHeight,
         const Ogre::ColourValue& color, const Ogre::String& materialName);
 
+    //! \brief Set if the overlays should be displayed or not
+    void setVisible(bool visible);
+
     //! Set the text displayed
     void setCaption(uint32_t childOverlayId, const Ogre::String& caption);
 

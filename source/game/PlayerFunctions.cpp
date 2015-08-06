@@ -448,7 +448,8 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
     }
 
     // Do not notify research queue empty if no library
-    if(getSeat()->getNbRooms(RoomType::library) > 0)
+    if(getIsHuman() &&
+       (getSeat()->getNbRooms(RoomType::library) > 0))
     {
         if(mNoResearchInQueueTime > timeSinceLastUpkeep)
             mNoResearchInQueueTime -= timeSinceLastUpkeep;

@@ -96,7 +96,6 @@ void Tile::setCoveringBuilding(Building *building)
     if(mCoveringBuilding == building)
         return;
 
-    std::vector<Seat*> seatsNotif;
     // We set the tile as dirty for all seats if needed (we have to check because we
     // don't want to refresh tiles for traps for enemy players)
     if(mCoveringBuilding != nullptr)
