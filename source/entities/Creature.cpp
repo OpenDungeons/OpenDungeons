@@ -507,9 +507,9 @@ Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
     return creature;
 }
 
-void Creature::exportToPacket(ODPacket& os) const
+void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
 {
-    MovableGameEntity::exportToPacket(os);
+    MovableGameEntity::exportToPacket(os, seat);
     const std::string& className = mDefinition->getClassName();
     os << className;
     os << mLevel;
@@ -4190,7 +4190,7 @@ void Creature::fireAddEntity(Seat* seat, bool async)
         ServerNotification serverNotification(
             ServerNotificationType::addEntity, seat->getPlayer());
         exportHeadersToPacket(serverNotification.mPacket);
-        exportToPacket(serverNotification.mPacket);
+        exportToPacket(serverNotification.mPacket, seat);
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
 
         if(mCarriedEntity != nullptr)
@@ -4203,7 +4203,7 @@ void Creature::fireAddEntity(Seat* seat, bool async)
     ServerNotification* serverNotification = new ServerNotification(
         ServerNotificationType::addEntity, seat->getPlayer());
     exportHeadersToPacket(serverNotification->mPacket);
-    exportToPacket(serverNotification->mPacket);
+    exportToPacket(serverNotification->mPacket, seat);
     ODServer::getSingleton().queueServerNotification(serverNotification);
 
     if(mCarriedEntity != nullptr)

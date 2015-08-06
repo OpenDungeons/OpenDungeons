@@ -151,7 +151,7 @@ void MapLight::fireAddEntity(Seat* seat, bool async)
         ServerNotification serverNotification(
             ServerNotificationType::addEntity, seat->getPlayer());
         exportHeadersToPacket(serverNotification.mPacket);
-        exportToPacket(serverNotification.mPacket);
+        exportToPacket(serverNotification.mPacket, seat);
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
     }
     else
@@ -159,7 +159,7 @@ void MapLight::fireAddEntity(Seat* seat, bool async)
         ServerNotification* serverNotification = new ServerNotification(
             ServerNotificationType::addEntity, seat->getPlayer());
         exportHeadersToPacket(serverNotification->mPacket);
-        exportToPacket(serverNotification->mPacket);
+        exportToPacket(serverNotification->mPacket, seat);
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
@@ -293,7 +293,7 @@ void MapLight::importFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> mAttenuationLinear >> mAttenuationQuadratic);
 }
 
-void MapLight::exportToPacket(ODPacket& os) const
+void MapLight::exportToPacket(ODPacket& os, const Seat* seat) const
 {
     const std::string& name = getName();
     os << name;

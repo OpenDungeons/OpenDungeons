@@ -43,9 +43,9 @@ DoorEntity::DoorEntity(GameMap* gameMap, bool isOnServerMap) :
 {
 }
 
-void DoorEntity::exportToPacket(ODPacket& os) const
+void DoorEntity::exportToPacket(ODPacket& os, const Seat* seat) const
 {
-    TrapEntity::exportToPacket(os);
+    TrapEntity::exportToPacket(os, seat);
     int seatId = getSeat()->getId();
     os << seatId;
 }

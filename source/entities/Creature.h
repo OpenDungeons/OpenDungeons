@@ -452,7 +452,7 @@ public:
     virtual void clientUpkeep() override;
 
 protected:
-    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;

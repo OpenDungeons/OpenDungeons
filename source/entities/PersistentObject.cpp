@@ -134,9 +134,9 @@ void PersistentObject::fireRemoveEntityToSeatsWithVision()
     }
 }
 
-void PersistentObject::exportToPacket(ODPacket& os) const
+void PersistentObject::exportToPacket(ODPacket& os, const Seat* seat) const
 {
-    RenderedMovableEntity::exportToPacket(os);
+    RenderedMovableEntity::exportToPacket(os, seat);
 
     getGameMap()->tileToPacket(os, mTile);
 }

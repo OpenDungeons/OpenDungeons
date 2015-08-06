@@ -334,9 +334,9 @@ std::string MovableGameEntity::getMovableGameEntityStreamFormat()
     return GameEntity::getGameEntityStreamFormat();
 }
 
-void MovableGameEntity::exportToPacket(ODPacket& os) const
+void MovableGameEntity::exportToPacket(ODPacket& os, const Seat* seat) const
 {
-    GameEntity::exportToPacket(os);
+    GameEntity::exportToPacket(os, seat);
     os << mPrevAnimationState;
     os << mPrevAnimationStateLoop;
     os << mWalkDirection;

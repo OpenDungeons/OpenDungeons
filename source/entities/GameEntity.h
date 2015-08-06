@@ -259,24 +259,12 @@ class GameEntity : public EntityBase
     static void exportToStream(GameEntity* entity, std::ostream& os);
 
   protected:
-    /*! \brief Exports the headers needed to recreate the GameEntity. For example, for missile objects
-     * type cannon, it exports GameEntityType::missileObject and MissileType::oneHit. The content of the
-     * GameEntityType will be exported by exportToPacket. exportHeadersTo* should export the needed information
-     * to know which class should be used. Then, importFromPacket can be called to import the data. The rule of
-     * thumb is that importFrom* should be the exact opposite to exportTo*
-     * exportToStream and importFromStream are used to write data in level files (editor or, later, save game).
-     * exportToPacket and importFromPacket are used to send data from the server to the clients.
-     * Note that the functions using stream and packet might not export the same data. Functions using packet will
-     * export/import only the needed information for the clients while functions using the stream will export/import
-     * every needed information to save/restore the entity from scratch.
-     */
-    virtual void exportHeadersToStream(std::ostream& os) const;
-    virtual void exportHeadersToPacket(ODPacket& os) const;
-    //! \brief Exports the data of the GameEntity
-    virtual void exportToStream(std::ostream& os) const;
-    virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os) const;
-    virtual void importFromPacket(ODPacket& is);
+    virtual void exportHeadersToStream(std::ostream& os) const override;
+    virtual void exportHeadersToPacket(ODPacket& os) const override;
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+    virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
+    virtual void importFromPacket(ODPacket& is) override;
 
     //! \brief Fires a add entity message to the player of the given seat
     virtual void fireAddEntity(Seat* seat, bool async) = 0;

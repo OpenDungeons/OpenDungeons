@@ -49,7 +49,7 @@ public:
 protected:
     void exportToStream(std::ostream& os) const override;
     void importFromStream(std::istream& is) override;
-    void exportToPacket(ODPacket& os) const override;
+    void exportToPacket(ODPacket& os, const Seat* seat) const override;
     void importFromPacket(ODPacket& is) override;
 
 private:

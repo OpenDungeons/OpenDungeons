@@ -380,10 +380,17 @@ public:
     static void exportToStream(Tile* tile, std::ostream& os);
 
 protected:
-    void exportToStream(std::ostream& os) const;
-    //! \brief Override of packet export function from gameEntity. Should not be used
-    void exportToPacket(ODPacket& os) const;
-
+    virtual void exportHeadersToStream(std::ostream& os) const override
+    {}
+    virtual void exportHeadersToPacket(ODPacket& os) const override
+    {}
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override
+    {}
+    virtual void exportToPacket(ODPacket& os, const Seat* seat) const override
+    {}
+    virtual void importFromPacket(ODPacket& is) override
+    {}
 
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();

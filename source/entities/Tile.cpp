@@ -202,14 +202,6 @@ void Tile::exportToStream(std::ostream& os) const
     os << "\t" << getSeat()->getId();
 }
 
-void Tile::exportToPacket(ODPacket& os) const
-{
-    //Check to make sure this function is not called. Seat argument should be used instead
-    OD_LOG_ERR("tile=" + displayAsString(this));
-    throw std::runtime_error("ERROR: Wrong packet export function used for tile");
-}
-
-
 ODPacket& operator<<(ODPacket& os, const TileType& type)
 {
     uint32_t intType = static_cast<uint32_t>(type);

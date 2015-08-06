@@ -64,7 +64,7 @@ public:
     static PersistentObject* getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is);
 
 protected:
-    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
 
     std::vector<Seat*> mSeatsAlreadyNotifiedOnce;
