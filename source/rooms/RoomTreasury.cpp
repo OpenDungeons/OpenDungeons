@@ -374,7 +374,7 @@ bool RoomTreasury::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
             {
                 gameMap->tileToPacket(serverNotification.mPacket, tile);
                 p.first->updateTileStateForSeat(tile);
-                p.first->exportTileToPacket(serverNotification.mPacket, tile);
+                tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
             }
             ODServer::getSingleton().sendAsyncMsg(serverNotification);
         }

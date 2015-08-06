@@ -570,7 +570,7 @@ void Room::restoreInitialEntityState()
         for(Tile* tile : tilesRefresh)
         {
             getGameMap()->tileToPacket(serverNotification->mPacket, tile);
-            p.first->exportTileToPacket(serverNotification->mPacket, tile);
+            tile->exportToPacketForUpdate(serverNotification->mPacket, p.first);
         }
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
@@ -796,7 +796,7 @@ bool Room::buildRoomDefault(GameMap* gameMap, Room* room, Seat* seat, const std:
             {
                 gameMap->tileToPacket(serverNotification.mPacket, tile);
                 p.first->updateTileStateForSeat(tile);
-                p.first->exportTileToPacket(serverNotification.mPacket, tile);
+                tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
             }
             ODServer::getSingleton().sendAsyncMsg(serverNotification);
         }

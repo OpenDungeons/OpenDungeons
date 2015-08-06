@@ -191,8 +191,7 @@ void Seat::initSeat()
 
                 // Then, we export tile state to the client
                 mGameMap->tileToPacket(serverNotification->mPacket, tile);
-
-                exportTileToPacket(serverNotification->mPacket, tile);
+                tile->exportToPacketForUpdate(serverNotification->mPacket, this);
             }
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
@@ -346,7 +345,7 @@ void Seat::notifyChangedVisibleTiles()
     {
         mGameMap->tileToPacket(serverNotification->mPacket, tile);
         updateTileStateForSeat(tile);
-        exportTileToPacket(serverNotification->mPacket, tile);
+        tile->exportToPacketForUpdate(serverNotification->mPacket, this);
     }
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }
@@ -1314,7 +1313,7 @@ void Seat::setVisibleBuildingOnTile(Building* building, Tile* tile)
     tileState.mSeatIdOwner = building->getSeat()->getId();
 }
 
-void Seat::exportTileToPacket(ODPacket& os, Tile* tile) const
+void Seat::exportTileToPacket(ODPacket& os, const Tile* tile) const
 {
     if(getPlayer() == nullptr)
     {

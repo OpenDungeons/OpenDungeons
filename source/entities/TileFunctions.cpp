@@ -161,12 +161,12 @@ bool Tile::isGroundClaimable(Seat* seat) const
 
 void Tile::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
 {
-
+    seat->exportTileToPacket(os, this);
 }
 
 void Tile::updateFromPacket(ODPacket& is)
 {
-    // This function should read parameters as sent by Seat::exportTileToPacket
+    // This function should read parameters as sent by Tile::exportToPacketForUpdate
     int seatId;
     std::string meshName;
     std::stringstream ss;

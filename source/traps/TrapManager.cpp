@@ -357,7 +357,7 @@ void TrapManager::sellTrapTiles(GameMap* gameMap, Seat* seatSell, ODPacket& pack
         {
             gameMap->tileToPacket(serverNotification.mPacket, tile);
             p.first->updateTileStateForSeat(tile);
-            p.first->exportTileToPacket(serverNotification.mPacket, tile);
+            tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
         }
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
     }
@@ -471,7 +471,7 @@ void TrapManager::sellTrapTilesEditor(GameMap* gameMap, ODPacket& packet)
         {
             gameMap->tileToPacket(serverNotification.mPacket, tile);
             p.first->updateTileStateForSeat(tile);
-            p.first->exportTileToPacket(serverNotification.mPacket, tile);
+            tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
         }
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
     }

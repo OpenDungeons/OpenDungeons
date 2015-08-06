@@ -1507,7 +1507,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     {
                         gameMap->tileToPacket(notif.mPacket, tile);
                         seat->updateTileStateForSeat(tile);
-                        seat->exportTileToPacket(notif.mPacket, tile);
+                        tile->exportToPacketForUpdate(notif.mPacket, seat);
+
                     }
                     sendAsyncMsg(notif);
                 }
