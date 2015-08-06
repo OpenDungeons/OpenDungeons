@@ -533,7 +533,13 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
     os << mMagicalDefense;
     os << mWeaponlessAtkRange;
     os << mOverlayHealthValue;
-    os << mOverlayMoodValue;
+
+    // Only allied players should see creature mood
+    uint32_t moodValue = 0;
+    if(seat->isAlliedSeat(getSeat()))
+        moodValue = mOverlayMoodValue;
+
+    os << moodValue;
     os << mSpeedModifier;
 
     if(mWeaponL != nullptr)
@@ -4263,7 +4269,13 @@ void Creature::fireCreatureRefreshIfNeeded()
         serverNotification->mPacket << mLevel;
         serverNotification->mPacket << seatId;
         serverNotification->mPacket << mOverlayHealthValue;
-        serverNotification->mPacket << mOverlayMoodValue;
+
+        // Only allied players should see creature mood
+        uint32_t moodValue = 0;
+        if(seat->isAlliedSeat(getSeat()))
+            moodValue = mOverlayMoodValue;
+
+        serverNotification->mPacket << moodValue;
         serverNotification->mPacket << mGroundSpeed;
         serverNotification->mPacket << mWaterSpeed;
         serverNotification->mPacket << mLavaSpeed;
