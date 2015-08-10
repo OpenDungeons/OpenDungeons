@@ -357,7 +357,7 @@ void RoomManager::sellRoomTiles(GameMap* gameMap, Player* player, ODPacket& pack
         {
             gameMap->tileToPacket(serverNotification.mPacket, tile);
             p.first->updateTileStateForSeat(tile);
-            p.first->exportTileToPacket(serverNotification.mPacket, tile);
+            tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
         }
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
     }
@@ -483,7 +483,7 @@ void RoomManager::sellRoomTilesEditor(GameMap* gameMap, ODPacket& packet)
         {
             gameMap->tileToPacket(serverNotification.mPacket, tile);
             p.first->updateTileStateForSeat(tile);
-            p.first->exportTileToPacket(serverNotification.mPacket, tile);
+            tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
         }
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
     }

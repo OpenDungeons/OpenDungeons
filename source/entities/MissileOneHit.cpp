@@ -107,9 +107,9 @@ void MissileOneHit::importFromStream(std::istream& is)
     }
 }
 
-void MissileOneHit::exportToPacket(ODPacket& os) const
+void MissileOneHit::exportToPacket(ODPacket& os, const Seat* seat) const
 {
-    MissileObject::exportToPacket(os);
+    MissileObject::exportToPacket(os, seat);
     uint32_t nbEffects = mEntityParticleEffects.size();
     os << nbEffects;
     for(EntityParticleEffect* effect : mEntityParticleEffects)

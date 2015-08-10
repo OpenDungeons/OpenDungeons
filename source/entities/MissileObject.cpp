@@ -225,9 +225,9 @@ void MissileObject::exportHeadersToPacket(ODPacket& os) const
     os << getMissileType();
 }
 
-void MissileObject::exportToPacket(ODPacket& os) const
+void MissileObject::exportToPacket(ODPacket& os, const Seat* seat) const
 {
-    RenderedMovableEntity::exportToPacket(os);
+    RenderedMovableEntity::exportToPacket(os, seat);
     os << mSpeed;
 }
 

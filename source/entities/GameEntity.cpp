@@ -311,7 +311,7 @@ void GameEntity::exportHeadersToPacket(ODPacket& os) const
     os << getObjectType();
 }
 
-void GameEntity::exportToPacket(ODPacket& os) const
+void GameEntity::exportToPacket(ODPacket& os, const Seat* seat) const
 {
     int seatId = -1;
     if(mSeat != nullptr)

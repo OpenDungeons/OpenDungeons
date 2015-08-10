@@ -247,11 +247,6 @@ public:
     //! \brief Check whether a creature has earned one level.
     bool checkLevelUp();
 
-    //! \brief Refreshes current creature with the giver ODPacket. This function works
-    //! with fireCreatureRefreshIfNeeded. The data carried in the ODPacket is the needed data
-    //! on client side
-    void refreshCreature(ODPacket& packet);
-
     //! \brief Updates the lists of tiles within sight radius.
     //! And the tiles the creature can "see" (removing the ones behind walls).
     void updateTilesInSight();
@@ -451,8 +446,11 @@ public:
 
     virtual void clientUpkeep() override;
 
+    virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const override;
+    virtual void updateFromPacket(ODPacket& is) override;
+
 protected:
-    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;

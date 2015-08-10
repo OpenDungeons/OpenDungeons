@@ -246,9 +246,9 @@ TreasuryObject* TreasuryObject::getTreasuryObjectFromPacket(GameMap* gameMap, OD
     return obj;
 }
 
-void TreasuryObject::exportToPacket(ODPacket& os) const
+void TreasuryObject::exportToPacket(ODPacket& os, const Seat* seat) const
 {
-    RenderedMovableEntity::exportToPacket(os);
+    RenderedMovableEntity::exportToPacket(os, seat);
     os << mGoldValue;
 }
 

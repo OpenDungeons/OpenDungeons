@@ -168,7 +168,7 @@ void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)
         ServerNotification serverNotification(
             ServerNotificationType::addEntity, seat->getPlayer());
         exportHeadersToPacket(serverNotification.mPacket);
-        exportToPacket(serverNotification.mPacket);
+        exportToPacket(serverNotification.mPacket, seat);
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
     }
     else
@@ -176,7 +176,7 @@ void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)
         ServerNotification* serverNotification = new ServerNotification(
             ServerNotificationType::addEntity, seat->getPlayer());
         exportHeadersToPacket(serverNotification->mPacket);
-        exportToPacket(serverNotification->mPacket);
+        exportToPacket(serverNotification->mPacket, seat);
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
@@ -229,9 +229,9 @@ uint32_t RenderedMovableEntity::numCoveredTiles()
     return 1;
 }
 
-void RenderedMovableEntity::exportToPacket(ODPacket& os) const
+void RenderedMovableEntity::exportToPacket(ODPacket& os, const Seat* seat) const
 {
-    MovableGameEntity::exportToPacket(os);
+    MovableGameEntity::exportToPacket(os, seat);
     os << mOpacity;
     os << mRotationAngle;
     os << mHideCoveredTile;

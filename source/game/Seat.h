@@ -336,7 +336,7 @@ public:
     /*! \brief Exports the tile data to the packet so that the client associated to the seat have the needed information
      *         to display the tile correctly
      */
-    void exportTileToPacket(ODPacket& os, Tile* tile) const;
+    void exportTileToPacket(ODPacket& os, const Tile* tile) const;
 
     static bool sortForMapSave(Seat* s1, Seat* s2);
 

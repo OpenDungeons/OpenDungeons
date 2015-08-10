@@ -465,15 +465,6 @@ if(MINGW OR UNIX)
     find_package(Boost REQUIRED COMPONENTS ${OD_BOOST_COMPONENTS} OPTIONAL_COMPONENTS unit_test_framework)
 endif()
 
-#OpenAL
-#If we are on windows we can also look for OpenAL where SFML is
-if(WIN32 AND ${SFML_FOUND})
-    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${SFMLDIR}/extlibs/libs-vc2005 ${SFMLDIR}/extlibs/libs-mingw)
-    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${SFMLDIR}/extlibs/headers ${SFMLDIR}/extlibs/headers/AL)
-endif()
-
-find_package(OpenAL REQUIRED)
-
 ##################################
 #### Headers and linking #########
 ##################################
@@ -497,7 +488,6 @@ include_directories(
     SYSTEM ${CEGUI_INCLUDE_DIR}
     SYSTEM ${SFML_INCLUDE_DIR}
     SYSTEM ${OGRE_INCLUDE_DIRS}
-    SYSTEM ${OPENAL_INCLUDE_DIR}
     SYSTEM ${OIS_INCLUDE_DIRS}
 )
 
@@ -548,7 +538,6 @@ target_link_libraries(
     #libraries
     ${OGRE_LIBRARIES}
     ${OGRE_RTShaderSystem_LIBRARIES}
-    ${OPENAL_LIBRARY}
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES}
     ${CEGUI_OgreRenderer_LIBRARIES}

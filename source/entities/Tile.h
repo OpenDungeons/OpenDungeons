@@ -274,11 +274,6 @@ public:
     //! \brief Loads the tile data from a level line.
     static void loadFromLine(const std::string& line, Tile *t);
 
-    /*! \brief Updates the tile from the data sent by the server so that it is correctly displayed and used
-     *  The packet is filled in Seat::exportTileToPacket
-     */
-    void updateFromPacket(ODPacket& is);
-
     /*! \brief This is a helper function which just converts the tile type enum into a string.
      *
      * This function is used primarily in forming the mesh names to load from disk
@@ -379,11 +374,21 @@ public:
 
     static void exportToStream(Tile* tile, std::ostream& os);
 
-protected:
-    void exportToStream(std::ostream& os) const;
-    //! \brief Override of packet export function from gameEntity. Should not be used
-    void exportToPacket(ODPacket& os) const;
+    virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const override;
+    virtual void updateFromPacket(ODPacket& is) override;
 
+protected:
+    virtual void exportHeadersToStream(std::ostream& os) const override
+    {}
+    virtual void exportHeadersToPacket(ODPacket& os) const override
+    {}
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override
+    {}
+    virtual void exportToPacket(ODPacket& os, const Seat* seat) const override
+    {}
+    virtual void importFromPacket(ODPacket& is) override
+    {}
 
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();

@@ -588,18 +588,26 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotificationType::creatureRefresh:
+        case ServerNotificationType::entitiesRefresh:
         {
-            std::string name;
-            OD_ASSERT_TRUE(packetReceived >> name);
-            Creature* creature = gameMap->getCreature(name);
-            if(creature == nullptr)
+            uint32_t nbEntities;
+            GameEntityType entityType;
+            std::string entityName;
+            OD_ASSERT_TRUE(packetReceived >> nbEntities);
+            while(nbEntities > 0)
             {
-                OD_LOG_ERR("name=" + name);
-                break;
-            }
+                --nbEntities;
+                OD_ASSERT_TRUE(packetReceived >> entityType);
+                OD_ASSERT_TRUE(packetReceived >> entityName);
+                GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
+                if(entity == nullptr)
+                {
+                    OD_LOG_ERR("entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+                    break;
+                }
 
-            creature->refreshCreature(packetReceived);
+                entity->updateFromPacket(packetReceived);
+            }
             break;
         }
 

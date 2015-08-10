@@ -128,7 +128,35 @@ public:
     virtual void drop(const Ogre::Vector3& v)
     {}
 
+    //! \brief Exports the entity so that it can be updated on server side. exportToPacketForUpdate should be
+    //! called on server side and the packet should be given to the corresponding entity in updateFromPacket
+    //! exportToPacketForUpdate and updateFromPacket works like exportToPacket and importFromPacket but for entities
+    //! that already exist on client side and that we only want to update (for example a creature that levels up)
+    virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
+    {}
+    virtual void updateFromPacket(ODPacket& is)
+    {}
+
 protected:
+    /*! \brief Exports the headers needed to recreate the entity. For example, for missile objects
+     * type cannon, it exports GameEntityType::missileObject and MissileType::oneHit. The content of the
+     * GameEntityType will be exported by exportToPacket. exportHeadersTo* should export the needed information
+     * to know which class should be used. Then, importFromPacket can be called to import the data. The rule of
+     * thumb is that importFrom* should be the exact opposite to exportTo*
+     * exportToStream and importFromStream are used to write data in level files (editor or save game).
+     * exportToPacket and importFromPacket are used to send data from the server to the clients.
+     * Note that the functions using stream and packet might not export the same data. Functions using packet will
+     * export/import only the needed information for the clients while functions using the stream will export/import
+     * every needed information to save/restore the entity from scratch.
+     */
+    virtual void exportHeadersToStream(std::ostream& os) const = 0;
+    virtual void exportHeadersToPacket(ODPacket& os) const = 0;
+    //! \brief Exports the data of the GameEntity
+    virtual void exportToStream(std::ostream& os) const = 0;
+    virtual void importFromStream(std::istream& is) = 0;
+    virtual void exportToPacket(ODPacket& os, const Seat* seat) const = 0;
+    virtual void importFromPacket(ODPacket& is) = 0;
+
     //! \brief Function that implements the mesh creation
     virtual void createMeshLocal() {};
 
