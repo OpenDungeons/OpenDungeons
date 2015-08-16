@@ -1277,7 +1277,7 @@ void ConfigManager::loadUserConfig(const std::string& fileName)
     }
 
     std::string value;
-    Config::Ctg category;
+    Config::Ctg category = Config::Ctg::NONE;
     while(defFile.good())
     {
         if (!(defFile >> nextParam))
