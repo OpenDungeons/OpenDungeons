@@ -50,6 +50,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
 # Compilation options
 option(OD_ENABLE_WARNINGS "Compile the game with all standard warnings enabled" ON)
+option(OD_TREAT_WARNINGS_AS_ERRORS "Treat any warning seen while compiling as errors." ON)
 
 # enable/disable unit tests
 option(OD_BUILD_TESTING "Compile unit tests (to enable unit tests both this and BUILD_TESTING has to be on." OFF)
@@ -513,7 +514,7 @@ endif()
 #add_library(${AS_LIBRARY_NAME} ${AS_SOURCEFILES})
 
 # Treat warnings as errors for main build, but not angelscript, since it would fail.
-if(NOT MSVC)
+if(NOT MSVC AND OD_TREAT_WARNINGS_AS_ERRORS)
     add_compile_options("-Werror")
 endif()
 
