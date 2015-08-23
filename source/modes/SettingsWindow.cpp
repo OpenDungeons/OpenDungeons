@@ -85,7 +85,7 @@ SettingsWindow::SettingsWindow(CEGUI::Window* rootWindow):
 
     // Music volume slider
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
-        mSettingsWindow->getChild("MainTabControl/Audio/MusicSlider"));
+        mSettingsWindow->getChild("MainTabControl/Audio/AudioSP/MusicSlider"));
     addEventConnection(
         volumeSlider->subscribeEvent(
             CEGUI::Slider::EventValueChanged,
@@ -149,7 +149,7 @@ void SettingsWindow::initConfig()
 
     // Game
     CEGUI::Editbox* nicknameEb = static_cast<CEGUI::Editbox*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/NicknameEdit"));
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/NicknameEdit"));
     std::string nickname = config.getGameValue(Config::NICKNAME, std::string(), false);
     if (!nickname.empty())
         nicknameEb->setText(reinterpret_cast<const CEGUI::utf8*>(nickname.c_str()));
@@ -173,7 +173,7 @@ void SettingsWindow::initConfig()
     Ogre::RenderSystem* renderSystem = ogreRoot->getRenderSystem();
 
     CEGUI::Combobox* rdrCb = static_cast<CEGUI::Combobox*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/RendererCombobox"));
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VideoSP/RendererCombobox"));
     rdrCb->setReadOnly(true);
     rdrCb->setSortingEnabled(true);
     rdrCb->resetList();
@@ -198,7 +198,7 @@ void SettingsWindow::initConfig()
     {
         const Ogre::ConfigOption& video = it->second;
         CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VideoSP/ResolutionCombobox"));
         resCb->setReadOnly(true);
         resCb->setSortingEnabled(true);
         resCb->resetList();
@@ -223,7 +223,7 @@ void SettingsWindow::initConfig()
     {
         const Ogre::ConfigOption& fullscreen = it->second;
         CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VideoSP/FullscreenCheckbox"));
         fsCheckBox->setSelected((fullscreen.currentValue == "Yes"));
     }
 
@@ -232,12 +232,12 @@ void SettingsWindow::initConfig()
     {
         const Ogre::ConfigOption& vsync = it->second;
         CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VSyncCheckbox"));
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VideoSP/VSyncCheckbox"));
         vsCheckBox->setSelected((vsync.currentValue == "Yes"));
     }
 
     //! First of all, clear up the previously created windows.
-    CEGUI::Window* parentWindow = mSettingsWindow->getChild("MainTabControl/Video");
+    CEGUI::Window* parentWindow = mSettingsWindow->getChild("MainTabControl/Video/VideoSP/");
     for (CEGUI::Window* win : mCustomVideoComboBoxes)
         parentWindow->destroyChild(win);
     mCustomVideoComboBoxes.clear();
@@ -246,7 +246,7 @@ void SettingsWindow::initConfig()
     mCustomVideoTexts.clear();
 
     // Find every other config options and add them to the config
-    CEGUI::Window* videoTab = mSettingsWindow->getChild("MainTabControl/Video");
+    CEGUI::Window* videoTab = mSettingsWindow->getChild("MainTabControl/Video/VideoSP/");
     uint32_t offset = 0;
     for (std::pair<Ogre::String, Ogre::ConfigOption> option : options)
     {
@@ -309,12 +309,12 @@ void SettingsWindow::saveConfig()
     // Save config
     // Game
     CEGUI::Editbox* usernameEb = static_cast<CEGUI::Editbox*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/NicknameEdit"));
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/NicknameEdit"));
     config.setGameValue(Config::NICKNAME, usernameEb->getText().c_str());
 
     // Audio
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/AudioSP/MusicSlider"));
     config.setAudioValue(Config::MUSIC_VOLUME, Helper::toString(volumeSlider->getCurrentValue()));
 
     // Video
@@ -322,7 +322,7 @@ void SettingsWindow::saveConfig()
 
     // Changing Ogre renderer needs a restart to allow to load shaders and requested stuff
     CEGUI::Combobox* rdrCb = static_cast<CEGUI::Combobox*>(
-    mRootWindow->getChild("SettingsWindow/MainTabControl/Video/RendererCombobox"));
+    mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VideoSP/RendererCombobox"));
     std::string rendererName = rdrCb->getSelectedItem()->getText().c_str();
     if (rendererName != renderer->getName())
     {
@@ -352,18 +352,18 @@ void SettingsWindow::saveConfig()
 
     // Set renderer-dependent options now we know it didn't change.
     CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
-        mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VideoSP/FullscreenCheckbox"));
     renderer->setConfigOption(Config::FULL_SCREEN, (fsCheckBox->isSelected() ? "Yes" : "No"));
     config.setVideoValue(Config::FULL_SCREEN, fsCheckBox->isSelected() ? "Yes" : "No");
 
     CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VideoSP/ResolutionCombobox"));
     renderer->setConfigOption(Config::VIDEO_MODE, resCb->getSelectedItem()->getText().c_str());
     config.setVideoValue(Config::VIDEO_MODE, resCb->getSelectedItem()->getText().c_str());
 
     // Stores the renderer dependent options
     CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(
-        mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VSyncCheckbox"));
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VideoSP/VSyncCheckbox"));
     renderer->setConfigOption(Config::VSYNC, (vsCheckBox->isSelected() ? "Yes" : "No"));
     config.setVideoValue(Config::VSYNC, fsCheckBox->isSelected() ? "Yes" : "No");
 
@@ -435,7 +435,7 @@ bool SettingsWindow::onApplySettings(const CEGUI::EventArgs&)
 
     // Changing Ogre renderer needs a restart to allow to load shaders and requested stuff
     CEGUI::Combobox* rdrCb = static_cast<CEGUI::Combobox*>(
-    mRootWindow->getChild("SettingsWindow/MainTabControl/Video/RendererCombobox"));
+    mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VideoSP/RendererCombobox"));
     std::string rendererName = rdrCb->getSelectedItem()->getText().c_str();
     if (rendererName != currentRenderer->getName())
     {
@@ -493,7 +493,7 @@ bool SettingsWindow::onPopupApplySettings(const CEGUI::EventArgs&)
 bool SettingsWindow::onMusicVolumeChanged(const CEGUI::EventArgs&)
 {
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
-        mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/AudioSP/MusicSlider"));
     setMusicVolumeValue(volumeSlider->getCurrentValue());
     return true;
 }
@@ -504,10 +504,10 @@ void SettingsWindow::setMusicVolumeValue(float volume)
 
     // Set the slider position
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/AudioSP/MusicSlider"));
     volumeSlider->setCurrentValue(volume);
 
     // Set the music volume text
-    CEGUI::Window* volumeText = mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicText");
+    CEGUI::Window* volumeText = mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/AudioSP/MusicText");
     volumeText->setText("Music: " + Helper::toString(static_cast<int32_t>(volume)) + "%");
 }

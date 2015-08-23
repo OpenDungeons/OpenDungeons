@@ -2,20 +2,20 @@
 
 <GUILayout version="4" >
     <Window type="OD/FrameWindow" name="SettingsWindow" >
-        <Property name="Area" value="{{0,205},{0,50},{0,850},{0,750}}" />
+        <Property name="Area" value="{{0,205},{0,50},{0,750},{0,550}}" />
         <Property name="Text" value="Settings" />
         <Property name="SizingEnabled" value="False" />
         <Property name="AlwaysOnTop" value="True" />
         <Window type="OD/Button" name="CancelButton" >
-            <Property name="Area" value="{{0.5,-90},{0,30},{0.5,-5},{0,60}}" />
+            <Property name="Area" value="{{1,-230},{1,-55},{1,-130},{1,-25}}" />
             <Property name="Text" value="Cancel" />
         </Window>
         <Window type="OD/Button" name="ApplyButton" >
-            <Property name="Area" value="{{0.5,5},{0,30},{0.5,90},{0,60}}" />
+            <Property name="Area" value="{{1,-125},{1,-55},{1,-25},{1,-25}}" />
             <Property name="Text" value="Apply" />
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
-            <Property name="Area" value="{{0,10},{0,70},{1,-10},{1,-20}}" />
+            <Property name="Area" value="{{0,10},{0,20},{1,-10},{1,-70}}" />
             <Property name="TabHeight" value="{0,30}" />
             <Property name="RiseOnClickEnabled" value="False" />
             <Window type="DefaultWindow" name="Video" >
@@ -23,38 +23,41 @@
                 <Property name="Text" value="Video" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="RiseOnClickEnabled" value="False" />
-                <Window type="OD/StaticText" name="ResolutionText" >
-                    <Property name="Area" value="{{0,22},{0,31},{0,184},{0,43}}" />
-                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                    <Property name="Text" value="Resolution:" />
-                    <Property name="BackgroundEnabled" value="False" />
-                    <Property name="FrameEnabled" value="False" />
-                </Window>
-                <Window type="OD/Combobox" name="ResolutionCombobox" >
-                    <Property name="Area" value="{{0,22},{0,42},{0,166},{0,162}}" />
-                    <Property name="ReadOnly" value="True" />
-                </Window>
-                <Window type="OD/Checkbox" name="FullscreenCheckbox" >
-                    <Property name="Area" value="{{0,222},{0,42},{0,342},{0,68}}" />
-                    <Property name="Text" value="Fullscreen" />
-                </Window>
-                <Window type="OD/StaticText" name="RendererText" >
-                    <Property name="Area" value="{{0,22},{0,78},{0,184},{0,90}}" />
-                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                    <Property name="Text" value="Renderer*:" />
-                    <Property name="BackgroundEnabled" value="False" />
-                    <Property name="FrameEnabled" value="False" />
-                    <Property name="TooltipText" value="* Needs a restart to be applied." />
-                </Window>
-                <Window type="OD/Combobox" name="RendererCombobox" >
-                    <Property name="Area" value="{{0,22},{0,90},{0,266},{0,210}}" />
-                    <Property name="ReadOnly" value="True" />
-                    <Property name="TooltipText" value="* Needs a restart to be applied." />
-                </Window>
-                <Window type="OD/Checkbox" name="VSyncCheckbox" >
-                    <Property name="Area" value="{{0,22},{0,120},{0,166},{0,135}}" />
-                    <Property name="Text" value="VSync*" />
-                    <Property name="TooltipText" value="* Needs a restart to be potentially applied." />
+                <Window type="OD/ScrollablePane" name="VideoSP" >
+                    <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                    <Window type="OD/StaticText" name="ResolutionText" >
+                        <Property name="Area" value="{{0,22},{0,31},{0,184},{0,43}}" />
+                        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                        <Property name="Text" value="Resolution:" />
+                        <Property name="BackgroundEnabled" value="False" />
+                        <Property name="FrameEnabled" value="False" />
+                    </Window>
+                    <Window type="OD/Combobox" name="ResolutionCombobox" >
+                        <Property name="Area" value="{{0,22},{0,42},{0,166},{0,162}}" />
+                        <Property name="ReadOnly" value="True" />
+                    </Window>
+                    <Window type="OD/Checkbox" name="FullscreenCheckbox" >
+                        <Property name="Area" value="{{0,222},{0,42},{0,342},{0,68}}" />
+                        <Property name="Text" value="Fullscreen" />
+                    </Window>
+                    <Window type="OD/StaticText" name="RendererText" >
+                        <Property name="Area" value="{{0,22},{0,78},{0,184},{0,90}}" />
+                        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                        <Property name="Text" value="Renderer*:" />
+                        <Property name="BackgroundEnabled" value="False" />
+                        <Property name="FrameEnabled" value="False" />
+                        <Property name="TooltipText" value="* Needs a restart to be applied." />
+                    </Window>
+                    <Window type="OD/Combobox" name="RendererCombobox" >
+                        <Property name="Area" value="{{0,22},{0,90},{0,266},{0,210}}" />
+                        <Property name="ReadOnly" value="True" />
+                        <Property name="TooltipText" value="* Needs a restart to be applied." />
+                    </Window>
+                    <Window type="OD/Checkbox" name="VSyncCheckbox" >
+                        <Property name="Area" value="{{0,22},{0,120},{0,166},{0,135}}" />
+                        <Property name="Text" value="VSync*" />
+                        <Property name="TooltipText" value="* Needs a restart to be potentially applied." />
+                    </Window>
                 </Window>
             </Window>
             <Window type="DefaultWindow" name="Audio" >
@@ -63,20 +66,23 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="Visible" value="False" />
                 <Property name="RiseOnClickEnabled" value="False" />
-                <Window type="OD/StaticText" name="MusicText" >
-                    <Property name="Area" value="{{0,32},{0,40},{0,220},{0,60}}" />
-                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                    <Property name="Text" value="Music:" />
-                    <Property name="BackgroundEnabled" value="False" />
-                    <Property name="FrameEnabled" value="False" />
-                </Window>
-                <Window type="OD/HorizontalSlider" name="MusicSlider" >
-                    <Property name="Area" value="{{0,32},{0,67},{0,327},{0,80}}" />
-                    <Property name="Text" value="" />
-                    <Property name="VerticalSlider" value="False" />
-                    <Property name="AutoRenderingSurface" value="True" />
-                    <Property name="MaximumValue" value="100" />
-                    <Property name="ClickStepSize" value="5" />
+                <Window type="OD/ScrollablePane" name="AudioSP" >
+                    <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                    <Window type="OD/StaticText" name="MusicText" >
+                        <Property name="Area" value="{{0,32},{0,40},{0,220},{0,60}}" />
+                        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                        <Property name="Text" value="Music:" />
+                        <Property name="BackgroundEnabled" value="False" />
+                        <Property name="FrameEnabled" value="False" />
+                    </Window>
+                    <Window type="OD/HorizontalSlider" name="MusicSlider" >
+                        <Property name="Area" value="{{0,32},{0,67},{0,327},{0,80}}" />
+                        <Property name="Text" value="" />
+                        <Property name="VerticalSlider" value="False" />
+                        <Property name="AutoRenderingSurface" value="True" />
+                        <Property name="MaximumValue" value="100" />
+                        <Property name="ClickStepSize" value="5" />
+                    </Window>
                 </Window>
             </Window>
             <Window type="DefaultWindow" name="Game" >
@@ -85,16 +91,19 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="Visible" value="False" />
                 <Property name="RiseOnClickEnabled" value="False" />
-                <Window type="OD/StaticText" name="NicknameText" >
-                    <Property name="Area" value="{{0,32},{0,40},{0,150},{0,60}}" />
-                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                    <Property name="Text" value="Nickname:" />
-                    <Property name="BackgroundEnabled" value="False" />
-                    <Property name="FrameEnabled" value="False" />
-                </Window>
-                <Window type="OD/Editbox" name="NicknameEdit" >
-                    <Property name="Area" value="{{0,160},{0,40},{0,320},{0,60}}" />
-                    <Property name="Text" value="" />
+                <Window type="OD/ScrollablePane" name="GameSP" >
+                    <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                    <Window type="OD/StaticText" name="NicknameText" >
+                        <Property name="Area" value="{{0,32},{0,40},{0,150},{0,60}}" />
+                        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                        <Property name="Text" value="Nickname:" />
+                        <Property name="BackgroundEnabled" value="False" />
+                        <Property name="FrameEnabled" value="False" />
+                    </Window>
+                    <Window type="OD/Editbox" name="NicknameEdit" >
+                        <Property name="Area" value="{{0,160},{0,40},{0,320},{0,60}}" />
+                        <Property name="Text" value="" />
+                    </Window>
                 </Window>
             </Window>
         </Window>
