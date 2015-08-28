@@ -17,7 +17,9 @@
 
 #include "InputManager.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
+
 #include <OIS/OISMouse.h>
 #include <OIS/OISKeyboard.h>
 #include <OIS/OISInputManager.h>
@@ -55,22 +57,22 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     std::ostringstream windowHndStr;
     windowHndStr << windowHnd;
 
+    ConfigManager& config = ConfigManager::getSingleton();
+    bool mouseGrab = config.getInputValue(Config::MOUSE_GRAB, "No", false) == "Yes";
+    bool keyboardGrab = config.getInputValue(Config::KEYBOARD_GRAB, "No", false) == "Yes";
+
     //setup parameter list for OIS
     OIS::ParamList paramList;
     paramList.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
 #if defined OIS_WIN32_PLATFORM
     paramList.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
-    paramList.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
+    paramList.insert(std::make_pair(std::string("w32_mouse"), std::string(mouseGrab ? "DISCL_EXCLUSIVE" : "DISCL_NONEXCLUSIVE")));
     paramList.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
-    paramList.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
+    paramList.insert(std::make_pair(std::string("w32_keyboard"), std::string(keyboardGrab ? "DISCL_EXCLUSIVE" : "DISCL_NONEXCLUSIVE")));
 #elif defined OIS_LINUX_PLATFORM
-    paramList.insert(std::make_pair(std::string("x11_mouse_grab"), std::string("false")));
+    paramList.insert(std::make_pair(std::string("x11_mouse_grab"), std::string(mouseGrab ? "true" : "false")));
     paramList.insert(std::make_pair(std::string("x11_mouse_hide"), std::string("false")));
-#if defined OD_LINUX_NO_KEYBOARD_GRAB
-    paramList.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("false")));
-#else
-    paramList.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("true")));
-#endif
+    paramList.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string(keyboardGrab ? "true" : "false")));
     paramList.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
 #endif
 

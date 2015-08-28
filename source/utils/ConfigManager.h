@@ -55,6 +55,9 @@ const std::string VSYNC = "VSync";
 const std::string FULL_SCREEN = "Full Screen";
 // Audio
 const std::string MUSIC_VOLUME = "Music Volume";
+// Input
+const std::string KEYBOARD_GRAB = "Keyboard Grab";
+const std::string MOUSE_GRAB = "Mouse Grab";
 // Game
 const std::string NICKNAME = "Nickname";
 }
