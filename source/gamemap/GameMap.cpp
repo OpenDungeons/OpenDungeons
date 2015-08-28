@@ -1267,9 +1267,10 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
         if(seat->getPlayer() == nullptr)
             continue;
 
+        seat->computeSeatBeginTurn();
+
         // Add the amount of mana this seat accrued this turn if the player has a dungeon temple
-        std::vector<Room*> dungeonTemples = getRoomsByTypeAndSeat(RoomType::dungeonTemple, seat);
-        if(dungeonTemples.empty())
+        if(seat->getNbRooms(RoomType::dungeonTemple) == 0)
         {
             seat->mManaDelta = 0;
             seat->getPlayer()->notifyNoMoreDungeonTemple();

@@ -444,6 +444,10 @@ public:
     //! example if a door is closed)
     void checkWalkPathValid();
 
+    bool isTired() const;
+
+    bool isHungry() const;
+
     virtual void clientUpkeep() override;
 
     virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const override;

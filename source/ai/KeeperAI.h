@@ -57,6 +57,14 @@ protected:
     //! Returns true if the action has been done and false if nothing has been done
     bool repairRooms();
 
+    //! \brief Try to help tired creatures to reach dormitory
+    //! Returns true if the action has been done and false if nothing has been done
+    bool handleTiredCreatures();
+
+    //! \brief Try to help hungry creatures to reach hatchery
+    //! Returns true if the action has been done and false if nothing has been done
+    bool handleHungryCreatures();
+
     //! \brief This function will be called once only during this player's first upkeep
     //! It should setup what is needed for the AI
     void handleFirstTurn();

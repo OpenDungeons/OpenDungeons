@@ -87,6 +87,12 @@ bool KeeperAI::doTurn(double timeSinceLastTurn)
     if (repairRooms())
         return true;
 
+    if(handleTiredCreatures())
+        return true;
+
+    if(handleHungryCreatures())
+        return true;
+
     return true;
 }
 
@@ -781,6 +787,119 @@ bool KeeperAI::repairRooms()
         // We only repair one room at a time. Note that if we want to repair more than one room at a time, we should pay
         // attention to not modify the room list (if room absorbed in RoomManager::buildRoom) while iterating it
         break;
+    }
+
+    return false;
+}
+
+bool KeeperAI::handleTiredCreatures()
+{
+    // Handle tired creatures if we have a dormitory
+    if(mPlayer.getSeat()->getNbRooms(RoomType::dormitory) <= 0)
+        return false;
+
+    std::vector<Creature*> creatures = mGameMap.getCreaturesBySeat(mPlayer.getSeat());
+    for(Creature* creature : creatures)
+    {
+        // We do not take creatures fighting
+        if(creature->isActionInList(CreatureActionType::fight))
+            continue;
+
+        if(!creature->isTired())
+            continue;
+
+        Tile* dropTile = nullptr;
+        // If the creature has a bed, we drop it in its dormitory
+        Tile* homeTile = creature->getHomeTile();
+        if(homeTile != nullptr)
+        {
+            // We check if it is already in the dormitory. If yes, do nothing
+            Tile* posTile = creature->getPositionTile();
+            if(posTile == nullptr)
+            {
+                OD_LOG_ERR("null position tile for creature=" + creature->getName() + ", pos=" + Helper::toString(creature->getPosition()));
+                continue;
+            }
+            if(homeTile->getCoveringRoom() == posTile->getCoveringRoom())
+                continue;
+
+            // It is not on its dormitory, we try to drop it there
+            dropTile = homeTile;
+        }
+        else
+        {
+            // The creature do not have a home tile. We check it can reach the
+            // dungeon temple. If not, we drop it there
+            Tile* posTile = creature->getPositionTile();
+            if(posTile == nullptr)
+            {
+                OD_LOG_ERR("null position tile for creature=" + creature->getName() + ", pos=" + Helper::toString(creature->getPosition()));
+                continue;
+            }
+
+            Tile* dungeonTempleTile = getDungeonTemple()->getCentralTile();
+            if(mGameMap.pathExists(creature, posTile, dungeonTempleTile))
+                continue;
+
+            // The creature cannot reach its dungeon temple. We drop it there
+            dropTile = dungeonTempleTile;
+        }
+
+        if(dropTile == nullptr)
+            continue;
+
+        if(!creature->tryPickup(mPlayer.getSeat()))
+            continue;
+
+        mPlayer.pickUpEntity(creature);
+
+        mPlayer.dropHand(dropTile);
+
+        // We help only 1 creature per turn
+        return true;
+    }
+
+    return false;
+}
+
+bool KeeperAI::handleHungryCreatures()
+{
+    // Handle hungry creatures if we have a hatchery
+    if(mPlayer.getSeat()->getNbRooms(RoomType::hatchery) <= 0)
+        return false;
+
+    std::vector<Creature*> creatures = mGameMap.getCreaturesBySeat(mPlayer.getSeat());
+    for(Creature* creature : creatures)
+    {
+        // We do not take creatures fighting
+        if(creature->isActionInList(CreatureActionType::fight))
+            continue;
+
+        if(!creature->isHungry())
+            continue;
+
+        // We check it can reach the dungeon temple. If not, we drop it there
+        Tile* posTile = creature->getPositionTile();
+        if(posTile == nullptr)
+        {
+            OD_LOG_ERR("null position tile for creature=" + creature->getName() + ", pos=" + Helper::toString(creature->getPosition()));
+            continue;
+        }
+
+        Tile* dungeonTempleTile = getDungeonTemple()->getCentralTile();
+        if(mGameMap.pathExists(creature, posTile, dungeonTempleTile))
+            continue;
+
+        // The creature cannot reach its dungeon temple. We drop it there
+        if(!creature->tryPickup(mPlayer.getSeat()))
+            continue;
+
+        mPlayer.pickUpEntity(creature);
+
+        mPlayer.dropHand(dungeonTempleTile);
+
+        // We help only 1 creature per turn
+        return true;
     }
 
     return false;

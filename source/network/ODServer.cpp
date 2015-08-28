@@ -299,7 +299,6 @@ void ODServer::startNewTurn(double timeSinceLastTurn)
             ServerNotificationType::refreshPlayerSeat, player);
         std::string goals = gameMap->getGoalsStringForPlayer(player);
         Seat* seat = player->getSeat();
-        seat->computeSeatBeforeSendingToClient();
         serverNotification->mPacket << seat << goals;
         ODServer::getSingleton().queueServerNotification(serverNotification);
 
