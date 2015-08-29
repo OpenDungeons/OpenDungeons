@@ -24,7 +24,7 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="RiseOnClickEnabled" value="False" />
                 <Window type="OD/ScrollablePane" name="VideoSP" >
-                    <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                    <Property name="Area" value="{{0,0},{0,15},{1,0},{1,-5}}" />
                     <Window type="OD/StaticText" name="ResolutionText" >
                         <Property name="Area" value="{{0,22},{0,31},{0,184},{0,43}}" />
                         <Property name="MaxSize" value="{{1,0},{1,0}}" />
@@ -67,7 +67,7 @@
                 <Property name="Visible" value="False" />
                 <Property name="RiseOnClickEnabled" value="False" />
                 <Window type="OD/ScrollablePane" name="AudioSP" >
-                    <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                    <Property name="Area" value="{{0,0},{0,15},{1,0},{1,-5}}" />
                     <Window type="OD/StaticText" name="MusicText" >
                         <Property name="Area" value="{{0,32},{0,40},{0,220},{0,60}}" />
                         <Property name="MaxSize" value="{{1,0},{1,0}}" />
@@ -92,7 +92,7 @@
                 <Property name="Visible" value="False" />
                 <Property name="RiseOnClickEnabled" value="False" />
                 <Window type="OD/ScrollablePane" name="GameSP" >
-                    <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                    <Property name="Area" value="{{0,0},{0,15},{1,0},{1,-5}}" />
                     <Window type="OD/StaticText" name="NicknameText" >
                         <Property name="Area" value="{{0,32},{0,40},{0,150},{0,60}}" />
                         <Property name="MaxSize" value="{{1,0},{1,0}}" />
