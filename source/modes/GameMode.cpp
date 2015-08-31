@@ -48,6 +48,7 @@
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
 
+#include <CEGUI/CEGUI.h>
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/widgets/ToggleButton.h>
@@ -60,6 +61,10 @@
 #include <vector>
 #include <string>
 #include "utils/LogManager.h"
+
+const std::string TEXT_SEAT_ID_PREFIX = "TextSeat";
+const std::string TEXT_SEAT_PLAYER_NICKNAME_PREFIX = "TextSeatPlayerNick";
+const std::string TEXT_SEAT_TEAM_ID_PREFIX = "TextSeatTeam";
 
 GameMode::GameMode(ModeManager *modeManager):
     GameEditorModeBase(modeManager, ModeManager::GAME, modeManager->getGui().getGuiSheet(Gui::guiSheet::inGameMenu)),
@@ -96,6 +101,20 @@ GameMode::GameMode(ModeManager *modeManager):
         guiSheet->getChild("ObjectivesWindow/__auto_closebutton__")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&GameMode::hideObjectivesWindow, this)
+        )
+    );
+
+    //Player settings window
+    addEventConnection(
+        guiSheet->getChild("PlayerSettingsButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::togglePlayerSettingsWindow, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("PlayerSettingsWindow/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::hidePlayerSettingsWindow, this)
         )
     );
 
@@ -238,6 +257,28 @@ GameMode::~GameMode()
 
     // Now that the server is stopped, we can clear the client game map
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
+
+    CEGUI::Window* settingsWin = mRootWindow->getChild("PlayerSettingsWindow/Seats/SeatsSP");
+    CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();
+    for(int seatId : mSeatIds)
+    {
+        CEGUI::Window* tmpWin;
+        std::string name;
+        name = TEXT_SEAT_ID_PREFIX + Helper::toString(seatId);
+        tmpWin = settingsWin->getChild(name);
+        settingsWin->removeChild(tmpWin);
+        winMgr.destroyWindow(tmpWin);
+
+        name = TEXT_SEAT_PLAYER_NICKNAME_PREFIX + Helper::toString(seatId);
+        tmpWin = settingsWin->getChild(name);
+        settingsWin->removeChild(tmpWin);
+        winMgr.destroyWindow(tmpWin);
+
+        name = TEXT_SEAT_TEAM_ID_PREFIX + Helper::toString(seatId);
+        tmpWin = settingsWin->getChild(name);
+        settingsWin->removeChild(tmpWin);
+        winMgr.destroyWindow(tmpWin);
+    }
 }
 
 void GameMode::activate()
@@ -246,10 +287,13 @@ void GameMode::activate()
     Gui& gui = getModeManager().getGui();
     gui.loadGuiSheet(Gui::inGameMenu);
 
+    buildPlayerSettingsWindow();
+
     // Hides the exit pop-up and certain buttons only used by the editor.
     CEGUI::Window* guiSheet = mRootWindow;
     guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
     guiSheet->getChild("ObjectivesWindow")->hide();
+    guiSheet->getChild("PlayerSettingsWindow")->hide();
     guiSheet->getChild("ResearchTreeWindow")->hide();
     guiSheet->getChild("SettingsWindow")->hide();
     guiSheet->getChild("GameOptionsWindow")->hide();
@@ -705,6 +749,10 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         toggleHelpWindow();
         break;
 
+    case OIS::KC_F2:
+        togglePlayerSettingsWindow();
+        break;
+
     case OIS::KC_F3:
         toggleObjectivesWindow();
         break;
@@ -1103,6 +1151,29 @@ bool GameMode::toggleObjectivesWindow(const CEGUI::EventArgs& e)
         hideObjectivesWindow(e);
     else
         showObjectivesWindow(e);
+    return true;
+}
+
+bool GameMode::showPlayerSettingsWindow(const CEGUI::EventArgs&)
+{
+    mRootWindow->getChild("PlayerSettingsWindow")->show();
+    return true;
+}
+
+bool GameMode::hidePlayerSettingsWindow(const CEGUI::EventArgs&)
+{
+    mRootWindow->getChild("PlayerSettingsWindow")->hide();
+    return true;
+}
+
+bool GameMode::togglePlayerSettingsWindow(const CEGUI::EventArgs& e)
+{
+    CEGUI::Window* playerSettings = mRootWindow->getChild("PlayerSettingsWindow");
+
+    if (playerSettings->isVisible())
+        hidePlayerSettingsWindow(e);
+    else
+        showPlayerSettingsWindow(e);
     return true;
 }
 
@@ -1691,4 +1762,55 @@ void GameMode::endResearchTree(bool apply)
     mResearchCurrentCompletion.resetValue();
     mIsResearchWindowOpen = false;
     refreshGuiResearch(true);
+}
+
+void GameMode::buildPlayerSettingsWindow()
+{
+    if(!mSeatIds.empty())
+        return;
+
+    CEGUI::Window* tmpWin = mRootWindow->getChild("PlayerSettingsWindow/Seats/SeatsSP");
+    CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();
+    float offset = 15;
+    for(Seat* seat : mGameMap->getSeats())
+    {
+        if(seat->isRogueSeat())
+            continue;
+
+        Player* player = seat->getPlayer();
+        if(player == nullptr)
+            continue;
+
+        CEGUI::DefaultWindow* tmpElt;
+        std::string name;
+        Ogre::ColourValue seatColor = seat->getColorValue();
+        seatColor.a = 1.0f; // Restore the color opacity
+
+        name = TEXT_SEAT_ID_PREFIX + Helper::toString(seat->getId());
+        tmpElt = static_cast<CEGUI::DefaultWindow*>(winMgr.createWindow("OD/StaticText", name));
+        tmpWin->addChild(tmpElt);
+        tmpElt->setArea(CEGUI::UDim(0,20), CEGUI::UDim(0, offset), CEGUI::UDim(0.2,-20), CEGUI::UDim(0,offset));
+        tmpElt->setText("[colour='" + Helper::getCEGUIColorFromOgreColourValue(seatColor) + "']" + Helper::toString(seat->getId()));
+        tmpElt->setProperty("FrameEnabled", "False");
+        tmpElt->setProperty("BackgroundEnabled", "False");
+
+        name = TEXT_SEAT_PLAYER_NICKNAME_PREFIX + Helper::toString(seat->getId());
+        tmpElt = static_cast<CEGUI::DefaultWindow*>(winMgr.createWindow("OD/StaticText", name));
+        tmpWin->addChild(tmpElt);
+        tmpElt->setArea(CEGUI::UDim(0.2,20), CEGUI::UDim(0, offset), CEGUI::UDim(0.6,-20), CEGUI::UDim(0,offset));
+        tmpElt->setText("[colour='" + Helper::getCEGUIColorFromOgreColourValue(seatColor) + "']" + player->getNick());
+        tmpElt->setProperty("FrameEnabled", "False");
+        tmpElt->setProperty("BackgroundEnabled", "False");
+
+        name = TEXT_SEAT_TEAM_ID_PREFIX + Helper::toString(seat->getId());
+        tmpElt = static_cast<CEGUI::DefaultWindow*>(winMgr.createWindow("OD/StaticText", name));
+        tmpWin->addChild(tmpElt);
+        tmpElt->setArea(CEGUI::UDim(0.8,20), CEGUI::UDim(0, offset), CEGUI::UDim(0.2,-20), CEGUI::UDim(0,offset));
+        tmpElt->setText("[colour='" + Helper::getCEGUIColorFromOgreColourValue(seatColor) + "']" + Helper::toString(seat->getTeamId()));
+        tmpElt->setProperty("FrameEnabled", "False");
+        tmpElt->setProperty("BackgroundEnabled", "False");
+
+        mSeatIds.push_back(seat->getId());
+        offset += 15;
+    }
 }

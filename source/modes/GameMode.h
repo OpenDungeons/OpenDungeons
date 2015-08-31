@@ -132,6 +132,11 @@ class GameMode final : public GameEditorModeBase, public InputCommand
     bool hideObjectivesWindow(const CEGUI::EventArgs& = {});
     bool toggleObjectivesWindow(const CEGUI::EventArgs& = {});
 
+    //! \brief Shows/hides/toggles the player seetings window
+    bool showPlayerSettingsWindow(const CEGUI::EventArgs& = {});
+    bool hidePlayerSettingsWindow(const CEGUI::EventArgs& = {});
+    bool togglePlayerSettingsWindow(const CEGUI::EventArgs& = {});
+
     //! \brief Shows/hides/toggles the Research window
     bool showResearchWindow(const CEGUI::EventArgs& = {});
     bool hideResearchWindow(const CEGUI::EventArgs& = {});
@@ -219,6 +224,9 @@ private:
     ResearchType mCurrentResearchType;
     float mCurrentResearchProgress;
 
+    //! \brief Seats playing the game
+    std::vector<int> mSeatIds;
+
     //! \brief Set the help window (quite long) text.
     void setHelpWindowText();
 
@@ -239,6 +247,9 @@ private:
     void checkInputCommand();
     void handlePlayerActionNone();
     void handlePlayerActionSelectTile();
+
+    //! \brief Builds the player settings window
+    void buildPlayerSettingsWindow();
 };
 
 #endif // GAMEMODE_H
