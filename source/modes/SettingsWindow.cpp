@@ -246,12 +246,19 @@ void SettingsWindow::initConfig()
     }
 
     //! First of all, clear up the previously created windows.
+    CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();
     CEGUI::Window* parentWindow = mSettingsWindow->getChild("MainTabControl/Video/VideoSP/");
     for (CEGUI::Window* win : mCustomVideoComboBoxes)
-        parentWindow->destroyChild(win);
+    {
+        parentWindow->removeChild(win);
+        winMgr.destroyWindow(win);
+    }
     mCustomVideoComboBoxes.clear();
     for (CEGUI::Window* win : mCustomVideoTexts)
-        parentWindow->destroyChild(win);
+    {
+        parentWindow->removeChild(win);
+        winMgr.destroyWindow(win);
+    }
     mCustomVideoTexts.clear();
 
     // Find every other config options and add them to the config
