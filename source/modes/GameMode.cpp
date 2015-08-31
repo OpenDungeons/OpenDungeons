@@ -73,7 +73,8 @@ GameMode::GameMode(ModeManager *modeManager):
     mSettings(SettingsWindow(mRootWindow)),
     mIsResearchWindowOpen(false),
     mCurrentResearchType(ResearchType::nullResearchType),
-    mCurrentResearchProgress(0.0)
+    mCurrentResearchProgress(0.0),
+    mPlayerSettingKoCreatures(false)
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
@@ -114,7 +115,19 @@ GameMode::GameMode(ModeManager *modeManager):
     addEventConnection(
         guiSheet->getChild("PlayerSettingsWindow/__auto_closebutton__")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::hidePlayerSettingsWindow, this)
+            CEGUI::Event::Subscriber(&GameMode::cancelPlayerSettings, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("PlayerSettingsWindow/CancelButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::cancelPlayerSettings, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("PlayerSettingsWindow/ApplyButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::applyPlayerSettings, this)
         )
     );
 
@@ -321,6 +334,8 @@ void GameMode::activate()
 
     // Update available options
     refreshGuiResearch(true);
+
+    resetPlayerSettings();
 }
 
 bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
@@ -1160,21 +1175,60 @@ bool GameMode::showPlayerSettingsWindow(const CEGUI::EventArgs&)
     return true;
 }
 
-bool GameMode::hidePlayerSettingsWindow(const CEGUI::EventArgs&)
-{
-    mRootWindow->getChild("PlayerSettingsWindow")->hide();
-    return true;
-}
-
 bool GameMode::togglePlayerSettingsWindow(const CEGUI::EventArgs& e)
 {
     CEGUI::Window* playerSettings = mRootWindow->getChild("PlayerSettingsWindow");
 
     if (playerSettings->isVisible())
-        hidePlayerSettingsWindow(e);
+        cancelPlayerSettings(e);
     else
         showPlayerSettingsWindow(e);
     return true;
+}
+
+bool GameMode::cancelPlayerSettings(const CEGUI::EventArgs&)
+{
+    mRootWindow->getChild("PlayerSettingsWindow")->hide();
+    updatePlayerSettings(false);
+    return true;
+}
+
+bool GameMode::applyPlayerSettings(const CEGUI::EventArgs&)
+{
+    mRootWindow->getChild("PlayerSettingsWindow")->hide();
+    updatePlayerSettings(true);
+    return true;
+}
+
+void GameMode::updatePlayerSettings(bool apply)
+{
+    // We reset the controls to the previous value because the server only can change them
+    resetPlayerSettings();
+    if(!apply)
+        return;
+
+    ClientNotification* clientNotification = new ClientNotification(
+        ClientNotificationType::askSetPlayerSettings);
+
+    CEGUI::ToggleButton* cbKoCreatures = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("PlayerSettingsWindow/KOCreatureCheckbox"));
+    bool enabled = cbKoCreatures->isSelected();
+    clientNotification->mPacket << enabled;
+
+    ODClient::getSingleton().queueClientNotification(clientNotification);
+}
+
+void GameMode::resetPlayerSettings()
+{
+    CEGUI::ToggleButton* cbKoCreatures = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("PlayerSettingsWindow/KOCreatureCheckbox"));
+    cbKoCreatures->setSelected(mPlayerSettingKoCreatures);
+}
+
+void GameMode::setPlayerSettings(bool koCreatures)
+{
+    mPlayerSettingKoCreatures = koCreatures;
+    resetPlayerSettings();
 }
 
 bool GameMode::showResearchWindow(const CEGUI::EventArgs&)

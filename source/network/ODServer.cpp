@@ -1305,6 +1305,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
+        case ClientNotificationType::askSetPlayerSettings:
+        {
+            // DAN_TEST TODO sauver dans seat (et utiliser ca aussi dans gamemode tant qu'a faire)
+            //Player* player = clientSocket->getPlayer();
+            break;
+        }
+
         case ClientNotificationType::editorAskDestroyTrapTiles:
         {
             if(mServerMode != ServerMode::ModeEditor)

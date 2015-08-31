@@ -71,6 +71,8 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "askCastSpell";
         case ClientNotificationType::askSetResearchTree:
             return "askSetResearchTree";
+        case ClientNotificationType::askSetPlayerSettings:
+            return "askSetPlayerSettings";
         case ClientNotificationType::askSaveMap:
             return "askSaveMap";
         case ClientNotificationType::editorAskChangeTiles:

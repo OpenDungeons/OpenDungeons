@@ -132,10 +132,17 @@ class GameMode final : public GameEditorModeBase, public InputCommand
     bool hideObjectivesWindow(const CEGUI::EventArgs& = {});
     bool toggleObjectivesWindow(const CEGUI::EventArgs& = {});
 
-    //! \brief Shows/hides/toggles the player seetings window
+    //! \brief Shows/hides/toggles the player settings window
     bool showPlayerSettingsWindow(const CEGUI::EventArgs& = {});
-    bool hidePlayerSettingsWindow(const CEGUI::EventArgs& = {});
     bool togglePlayerSettingsWindow(const CEGUI::EventArgs& = {});
+    bool cancelPlayerSettings(const CEGUI::EventArgs& = {});
+    bool applyPlayerSettings(const CEGUI::EventArgs& = {});
+    //! \brief Resets the player settings (they can be changed by the server only). If apply is true,
+    //! a message asking to change will be sent
+    void updatePlayerSettings(bool apply);
+    void resetPlayerSettings();
+    //! \brief Called when the server sends a message asking to set the player settings
+    void setPlayerSettings(bool koCreatures);
 
     //! \brief Shows/hides/toggles the Research window
     bool showResearchWindow(const CEGUI::EventArgs& = {});
@@ -226,6 +233,8 @@ private:
 
     //! \brief Seats playing the game
     std::vector<int> mSeatIds;
+
+    bool mPlayerSettingKoCreatures;
 
     //! \brief Set the help window (quite long) text.
     void setHelpWindowText();

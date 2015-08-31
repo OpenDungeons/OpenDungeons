@@ -936,6 +936,17 @@ bool ODClient::processOneClientSocketMessage()
             getPlayer()->setSpellCooldownTurns(spellType, cooldown);
             break;
         }
+        case ServerNotificationType::setPlayerSettings:
+        {
+            if (frameListener->getModeManager()->getCurrentModeType() == AbstractModeManager::GAME)
+            {
+                GameMode* gm = static_cast<GameMode*>(frameListener->getModeManager()->getCurrentMode());
+                bool koCreatures;
+                OD_ASSERT_TRUE(packetReceived >> koCreatures);
+                gm->setPlayerSettings(koCreatures);
+            }
+            break;
+        }
 
         default:
         {

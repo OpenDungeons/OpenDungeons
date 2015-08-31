@@ -7,6 +7,14 @@
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Property name="Visible" value="False" />
         <Property name="RiseOnClickEnabled" value="False" />
+        <Window type="OD/Button" name="CancelButton" >
+            <Property name="Area" value="{{1,-230},{1,-55},{1,-130},{1,-25}}" />
+            <Property name="Text" value="Cancel" />
+        </Window>
+        <Window type="OD/Button" name="ApplyButton" >
+            <Property name="Area" value="{{1,-125},{1,-55},{1,-25},{1,-25}}" />
+            <Property name="Text" value="Apply" />
+        </Window>
         <Window type="OD/StaticText" name="TextSeatIdTitle" >
             <Property name="Area" value="{{0,20},{0,20},{0.2,0},{0,50}}" />
             <Property name="Text" value="Seat" />
@@ -30,6 +38,10 @@
             <Window type="OD/ScrollablePane" name="SeatsSP" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
             </Window>
+        </Window>
+        <Window type="OD/Checkbox" name="KOCreatureCheckbox" >
+            <Property name="Area" value="{{0,20},{0.6,0},{1,0},{0.6,20}}" />
+            <Property name="Text" value="KO enemy creatures instead of killing" />
         </Window>
     </Window>
 </GUILayout>
