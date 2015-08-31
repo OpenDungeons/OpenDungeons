@@ -123,6 +123,12 @@ public:
     inline double getClaimingWallPenalty() const
     { return mClaimingWallPenalty; }
 
+    inline int32_t getNbTurnsKoCreatureDropped() const
+    { return mNbTurnsKoCreatureDropped; }
+
+    inline int32_t getNbTurnsKoCreatureAttacked() const
+    { return mNbTurnsKoCreatureAttacked; }
+
     inline const std::string& getMainMenuMusic() const
     { return mMainMenuMusic; }
 
@@ -259,6 +265,8 @@ private:
     int64_t mNbTurnsFuriousMax;
     double mMaxManaPerSeat;
     double mClaimingWallPenalty;
+    int32_t mNbTurnsKoCreatureDropped;
+    int32_t mNbTurnsKoCreatureAttacked;
     std::string mDefaultWorkerRogue;
     std::string mMainMenuMusic;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;

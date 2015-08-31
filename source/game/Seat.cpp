@@ -71,7 +71,8 @@ Seat::Seat(GameMap* gameMap) :
     mGuiResearchNeedsRefresh(false),
     mConfigPlayerId(-1),
     mConfigTeamId(-1),
-    mConfigFactionIndex(-1)
+    mConfigFactionIndex(-1),
+    mKoCreatures(false)
 {
 }
 

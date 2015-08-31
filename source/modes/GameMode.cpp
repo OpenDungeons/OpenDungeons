@@ -73,8 +73,7 @@ GameMode::GameMode(ModeManager *modeManager):
     mSettings(SettingsWindow(mRootWindow)),
     mIsResearchWindowOpen(false),
     mCurrentResearchType(ResearchType::nullResearchType),
-    mCurrentResearchProgress(0.0),
-    mPlayerSettingKoCreatures(false)
+    mCurrentResearchProgress(0.0)
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
@@ -335,7 +334,7 @@ void GameMode::activate()
     // Update available options
     refreshGuiResearch(true);
 
-    resetPlayerSettings();
+    syncPlayerSettings();
 }
 
 bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
@@ -1171,6 +1170,10 @@ bool GameMode::toggleObjectivesWindow(const CEGUI::EventArgs& e)
 
 bool GameMode::showPlayerSettingsWindow(const CEGUI::EventArgs&)
 {
+    // Before showing the player settings, we reset to the values in the seat. That's
+    // because only the server can change them and the values in the Seat are the
+    // ones that should be shown
+    syncPlayerSettings();
     mRootWindow->getChild("PlayerSettingsWindow")->show();
     return true;
 }
@@ -1189,24 +1192,12 @@ bool GameMode::togglePlayerSettingsWindow(const CEGUI::EventArgs& e)
 bool GameMode::cancelPlayerSettings(const CEGUI::EventArgs&)
 {
     mRootWindow->getChild("PlayerSettingsWindow")->hide();
-    updatePlayerSettings(false);
     return true;
 }
 
 bool GameMode::applyPlayerSettings(const CEGUI::EventArgs&)
 {
     mRootWindow->getChild("PlayerSettingsWindow")->hide();
-    updatePlayerSettings(true);
-    return true;
-}
-
-void GameMode::updatePlayerSettings(bool apply)
-{
-    // We reset the controls to the previous value because the server only can change them
-    resetPlayerSettings();
-    if(!apply)
-        return;
-
     ClientNotification* clientNotification = new ClientNotification(
         ClientNotificationType::askSetPlayerSettings);
 
@@ -1216,19 +1207,16 @@ void GameMode::updatePlayerSettings(bool apply)
     clientNotification->mPacket << enabled;
 
     ODClient::getSingleton().queueClientNotification(clientNotification);
+
+    return true;
 }
 
-void GameMode::resetPlayerSettings()
+void GameMode::syncPlayerSettings()
 {
+    Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
     CEGUI::ToggleButton* cbKoCreatures = static_cast<CEGUI::ToggleButton*>(
         mRootWindow->getChild("PlayerSettingsWindow/KOCreatureCheckbox"));
-    cbKoCreatures->setSelected(mPlayerSettingKoCreatures);
-}
-
-void GameMode::setPlayerSettings(bool koCreatures)
-{
-    mPlayerSettingKoCreatures = koCreatures;
-    resetPlayerSettings();
+    cbKoCreatures->setSelected(localPlayerSeat->getKoCreatures());
 }
 
 bool GameMode::showResearchWindow(const CEGUI::EventArgs&)

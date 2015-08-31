@@ -1307,8 +1307,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::askSetPlayerSettings:
         {
-            // DAN_TEST TODO sauver dans seat (et utiliser ca aussi dans gamemode tant qu'a faire)
-            //Player* player = clientSocket->getPlayer();
+            Seat* playerSeat = clientSocket->getPlayer()->getSeat();
+            bool koCreatures;
+            OD_ASSERT_TRUE(packetReceived >> koCreatures);
+            playerSeat->setPlayerSettings(koCreatures);
             break;
         }
 

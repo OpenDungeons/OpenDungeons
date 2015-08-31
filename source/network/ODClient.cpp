@@ -938,13 +938,9 @@ bool ODClient::processOneClientSocketMessage()
         }
         case ServerNotificationType::setPlayerSettings:
         {
-            if (frameListener->getModeManager()->getCurrentModeType() == AbstractModeManager::GAME)
-            {
-                GameMode* gm = static_cast<GameMode*>(frameListener->getModeManager()->getCurrentMode());
-                bool koCreatures;
-                OD_ASSERT_TRUE(packetReceived >> koCreatures);
-                gm->setPlayerSettings(koCreatures);
-            }
+            bool koCreatures;
+            OD_ASSERT_TRUE(packetReceived >> koCreatures);
+            getPlayer()->getSeat()->setPlayerSettings(koCreatures);
             break;
         }
 

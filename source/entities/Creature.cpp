@@ -164,7 +164,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false),
     mDropCooldown            (0),
-    mSpeedModifier           (1.0)
+    mSpeedModifier           (1.0),
+    mKoTurnCounter           (0)
 
 {
     //TODO: This should be set in initialiser list in parent classes
@@ -249,7 +250,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false),
     mDropCooldown            (0),
-    mSpeedModifier           (1.0)
+    mSpeedModifier           (1.0),
+    mKoTurnCounter           (0)
 {
     pushAction(CreatureActionType::idle, false, true);
 }
@@ -716,8 +718,80 @@ void Creature::setLevel(unsigned int level)
     mNeedFireRefresh = true;
 }
 
+void Creature::die()
+{
+    fireCreatureSound(CreatureSound::Die);
+    stopJob();
+    stopEating();
+    clearDestinations(EntityAnimation::die_anim, false);
+
+    // We drop what we are carrying
+    Tile* myTile = getPositionTile();
+    if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
+        return;
+    }
+
+    if(mGoldCarried > 0)
+    {
+        TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
+        obj->addToGameMap();
+        Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
+                                    static_cast<Ogre::Real>(myTile->getY()), 0.0f);
+        obj->createMesh();
+        obj->setPosition(spawnPosition);
+    }
+
+    if(mResearchTypeDropDeath != ResearchType::nullResearchType)
+    {
+        GiftBoxResearch* researchEntity = new GiftBoxResearch(getGameMap(), getIsOnServerMap(),
+            "DroppedBy" + getName(), mResearchTypeDropDeath);
+        researchEntity->addToGameMap();
+        Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
+                                    static_cast<Ogre::Real>(myTile->getY()), 0.0f);
+        researchEntity->createMesh();
+        researchEntity->setPosition(spawnPosition);
+    }
+
+    // TODO: drop weapon when available
+}
+
 void Creature::doUpkeep()
 {
+    // If the creature is KO, it should not do anything
+    if(mKoTurnCounter < 0)
+    {
+        // The creature is KO to death
+        // we remove all its particle effects (if any)
+        if(!mEntityParticleEffects.empty())
+        {
+            for(EntityParticleEffect* effect : mEntityParticleEffects)
+            {
+                delete effect;
+            }
+            mEntityParticleEffects.clear();
+        }
+
+        // If the counter reaches 0, the creature is dead
+        ++mKoTurnCounter;
+        if(mKoTurnCounter < 0)
+            return;
+
+        mHp = 0;
+        computeCreatureOverlayHealthValue();
+        computeCreatureOverlayMoodValue();
+    }
+    else if(mKoTurnCounter > 0)
+    {
+        // The creature is temporary KO
+        --mKoTurnCounter;
+        if(mKoTurnCounter > 0)
+            return;
+
+        computeCreatureOverlayMoodValue();
+    }
+
     // We apply creature effects if the creature is alive
     if(getHP() > 0.0)
     {
@@ -747,41 +821,7 @@ void Creature::doUpkeep()
         {
             OD_LOG_INF("Creature=" + getName() + " RIP");
 
-            fireCreatureSound(CreatureSound::Die);
-            stopJob();
-            stopEating();
-            clearDestinations(EntityAnimation::die_anim, false);
-
-            // We drop what we are carrying
-            Tile* myTile = getPositionTile();
-            if(myTile == nullptr)
-            {
-                OD_LOG_ERR("name=" + getName());
-                return;
-            }
-
-            if(mGoldCarried > 0)
-            {
-                TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
-                obj->addToGameMap();
-                Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
-                                            static_cast<Ogre::Real>(myTile->getY()), 0.0f);
-                obj->createMesh();
-                obj->setPosition(spawnPosition);
-            }
-
-            if(mResearchTypeDropDeath != ResearchType::nullResearchType)
-            {
-                GiftBoxResearch* researchEntity = new GiftBoxResearch(getGameMap(), getIsOnServerMap(),
-                    "DroppedBy" + getName(), mResearchTypeDropDeath);
-                researchEntity->addToGameMap();
-                Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
-                                            static_cast<Ogre::Real>(myTile->getY()), 0.0f);
-                researchEntity->createMesh();
-                researchEntity->setPosition(spawnPosition);
-            }
-
-            // TODO: drop weapon when available
+            die();
         }
         else if (mDeathCounter >= ConfigManager::getSingleton().getCreatureDeathCounter())
         {
@@ -3640,6 +3680,22 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
     magicalDamage = std::max(magicalDamage - getMagicalDefense(), 0.0);
     double damageDone = std::min(mHp, physicalDamage + magicalDamage);
     mHp -= damageDone;
+    if(mHp <= 0)
+    {
+        // If the attacking entity is a creature and its seat is configured to KO creatures
+        // instead of killing, we KO
+        if((attacker != nullptr) &&
+           (attacker->getObjectType() == GameEntityType::creature) &&
+           (attacker->getSeat()->getKoCreatures()))
+        {
+            mHp = 1.0;
+            mKoTurnCounter = -ConfigManager::getSingleton().getNbTurnsKoCreatureAttacked();
+            computeCreatureOverlayMoodValue();
+            OD_LOG_INF("creature=" + getName() + " has been KO by " + attacker->getName());
+            die();
+        }
+    }
+
     computeCreatureOverlayHealthValue();
 
     if(!isAlive())
@@ -3754,6 +3810,10 @@ bool Creature::tryPickup(Seat* seat)
     if(!getSeat()->canOwnedCreatureBePickedUpBy(seat) && !getGameMap()->isInEditorMode())
         return false;
 
+    // KO creatures cannot be picked up
+    if(isKo())
+        return false;
+
     return true;
 }
 
@@ -3859,6 +3919,10 @@ void Creature::drop(const Ogre::Vector3& v)
         computeVisualDebugEntities();
 
     fireCreatureSound(CreatureSound::Drop);
+
+    // The creature is temporary KO
+    mKoTurnCounter = ConfigManager::getSingleton().getNbTurnsKoCreatureDropped();
+    computeCreatureOverlayMoodValue();
 }
 
 bool Creature::setDestination(Tile* tile)
@@ -4055,16 +4119,25 @@ bool Creature::isAttackable(Tile* tile, Seat* seat) const
     if(mHp <= 0.0)
         return false;
 
+    // KO Creature to death creatures are not a threat and cannot be attacked. However,
+    // temporary KO can be
+    if(mKoTurnCounter < 0)
+        return false;
+
     return true;
 }
 
 EntityCarryType Creature::getEntityCarryType()
 {
-    // Dead creatures are carryable
-    if(getHP() > 0.0)
-        return EntityCarryType::notCarryable;
+    // KO to death entities can be carried
+    if(mKoTurnCounter < 0)
+        return EntityCarryType::koCreature;
 
-    return EntityCarryType::corpse;
+    // Dead creatures are carryable
+    if(getHP() <= 0.0)
+        return EntityCarryType::corpse;
+
+    return EntityCarryType::notCarryable;
 }
 
 void Creature::notifyEntityCarryOn(Creature* carrier)
@@ -4539,7 +4612,8 @@ void Creature::computeCreatureOverlayMoodValue()
     if(isActionInList(CreatureActionType::leaveDungeon))
         value |= 0x0008;
 
-    // TODO: handle KO state
+    if(mKoTurnCounter != 0)
+        value |= 0x0010;
 
     if(isHungry())
         value |= 0x0020;
@@ -4597,7 +4671,16 @@ bool Creature::isHurt() const
 
     // On client side, we test overlay value. 0 represents full health
     return mOverlayHealthValue > 0;
+}
 
+bool Creature::isKo() const
+{
+    //On server side, we test HP
+    if(getIsOnServerMap())
+        return mKoTurnCounter != 0;
+
+    // On client side, we test mood overlay value
+    return (mOverlayMoodValue & 0x0010) != 0;
 }
 
 void Creature::correctEntityMovePosition(Ogre::Vector3& position)
