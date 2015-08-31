@@ -398,21 +398,13 @@ void RoomWorkshop::doUpkeep()
 
 uint32_t RoomWorkshop::countCraftedItemsOnRoom()
 {
-    std::vector<GameEntity*> carryable;
+    uint32_t nbItems = 0;
     for(Tile* t : mCoveredTiles)
     {
-        t->fillWithCarryableEntities(carryable);
-    }
-    uint32_t nbCraftedTrap = 0;
-    for(GameEntity* entity : carryable)
-    {
-        if(entity->getObjectType() != GameEntityType::craftedTrap)
-            continue;
-
-        ++nbCraftedTrap;
+        nbItems += t->countEntitiesOnTile(GameEntityType::craftedTrap);
     }
 
-    return nbCraftedTrap;
+    return nbItems;
 }
 
 Tile* RoomWorkshop::checkIfAvailableSpot()
@@ -424,20 +416,8 @@ Tile* RoomWorkshop::checkIfAvailableSpot()
         if(!roomWorkshopTileData->mCanHaveCraftedTrap)
             continue;
 
-        bool isFilled = false;
-        std::vector<GameEntity*> entities;
-        p.first->fillWithCarryableEntities(entities);
-        for(GameEntity* entity : entities)
-        {
-            if(entity->getObjectType() != GameEntityType::craftedTrap)
-                continue;
-
-            // There is one
-            isFilled = true;
-            break;
-        }
-
-        if(isFilled)
+        uint32_t nbItems = p.first->countEntitiesOnTile(GameEntityType::researchEntity);
+        if(nbItems > 0)
             continue;
 
         return p.first;

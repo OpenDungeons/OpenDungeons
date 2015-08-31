@@ -1167,7 +1167,7 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         }
 
         std::vector<GameEntity*> carryable;
-        position->fillWithCarryableEntities(carryable);
+        position->fillWithCarryableEntities(this, carryable);
         bool forceCarryObject = false;
         if(!carryable.empty())
             forceCarryObject = true;
@@ -2776,7 +2776,7 @@ bool Creature::handleCarryableEntities(const CreatureActionWrapper& actionItem)
     if(mCarriedEntity == nullptr)
     {
         std::vector<Building*> buildings = getGameMap()->getReachableBuildingsPerSeat(getSeat(), myTile, this);
-        std::vector<GameEntity*> carryableEntities = getGameMap()->getVisibleCarryableEntities(mVisibleTiles);
+        std::vector<GameEntity*> carryableEntities = getGameMap()->getVisibleCarryableEntities(this, mVisibleTiles);
         std::vector<Tile*> carryableEntityInMyTileClients;
         std::vector<GameEntity*> availableEntities;
         EntityCarryType highestPriority = EntityCarryType::notCarryable;
@@ -2797,7 +2797,7 @@ bool Creature::handleCarryableEntities(const CreatureActionWrapper& actionItem)
             }
 
             // We check if the current entity is highest or equal to the older one (if any)
-            if(entity->getEntityCarryType() > highestPriority)
+            if(entity->getEntityCarryType(this) > highestPriority)
             {
                 // We check if a buildings wants this entity
                 std::vector<Tile*> tilesDest;
@@ -2816,7 +2816,7 @@ bool Creature::handleCarryableEntities(const CreatureActionWrapper& actionItem)
                     carryableEntityInMyTile = nullptr;
                     availableEntities.clear();
                     availableEntities.push_back(entity);
-                    highestPriority = entity->getEntityCarryType();
+                    highestPriority = entity->getEntityCarryType(this);
                     if(myTile == carryableEntTile)
                     {
                         carryableEntityInMyTile = entity;
@@ -2824,7 +2824,7 @@ bool Creature::handleCarryableEntities(const CreatureActionWrapper& actionItem)
                     }
                 }
             }
-            else if(entity->getEntityCarryType() == highestPriority)
+            else if(entity->getEntityCarryType(this) == highestPriority)
             {
                 // We check if a buildings wants this entity
                 std::vector<Tile*> tilesDest;
@@ -4127,7 +4127,7 @@ bool Creature::isAttackable(Tile* tile, Seat* seat) const
     return true;
 }
 
-EntityCarryType Creature::getEntityCarryType()
+EntityCarryType Creature::getEntityCarryType(Creature* carrier)
 {
     // KO to death entities can be carried
     if(mKoTurnCounter < 0)
@@ -4149,6 +4149,41 @@ void Creature::notifyEntityCarryOff(const Ogre::Vector3& position)
 {
     mPosition = position;
     addEntityToPositionTile();
+
+    Tile* posTile = getPositionTile();
+    if(posTile == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", position=" + Helper::toString(position));
+        return;
+    }
+
+    if(posTile != getHomeTile())
+        return;
+
+    // The creature was released on its bed. Let's set its KO state to 0
+    mKoTurnCounter = 0;
+    computeCreatureOverlayMoodValue();
+}
+
+bool Creature::canBeCarriedToBuilding(const Building* building) const
+{
+    // If the creature is dead, it can be carried to any crypt
+    if(!isAlive() &&
+       (building->getObjectType() == GameEntityType::room) &&
+       (static_cast<const Room*>(building)->getType() == RoomType::crypt))
+    {
+        return true;
+    }
+
+    // If the creature is ko to death, it can be carried to its bed
+    if((mKoTurnCounter < 0) &&
+       (mHomeTile != nullptr) &&
+       (mHomeTile->getCoveringBuilding() == building))
+    {
+        return true;
+    }
+
+    return false;
 }
 
 void Creature::carryEntity(GameEntity* carriedEntity)

@@ -366,6 +366,45 @@ bool RoomDormitory::buildRoomOnTiles(GameMap* gameMap, Player* player, const std
     return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
 }
 
+bool RoomDormitory::hasCarryEntitySpot(GameEntity* carriedEntity)
+{
+    if(carriedEntity->getObjectType() != GameEntityType::creature)
+        return false;
+
+    if(carriedEntity->getSeat() != getSeat())
+        return false;
+
+    Creature* creature = static_cast<Creature*>(carriedEntity);
+    if(!creature->canBeCarriedToBuilding(this))
+        return false;
+
+    return true;
+}
+
+Tile* RoomDormitory::askSpotForCarriedEntity(GameEntity* carriedEntity)
+{
+    if(carriedEntity->getObjectType() != GameEntityType::creature)
+    {
+        OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
+        return nullptr;
+    }
+
+    Creature* creature = static_cast<Creature*>(carriedEntity);
+    // We search for the creature bed
+    for(const BedRoomObjectInfo& bed : mBedRoomObjectsInfo)
+    {
+        if(bed.getCreature() == creature)
+            return bed.getOwningTile();
+    }
+
+    return nullptr;
+}
+
+void RoomDormitory::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
+{
+    // We don't care if the creature is dropped in its bed or not. If will handle itself itself.
+}
+
 Room* RoomDormitory::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
     RoomDormitory* room = new RoomDormitory(gameMap);

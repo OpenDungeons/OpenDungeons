@@ -146,6 +146,10 @@ public:
     bool releaseTileForSleeping(Tile *t, Creature *c);
     Tile* getLocationForBed(int xDim, int yDim);
 
+    bool hasCarryEntitySpot(GameEntity* carriedEntity) override;
+    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
+    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
+
     static void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet);
     static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);

@@ -211,7 +211,7 @@ class GameEntity : public EntityBase
     virtual void fireRemoveEntityToSeatsWithVision();
 
     //! \brief Returns true if the entity can be carried by a worker. False otherwise.
-    virtual EntityCarryType getEntityCarryType()
+    virtual EntityCarryType getEntityCarryType(Creature* carrier)
     { return EntityCarryType::notCarryable; }
 
     //! \brief Called when the entity is being carried

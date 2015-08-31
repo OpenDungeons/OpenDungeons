@@ -319,18 +319,10 @@ void RoomLibrary::doUpkeep()
 
 uint32_t RoomLibrary::countResearchItemsOnRoom()
 {
-    std::vector<GameEntity*> carryable;
+    uint32_t nbItems = 0;
     for(Tile* t : mCoveredTiles)
     {
-        t->fillWithCarryableEntities(carryable);
-    }
-    uint32_t nbItems = 0;
-    for(GameEntity* entity : carryable)
-    {
-        if(entity->getObjectType() != GameEntityType::researchEntity)
-            continue;
-
-        ++nbItems;
+        nbItems += t->countEntitiesOnTile(GameEntityType::researchEntity);
     }
 
     return nbItems;
@@ -345,20 +337,8 @@ Tile* RoomLibrary::checkIfAvailableSpot()
             continue;
 
         // If the tile contains no item, we can add a new one
-        bool isFilled = false;
-        std::vector<GameEntity*> entities;
-        p.first->fillWithCarryableEntities(entities);
-        for(GameEntity* entity : entities)
-        {
-            if(entity->getObjectType() != GameEntityType::researchEntity)
-                continue;
-
-            // There is one
-            isFilled = true;
-            break;
-        }
-
-        if(isFilled)
+        uint32_t nbItems = p.first->countEntitiesOnTile(GameEntityType::researchEntity);
+        if(nbItems > 0)
             continue;
 
         return p.first;

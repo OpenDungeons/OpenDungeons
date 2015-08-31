@@ -45,7 +45,7 @@ public:
     TrapType getTrapType() const
     { return mTrapType; }
 
-    virtual EntityCarryType getEntityCarryType() override
+    virtual EntityCarryType getEntityCarryType(Creature* carrier) override
     { return EntityCarryType::craftedTrap; }
 
     virtual void notifyEntityCarryOn(Creature* carrier) override;

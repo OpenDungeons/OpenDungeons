@@ -31,6 +31,7 @@
 #include <string>
 #include <deque>
 
+class Building;
 class Creature;
 class CreatureActionWrapper;
 class CreatureEffect;
@@ -390,9 +391,10 @@ public:
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(Tile* tile) const;
 
-    virtual EntityCarryType getEntityCarryType();
+    virtual EntityCarryType getEntityCarryType(Creature* carrier);
     virtual void notifyEntityCarryOn(Creature* carrier);
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
+    bool canBeCarriedToBuilding(const Building* building) const;
 
     bool canSlap(Seat* seat);
     void slap();

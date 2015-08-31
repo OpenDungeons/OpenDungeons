@@ -171,7 +171,7 @@ void TreasuryObject::addEntityToPositionTile()
     OD_ASSERT_TRUE_MSG(tile->addTreasuryObject(this), getGameMap()->serverStr() + "entity=" + getName() + ", pos=" + Helper::toString(getPosition()) + ", tile=" + Tile::displayAsString(tile));
 }
 
-EntityCarryType TreasuryObject::getEntityCarryType()
+EntityCarryType TreasuryObject::getEntityCarryType(Creature* carrier)
 {
     if(!getIsOnMap())
         return EntityCarryType::notCarryable;

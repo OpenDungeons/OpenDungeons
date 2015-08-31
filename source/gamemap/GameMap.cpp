@@ -1773,7 +1773,7 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& 
     return returnList;
 }
 
-std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles)
+std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(Creature* carrier, const std::vector<Tile*>& visibleTiles)
 {
     std::vector<GameEntity*> returnList;
 
@@ -1786,7 +1786,7 @@ std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(const std::vector<
             continue;
         }
 
-        tile->fillWithCarryableEntities(returnList);
+        tile->fillWithCarryableEntities(carrier, returnList);
     }
 
     return returnList;

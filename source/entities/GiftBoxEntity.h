@@ -48,7 +48,7 @@ public:
 
     virtual const Ogre::Vector3& getScale() const override;
 
-    virtual EntityCarryType getEntityCarryType() override
+    virtual EntityCarryType getEntityCarryType(Creature* carrier) override
     { return EntityCarryType::giftBox; }
 
     virtual void notifyEntityCarryOn(Creature* carrier) override;

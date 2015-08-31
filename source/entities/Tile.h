@@ -307,9 +307,10 @@ public:
     void fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
     void fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
     void fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillWithCarryableEntities(std::vector<GameEntity*>& entities);
+    void fillWithCarryableEntities(Creature* carrier, std::vector<GameEntity*>& entities);
     void fillWithChickenEntities(std::vector<GameEntity*>& entities);
     void fillWithCraftedTraps(std::vector<GameEntity*>& entities);
+    uint32_t countEntitiesOnTile(GameEntityType entityType) const;
 
     //TODO: see if this function can replace the ones above (if not too much used)
     //! Fills the given vector with corresponding entities on this tile.

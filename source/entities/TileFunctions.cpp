@@ -529,7 +529,7 @@ void Tile::fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat
     }
 }
 
-void Tile::fillWithCarryableEntities(std::vector<GameEntity*>& entities)
+void Tile::fillWithCarryableEntities(Creature* carrier, std::vector<GameEntity*>& entities)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
@@ -539,7 +539,7 @@ void Tile::fillWithCarryableEntities(std::vector<GameEntity*>& entities)
             continue;
         }
 
-        if(entity->getEntityCarryType() == EntityCarryType::notCarryable)
+        if(entity->getEntityCarryType(carrier) == EntityCarryType::notCarryable)
             continue;
 
         if (std::find(entities.begin(), entities.end(), entity) == entities.end())
@@ -581,6 +581,26 @@ void Tile::fillWithCraftedTraps(std::vector<GameEntity*>& entities)
         if (std::find(entities.begin(), entities.end(), entity) == entities.end())
             entities.push_back(entity);
     }
+}
+
+uint32_t Tile::countEntitiesOnTile(GameEntityType entityType) const
+{
+    uint32_t nbItems = 0;
+    for(GameEntity* entity : mEntitiesInTile)
+    {
+        if(entity == nullptr)
+        {
+            OD_LOG_ERR("unexpected null entity in tile=" + Tile::displayAsString(this));
+            continue;
+        }
+
+        if(entity->getObjectType() != entityType)
+            continue;
+
+        ++nbItems;
+    }
+
+    return nbItems;
 }
 
 void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityWanted entityWanted, Player* player) const

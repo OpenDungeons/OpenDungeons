@@ -43,7 +43,7 @@ public:
     inline int32_t getResearchPoints() const
     { return mResearchPoints; }
 
-    virtual EntityCarryType getEntityCarryType() override
+    virtual EntityCarryType getEntityCarryType(Creature* carrier) override
     { return EntityCarryType::researchEntity; }
 
     virtual void notifyEntityCarryOn(Creature* carrier) override;
