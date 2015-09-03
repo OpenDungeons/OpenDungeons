@@ -527,6 +527,9 @@ int RoomManager::costPerTile(RoomType t)
     case RoomType::crypt:
         return ConfigManager::getSingleton().getRoomConfigInt32("CryptCostPerTile");
 
+    case RoomType::prison:
+        return ConfigManager::getSingleton().getRoomConfigInt32("PrisonCostPerTile");
+
     default:
         return 0;
     }

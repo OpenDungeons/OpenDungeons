@@ -53,13 +53,13 @@ bool MissileOneHit::hitCreature(GameEntity* entity)
         return true;
 
     Tile* hitTile = tiles[0];
-    entity->takeDamage(this, mPhysicalDamage, mMagicalDamage, hitTile);
+    entity->takeDamage(this, mPhysicalDamage, mMagicalDamage, hitTile, false, false);
     return false;
 }
 
 void MissileOneHit::hitTargetBuilding(Tile* tile, Building* target)
 {
-    target->takeDamage(this, mPhysicalDamage, mMagicalDamage, tile);
+    target->takeDamage(this, mPhysicalDamage, mMagicalDamage, tile, false, false);
 }
 
 MissileOneHit* MissileOneHit::getMissileOneHitFromStream(GameMap* gameMap, std::istream& is)

@@ -377,7 +377,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         return true;
 
     std::vector<EntityBase*> entities;
-    tileClicked->fillWithEntities(entities, SelectionEntityWanted::creatureAlive, mGameMap->getLocalPlayer());
+    tileClicked->fillWithEntities(entities, SelectionEntityWanted::creatureAliveOrDead, mGameMap->getLocalPlayer());
     // We search the closest creature alive
     Creature* closestCreature = nullptr;
     double closestDist = 0;

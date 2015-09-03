@@ -696,6 +696,13 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
 
                 break;
             }
+            case SelectionEntityWanted::creatureAliveOrDead:
+            {
+                if(entity->getObjectType() != GameEntityType::creature)
+                    continue;
+
+                break;
+            }
             default:
             {
                 static bool logMsg = false;

@@ -26,7 +26,7 @@ void CreatureEffectExplosion::applyEffect(Creature& creature)
         return;
 
     Tile* posTile = creature.getPositionTile();
-    creature.takeDamage(nullptr, 0.0, mEffectValue, posTile);
+    creature.takeDamage(nullptr, 0.0, mEffectValue, posTile, false, false);
 }
 
 CreatureEffectExplosion* CreatureEffectExplosion::load(std::istream& is)

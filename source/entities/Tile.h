@@ -217,6 +217,10 @@ public:
     unsigned int numEntitiesInTile() const
     { return mEntitiesInTile.size(); }
 
+    //! \brief This function returns the count of the number of creatures in the tile.
+    const std::vector<GameEntity*>& getEntitiesInTile() const
+    { return mEntitiesInTile; }
+
     void addNeighbor(Tile *n);
     Tile* getNeighbor(unsigned index);
     const std::vector<Tile*>& getAllNeighbors() const

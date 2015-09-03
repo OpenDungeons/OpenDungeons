@@ -402,7 +402,24 @@ Tile* RoomDormitory::askSpotForCarriedEntity(GameEntity* carriedEntity)
 
 void RoomDormitory::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
 {
-    // We don't care if the creature is dropped in its bed or not. If will handle itself itself.
+    if(carriedEntity->getObjectType() != GameEntityType::creature)
+    {
+        OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
+        return;
+    }
+
+    Creature* creature = static_cast<Creature*>(carriedEntity);
+    Tile* posTile = creature->getPositionTile();
+    if(posTile == nullptr)
+    {
+        OD_LOG_ERR("creature=" + creature->getName() + ", position=" + Helper::toString(creature->getPosition()));
+        return;
+    }
+
+    if(posTile != creature->getHomeTile())
+        return;
+
+    creature->releasedInBed();
 }
 
 Room* RoomDormitory::getRoomFromStream(GameMap* gameMap, std::istream& is)

@@ -165,7 +165,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mNeedFireRefresh         (false),
     mDropCooldown            (0),
     mSpeedModifier           (1.0),
-    mKoTurnCounter           (0)
+    mKoTurnCounter           (0),
+    mSeatPrison              (nullptr)
 
 {
     //TODO: This should be set in initialiser list in parent classes
@@ -251,7 +252,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mNeedFireRefresh         (false),
     mDropCooldown            (0),
     mSpeedModifier           (1.0),
-    mKoTurnCounter           (0)
+    mKoTurnCounter           (0),
+    mSeatPrison              (nullptr)
 {
     pushAction(CreatureActionType::idle, false, true);
 }
@@ -658,10 +660,10 @@ void Creature::heal(double hp)
 
 bool Creature::isAlive() const
 {
-    if(getIsOnServerMap())
+    if(!getIsOnServerMap())
         return mOverlayHealthValue < (NB_OVERLAY_HEALTH_VALUES - 1);
 
-    return mHp > 0;
+    return mHp > 0.0;
 }
 
 void Creature::update(Ogre::Real timeSinceLastFrame)
@@ -695,7 +697,16 @@ void Creature::update(Ogre::Real timeSinceLastFrame)
 
 void Creature::computeVisibleTiles()
 {
+    // dead Creatures do not give vision
     if (getHP() <= 0.0)
+        return;
+
+    // KO Creatures do not give vision
+    if (isKo())
+        return;
+
+    // creatures in jail do not give vision
+    if (mSeatPrison != nullptr)
         return;
 
     if (!getIsOnMap())
@@ -718,7 +729,7 @@ void Creature::setLevel(unsigned int level)
     mNeedFireRefresh = true;
 }
 
-void Creature::die()
+void Creature::dropCarriedEquipment()
 {
     fireCreatureSound(CreatureSound::Die);
     stopJob();
@@ -729,7 +740,7 @@ void Creature::die()
     Tile* myTile = getPositionTile();
     if(myTile == nullptr)
     {
-        OD_LOG_ERR("name=" + getName());
+        OD_LOG_ERR("name=" + getName() + ", position=" + Helper::toString(getPosition()));
         return;
     }
 
@@ -741,6 +752,7 @@ void Creature::die()
                                     static_cast<Ogre::Real>(myTile->getY()), 0.0f);
         obj->createMesh();
         obj->setPosition(spawnPosition);
+        mGoldCarried = 0;
     }
 
     if(mResearchTypeDropDeath != ResearchType::nullResearchType)
@@ -752,6 +764,7 @@ void Creature::die()
                                     static_cast<Ogre::Real>(myTile->getY()), 0.0f);
         researchEntity->createMesh();
         researchEntity->setPosition(spawnPosition);
+        mResearchTypeDropDeath = ResearchType::nullResearchType;
     }
 
     // TODO: drop weapon when available
@@ -759,20 +772,74 @@ void Creature::die()
 
 void Creature::doUpkeep()
 {
-    // If the creature is KO, it should not do anything
-    if(mKoTurnCounter < 0)
+    // If the creature is in jail, we check if it is still standing on it (if not picked up). If
+    // not, it is free
+    if((mSeatPrison != nullptr) &&
+       getIsOnMap())
     {
-        // The creature is KO to death
-        // we remove all its particle effects (if any)
-        if(!mEntityParticleEffects.empty())
+        Tile* myTile = getPositionTile();
+        if(myTile == nullptr)
         {
-            for(EntityParticleEffect* effect : mEntityParticleEffects)
-            {
-                delete effect;
-            }
-            mEntityParticleEffects.clear();
+            OD_LOG_ERR("name=" + getName() + ", position=" + Helper::toString(getPosition()));
+            return;
         }
 
+        Room* roomPrison = myTile->getCoveringRoom();
+        if((roomPrison == nullptr) ||
+           (roomPrison->getType() != RoomType::prison) ||
+           (roomPrison->getSeat() != mSeatPrison))
+        {
+            // it is not standing on a jail. It is free
+            mSeatPrison = nullptr;
+            mNeedFireRefresh = true;
+        }
+    }
+
+    // The creature may be killed while temporary KO
+    if((mKoTurnCounter != 0) && !isAlive())
+        mKoTurnCounter = 0;
+
+    // If the creature is KO to death or dead, we remove its particle effects
+    if(!mEntityParticleEffects.empty() &&
+       ((mKoTurnCounter < 0) || !isAlive()))
+    {
+        for(EntityParticleEffect* effect : mEntityParticleEffects)
+        {
+            delete effect;
+        }
+        mEntityParticleEffects.clear();
+    }
+
+    // We apply creature effects if any
+    for(auto it = mEntityParticleEffects.begin(); it != mEntityParticleEffects.end();)
+    {
+        CreatureParticuleEffect* effect = static_cast<CreatureParticuleEffect*>(*it);
+        if(effect->mEffect->upkeepEffect(*this))
+        {
+            ++it;
+            continue;
+        }
+
+        delete effect;
+        it = mEntityParticleEffects.erase(it);
+    }
+
+    // if creature is not on map (picked up or being carried), we do nothing
+    if(!getIsOnMap())
+        return;
+
+    // If the creature is temporary KO, it should do nothing
+    if(mKoTurnCounter > 0)
+    {
+        --mKoTurnCounter;
+        if(mKoTurnCounter > 0)
+            return;
+
+        computeCreatureOverlayMoodValue();
+    }
+
+    if(mKoTurnCounter < 0)
+    {
         // If the counter reaches 0, the creature is dead
         ++mKoTurnCounter;
         if(mKoTurnCounter < 0)
@@ -782,46 +849,16 @@ void Creature::doUpkeep()
         computeCreatureOverlayHealthValue();
         computeCreatureOverlayMoodValue();
     }
-    else if(mKoTurnCounter > 0)
-    {
-        // The creature is temporary KO
-        --mKoTurnCounter;
-        if(mKoTurnCounter > 0)
-            return;
 
-        computeCreatureOverlayMoodValue();
-    }
-
-    // We apply creature effects if the creature is alive
-    if(getHP() > 0.0)
-    {
-        for(auto it = mEntityParticleEffects.begin(); it != mEntityParticleEffects.end();)
-        {
-            CreatureParticuleEffect* effect = static_cast<CreatureParticuleEffect*>(*it);
-            if(effect->mEffect->upkeepEffect(*this))
-            {
-                ++it;
-                continue;
-            }
-
-            delete effect;
-            it = mEntityParticleEffects.erase(it);
-        }
-    }
-
-    // if creature is not on map, we do nothing
-    if(!getIsOnMap())
-        return;
-
-    // Check if the creature is alive
-    if (getHP() <= 0.0)
+    // Handle creature death
+    if (!isAlive())
     {
         // Let the creature lay dead on the ground for a few turns before removing it from the GameMap.
         if (mDeathCounter == 0)
         {
             OD_LOG_INF("Creature=" + getName() + " RIP");
 
-            die();
+            dropCarriedEquipment();
         }
         else if (mDeathCounter >= ConfigManager::getSingleton().getCreatureDeathCounter())
         {
@@ -835,13 +872,22 @@ void Creature::doUpkeep()
         return;
     }
 
+    if(mSeatPrison != nullptr)
+    {
+        // If the creature is in jail, it should not heal or do anything
+        return;
+    }
+
     // If we are not standing somewhere on the map, do nothing.
     if (getPositionTile() == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + " not on map position=" + Helper::toString(getPosition()));
         return;
+    }
 
     // Check to see if we have earned enough experience to level up.
-    if(checkLevelUp())
-        setLevel(mLevel + 1);
+    checkLevelUp();
+
 
     // Heal.
     mHp += mDefinition->getHpHealPerTurn();
@@ -2593,7 +2639,7 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
     }
     else
     {
-        double damageDone = attackedObject->takeDamage(this, physicalDamage, magicalDamage, attackedTile);
+        double damageDone = attackedObject->takeDamage(this, physicalDamage, magicalDamage, attackedTile, false, false);
         expGained = 1.2 + 0.2 * std::pow(damageDone, 1.3);
     }
 
@@ -3190,10 +3236,10 @@ double Creature::getBestAttackRange() const
     return range;
 }
 
-bool Creature::checkLevelUp()
+void Creature::checkLevelUp()
 {
     if (getLevel() >= MAX_LEVEL)
-        return false;
+        return;
 
     // Check the returned value.
     double newXP = mDefinition->getXPNeededWhenLevel(getLevel());
@@ -3202,13 +3248,13 @@ bool Creature::checkLevelUp()
     if (newXP <= 0.0)
     {
         OD_LOG_ERR("creature=" + getName() + ", newXP=" + Helper::toString(newXP));
-        return false;
+        return;
     }
 
     if (mExp < newXP)
-        return false;
+        return;
 
-    return true;
+    setLevel(mLevel + 1);
 }
 
 void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
@@ -3237,6 +3283,12 @@ void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
         os << effect->mScript;
         os << effect->mNbTurnsEffect;
     }
+
+    int seatPrisonId = -1;
+    if(mSeatPrison != nullptr)
+        seatPrisonId = mSeatPrison->getId();
+
+    os << seatPrisonId;
 }
 
 void Creature::updateFromPacket(ODPacket& is)
@@ -3296,6 +3348,18 @@ void Creature::updateFromPacket(ODPacket& is)
         effect->mParticleSystem = RenderManager::getSingleton().rrEntityAddParticleEffect(this,
             effect->mName, effect->mScript);
         mEntityParticleEffects.push_back(effect);
+    }
+
+    OD_ASSERT_TRUE(is >> seatId);
+    if(seatId == -1)
+        mSeatPrison = nullptr;
+    else
+    {
+        mSeatPrison = getGameMap()->getSeatById(seatId);
+        if(mSeatPrison == nullptr)
+        {
+            OD_LOG_ERR("Creature " + getName() + ", wrong seatId=" + Helper::toString(seatId));
+        }
     }
 }
 
@@ -3673,11 +3737,14 @@ std::string Creature::getStatsText()
     return tempSS.str();
 }
 
-double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage)
+double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage,
+        bool ignorePhysicalDefense, bool ignoreMagicalDefense)
 {
     mNbTurnsWithoutBattle = 0;
-    physicalDamage = std::max(physicalDamage - getPhysicalDefense(), 0.0);
-    magicalDamage = std::max(magicalDamage - getMagicalDefense(), 0.0);
+    if(!ignorePhysicalDefense)
+        physicalDamage = std::max(physicalDamage - getPhysicalDefense(), 0.0);
+    if(!ignoreMagicalDefense)
+        magicalDamage = std::max(magicalDamage - getMagicalDefense(), 0.0);
     double damageDone = std::min(mHp, physicalDamage + magicalDamage);
     mHp -= damageDone;
     if(mHp <= 0)
@@ -3690,13 +3757,13 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
         {
             mHp = 1.0;
             mKoTurnCounter = -ConfigManager::getSingleton().getNbTurnsKoCreatureAttacked();
-            computeCreatureOverlayMoodValue();
             OD_LOG_INF("creature=" + getName() + " has been KO by " + attacker->getName());
-            die();
+            dropCarriedEquipment();
         }
     }
 
     computeCreatureOverlayHealthValue();
+    computeCreatureOverlayMoodValue();
 
     if(!isAlive())
         fireEntityDead();
@@ -3804,10 +3871,14 @@ bool Creature::tryPickup(Seat* seat)
     if(!getIsOnMap())
         return false;
 
-    if ((getHP() <= 0.0) && !getGameMap()->isInEditorMode())
+    // Cannot pick up dead creatures
+    if (!getGameMap()->isInEditorMode() && !isAlive())
         return false;
 
-    if(!getSeat()->canOwnedCreatureBePickedUpBy(seat) && !getGameMap()->isInEditorMode())
+    if(!getGameMap()->isInEditorMode() && (mSeatPrison == nullptr) && !getSeat()->canOwnedCreatureBePickedUpBy(seat))
+        return false;
+
+    if(!getGameMap()->isInEditorMode() && (mSeatPrison != nullptr) && !mSeatPrison->canOwnedCreatureBePickedUpBy(seat))
         return false;
 
     // KO creatures cannot be picked up
@@ -3899,7 +3970,7 @@ bool Creature::tryDrop(Seat* seat, Tile* tile)
         return true;
 
     // Every creature can be dropped on allied claimed tiles
-    if(tile->isClaimedForSeat(getSeat()))
+    if(tile->isClaimedForSeat(seat))
         return true;
 
     return false;
@@ -4119,9 +4190,12 @@ bool Creature::isAttackable(Tile* tile, Seat* seat) const
     if(mHp <= 0.0)
         return false;
 
-    // KO Creature to death creatures are not a threat and cannot be attacked. However,
-    // temporary KO can be
+    // KO Creature to death creatures are not a threat and cannot be attacked. However, temporary KO can be
     if(mKoTurnCounter < 0)
+        return false;
+
+    // Creatures in prison are not a treat and cannot be attacked
+    if(mSeatPrison != nullptr)
         return false;
 
     return true;
@@ -4149,20 +4223,6 @@ void Creature::notifyEntityCarryOff(const Ogre::Vector3& position)
 {
     mPosition = position;
     addEntityToPositionTile();
-
-    Tile* posTile = getPositionTile();
-    if(posTile == nullptr)
-    {
-        OD_LOG_ERR("creature=" + getName() + ", position=" + Helper::toString(position));
-        return;
-    }
-
-    if(posTile != getHomeTile())
-        return;
-
-    // The creature was released on its bed. Let's set its KO state to 0
-    mKoTurnCounter = 0;
-    computeCreatureOverlayMoodValue();
 }
 
 bool Creature::canBeCarriedToBuilding(const Building* building) const
@@ -4171,6 +4231,15 @@ bool Creature::canBeCarriedToBuilding(const Building* building) const
     if(!isAlive() &&
        (building->getObjectType() == GameEntityType::room) &&
        (static_cast<const Room*>(building)->getType() == RoomType::crypt))
+    {
+        return true;
+    }
+
+    // If the creature is ko to death, it can be carried to an enemy prison
+    if((mKoTurnCounter < 0) &&
+       (building->getObjectType() == GameEntityType::room) &&
+       (!building->getSeat()->isAlliedSeat(getSeat())) &&
+       (static_cast<const Room*>(building)->getType() == RoomType::prison))
     {
         return true;
     }
@@ -4636,25 +4705,29 @@ void Creature::computeCreatureOverlayMoodValue()
         return;
 
     uint32_t value = 0;
-    if(mMoodValue == CreatureMoodLevel::Angry)
-        value |= 0x0001;
-    else if(mMoodValue == CreatureMoodLevel::Furious)
-        value |= 0x0002;
+    // The creature mood applies only if the creature is alive
+    if(isAlive())
+    {
+        if(mMoodValue == CreatureMoodLevel::Angry)
+            value |= 0x0001;
+        else if(mMoodValue == CreatureMoodLevel::Furious)
+            value |= 0x0002;
 
-    if(isActionInList(CreatureActionType::getFee))
-        value |= 0x0004;
+        if(isActionInList(CreatureActionType::getFee))
+            value |= 0x0004;
 
-    if(isActionInList(CreatureActionType::leaveDungeon))
-        value |= 0x0008;
+        if(isActionInList(CreatureActionType::leaveDungeon))
+            value |= 0x0008;
 
-    if(mKoTurnCounter != 0)
-        value |= 0x0010;
+        if(mKoTurnCounter != 0)
+            value |= 0x0010;
 
-    if(isHungry())
-        value |= 0x0020;
+        if(isHungry())
+            value |= 0x0020;
 
-    if(isTired())
-        value |= 0x0040;
+        if(isTired())
+            value |= 0x0040;
+    }
 
     if(mOverlayMoodValue != value)
     {
@@ -4780,6 +4853,26 @@ bool Creature::isHungry() const
         return mHunger >= 80.0;
 
     return (mOverlayMoodValue & 0x0020) != 0;
+}
+
+void Creature::releasedInBed()
+{
+    // The creature was released in its bed. Let's set its KO state to 0
+    mKoTurnCounter = 0;
+    computeCreatureOverlayMoodValue();
+}
+
+void Creature::setSeatPrison(Seat* seat)
+{
+    if(mSeatPrison == seat)
+        return;
+
+    // We reset KO to death counter
+    if(seat != nullptr)
+        mKoTurnCounter = 0;
+
+    mSeatPrison = seat;
+    mNeedFireRefresh = true;
 }
 
 void Creature::clientUpkeep()

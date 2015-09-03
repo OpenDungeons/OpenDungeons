@@ -200,8 +200,8 @@ public:
     void setLevel(unsigned int level);
 
     //! \brief Called when the creature dies or is KO to death. triggers death animation, stops
-    //! its job and drops what it is carrying
-    void die();
+    //! the creature job and drops what it is carrying
+    void dropCarriedEquipment();
 
     /*! \brief The main AI routine which decides what the creature will do and carries out that action.
      *
@@ -249,8 +249,8 @@ public:
     //! \note Depends also on its equipment.
     double getBestAttackRange() const;
 
-    //! \brief Check whether a creature has earned one level.
-    bool checkLevelUp();
+    //! \brief Check whether a creature has earned one level. If yes, handle leveling it up
+    void checkLevelUp();
 
     //! \brief Updates the lists of tiles within sight radius.
     //! And the tiles the creature can "see" (removing the ones behind walls).
@@ -284,7 +284,8 @@ public:
     uint32_t numCoveredTiles();
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
-    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile* tileTakingDamage);
+    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile* tileTakingDamage,
+        bool ignorePhysicalDefense, bool ignoreMagicalDefense) override;
 
     //! \brief Conform: AttackableObject - Adds experience to this creature.
     void receiveExp(double experience);
@@ -457,6 +458,13 @@ public:
     bool isTired() const;
 
     bool isHungry() const;
+
+    void releasedInBed();
+
+    void setSeatPrison(Seat* seat);
+
+    inline Seat* getSeatPrison() const
+    { return mSeatPrison; }
 
     virtual void clientUpkeep() override;
 
@@ -636,6 +644,10 @@ private:
     //! While KO to death, if a kobold carries the creature to its bed, the counter will
     //! stop during the travel (and reset to 0 when the creature is dropped in its bed).
     int32_t                         mKoTurnCounter;
+
+    //! \brief If nullptr, the creature is not in prison. If not, it is in the prison of
+    //! the given seat
+    Seat*                           mSeatPrison;
 
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been

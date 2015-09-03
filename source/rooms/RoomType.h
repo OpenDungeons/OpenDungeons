@@ -35,6 +35,7 @@ enum class RoomType
     hatchery,
     crypt,
     portalWave,
+    prison,
     nbRooms     // Must be the last in this enum
 };
 
