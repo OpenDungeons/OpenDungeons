@@ -4541,10 +4541,10 @@ void Creature::computeCreatureOverlayMoodValue()
 
     // TODO: handle KO state
 
-    if(mHunger >= 80.0)
+    if(isHungry())
         value |= 0x0020;
 
-    if(mAwakeness <= 20.0)
+    if(isTired())
         value |= 0x0040;
 
     if(mOverlayMoodValue != value)
@@ -4646,6 +4646,22 @@ void Creature::setJobCooldown(int val)
         val = Helper::round(static_cast<float>(val) * 0.8f);
 
     mJobCooldown = val;
+}
+
+bool Creature::isTired() const
+{
+    if(getIsOnServerMap())
+        return mAwakeness <= 20.0;
+
+    return (mOverlayMoodValue & 0x0040) != 0;
+}
+
+bool Creature::isHungry() const
+{
+    if(getIsOnServerMap())
+        return mHunger >= 80.0;
+
+    return (mOverlayMoodValue & 0x0020) != 0;
 }
 
 void Creature::clientUpkeep()

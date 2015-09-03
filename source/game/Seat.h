@@ -268,7 +268,7 @@ public:
     inline const std::vector<Seat*>& getAlliedSeats()
     { return mAlliedSeats; }
 
-    void computeSeatBeforeSendingToClient();
+    void computeSeatBeginTurn();
 
     //! \brief Gets whether a research is being done
     bool isResearching() const

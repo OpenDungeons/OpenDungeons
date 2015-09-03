@@ -511,7 +511,7 @@ void Seat::sendVisibleTiles()
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }
 
-void Seat::computeSeatBeforeSendingToClient()
+void Seat::computeSeatBeginTurn()
 {
     if(mPlayer != nullptr)
     {
