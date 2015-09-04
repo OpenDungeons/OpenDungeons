@@ -2760,6 +2760,9 @@ void GameMap::consoleAskUnlockResearches()
         for(uint32_t i = 0; i < static_cast<uint32_t>(ResearchType::countResearch); ++i)
         {
             ResearchType research = static_cast<ResearchType>(i);
+            if(research == ResearchType::nullResearchType)
+                continue;
+
             if(seat->isResearchDone(research))
                 continue;
 
