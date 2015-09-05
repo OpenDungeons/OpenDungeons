@@ -154,6 +154,15 @@ void SettingsWindow::initConfig()
     if (!nickname.empty())
         nicknameEb->setText(reinterpret_cast<const CEGUI::utf8*>(nickname.c_str()));
 
+    // Input
+    CEGUI::ToggleButton* keyboardGrabCheckbox = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Input/InputSP/KeyboardGrabCheckbox"));
+    keyboardGrabCheckbox->setSelected(config.getInputValue(Config::KEYBOARD_GRAB, "No", false) == "Yes");
+
+    CEGUI::ToggleButton* mouseGrabCheckbox = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Input/InputSP/MouseGrabCheckbox"));
+    mouseGrabCheckbox->setSelected(config.getInputValue(Config::MOUSE_GRAB, "No", false) == "Yes");
+
     // Audio
     std::string volumeStr = config.getAudioValue(Config::MUSIC_VOLUME, std::string(), false);
     float volume = volumeStr.empty() ? sf::Listener::getGlobalVolume() : Helper::toFloat(volumeStr);
@@ -318,6 +327,15 @@ void SettingsWindow::saveConfig()
     CEGUI::Editbox* usernameEb = static_cast<CEGUI::Editbox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/NicknameEdit"));
     config.setGameValue(Config::NICKNAME, usernameEb->getText().c_str());
+
+    // Input
+    CEGUI::ToggleButton* keyboardGrabCheckbox = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Input/InputSP/KeyboardGrabCheckbox"));
+    config.setInputValue(Config::KEYBOARD_GRAB, keyboardGrabCheckbox->isSelected() ? "Yes" : "No");
+
+    CEGUI::ToggleButton* mouseGrabCheckbox = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Input/InputSP/MouseGrabCheckbox"));
+    config.setInputValue(Config::MOUSE_GRAB, mouseGrabCheckbox->isSelected() ? "Yes" : "No");
 
     // Audio
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(

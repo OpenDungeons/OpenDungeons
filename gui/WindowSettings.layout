@@ -85,6 +85,26 @@
                     </Window>
                 </Window>
             </Window>
+            <Window type="DefaultWindow" name="Input" >
+                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                <Property name="Text" value="Input" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="Visible" value="False" />
+                <Property name="RiseOnClickEnabled" value="False" />
+                <Window type="OD/ScrollablePane" name="InputSP" >
+                    <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                    <Window type="OD/Checkbox" name="KeyboardGrabCheckbox" >
+                        <Property name="Area" value="{{0,32},{0,40},{0,150},{0,60}}" />
+                        <Property name="Text" value="Keyboard grab" />
+                        <Property name="TooltipText" value="When checked, the keyboard is grabbed and can't be used in other applications (requires restart)." />
+                    </Window>
+                    <Window type="OD/Checkbox" name="MouseGrabCheckbox" >
+                        <Property name="Area" value="{{0,32},{0,80},{0,150},{0,100}}" />
+                        <Property name="Text" value="Mouse grab" />
+                        <Property name="TooltipText" value="When checked, the mouse is grabbed and can't be used in other applications (requires restart)." />
+                    </Window>
+                </Window>
+            </Window>
             <Window type="DefaultWindow" name="Game" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
                 <Property name="Text" value="Game" />
