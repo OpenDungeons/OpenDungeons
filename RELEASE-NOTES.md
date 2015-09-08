@@ -6,7 +6,7 @@ OpenDungeons since version 0.4.7, in reverse chronological order.
 The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on
 our repository at https://github.com/OpenDungeons/OpenDungeons
 
-### Version 0.6.0
+### Version 0.6.0 - 8 September 2015
 
 **Highlights:**
 
