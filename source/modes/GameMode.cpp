@@ -60,7 +60,6 @@
 #include <algorithm>
 #include <vector>
 #include <string>
-#include "utils/LogManager.h"
 
 const std::string TEXT_SEAT_ID_PREFIX = "TextSeat";
 const std::string TEXT_SEAT_PLAYER_NICKNAME_PREFIX = "TextSeatPlayerNick";

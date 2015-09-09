@@ -872,11 +872,9 @@ void Creature::doUpkeep()
         return;
     }
 
+    // If the creature is in jail, it should not auto heal or do anything
     if(mSeatPrison != nullptr)
-    {
-        // If the creature is in jail, it should not heal or do anything
         return;
-    }
 
     // If we are not standing somewhere on the map, do nothing.
     if (getPositionTile() == nullptr)
