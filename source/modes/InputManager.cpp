@@ -31,6 +31,7 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     mMouse(nullptr),
     mLMouseDown(false),
     mRMouseDown(false),
+    mMMouseDown(false),
     mMouseDownOnCEGUIWindow(false),
     mKeeperHandPos(Ogre::Vector3::ZERO),
     mXPos(0),
@@ -53,7 +54,6 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     // Get the Window attribute for OIS.
     size_t windowHnd = 0;
     renderWindow->getCustomAttribute("WINDOW", &windowHnd);
-
     std::ostringstream windowHndStr;
     windowHndStr << windowHnd;
 

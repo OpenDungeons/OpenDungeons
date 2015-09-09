@@ -59,6 +59,7 @@
 #include <algorithm>
 #include <vector>
 #include <string>
+#include "utils/LogManager.h"
 
 GameMode::GameMode(ModeManager *modeManager):
     GameEditorModeBase(modeManager, ModeManager::GAME, modeManager->getGui().getGuiSheet(Gui::guiSheet::inGameMenu)),
@@ -288,6 +289,13 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     InputManager& inputManager = mModeManager->getInputManager();
     inputManager.mCommandState = (inputManager.mLMouseDown ? InputCommandState::building : InputCommandState::infoOnly);
 
+    // TODO: Here we should check whether the terminal is active...
+    if(inputManager.mMMouseDown)
+    {
+        ODFrameListener::getSingleton().moveCamera(CameraManager::randomRotateX,arg.state.X.rel);
+        ODFrameListener::getSingleton().moveCamera(CameraManager::randomRotateY,arg.state.Y.rel);
+    }
+
     // If we have a room/trap/spell selected, show it
     // TODO: This should be changed, or combined with an icon or something later.
     TextRenderer& textRenderer = TextRenderer::getSingleton();
@@ -349,7 +357,6 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         inputManager.mLStartDragX = inputManager.mXPos;
         inputManager.mLStartDragY = inputManager.mYPos;
     }
-
     return true;
 }
 
@@ -399,13 +406,14 @@ bool GameMode::isMouseDownOnCEGUIWindow()
 
 bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 {
+    InputManager& inputManager = mModeManager->getInputManager();
+
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
         Gui::convertButton(id));
 
     if (!isConnected())
         return true;
 
-    InputManager& inputManager = mModeManager->getInputManager();
     inputManager.mMouseDownOnCEGUIWindow = isMouseDownOnCEGUIWindow();
     if (inputManager.mMouseDownOnCEGUIWindow)
         return true;
@@ -441,6 +449,11 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
         return true;
 
     RenderManager::getSingleton().moveWorldCoords(inputManager.mKeeperHandPos.x, inputManager.mKeeperHandPos.y);
+
+    // The player should be able to move the mouse even if not clicking on a tile. Because of that, we set
+    // mMMouseDown before checking which tile is clicked
+    if (id == OIS::MB_Middle)
+        inputManager.mMMouseDown = true;
 
     int tileX = Helper::round(inputManager.mKeeperHandPos.x);
     int tileY = Helper::round(inputManager.mKeeperHandPos.y);
@@ -488,7 +501,6 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     if (id == OIS::MB_Right)
     {
         inputManager.mRMouseDown = true;
-
         // Stop creating rooms, traps, etc.
         inputManager.mLStartDragX = inputManager.mXPos;
         inputManager.mLStartDragY = inputManager.mYPos;
@@ -628,6 +640,16 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
     InputManager& inputManager = mModeManager->getInputManager();
     inputManager.mCommandState = InputCommandState::validated;
+
+    // First check for the axis rotation release, as this
+    // seems to be the most expected action the user wants to put at end
+
+    if(id == OIS::MB_Middle)
+    {
+        inputManager.mMMouseDown = false;
+        ODFrameListener::getSingleton().moveCamera(CameraManager::zeroRandomRotateX, 0.0);
+        ODFrameListener::getSingleton().moveCamera(CameraManager::zeroRandomRotateY, 0.0);
+    }
 
     // If the mouse press was on a CEGUI window ignore it
     if (inputManager.mMouseDownOnCEGUIWindow)

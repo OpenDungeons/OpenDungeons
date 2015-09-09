@@ -24,7 +24,6 @@
 #include "gamemap/TileContainer.h"
 #include "sound/SoundEffectsManager.h"
 #include "utils/LogManager.h"
-
 #include <OgreCamera.h>
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
@@ -76,10 +75,7 @@ CameraManager::CameraManager(Ogre::SceneManager* sceneManager, TileContainer* gm
 {
     createViewport(renderWindow);
     createCamera("RTS", 0.02, 300.0);
-    createCameraNode("RTS", Ogre::Vector3(static_cast<Ogre::Real>(10.0),
-                                              static_cast<Ogre::Real>(10.0),
-                                              MAX_CAMERA_Z / 2.0),
-                                              Ogre::Degree(0.0), Ogre::Degree(DEFAULT_X_AXIS_VIEW));
+    createCameraNode("RTS");
 
     setActiveCamera("RTS");
     setActiveCameraNode("RTS");
@@ -102,19 +98,16 @@ void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double
     OD_LOG_INF("Creating " + ss + " camera...");
 }
 
-void CameraManager::createCameraNode(const Ogre::String& ss, Ogre::Vector3 xyz,
-                                     Ogre::Degree yaw, Ogre::Degree pitch, Ogre::Degree roll)
+void CameraManager::createCameraNode(const std::string& name)
 {
-    Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(ss + "_node", xyz);
-    Ogre::Camera* tmpCamera = getCamera(ss);
-    node->yaw(yaw, Ogre::Node::TS_LOCAL);
-    node->pitch(pitch, Ogre::Node::TS_LOCAL);
-    node->roll(roll, Ogre::Node::TS_LOCAL);
-    node->attachObject(tmpCamera);
-    node->setPosition(Ogre::Vector3(0,0,2) +  node->getPosition());
-    mRegisteredCameraNodeNames.insert(ss);
+    Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(name + "_node");
+    Ogre::Camera* tmpCamera = getCamera(name);
+    Ogre::SceneNode* node2 = node->createChildSceneNode(name + "_node2");
+    node2->attachObject(tmpCamera);
 
-    OD_LOG_INF("Creating " + ss + "_node camera node...");
+    mRegisteredCameraNodeNames.insert(name);
+
+    OD_LOG_INF("Creating " + name + "_node camera node...");
 }
 
 void CameraManager::setNextDefaultView()
@@ -173,7 +166,7 @@ void CameraManager::createViewport(Ogre::RenderWindow* renderWindow)
 
 Ogre::SceneNode* CameraManager::getActiveCameraNode()
 {
-    return getActiveCamera()->getParentSceneNode();
+    return mActiveCameraNode;
 }
 
 Ogre::SceneNode* CameraManager::setActiveCameraNode(const Ogre::String& ss)
@@ -255,15 +248,24 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
     // Prevent the tilting to show a reversed world or looking too high.
     if (mRotateLocalVector.x != 0)
     {
-        Ogre::Real currentPitch = getActiveCameraNode()->getOrientation().getPitch().valueDegrees();
+        Ogre::Real currentPitch = getActiveCameraNode()->getChild(0)->getOrientation().getPitch().valueDegrees();
         if ((currentPitch >= 0.0 && mRotateLocalVector.x < 0)
             || (currentPitch <= 50.0 && mRotateLocalVector.x > 0))
         {
             // Tilt the camera up or down.
-            getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_X,
-                                          Ogre::Degree(mRotateLocalVector.x * frameTime),
-                                          Ogre::Node::TS_LOCAL);
+            getActiveCameraNode()->getChild(0)->rotate(Ogre::Vector3::UNIT_X,
+                                        Ogre::Degree(mRotateLocalVector.x * frameTime),
+                                        Ogre::Node::TS_LOCAL);
         }
+
+    }
+    if (mRotateLocalVector.y != 0)
+    {
+        // Tilt the camera up or down.
+        getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_Z,
+                                      Ogre::Degree(mRotateLocalVector.y * frameTime),
+                                      Ogre::Node::TS_WORLD);
+
     }
 
     // Swivel the camera to the left or right, while maintaining the same
@@ -311,9 +313,9 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
     if (mCameraIsRotating && frameTime > 0.0)
     {
         Ogre::Quaternion orientationQuat = getActiveCameraNode()->getOrientation();
-
+        Ogre::Quaternion orientationQuat2 = getActiveCameraNode()->getChild(0)->getOrientation();
         // Tilting - X-Axis - Looking up or down
-        Ogre::Real pitch = orientationQuat.getPitch().valueDegrees();
+        Ogre::Real pitch = orientationQuat2.getPitch().valueDegrees();
         Ogre::Real pitchUpdate = ROTATION_SPEED.valueDegrees();
         Ogre::Real pitchDiff = std::abs(pitch - mCameraPitchDestination);
         Ogre::Real pitchChange = ((pitchUpdate * frameTime) > pitchDiff) ? pitchDiff / frameTime : pitchUpdate;
@@ -347,11 +349,14 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
         if (pitchDone && rollDone)
             mCameraIsRotating = false;
 
-        /* Useful to debug... or test.
-        std::cout << "Current pitch: " << pitch << ", desired pitch: " << mCameraPitchDestination << std::endl;
-        std::cout << "Pitch update: " << pitchChange * frameTime << std::endl;
-        std::cout << "Current roll: " << roll << ", desired roll: " << mCameraRollDestination << std::endl;
-        std::cout << "Roll update: " << rollChange * frameTime << std::endl;
+        /*
+        // Useful to debug... or test.
+        std::stringstream ss;
+        ss << "Current pitch: " << pitch << ", desired pitch: " << mCameraPitchDestination << std::endl;
+        ss << "Pitch update: " << pitchChange * frameTime << std::endl;
+        ss << "Current roll: " << roll << ", desired roll: " << mCameraRollDestination << std::endl;
+        ss << "Roll update: " << rollChange * frameTime << std::endl;
+        OD_LOG_INF(ss.str());
         */
     }
 
@@ -417,9 +422,18 @@ Ogre::Vector3 CameraManager::getCameraViewTarget() const
     return target;
 }
 
-void CameraManager::setCameraPosition(const Ogre::Vector3& position)
+void CameraManager::resetCamera(const Ogre::Vector3& position)
 {
-    getActiveCameraNode()->setPosition(position);
+    Ogre::Quaternion quat(1, 0, 0, 0);
+    Ogre::Node* nodeRotation = getActiveCameraNode()->getChild(0);
+    nodeRotation->setOrientation(quat);
+
+    Ogre::Node* nodeCamera = getActiveCameraNode();
+    nodeCamera->setOrientation(quat);
+
+    nodeCamera->setPosition(position);
+
+    nodeRotation->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(DEFAULT_X_AXIS_VIEW), Ogre::Node::TS_LOCAL);
 }
 
 
@@ -444,7 +458,7 @@ void CameraManager::move(const Direction direction, double aux)
     switch (direction)
     {
     case moveRight:
-        if (currentPitch > 0.0)
+        if (currentPitch <= 0.0)
             mTranslateVectorAccel.x += MOVE_SPEED_ACCELERATION;
         else
             mTranslateVectorAccel.x -= MOVE_SPEED_ACCELERATION;
@@ -455,7 +469,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case moveLeft:
-        if (currentPitch > 0.0)
+        if (currentPitch <= 0.0)
             mTranslateVectorAccel.x -= MOVE_SPEED_ACCELERATION;
         else
             mTranslateVectorAccel.x += MOVE_SPEED_ACCELERATION;
@@ -466,7 +480,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case moveBackward:
-        if (currentPitch > 0.0)
+        if (currentPitch <= 0.0)
             mTranslateVectorAccel.y -= MOVE_SPEED_ACCELERATION;
         else
             mTranslateVectorAccel.y += MOVE_SPEED_ACCELERATION;
@@ -477,7 +491,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case moveForward:
-        if (currentPitch > 0.0)
+        if (currentPitch <= 0.0)
             mTranslateVectorAccel.y += MOVE_SPEED_ACCELERATION;
         else
             mTranslateVectorAccel.y -= MOVE_SPEED_ACCELERATION;
@@ -534,19 +548,19 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case randomRotateX:
-        mSwivelDegrees = Ogre::Degree(static_cast<Ogre::Real>(64 * aux));
+        mRotateLocalVector.y = static_cast<Ogre::Real>(8.0*aux);
         break;
 
     case zeroRandomRotateX:
-        mSwivelDegrees = Ogre::Degree(0.0);
+        mRotateLocalVector.y = 0.0;
         break;
 
     case randomRotateY:
-        mRotateLocalVector.x = static_cast<Ogre::Real>(64 * aux);
+        mRotateLocalVector.x = static_cast<Ogre::Real>(8.0*aux);
         break;
 
     case zeroRandomRotateY:
-        mRotateLocalVector.x =  0.0;
+        mRotateLocalVector.x = 0.0;
         break;
 
     default:

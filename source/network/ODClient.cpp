@@ -381,7 +381,7 @@ bool ODClient::processOneClientSocketMessage()
             if (startY <= 0.0)
                 startY = 0.0;
 
-            frameListener->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
+            frameListener->resetCamera(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
             // If we are watching a replay, we force stopping the processing loop to
             // allow changing mode (because there is no synchronization as there is no server)
             if(getSource() == ODSource::file)

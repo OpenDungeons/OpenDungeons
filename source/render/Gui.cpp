@@ -65,15 +65,10 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
     context.getMouseCursor().setDefaultImage("OpenDungeonsSkin/MouseArrow");
     context.getMouseCursor().setVisible(true);
-
     context.setDefaultTooltipType("OD/Tooltip");
-
-
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
-
     CEGUI::Window* myHide = wmgr->createWindow("DefaultWindow", "DummyWindow");
     mSheets[hideGui] = myHide;
-
     mSheets[inGameMenu] = wmgr->loadLayoutFromFile("ModeGame.layout");
     mSheets[mainMenu] = wmgr->loadLayoutFromFile("MenuMain.layout");
     mSheets[skirmishMenu] = wmgr->loadLayoutFromFile("MenuSkirmish.layout");
