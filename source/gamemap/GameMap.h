@@ -60,6 +60,7 @@ enum class FloodFillType;
 enum class RoomType;
 enum class SpatialSoundType;
 enum class SpellType;
+enum class TrapType;
 
 enum class SelectionTileAllowed
 {
@@ -472,9 +473,9 @@ public:
     //! is no entity with the same name before returning
     std::string nextUniqueNameCreature(const std::string& className);
     std::string nextUniqueNameMissileObj(const std::string& baseName);
-    std::string nextUniqueNameRoom(const std::string& meshName);
+    std::string nextUniqueNameRoom(RoomType type);
     std::string nextUniqueNameRenderedMovableEntity(const std::string& baseName);
-    std::string nextUniqueNameTrap(const std::string& meshName);
+    std::string nextUniqueNameTrap(TrapType type);
     std::string nextUniqueNameMapLight();
     inline uint32_t nextUniqueFloodFillValue()
     { return ++mUniqueFloodFillValue; }

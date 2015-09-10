@@ -336,7 +336,7 @@ bool RoomTreasury::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
         return false;
 
     RoomTreasury* room = new RoomTreasury(gameMap);
-    room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), player->getSeat(), tiles);
+    room->setupRoom(gameMap->nextUniqueNameRoom(room->getType()), player->getSeat(), tiles);
     room->addToGameMap();
     room->createMesh();
 

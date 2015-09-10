@@ -676,7 +676,7 @@ bool Trap::buildTrapDefault(GameMap* gameMap, Trap* trap, Seat* seat, const std:
     if(tiles.empty())
         return false;
 
-    trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), seat, tiles);
+    trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getType()), seat, tiles);
     trap->addToGameMap();
     trap->createMesh();
 

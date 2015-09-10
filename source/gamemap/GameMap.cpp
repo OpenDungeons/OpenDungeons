@@ -44,12 +44,14 @@
 #include "network/ServerNotification.h"
 #include "render/ODFrameListener.h"
 #include "rooms/Room.h"
+#include "rooms/RoomManager.h"
 #include "rooms/RoomPortal.h"
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
 #include "spells/Spell.h"
 #include "sound/SoundEffectsManager.h"
 #include "traps/Trap.h"
+#include "traps/TrapManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -2608,13 +2610,13 @@ std::string GameMap::nextUniqueNameCreature(const std::string& className)
     return ret;
 }
 
-std::string GameMap::nextUniqueNameRoom(const std::string& meshName)
+std::string GameMap::nextUniqueNameRoom(RoomType type)
 {
     std::string ret;
     do
     {
         ++mUniqueNumberRoom;
-        ret = meshName + Helper::toString(mUniqueNumberRoom);
+        ret = RoomManager::getRoomNameFromRoomType(type) + "_" + Helper::toString(mUniqueNumberRoom);
     } while(getRoomByName(ret) != nullptr);
     return ret;
 }
@@ -2630,13 +2632,13 @@ std::string GameMap::nextUniqueNameRenderedMovableEntity(const std::string& base
     return ret;
 }
 
-std::string GameMap::nextUniqueNameTrap(const std::string& meshName)
+std::string GameMap::nextUniqueNameTrap(TrapType type)
 {
     std::string ret;
     do
     {
         ++mUniqueNumberTrap;
-        ret = meshName + "_" + Helper::toString(mUniqueNumberTrap);
+        ret = TrapManager::getTrapNameFromTrapType(type) + "_" + Helper::toString(mUniqueNumberTrap);
     } while(getTrapByName(ret) != nullptr);
     return ret;
 }
