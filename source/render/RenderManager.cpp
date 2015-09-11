@@ -986,7 +986,15 @@ void RenderManager::colourizeEntity(Ogre::Entity *ent, const Seat* seat, bool ma
     for (unsigned int i = 0; i < ent->getNumSubEntities(); ++i)
     {
         Ogre::SubEntity *tempSubEntity = ent->getSubEntity(i);
-        tempSubEntity->setMaterialName(colourizeMaterial(tempSubEntity->getMaterialName(), seat, markedForDigging, playerHasVision));
+
+        std::string materialName = tempSubEntity->getMaterialName();
+        // If the material name have been modified, we restore the original name
+        std::size_t index = materialName.find("##");
+        if(index != std::string::npos)
+            materialName = materialName.substr(0, index);
+
+        materialName = colourizeMaterial(materialName, seat, markedForDigging, playerHasVision);
+        tempSubEntity->setMaterialName(materialName);
     }
 }
 
@@ -999,6 +1007,8 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
 
     tempSS.str("");
 
+    tempSS << materialName << "##";
+
     // Create the material name.
     if(seat != nullptr)
         tempSS << "Color_" << seat->getColorId() << "_" ;
@@ -1010,7 +1020,6 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
     else if(!playerHasVision)
         tempSS << "novision_";
 
-    tempSS << materialName;
     Ogre::MaterialPtr requestedMaterial = Ogre::MaterialManager::getSingleton().getByName(tempSS.str());
 
     //cout << "\nCloning material:  " << tempSS.str();

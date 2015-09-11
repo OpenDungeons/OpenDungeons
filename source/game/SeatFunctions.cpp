@@ -544,6 +544,7 @@ Seat* Seat::createRogueSeat(GameMap* gameMap)
     seat->mStartingY = 0;
     seat->mGold = 0;
     seat->mGoldMined = 0;
+    seat->mColorId = "0";
     seat->mMana = 0;
 
     // In editor, we do not add the player on rogue seat because that's where the human player will be since that's the
