@@ -13,10 +13,27 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="FrameColours" value="tl:FFFF0000 tr:FFFF0000 bl:FFFFFFFF br:FFFFFFFF" />
                 <Window type="OD/ImageButton" name="TrainingHallButton" >
-                    <Property name="Area" value="{{0.5,-25},{0,15},{0.5,25},{0,65}}" />
+                    <Property name="Area" value="{{0.3,-25},{0,15},{0.3,25},{0,65}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/TrainingHallButton" />
                     <Property name="TooltipText" value="Room: Training Hall" />
                     <Window type="OD/ProgressBar" name="TrainingHallButtonProgressBar" >
+                        <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                        <Property name="VerticalProgress" value="True" />
+                        <Property name="Alpha" value="0.2" />
+                        <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+                        <Property name="ReversedProgress" value="True" />
+                    </Window>
+                </Window>
+                <Window type="OD/ImageButton" name="WoodenBridgeButton" >
+                    <Property name="Area" value="{{0.7,-25},{0,15},{0.7,25},{0,65}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/WoodenBridgeButton" />
+                    <Property name="TooltipText" value="Room: Wooden bridge" />
+                    <Window type="OD/ProgressBar" name="WoodenBridgeButtonProgressBar" >
                         <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
                         <Property name="InheritsTooltipText" value="True" />
                         <Property name="CurrentProgress" value="0.0" />

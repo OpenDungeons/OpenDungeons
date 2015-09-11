@@ -5,7 +5,6 @@ Name	\[Test\] Small (2 vs 2)
 Description	A small test map for the skirmish mode, left against right side...
 Music	Searching_yd.ogg
 FightMusic	TheDarkAmulet_MP.ogg
-TileSet	OldTileSet
 [/Info]
 
 [Seats]
@@ -317,6 +316,11 @@ ProtectDungeonTemple	NULL
 8	16	1	0	1
 8	17	1	0	1
 8	18	1	0	1
+8	19	4	0
+8	20	4	0
+8	21	5	0
+8	22	4	0
+8	23	1	0	1
 8	24	2	100
 8	25	2	100
 8	31	1	0	2
@@ -349,6 +353,8 @@ ProtectDungeonTemple	NULL
 9	16	1	0	1
 9	17	1	0	1
 9	18	1	0	1
+9	19	4	0
+9	20	4	0
 9	24	2	100
 9	25	2	100
 9	31	1	0	2
@@ -381,6 +387,9 @@ ProtectDungeonTemple	NULL
 10	16	1	0	1
 10	17	1	0	1
 10	18	1	0	1
+10	19	4	0
+10	20	4	0
+10	21	1	0
 10	24	2	100
 10	25	2	100
 10	31	1	0	2
@@ -410,6 +419,11 @@ ProtectDungeonTemple	NULL
 11	13	1	0
 11	14	1	0
 11	15	1	0
+11	16	1	0
+11	17	1	0
+11	18	1	0	0
+11	19	4	0	0
+11	20	4	0
 11	24	2	100
 11	25	2	100
 11	31	1	0	2
@@ -973,6 +987,11 @@ DwarfWorker	1
 [/Creatures]
 [/Wave]
 [/Waves]
+[/Room]
+[Room]
+12	WoodenBridge_1	0	1
+11	19
+1
 [/Room]
 [Room]
 1	DungeonTemple1	1	25

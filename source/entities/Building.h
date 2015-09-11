@@ -76,7 +76,13 @@ public:
 
     virtual void doUpkeep() override;
 
-    const Ogre::Vector3& getScale() const;
+    virtual const Ogre::Vector3& getScale() const;
+
+    virtual bool displayTileMesh() const
+    { return false; }
+
+    virtual bool colorCustomMesh() const
+    { return false; }
 
     //! \brief Updates the active spot lists. Active spots are places where objects can be added
     virtual void updateActiveSpots() = 0;
@@ -121,10 +127,6 @@ public:
         bool ignorePhysicalDefense, bool ignoreMagicalDefense) override;
     std::string getNameTile(Tile* tile);
 
-    //! \brief Tells whether the building tile should be displayed.
-    virtual bool shouldDisplayBuildingTile() const
-    { return true; }
-
     //! \brief Tells whether the ground tile below the building tile should be displayed.
     virtual bool shouldDisplayGroundTile() const
     { return false; }
@@ -160,8 +162,7 @@ public:
 
     virtual void notifySeatVision(Tile* tile, Seat* seat);
 
-    virtual bool canCreatureGoThroughTile(const Creature* creature, Tile* tile) const
-    { return true; }
+    virtual double getCreatureSpeed(const Creature* creature, Tile* tile) const;
 
     virtual bool permitsVision(Tile* tile)
     { return true; }

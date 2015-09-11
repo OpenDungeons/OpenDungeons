@@ -38,6 +38,7 @@ enum class ResearchType
     roomWorkshop,
     roomCrypt,
     roomPrison,
+    roomBridgeWooden,
 
     // Traps
     trapBoulder,

@@ -335,6 +335,8 @@ set(OD_SOURCEFILES
     ${SRC}/render/TextRenderer.cpp
 
     ${SRC}/rooms/Room.cpp
+    ${SRC}/rooms/RoomBridge.cpp
+    ${SRC}/rooms/RoomBridgeWooden.cpp
     ${SRC}/rooms/RoomCrypt.cpp
     ${SRC}/rooms/RoomDormitory.cpp
     ${SRC}/rooms/RoomDungeonTemple.cpp

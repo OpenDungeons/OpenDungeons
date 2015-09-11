@@ -242,92 +242,10 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
     if (tile.getEntityNode() == nullptr)
         return;
 
+    bool isSameMesh = false;
     std::string tileName = tile.getOgreNamePrefix() + tile.getName();
-    Ogre::Vector3 scale;
-    std::string meshName = tile.getMeshName();
-    const Seat* seatColorize = nullptr;
-    const TileSetValue& tileSetValue = gameMap.getMeshForTile(&tile);
-    bool isCustomMesh = false;
-    if(meshName.empty())
-    {
-        // We compute the mesh
-        meshName = tileSetValue.getMeshName();
-        scale = gameMap.getTileSetScale();
-    }
-    else
-    {
-        //Tile has a covering building.
-        isCustomMesh = true;
-        scale = tile.getScale();
-    }
-
-    bool newMesh = false;
-    if(mSceneManager->hasEntity(tileName))
-    {
-        Ogre::Entity* oldEnt = mSceneManager->getEntity(tileName);
-        if(oldEnt->getMesh()->getName().compare(meshName) != 0)
-        {
-            // Unlink and delete the old mesh
-            mSceneManager->getSceneNode(tileName + "_node")->detachObject(tileName);
-            mSceneManager->destroyEntity(tileName);
-            newMesh = true;
-        }
-    }
-    else
-    {
-        newMesh = true;
-    }
-    Ogre::Entity* ent = nullptr;
-    if(newMesh)
-    {
-        ent = mSceneManager->createEntity(tileName, meshName);
-        // Link the tile mesh back to the relevant scene node so OGRE will render it
-        Ogre::SceneNode* node = mSceneManager->getSceneNode(tileName + "_node");
-        node->attachObject(ent);
-        node->setScale(scale);
-        node->resetOrientation();
-
-        // If it is a custom mesh, we assume there is no need to rotate. If not, we
-        // rotate depending on the tileset
-        if(!isCustomMesh)
-        {
-            Ogre::Quaternion q;
-            if(tileSetValue.getRotationX() != 0.0)
-                q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationX()), Ogre::Vector3::UNIT_X);
-
-            if(tileSetValue.getRotationY() != 0.0)
-                q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationY()), Ogre::Vector3::UNIT_Y);
-
-            if(tileSetValue.getRotationZ() != 0.0)
-                q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationZ()), Ogre::Vector3::UNIT_Z);
-
-            if(q != Ogre::Quaternion::IDENTITY)
-                node->rotate(q);
-        }
-
-        Ogre::MeshPtr meshPtr = ent->getMesh();
-        unsigned short src, dest;
-        if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
-        {
-            meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
-        }
-    }
-    else
-    {
-        ent = mSceneManager->getEntity(tileName);
-    }
-
-    if(!isCustomMesh)
-    {
-        // We replace the material if required to by the tileset
-        if(!tileSetValue.getMaterialName().empty())
-            ent->setMaterialName(tileSetValue.getMaterialName());
-
-        // On client side, the seat is set only when the tile is claimed. So, if the
-        // seat is not nullptr, we are sure it is fully claimed and we can colorize
-        // the tile
-        seatColorize = tile.getSeat();
-    }
+    bool displayTilesetMesh = tile.shouldDisplayTileMesh();
+    std::string meshName;
 
     // We only mark vision on ground tiles (except lava and water)
     bool vision = true;
@@ -344,7 +262,135 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
     }
 
     bool isMarked = tile.getMarkedForDigging(&localPlayer);
-    colourizeEntity(ent, seatColorize, isMarked, vision);
+    const TileSetValue& tileSetValue = gameMap.getMeshForTile(&tile);
+
+    // We display the tile mesh if needed
+    if(displayTilesetMesh)
+    {
+        // We compute the mesh
+        meshName = tileSetValue.getMeshName();
+    }
+
+    const std::string tileMeshName = tileName + "_tileMesh";
+    if(mSceneManager->hasEntity(tileMeshName))
+    {
+        Ogre::Entity* oldEnt = mSceneManager->getEntity(tileMeshName);
+        if(oldEnt->getMesh()->getName().compare(meshName) != 0)
+        {
+            // Unlink and delete the old mesh
+            mSceneManager->getSceneNode(tileMeshName + "_node")->detachObject(oldEnt);
+            mSceneManager->destroyEntity(oldEnt);
+        }
+        else
+            isSameMesh = true;
+    }
+
+    Ogre::Entity* tileMeshEnt = nullptr;
+    Seat* seatColor = nullptr;
+    if(!isSameMesh && !meshName.empty())
+    {
+        // If the node do net exists, we create it
+        std::string tileMeshNodeName = tileMeshName + "_node";
+        Ogre::SceneNode* tileMeshNode;
+        if(!mSceneManager->hasSceneNode(tileMeshNodeName))
+            tileMeshNode = tile.getEntityNode()->createChildSceneNode(tileMeshNodeName);
+        else
+            tileMeshNode = mSceneManager->getSceneNode(tileMeshNodeName);
+
+        tileMeshEnt = mSceneManager->createEntity(tileMeshName, meshName);
+        // Link the tile mesh back to the relevant scene node so OGRE will render it
+        tileMeshNode->attachObject(tileMeshEnt);
+        tileMeshNode->setScale(gameMap.getTileSetScale());
+        tileMeshNode->resetOrientation();
+
+        // We rotate depending on the tileset
+        Ogre::Quaternion q;
+        if(tileSetValue.getRotationX() != 0.0)
+            q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationX()), Ogre::Vector3::UNIT_X);
+
+        if(tileSetValue.getRotationY() != 0.0)
+            q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationY()), Ogre::Vector3::UNIT_Y);
+
+        if(tileSetValue.getRotationZ() != 0.0)
+            q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationZ()), Ogre::Vector3::UNIT_Z);
+
+        if(q != Ogre::Quaternion::IDENTITY)
+            tileMeshNode->rotate(q);
+
+        Ogre::MeshPtr meshPtr = tileMeshEnt->getMesh();
+        unsigned short src, dest;
+        if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
+        {
+            meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
+        }
+    }
+    else if(mSceneManager->hasEntity(tileMeshName))
+        tileMeshEnt = mSceneManager->getEntity(tileMeshName);
+
+    if(tileMeshEnt != nullptr)
+    {
+        // We replace the material if required by the tileset
+        if(!tileSetValue.getMaterialName().empty())
+            tileMeshEnt->setMaterialName(tileSetValue.getMaterialName());
+
+        if(tile.shouldColorTileMesh())
+            seatColor = tile.getSeat();
+
+        colourizeEntity(tileMeshEnt, seatColor, isMarked, vision);
+    }
+
+    // We display the custom mesh if there is one
+    const std::string customMeshName = tileName + "_customMesh";
+    meshName = tile.getMeshName();
+    isSameMesh = false;
+    if(mSceneManager->hasEntity(customMeshName))
+    {
+        Ogre::Entity* oldEnt = mSceneManager->getEntity(customMeshName);
+        if(oldEnt->getMesh()->getName().compare(meshName) != 0)
+        {
+            // Unlink and delete the old mesh
+            mSceneManager->getSceneNode(customMeshName + "_node")->detachObject(oldEnt);
+            mSceneManager->destroyEntity(oldEnt);
+        }
+        else
+            isSameMesh = true;
+    }
+
+    seatColor = nullptr;
+    Ogre::Entity* customMeshEnt = nullptr;
+    if(!isSameMesh && !meshName.empty())
+    {
+        // If the node do net exists, we create it
+        std::string customMeshNodeName = customMeshName + "_node";
+        Ogre::SceneNode* customMeshNode;
+        if(!mSceneManager->hasSceneNode(customMeshNodeName))
+            customMeshNode = tile.getEntityNode()->createChildSceneNode(customMeshNodeName);
+        else
+            customMeshNode = mSceneManager->getSceneNode(customMeshNodeName);
+
+        customMeshEnt = mSceneManager->createEntity(customMeshName, meshName);
+
+        customMeshNode->attachObject(customMeshEnt);
+        customMeshNode->setScale(tile.getScale());
+        customMeshNode->resetOrientation();
+
+        Ogre::MeshPtr meshPtr = customMeshEnt->getMesh();
+        unsigned short src, dest;
+        if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
+        {
+            meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
+        }
+    }
+    else if(mSceneManager->hasEntity(customMeshName))
+        customMeshEnt = mSceneManager->getEntity(customMeshName);
+
+    if(customMeshEnt != nullptr)
+    {
+        if(tile.shouldColorCustomMesh())
+            seatColor = tile.getSeat();
+
+        colourizeEntity(customMeshEnt, seatColor, isMarked, vision);
+    }
 }
 
 void RenderManager::rrCreateTile(Tile& tile, const GameMap& gameMap, const Player& localPlayer)
@@ -363,8 +409,8 @@ void RenderManager::rrDestroyTile(Tile& tile)
     if (tile.getEntityNode() == nullptr)
         return;
 
-    Ogre::Entity* ent = mSceneManager->getEntity(tile.getOgreNamePrefix() + tile.getName());
-    std::string selectorName = ent->getName() + "_selection_indicator";
+    std::string tileName = tile.getOgreNamePrefix() + tile.getName();
+    std::string selectorName = tileName + "_selection_indicator";
     if(mSceneManager->hasEntity(selectorName))
     {
         Ogre::SceneNode* selectorNode = mSceneManager->getSceneNode(selectorName + "Node");
@@ -374,9 +420,36 @@ void RenderManager::rrDestroyTile(Tile& tile)
         mSceneManager->destroySceneNode(selectorNode);
         mSceneManager->destroyEntity(selectorEnt);
     }
-    tile.getEntityNode()->detachObject(ent);
+
+    const std::string tileMeshName = tileName + "_tileMesh";
+    if(mSceneManager->hasSceneNode(tileMeshName + "_node"))
+    {
+        Ogre::SceneNode* tileMeshNode = mSceneManager->getSceneNode(tileMeshName + "_node");
+        if(mSceneManager->hasEntity(tileMeshName))
+        {
+            Ogre::Entity* ent = mSceneManager->getEntity(tileMeshName);
+            tileMeshNode->detachObject(ent);
+            mSceneManager->destroyEntity(ent);
+        }
+        tile.getEntityNode()->removeChild(tileMeshNode);
+        mSceneManager->destroySceneNode(tileMeshNode);
+    }
+
+    const std::string customMeshName = tileName + "_customMesh";
+    if(mSceneManager->hasSceneNode(customMeshName + "_node"))
+    {
+        Ogre::SceneNode* customMeshNode = mSceneManager->getSceneNode(customMeshName + "_node");
+        if(mSceneManager->hasEntity(customMeshName))
+        {
+            Ogre::Entity* ent = mSceneManager->getEntity(customMeshName);
+            customMeshNode->detachObject(ent);
+            mSceneManager->destroyEntity(ent);
+        }
+        tile.getEntityNode()->removeChild(customMeshNode);
+        mSceneManager->destroySceneNode(customMeshNode);
+    }
+
     mSceneManager->destroySceneNode(tile.getEntityNode());
-    mSceneManager->destroyEntity(ent);
     tile.setParentSceneNode(nullptr);
     tile.setEntityNode(nullptr);
 }

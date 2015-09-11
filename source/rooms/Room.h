@@ -45,6 +45,9 @@ public:
     virtual GameEntityType getObjectType() const
     { return GameEntityType::room; }
 
+    virtual bool isBridge() const
+    { return false; }
+
     virtual void addToGameMap();
     virtual void removeFromGameMap() override;
 

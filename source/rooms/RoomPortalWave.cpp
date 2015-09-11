@@ -84,7 +84,7 @@ RoomPortalWave::RoomPortalWave(GameMap* gameMap) :
         mStrategy(RoomPortalWaveStrategy::closestDungeon),
         mRangeTilesAttack(-1)
 {
-   setMeshName("Portal");
+   setMeshName("");
 }
 
 RoomPortalWave::~RoomPortalWave()

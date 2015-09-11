@@ -366,6 +366,23 @@ public:
     //! Sets the number of teams in this gamemap (after seat configuration). This number includes the rogue team.
     void setTeamsNumber(uint32_t nbTeams);
 
+    //! \brief returns true if the mesh from the tileset should be displayed and false
+    //! otherwise
+    inline bool shouldDisplayTileMesh() const
+    { return mDisplayTileMesh; }
+
+    //! \brief returns true if the mesh from the tileset should be displayed and false
+    //! otherwise
+    inline bool shouldColorCustomMesh() const
+    { return mColorCustomMesh; }
+
+    inline bool getHasBridge() const
+    { return mHasBridge; }
+
+    //! \brief returns true if the mesh from the tileset should be displayed and false
+    //! otherwise
+    bool shouldColorTileMesh() const;
+
     //! \brief returns true if there is a building on this tile and false otherwise.
     //! client side function
     inline bool getIsBuilding() const
@@ -376,6 +393,8 @@ public:
     { return mIsTrap; }
 
     void fireTileSound(TileSound sound);
+
+    double getCreatureSpeedDefault(const Creature* creature) const;
 
     static void exportToStream(Tile* tile, std::ostream& os);
 
@@ -446,6 +465,12 @@ private:
     //! buildings. However, it needs to know the tiles where a building is to display the room/trap costs.
     bool mIsRoom;
     bool mIsTrap;
+
+    bool mDisplayTileMesh;
+
+    bool mColorCustomMesh;
+
+    bool mHasBridge;
 
     //! \brief Used on client side. true if the local player has vision, false otherwise.
     bool mLocalPlayerHasVision;

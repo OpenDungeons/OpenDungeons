@@ -274,6 +274,15 @@ ResearchManager::ResearchManager() :
     mResearches[index] = def;
     lvl1depends.push_back(research);
 
+    resType = ResearchType::roomBridgeWooden;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, emptyDepends);
+    def = new ResearchDefRoom("AttackSkills/", "WoodenBridgeButton", research, RoomType::bridgeWooden);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl1depends.push_back(research);
+
     // Lvl 2 researches
     resType = ResearchType::spellCallToWar;
     index = static_cast<uint32_t>(resType);

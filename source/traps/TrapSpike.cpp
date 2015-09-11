@@ -38,7 +38,7 @@ TrapSpike::TrapSpike(GameMap* gameMap) :
     mMinDamage = ConfigManager::getSingleton().getTrapConfigDouble("SpikeDamagePerHitMin");
     mMaxDamage = ConfigManager::getSingleton().getTrapConfigDouble("SpikeDamagePerHitMax");
     mNbShootsBeforeDeactivation = ConfigManager::getSingleton().getTrapConfigUInt32("SpikeNbShootsBeforeDeactivation");
-    setMeshName("Spike");
+    setMeshName("");
 }
 
 bool TrapSpike::shoot(Tile* tile)

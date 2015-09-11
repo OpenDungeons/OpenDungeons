@@ -44,7 +44,7 @@ RoomPortal::RoomPortal(GameMap* gameMap) :
         mClaimedValue(0),
         mNbCreatureMaxIncrease(0)
 {
-   setMeshName("Portal");
+   setMeshName("");
 }
 
 void RoomPortal::absorbRoom(Room *r)

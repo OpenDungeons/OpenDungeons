@@ -482,7 +482,7 @@ Command::Result cSetCreatureDest(const Command::ArgumentList_t& args, ConsoleInt
         return Command::Result::WRONG_MODE;
     }
 
-    std::string creatureName;
+    std::string creatureName = args[1];
     int x = Helper::toInt(args[2]);
     int y = Helper::toInt(args[3]);
 

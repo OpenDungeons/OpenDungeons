@@ -476,3 +476,8 @@ TileData* Building::createTileData(Tile* tile)
 {
     return new TileData;
 }
+
+double Building::getCreatureSpeed(const Creature* creature, Tile* tile) const
+{
+    return tile->getCreatureSpeedDefault(creature);
+}

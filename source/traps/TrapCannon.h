@@ -35,9 +35,8 @@ public:
 
     virtual bool shoot(Tile* tile);
 
-    //! \brief There is no building tile for this trap.
-    virtual bool shouldDisplayBuildingTile() const
-    { return false; }
+    virtual bool displayTileMesh() const override
+    { return true; }
 
     //! \brief The cannon should show the ground tile under.
     virtual bool shouldDisplayGroundTile() const
