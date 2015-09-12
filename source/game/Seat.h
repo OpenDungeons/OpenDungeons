@@ -192,6 +192,9 @@ public:
     inline int getNumCreaturesFightersMax() const
     { return mNumCreaturesFightersMax; }
 
+    inline bool getKoCreatures() const
+    { return mKoCreatures; }
+
     bool takeMana(double mana);
 
     inline Ogre::Vector3 getStartingPosition() const
@@ -332,6 +335,9 @@ public:
     void notifyBuildingRemovedFromGameMap(Building* building, Tile* tile);
 
     void setVisibleBuildingOnTile(Building* building, Tile* tile);
+
+    //! \brief Used on both server and client sides.
+    void setPlayerSettings(bool koCreatures);
 
     /*! \brief Exports the tile data to the packet so that the client associated to the seat have the needed information
      *         to display the tile correctly
@@ -476,6 +482,9 @@ private:
     int32_t mConfigPlayerId;
     int32_t mConfigTeamId;
     int32_t mConfigFactionIndex;
+
+    //! \brief Should the creatures fight to death or ko enemy creatures
+    bool mKoCreatures;
 
     //! \brief Server side function. Sets mCurrentResearch to the first entry in mResearchPending. If the pending
     //! list in empty, mCurrentResearch will be set to null

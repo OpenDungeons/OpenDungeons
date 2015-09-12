@@ -60,6 +60,8 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
     mNbTurnsFuriousMax(120),
     mMaxManaPerSeat(250000.0),
     mClaimingWallPenalty(0.8),
+    mNbTurnsKoCreatureDropped(10),
+    mNbTurnsKoCreatureAttacked(10),
     mCreatureDefinitionDefaultWorker(nullptr)
 {
     mCreatureDefinitionDefaultWorker = new CreatureDefinition(DefaultWorkerCreatureDefinition,
@@ -518,6 +520,20 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mClaimingWallPenalty = Helper::toDouble(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "NbTurnsKoCreatureDropped")
+        {
+            configFile >> nextParam;
+            mNbTurnsKoCreatureDropped = Helper::toInt(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "NbTurnsKoCreatureAttacked")
+        {
+            configFile >> nextParam;
+            mNbTurnsKoCreatureAttacked = Helper::toInt(nextParam);
             // Not mandatory
         }
 

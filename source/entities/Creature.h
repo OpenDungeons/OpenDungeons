@@ -31,6 +31,7 @@
 #include <string>
 #include <deque>
 
+class Building;
 class Creature;
 class CreatureActionWrapper;
 class CreatureEffect;
@@ -198,6 +199,10 @@ public:
     //! \brief Set the level of the creature
     void setLevel(unsigned int level);
 
+    //! \brief Called when the creature dies or is KO to death. triggers death animation, stops
+    //! the creature job and drops what it is carrying
+    void dropCarriedEquipment();
+
     /*! \brief The main AI routine which decides what the creature will do and carries out that action.
      *
      * The doUpkeep routine is the heart of the Creature AI subsystem.  The other,
@@ -244,8 +249,8 @@ public:
     //! \note Depends also on its equipment.
     double getBestAttackRange() const;
 
-    //! \brief Check whether a creature has earned one level.
-    bool checkLevelUp();
+    //! \brief Check whether a creature has earned one level. If yes, handle leveling it up
+    void checkLevelUp();
 
     //! \brief Updates the lists of tiles within sight radius.
     //! And the tiles the creature can "see" (removing the ones behind walls).
@@ -279,7 +284,8 @@ public:
     uint32_t numCoveredTiles();
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
-    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile* tileTakingDamage);
+    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile* tileTakingDamage,
+        bool ignorePhysicalDefense, bool ignoreMagicalDefense) override;
 
     //! \brief Conform: AttackableObject - Adds experience to this creature.
     void receiveExp(double experience);
@@ -386,9 +392,10 @@ public:
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(Tile* tile) const;
 
-    virtual EntityCarryType getEntityCarryType();
+    virtual EntityCarryType getEntityCarryType(Creature* carrier);
     virtual void notifyEntityCarryOn(Creature* carrier);
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
+    bool canBeCarriedToBuilding(const Building* building) const;
 
     bool canSlap(Seat* seat);
     void slap();
@@ -436,9 +443,13 @@ public:
 
     virtual void correctEntityMovePosition(Ogre::Vector3& position) override;
 
-    //! Called on client side and server side. true if the creature is hurt and false
+    //! \brief Called on client side and server side. true if the creature is hurt and false
     //! if at max HP or above
     bool isHurt() const;
+
+    //! \brief Called on client side and server side. true if the creature is ko and false
+    //! if not
+    bool isKo() const;
 
     //! Checks if the creature current walk path is still valid. This will be called if tiles passability changes (for
     //! example if a door is closed)
@@ -447,6 +458,13 @@ public:
     bool isTired() const;
 
     bool isHungry() const;
+
+    void releasedInBed();
+
+    void setSeatPrison(Seat* seat);
+
+    inline Seat* getSeatPrison() const
+    { return mSeatPrison; }
 
     virtual void clientUpkeep() override;
 
@@ -616,6 +634,20 @@ private:
     //! \brief Speed modifier that will apply to both animation speed and move speed. If
     //! 1.0, it will be default speed
     double                          mSpeedModifier;
+
+    //! \brief Counter when the creature is KO. If = 0, the creature is not KO.
+    //! If > 0, the creature is temporary KO (after being drooped for example). Each
+    //! turn, the counter will decrease and the creature will wake up when the counter
+    //! reaches 0.
+    //! If < 0, the creature is KO to death. The counter will increase each turn and
+    //! if it reaches 0, the creature will die.
+    //! While KO to death, if a kobold carries the creature to its bed, the counter will
+    //! stop during the travel (and reset to 0 when the creature is dropped in its bed).
+    int32_t                         mKoTurnCounter;
+
+    //! \brief If nullptr, the creature is not in prison. If not, it is in the prison of
+    //! the given seat
+    Seat*                           mSeatPrison;
 
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been

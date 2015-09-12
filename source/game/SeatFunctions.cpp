@@ -1649,3 +1649,20 @@ int Seat::readTilesVisualInitialStates(TileVisual tileVisual, std::istream& is)
 
     return 1;
 }
+
+void Seat::setPlayerSettings(bool koCreatures)
+{
+    mKoCreatures = koCreatures;
+    if(!mGameMap->isServerGameMap())
+        return;
+
+    if(getPlayer() == nullptr)
+        return;
+
+    // We send a message to the client to update his settings
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::setPlayerSettings, getPlayer());
+
+    serverNotification->mPacket << mKoCreatures;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}

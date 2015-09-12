@@ -1,0 +1,42 @@
+// Skull_Monster genrated by blender2ogre 0.6.0
+
+material Skull_Monster 
+{
+    receive_shadows on 
+
+    technique
+    {
+        pass Skull_Monster
+        {
+            ambient 0.0 0.0 0.0 1.0
+            diffuse 0.5119999961853026 0.5119999961853026 0.5119999961853026 1.0
+            specular 0.25 0.25 0.25 1.0 12.0
+            emissive 0.0 0.0 0.0 1.0
+
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware clockwise
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            illumination_stage 
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals off
+            polygon_mode solid
+            scene_blend one zero
+            scene_blend_op add
+            shading gouraud
+            transparent_sorting on
+
+            texture_unit 
+            {
+                texture Skull_Monster_512.png
+                tex_address_mode wrap
+                scale 1.0 1.0
+                colour_op modulate
+            }
+        }
+    }
+}

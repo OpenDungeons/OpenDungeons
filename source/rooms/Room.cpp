@@ -758,7 +758,7 @@ bool Room::buildRoomDefault(GameMap* gameMap, Room* room, Seat* seat, const std:
     if(tiles.empty())
         return false;
 
-    room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), seat, tiles);
+    room->setupRoom(gameMap->nextUniqueNameRoom(room->getType()), seat, tiles);
     room->addToGameMap();
     room->createMesh();
 

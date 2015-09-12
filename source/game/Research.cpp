@@ -106,6 +106,8 @@ std::string Research::researchTypeToString(ResearchType type)
             return "roomHatchery";
         case ResearchType::roomLibrary:
             return "roomLibrary";
+        case ResearchType::roomPrison:
+            return "roomPrison";
         case ResearchType::roomTrainingHall:
             return "roomTrainingHall";
         case ResearchType::roomTreasury:
@@ -153,6 +155,8 @@ std::string Research::researchTypeToPlayerVisibleString(ResearchType type)
             return "The TrainingHall Room";
         case ResearchType::roomTreasury:
             return "The Treasury Room";
+        case ResearchType::roomPrison:
+            return "The Prison Room";
         case ResearchType::spellCallToWar:
             return "The 'Call to War' Spell";
         case ResearchType::spellSummonWorker:

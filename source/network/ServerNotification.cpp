@@ -104,6 +104,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "researchTree";
         case ServerNotificationType::researchesDone:
             return "researchesDone";
+        case ServerNotificationType::setPlayerSettings:
+            return "setPlayerSettings";
         case ServerNotificationType::setSpellCooldown:
             return "setSpellCooldown";
         case ServerNotificationType::playerEvents:

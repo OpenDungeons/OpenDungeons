@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/FrameWindow" name="PlayerSettingsWindow" >
+        <Property name="Area" value="{{0.5,-200},{0.5,-150},{0.5,200},{0.5,150}}" />
+        <Property name="Text" value="Player settings" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Property name="Visible" value="False" />
+        <Property name="RiseOnClickEnabled" value="False" />
+        <Window type="OD/Button" name="CancelButton" >
+            <Property name="Area" value="{{1,-230},{1,-55},{1,-130},{1,-25}}" />
+            <Property name="Text" value="Cancel" />
+        </Window>
+        <Window type="OD/Button" name="ApplyButton" >
+            <Property name="Area" value="{{1,-125},{1,-55},{1,-25},{1,-25}}" />
+            <Property name="Text" value="Apply" />
+        </Window>
+        <Window type="OD/StaticText" name="TextSeatIdTitle" >
+            <Property name="Area" value="{{0,20},{0,20},{0.2,0},{0,50}}" />
+            <Property name="Text" value="Seat" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+        </Window>
+        <Window type="OD/StaticText" name="TextSeatPlayerNameTitle" >
+           <Property name="Area" value="{{0.2,10},{0,20},{0.8,0},{0,50}}" />
+           <Property name="Text" value="Nickname" />
+           <Property name="FrameEnabled" value="False" />
+           <Property name="BackgroundEnabled" value="False" />
+        </Window>
+        <Window type="OD/StaticText" name="TextSeatTeamIdTitle" >
+            <Property name="Area" value="{{0.8,10},{0,20},{1,-20},{0,50}}" />
+            <Property name="Text" value="Team" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+        </Window>
+        <Window type="DefaultWindow" name="Seats" >
+            <Property name="Area" value="{{0,0},{0,35},{1,0},{0.6,0}}" />
+            <Window type="OD/ScrollablePane" name="SeatsSP" >
+                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+            </Window>
+        </Window>
+        <Window type="OD/Checkbox" name="KOCreatureCheckbox" >
+            <Property name="Area" value="{{0,20},{0.6,0},{1,0},{0.6,20}}" />
+            <Property name="Text" value="KO enemy creatures instead of killing" />
+        </Window>
+    </Window>
+</GUILayout>

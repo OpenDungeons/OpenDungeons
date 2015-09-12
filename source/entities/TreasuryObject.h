@@ -42,7 +42,7 @@ public:
     virtual bool tryDrop(Seat* seat, Tile* tile) override;
     void mergeGold(TreasuryObject* obj);
 
-    virtual EntityCarryType getEntityCarryType() override;
+    virtual EntityCarryType getEntityCarryType(Creature* carrier) override;
     virtual void notifyEntityCarryOn(Creature* carrier) override;
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position) override;
 

@@ -46,7 +46,7 @@ bool MissileBoulder::hitCreature(GameEntity* entity)
         return true;
 
     Tile* hitTile = tiles[0];
-    entity->takeDamage(this, mDamage, 0.0, hitTile);
+    entity->takeDamage(this, mDamage, 0.0, hitTile, false, false);
     ++mNbHits;
     if(Random::Uint(0, 10 - mNbHits) <= 0)
         return false;

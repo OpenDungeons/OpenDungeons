@@ -222,7 +222,10 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     while (true)
     {
         if(!levelFile.good())
+        {
+            OD_LOG_WRN("unexpected EOF reached");
             return false;
+        }
 
         levelFile >> nextParam;
         if (nextParam == "[/Tiles]")
@@ -254,14 +257,20 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     while(true)
     {
         if(!levelFile.good())
+        {
+            OD_LOG_WRN("unexpected EOF reached");
             return false;
+        }
 
         levelFile >> nextParam;
         if (nextParam == "[/Rooms]")
             break;
 
         if (gameMap.isServerGameMap() && (nextParam != "[Room]"))
+        {
+            OD_LOG_WRN("Expected [Room] but got:" + nextParam);
             return false;
+        }
 
         if(!gameMap.isServerGameMap())
             continue;
@@ -277,7 +286,10 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         levelFile >> nextParam;
         if (nextParam != "[/Room]")
+        {
+            OD_LOG_WRN("Expected [/Room] but got:" + nextParam);
             return false;
+        }
     }
 
     // Read in the traps
@@ -291,14 +303,20 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     while(true)
     {
         if(!levelFile.good())
+        {
+            OD_LOG_WRN("unexpected EOF reached");
             return false;
+        }
 
         levelFile >> nextParam;
         if (nextParam == "[/Traps]")
             break;
 
         if (nextParam != "[Trap]")
+        {
+            OD_LOG_WRN("Expected [Trap] but got:" + nextParam);
             return false;
+        }
 
         Trap* tempTrap = TrapManager::getTrapFromStream(&gameMap, levelFile);
         if(tempTrap == nullptr)
@@ -311,7 +329,10 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         levelFile >> nextParam;
         if (nextParam != "[/Trap]")
+        {
+            OD_LOG_WRN("Expected [/Trap] but got:" + nextParam);
             return false;
+        }
     }
 
     // Read in the lights

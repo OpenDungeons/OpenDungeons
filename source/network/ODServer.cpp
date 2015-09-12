@@ -1305,6 +1305,15 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
+        case ClientNotificationType::askSetPlayerSettings:
+        {
+            Seat* playerSeat = clientSocket->getPlayer()->getSeat();
+            bool koCreatures;
+            OD_ASSERT_TRUE(packetReceived >> koCreatures);
+            playerSeat->setPlayerSettings(koCreatures);
+            break;
+        }
+
         case ClientNotificationType::editorAskDestroyTrapTiles:
         {
             if(mServerMode != ServerMode::ModeEditor)

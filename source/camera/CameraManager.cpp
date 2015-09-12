@@ -424,12 +424,11 @@ Ogre::Vector3 CameraManager::getCameraViewTarget() const
 
 void CameraManager::resetCamera(const Ogre::Vector3& position)
 {
-    Ogre::Quaternion quat(1, 0, 0, 0);
     Ogre::Node* nodeRotation = getActiveCameraNode()->getChild(0);
-    nodeRotation->setOrientation(quat);
+    nodeRotation->resetOrientation();
 
     Ogre::Node* nodeCamera = getActiveCameraNode();
-    nodeCamera->setOrientation(quat);
+    nodeCamera->resetOrientation();
 
     nodeCamera->setPosition(position);
 
@@ -454,6 +453,7 @@ void CameraManager::move(const Direction direction, double aux)
     // when the camera pitch is more than 90 degrees.
     // So we invert the panning in that case.
     Ogre::Real currentPitch = getActiveCameraNode()->getOrientation().getPitch().valueDegrees();
+    currentPitch = std::fmod(currentPitch, 90);
 
     switch (direction)
     {

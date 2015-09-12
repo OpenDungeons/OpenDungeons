@@ -63,6 +63,13 @@
             <Property name="TooltipText" value="Build a Crypt" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
+        <Window type="OD/GameTabButton" name="PrisonButton" >
+            <Property name="Area" value="{{0,520},{0,25},{0,580},{0,85}}" />
+            <Property name="Visible" value="False" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/PrisonButton" />
+            <Property name="TooltipText" value="Build a Prison" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
         <Window type="OD/GameTabButton" name="TempleButton" >
             <Property name="Area" value="{{0,570},{0,25},{0,630},{0,85}}" />
             <Property name="Visible" value="False" />

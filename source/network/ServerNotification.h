@@ -80,6 +80,8 @@ enum class ServerNotificationType
     researchTree,
     researchesDone,
 
+    setPlayerSettings,
+
     setSpellCooldown,
 
     playerEvents,

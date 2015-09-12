@@ -936,6 +936,13 @@ bool ODClient::processOneClientSocketMessage()
             getPlayer()->setSpellCooldownTurns(spellType, cooldown);
             break;
         }
+        case ServerNotificationType::setPlayerSettings:
+        {
+            bool koCreatures;
+            OD_ASSERT_TRUE(packetReceived >> koCreatures);
+            getPlayer()->getSeat()->setPlayerSettings(koCreatures);
+            break;
+        }
 
         default:
         {

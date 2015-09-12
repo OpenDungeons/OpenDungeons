@@ -124,6 +124,14 @@
             <Property name="ClippedByParent" value="False" />
             <Property name="Visible" value="True" />
         </Window>
+        <Window type="OD/ImageButton" name="PlayerSettingsButton" >
+            <Property name="Area" value="{{1,-232},{1,-140},{1,-202},{1,-110}}" />
+            <Property name="ButtonImage" value="OpenDungeonsIcons/HammerAnvilIcon" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Property name="TooltipText" value="Player settings (F2)" />
+            <Property name="ClippedByParent" value="False" />
+            <Property name="Visible" value="True" />
+        </Window>
         <Window type="OD/StaticImage" name="MiniMap" >
             <Property name="Area" value="{{1,-201},{1,-202},{1,-1},{1,-2}}" />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
@@ -139,6 +147,7 @@
             <LayoutImport type="DefaultWindow" filename="WindowTabCreatures.layout" name="CreaturesImport" />
         </Window>
         <LayoutImport type="DefaultWindow" filename="WindowQuit.layout" name="QuitMenuImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowPlayerSettings.layout" name="PlayerSettingsWindowImport" />
         <LayoutImport type="DefaultWindow" filename="WindowObjectives.layout" name="ObjectivesWindowImport" />
         <LayoutImport type="DefaultWindow" filename="WindowResearchTree.layout" name="ResearchTreeWindowImport" />
         <LayoutImport type="DefaultWindow" filename="WindowGameOptions.layout" name="GameOptionsMenuImport" />

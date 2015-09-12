@@ -282,6 +282,7 @@ ResearchManager::ResearchManager() :
     def = new ResearchDefSpell("AttackSkills/", "CallToWarButton", research, SpellType::callToWar);
     def->mapResearch(mResearchesFamily);
     mResearches[index] = def;
+    lvl2depends.push_back(research);
 
     // CreatureExplosion depends on Training Hall
     resType = ResearchType::spellCreatureExplosion;
@@ -291,6 +292,16 @@ ResearchManager::ResearchManager() :
     def = new ResearchDefSpell("AttackSkills/", "CreatureExplosionButton", research, SpellType::creatureExplosion);
     def->mapResearch(mResearchesFamily);
     mResearches[index] = def;
+    lvl2depends.push_back(research);
+
+    resType = ResearchType::roomPrison;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl1depends);
+    def = new ResearchDefRoom("AttackSkills/", "PrisonButton", research, RoomType::prison);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl2depends.push_back(research);
 
     // Tech Skills
     lvl1depends.clear();
@@ -400,6 +411,7 @@ ResearchManager::ResearchManager() :
     mResearches[index] = def;
     lvl2depends.push_back(research);
 
+    // Lvl 2 researches
     resType = ResearchType::spellCreatureHeal;
     index = static_cast<uint32_t>(resType);
     points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
@@ -417,6 +429,7 @@ ResearchManager::ResearchManager() :
     def = new ResearchDefSpell("MagicSkills/", "CreatureHasteButton", research, SpellType::creatureHaste);
     def->mapResearch(mResearchesFamily);
     mResearches[index] = def;
+    lvl3depends.push_back(research);
 }
 
 ResearchManager::~ResearchManager()

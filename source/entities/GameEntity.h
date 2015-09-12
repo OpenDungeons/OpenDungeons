@@ -54,7 +54,8 @@ enum class EntityCarryType
     researchEntity,
     craftedTrap,
     giftBox,
-    gold
+    gold,
+    koCreature
 };
 
 enum class EntityParticleEffectType
@@ -184,7 +185,8 @@ class GameEntity : public EntityBase
     //! \brief Subtracts the given number of hitpoints from the object, the tile specifies where
     //! the enemy inflicted the damage and the object can use this accordingly. attacker is
     //! the entity damaging
-    virtual double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage) = 0;
+    virtual double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage,
+        bool ignorePhysicalDefense, bool ignoreMagicalDefense) = 0;
 
     //! \brief Adds the entity to the correct spaces of the gamemap (animated objects, creature, ...)
     virtual void addToGameMap() = 0;
@@ -210,7 +212,7 @@ class GameEntity : public EntityBase
     virtual void fireRemoveEntityToSeatsWithVision();
 
     //! \brief Returns true if the entity can be carried by a worker. False otherwise.
-    virtual EntityCarryType getEntityCarryType()
+    virtual EntityCarryType getEntityCarryType(Creature* carrier)
     { return EntityCarryType::notCarryable; }
 
     //! \brief Called when the entity is being carried

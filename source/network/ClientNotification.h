@@ -51,6 +51,7 @@ enum class ClientNotificationType
     askSlapEntity,
     askCastSpell,
     askSetResearchTree,
+    askSetPlayerSettings,
 
     askSaveMap,
 
