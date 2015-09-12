@@ -39,6 +39,7 @@ enum class ResearchType
     roomCrypt,
     roomPrison,
     roomBridgeWooden,
+    roomBridgeStone,
 
     // Traps
     trapBoulder,

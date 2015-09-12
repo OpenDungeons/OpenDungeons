@@ -37,6 +37,7 @@ enum class RoomType
     portalWave,
     prison,
     bridgeWooden,
+    bridgeStone,
     nbRooms     // Must be the last in this enum
 };
 
