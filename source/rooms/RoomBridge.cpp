@@ -120,6 +120,11 @@ void RoomBridge::claimForSeat(Seat* seat, Tile* tile, double danceRate)
 
     for(Tile* tile : mCoveredTiles)
         tile->claimTile(seat);
+
+    // We check if by claiming this bridge, we created a bigger one (can happen
+    // if a player builds a bridge next to another one's)
+    checkForRoomAbsorbtion();
+    updateActiveSpots();
 }
 
 double RoomBridge::getCreatureSpeed(const Creature* creature, Tile* tile) const
