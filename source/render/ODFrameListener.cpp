@@ -36,6 +36,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
+#include "camera/CullingManager.h"
 
 #include <OgreRenderWindow.h>
 #include <OgreSceneManager.h>
@@ -90,7 +91,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
 
     //Register as a Window listener
     Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
-
     mInitialized = true;
 }
 

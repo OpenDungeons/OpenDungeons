@@ -29,6 +29,7 @@
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
+#include "entities/EntityBase.h"
 
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -410,6 +411,19 @@ void RenderManager::rrTemporalMarkTile(Tile* curTile)
 
     ent->setVisible(bb);
 }
+
+void RenderManager::rrDetachEntity(EntityBase* curEntity)
+{
+    Ogre::SceneNode* node = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
+    curEntity->getParentSceneNode()->removeChild(node);
+}
+
+void RenderManager::rrAttachEntity(EntityBase* curEntity)
+{
+    Ogre::SceneNode* entityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
+    curEntity->getParentSceneNode()->addChild(entityNode);
+}
+
 
 void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* renderedMovableEntity)
 {

@@ -24,6 +24,7 @@
 #define GAMEENTITY_H
 
 #include "entities/EntityBase.h"
+#include "render/RenderManager.h"
 
 #include <OgreVector3.h>
 #include <cassert>

@@ -19,6 +19,7 @@
 #define ENTITYBASE_H
 
 #include "entities/GameEntityType.h"
+#include "render/RenderManager.h"
 
 #include <OgreVector3.h>
 
@@ -127,6 +128,15 @@ public:
     { return false; }
     virtual void drop(const Ogre::Vector3& v)
     {}
+    inline void show()
+    {
+        RenderManager::getSingleton().rrAttachEntity(this);
+    }
+
+    inline void hide()
+    {
+        RenderManager::getSingleton().rrDetachEntity(this);
+    }
 
     //! \brief Exports the entity so that it can be updated on server side. exportToPacketForUpdate should be
     //! called on server side and the packet should be given to the corresponding entity in updateFromPacket
