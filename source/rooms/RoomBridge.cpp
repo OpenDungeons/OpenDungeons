@@ -47,7 +47,7 @@ void RoomBridge::setupRoom(const std::string& name, Seat* seat, const std::vecto
 {
     Room::setupRoom(name, seat, tiles);
 
-    mClaimedValue = static_cast<double>(tiles.size());
+    mClaimedValue = static_cast<double>(tiles.size()) * CLAIMED_VALUE_PER_TILE;
 
     for(Seat* s : getGameMap()->getSeats())
         updateFloodFillPathCreated(s, tiles);

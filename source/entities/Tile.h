@@ -366,22 +366,19 @@ public:
     //! Sets the number of teams in this gamemap (after seat configuration). This number includes the rogue team.
     void setTeamsNumber(uint32_t nbTeams);
 
-    //! \brief returns true if the mesh from the tileset should be displayed and false
-    //! otherwise
+    //! \brief returns true if the mesh from the tileset should be displayed and false otherwise
     inline bool shouldDisplayTileMesh() const
     { return mDisplayTileMesh; }
 
-    //! \brief returns true if the mesh from the tileset should be displayed and false
-    //! otherwise
+    //! \brief returns true if the mesh from the tileset should be colored and false otherwise
+    bool shouldColorTileMesh() const;
+
+    //! \brief returns true if the custom mesh (from a building, for example) should be colored and false otherwise
     inline bool shouldColorCustomMesh() const
     { return mColorCustomMesh; }
 
     inline bool getHasBridge() const
     { return mHasBridge; }
-
-    //! \brief returns true if the mesh from the tileset should be displayed and false
-    //! otherwise
-    bool shouldColorTileMesh() const;
 
     //! \brief returns true if there is a building on this tile and false otherwise.
     //! client side function
