@@ -3951,7 +3951,7 @@ void Creature::drop(const Ogre::Vector3& v)
     fireCreatureSound(CreatureSound::Drop);
 
     // The creature is temporary KO
-    mKoTurnCounter = ConfigManager::getSingleton().getNbTurnsKoCreatureDropped();
+    mKoTurnCounter = mDefinition->getTurnsStunDropped();
     computeCreatureOverlayMoodValue();
 }
 

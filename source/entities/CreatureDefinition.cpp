@@ -94,6 +94,7 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mFeeBase;
     os << c->mFeePerLevel;
     os << c->mSleepHeal;
+    os << c->mTurnsStunDropped;
     os << c->mMoodModifierName;
     os << c->mWeaponSpawnL;
     os << c->mWeaponSpawnR;
@@ -135,6 +136,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mFeeBase;
     is >> c->mFeePerLevel;
     is >> c->mSleepHeal;
+    is >> c->mTurnsStunDropped;
     is >> c->mMoodModifierName;
     is >> c->mWeaponSpawnL;
     is >> c->mWeaponSpawnR;
@@ -486,6 +488,12 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mSleepHeal = Helper::toDouble(nextParam);
                 continue;
             }
+            else if (nextParam == "TurnsStunDropped")
+            {
+                defFile >> nextParam;
+                creatureDef->mTurnsStunDropped = Helper::toInt(nextParam);
+                continue;
+            }
             else if (nextParam == "CreatureMoodName")
             {
                 defFile >> nextParam;
@@ -680,6 +688,9 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
 
     if(def1 == nullptr || (def1->mSleepHeal != def2->mSleepHeal))
         file << "    SleepHeal\t" << def2->mSleepHeal << std::endl;
+
+    if(def1 == nullptr || (def1->mTurnsStunDropped != def2->mTurnsStunDropped))
+        file << "    TurnsStunDropped\t" << def2->mTurnsStunDropped << std::endl;
 
     if(!def2->mMoodModifierName.empty() && (def1 == nullptr || (def1->mMoodModifierName != def2->mMoodModifierName)))
         file << "    CreatureMoodName\t" << def2->mMoodModifierName << std::endl;
