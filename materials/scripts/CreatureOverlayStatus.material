@@ -118,3 +118,18 @@ material CreatureOverlayStatus_128
         }
     }
 }
+
+material CreatureOverlayStatus_256
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureInPrison.png
+            }
+        }
+    }
+}

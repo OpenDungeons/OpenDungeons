@@ -97,7 +97,13 @@ enum CreatureMoodEnum
     Hungry = 0x0020,
     Tired = 0x0040,
     KoTemp = 0x0080,
-    KoDeathOrTemp = KoTemp | KoDeath
+    InJail = 0x0100,
+    // To know if a creature is KO
+    KoDeathOrTemp = KoTemp | KoDeath,
+    // Mood filters for creatures in prison that every player will see
+    MoodPrisonFiltersAllPlayers = InJail,
+    // Mood filters for creatures in prison that prison allied will see
+    MoodPrisonFiltersPrisonAllies = KoTemp | InJail
 };
 
 //! \brief CreatureAction is contained in a deque in the Creature class. However, we don't
@@ -551,12 +557,17 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
     os << mWeaponlessAtkRange;
     os << mOverlayHealthValue;
 
-    // Only allied players should see creature mood (except KO for creatures in jail)
+    // Only allied players should see creature mood (except some states)
     uint32_t moodValue = 0;
     if(seat->isAlliedSeat(getSeat()))
         moodValue = mOverlayMoodValue;
-    else if((mSeatPrison != nullptr) && seat->isAlliedSeat(mSeatPrison))
-        moodValue = (mOverlayMoodValue & CreatureMoodEnum::KoTemp);
+    else if(mSeatPrison != nullptr)
+    {
+        if(mSeatPrison->isAlliedSeat(seat))
+            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersPrisonAllies;
+        else
+            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersAllPlayers;
+    }
 
     os << moodValue;
     os << mSpeedModifier;
@@ -3277,12 +3288,17 @@ void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
     os << seatId;
     os << mOverlayHealthValue;
 
-    // Only allied players should see creature mood (except KO for creatures in jail)
+    // Only allied players should see creature mood (except some states)
     uint32_t moodValue = 0;
     if(seat->isAlliedSeat(getSeat()))
         moodValue = mOverlayMoodValue;
-    else if((mSeatPrison != nullptr) && seat->isAlliedSeat(mSeatPrison))
-        moodValue = (mOverlayMoodValue & CreatureMoodEnum::KoTemp);
+    else if(mSeatPrison != nullptr)
+    {
+        if(mSeatPrison->isAlliedSeat(seat))
+            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersPrisonAllies;
+        else
+            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersAllPlayers;
+    }
 
     os << moodValue;
     os << mGroundSpeed;
@@ -4709,6 +4725,9 @@ void Creature::computeCreatureOverlayMoodValue()
 
         if(isTired())
             value |= CreatureMoodEnum::Tired;
+
+        if(mSeatPrison != nullptr)
+            value |= CreatureMoodEnum::InJail;
     }
 
     if(mOverlayMoodValue != value)
@@ -4765,7 +4784,6 @@ bool Creature::isHurt() const
 
 bool Creature::isKo() const
 {
-    //On server side, we test HP
     if(getIsOnServerMap())
         return mKoTurnCounter != 0;
 
@@ -4775,7 +4793,6 @@ bool Creature::isKo() const
 
 bool Creature::isKoDeath() const
 {
-    //On server side, we test HP
     if(getIsOnServerMap())
         return mKoTurnCounter < 0;
 
@@ -4785,12 +4802,16 @@ bool Creature::isKoDeath() const
 
 bool Creature::isKoTemp() const
 {
-    //On server side, we test HP
     if(getIsOnServerMap())
         return mKoTurnCounter > 0;
 
     // On client side, we test mood overlay value
     return (mOverlayMoodValue & CreatureMoodEnum::KoTemp) != 0;
+}
+
+bool Creature::isInPrison() const
+{
+    return mSeatPrison != nullptr;
 }
 
 void Creature::correctEntityMovePosition(Ogre::Vector3& position)

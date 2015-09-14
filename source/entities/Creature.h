@@ -447,11 +447,13 @@ public:
     //! if at max HP or above
     bool isHurt() const;
 
-    //! \brief Called on client side and server side. true if the creature is ko and false
-    //! if not
+    //! \brief Called on client side and server side. true if the creature is ko and false if not
     bool isKo() const;
     bool isKoDeath() const;
     bool isKoTemp() const;
+
+    //! \brief Called on client side and server side. true if the creature is in prison and false if not
+    bool isInPrison() const;
 
     //! Checks if the creature current walk path is still valid. This will be called if tiles passability changes (for
     //! example if a door is closed)
