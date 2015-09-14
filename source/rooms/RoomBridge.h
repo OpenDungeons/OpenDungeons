@@ -63,7 +63,7 @@ protected:
         InputCommand& inputCommand, const std::vector<TileVisual>& allowedTilesVisual, bool isEditor);
 
     static bool readBridgeFromPacket(std::vector<Tile*>& tiles, GameMap* gameMap, Seat* seat,
-        const std::vector<TileVisual>& allowedTilesVisual, ODPacket& packet);
+        const std::vector<TileVisual>& allowedTilesVisual, ODPacket& packet, bool isEditor);
 
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;

@@ -289,7 +289,7 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
     Seat* seatColor = nullptr;
     if(!isSameMesh && !meshName.empty())
     {
-        // If the node does net exists, we create it
+        // If the node does not exist, we create it
         std::string tileMeshNodeName = tileMeshName + "_node";
         Ogre::SceneNode* tileMeshNode;
         if(!mSceneManager->hasSceneNode(tileMeshNodeName))
@@ -360,7 +360,7 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
     Ogre::Entity* customMeshEnt = nullptr;
     if(!isSameMesh && !meshName.empty())
     {
-        // If the node does net exists, we create it
+        // If the node does not exist, we create it
         std::string customMeshNodeName = customMeshName + "_node";
         Ogre::SceneNode* customMeshNode;
         if(!mSceneManager->hasSceneNode(customMeshNodeName))

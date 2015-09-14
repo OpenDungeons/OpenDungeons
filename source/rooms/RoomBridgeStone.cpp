@@ -244,7 +244,7 @@ void RoomBridgeStone::checkBuildRoomEditor(GameMap* gameMap, const InputManager&
 bool RoomBridgeStone::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
 {
     std::vector<Tile*> tiles;
-    if(!readBridgeFromPacket(tiles, gameMap, player->getSeat(), allowedTilesVisual, packet))
+    if(!readBridgeFromPacket(tiles, gameMap, player->getSeat(), allowedTilesVisual, packet, false))
         return false;
 
     return buildRoomOnTiles(gameMap, player, tiles);
@@ -273,7 +273,7 @@ bool RoomBridgeStone::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
     }
 
     std::vector<Tile*> tiles;
-    if(!readBridgeFromPacket(tiles, gameMap, seatRoom, allowedTilesVisual, packet))
+    if(!readBridgeFromPacket(tiles, gameMap, seatRoom, allowedTilesVisual, packet, true))
         return false;
 
     RoomBridgeStone* room = new RoomBridgeStone(gameMap);
