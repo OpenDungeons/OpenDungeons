@@ -43,7 +43,7 @@ TrapCannon::TrapCannon(GameMap* gameMap) :
     mMinDamage = ConfigManager::getSingleton().getTrapConfigDouble("CannonDamagePerHitMin");
     mMaxDamage = ConfigManager::getSingleton().getTrapConfigDouble("CannonDamagePerHitMax");
     mNbShootsBeforeDeactivation = ConfigManager::getSingleton().getTrapConfigUInt32("CannonNbShootsBeforeDeactivation");
-    setMeshName("Cannon");
+    setMeshName("");
 }
 
 bool TrapCannon::shoot(Tile* tile)

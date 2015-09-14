@@ -37,9 +37,8 @@ public:
         return false;
     }
 
-    //! \brief There is no building tile for this trap
-    virtual bool shouldDisplayBuildingTile() const
-    { return false; }
+    virtual bool displayTileMesh() const override
+    { return true; }
 
     //! \brief The trap object covers the whole tile under
     //! but while it built, the ground tile still must be shown.

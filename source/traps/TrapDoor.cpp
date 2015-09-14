@@ -49,7 +49,7 @@ TrapDoor::TrapDoor(GameMap* gameMap) :
     mMinDamage = 0;
     mMaxDamage = 0;
     mNbShootsBeforeDeactivation = -1;
-    setMeshName("DoorWooden");
+    setMeshName("");
 }
 
 TrapEntity* TrapDoor::getTrapEntity(Tile* tile)
@@ -378,28 +378,28 @@ bool TrapDoor::permitsVision(Tile* tile)
     return !mIsLockedState;
 }
 
-bool TrapDoor::canCreatureGoThroughTile(const Creature* creature, Tile* tile) const
+double TrapDoor::getCreatureSpeed(const Creature* creature, Tile* tile) const
 {
     const TrapTileData* trapTileData = static_cast<const TrapTileData*>(mTileData.at(tile));
     if (!trapTileData->isActivated())
-        return true;
+        return tile->getCreatureSpeedDefault(creature);
 
     if(!mIsLockedState)
-        return true;
+        return tile->getCreatureSpeedDefault(creature);
 
     // Enemy units can go through doors. We need that otherwise, they won't be able to
     // get to the door. But in any case, if they are not fighting, we let them go. If
     // they are fighting, we don't
     if(getSeat()->isAlliedSeat(creature->getSeat()))
-        return false;
+        return 0.0;
 
     if(creature->isActionInList(CreatureActionType::fight) ||
        creature->isActionInList(CreatureActionType::flee))
     {
-        return false;
+        return 0.0;
     }
 
-    return true;
+    return tile->getCreatureSpeedDefault(creature);
 }
 
 void TrapDoor::exportToStream(std::ostream& os) const

@@ -83,9 +83,8 @@ public:
     //! \brief Spawns one of the available waves
     void spawnWave();
 
-    //! \brief Portals only display claimed tiles on their ground.
-    virtual bool shouldDisplayBuildingTile() const override
-    { return false; }
+    virtual bool displayTileMesh() const override
+    { return true; }
 
     //! \brief Updates the portal position when in editor mode.
     void updateActiveSpots() override;

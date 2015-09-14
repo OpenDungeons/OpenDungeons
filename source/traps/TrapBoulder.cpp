@@ -39,7 +39,7 @@ TrapBoulder::TrapBoulder(GameMap* gameMap) :
     mMinDamage = ConfigManager::getSingleton().getTrapConfigDouble("BoulderDamagePerHitMin");
     mMaxDamage = ConfigManager::getSingleton().getTrapConfigDouble("BoulderDamagePerHitMax");
     mNbShootsBeforeDeactivation = ConfigManager::getSingleton().getTrapConfigUInt32("BoulderNbShootsBeforeDeactivation");
-    setMeshName("Boulder");
+    setMeshName("");
 }
 
 bool TrapBoulder::shoot(Tile* tile)

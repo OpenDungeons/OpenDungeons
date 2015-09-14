@@ -544,6 +544,7 @@ Seat* Seat::createRogueSeat(GameMap* gameMap)
     seat->mStartingY = 0;
     seat->mGold = 0;
     seat->mGoldMined = 0;
+    seat->mColorId = "0";
     seat->mMana = 0;
 
     // In editor, we do not add the player on rogue seat because that's where the human player will be since that's the
@@ -1263,6 +1264,20 @@ void Seat::updateTileStateForSeat(Tile* tile)
                 tileState.mSeatIdOwner = tile->getSeat()->getId();
             }
             break;
+        case TileVisual::waterGround:
+        case TileVisual::lavaGround:
+            if(tile->getCoveringBuilding() != nullptr)
+            {
+                if(tile->getSeat() == nullptr)
+                {
+                    OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+                }
+                else
+                {
+                    tileState.mSeatIdOwner = tile->getSeat()->getId();
+                }
+            }
+            break;
         default:
             tileState.mSeatIdOwner = -1;
             break;
@@ -1347,6 +1362,11 @@ void Seat::exportTileToPacket(ODPacket& os, const Tile* tile) const
         case TileVisual::claimedFull:
             tileSeatId = tileState.mSeatIdOwner;
             break;
+        case TileVisual::waterGround:
+        case TileVisual::lavaGround:
+            if(tileState.mBuilding != nullptr)
+                tileSeatId = tileState.mSeatIdOwner;
+            break;
         default:
             break;
     }
@@ -1354,7 +1374,8 @@ void Seat::exportTileToPacket(ODPacket& os, const Tile* tile) const
     std::string meshName;
     Ogre::Vector3 scale;
 
-    if((tileState.mBuilding != nullptr) && (tileState.mBuilding->shouldDisplayBuildingTile()))
+    if((tileState.mBuilding != nullptr) &&
+       !tileState.mBuilding->getMeshName().empty())
     {
         meshName = tileState.mBuilding->getMeshName() + ".mesh";
         scale = tileState.mBuilding->getScale();
@@ -1367,16 +1388,25 @@ void Seat::exportTileToPacket(ODPacket& os, const Tile* tile) const
     }
     bool isRoom = false;
     bool isTrap = false;
+    bool displayTileMesh = true;
+    bool colorCustomMesh = false;
+    bool hasBridge = false;
+
     uint32_t refundPriceRoom = 0;
     uint32_t refundPriceTrap = 0;
     if(tileState.mBuilding != nullptr)
     {
+        displayTileMesh = tileState.mBuilding->displayTileMesh();
+        colorCustomMesh = tileState.mBuilding->colorCustomMesh();
+
         if(tileState.mBuilding->getObjectType() == GameEntityType::room)
         {
             isRoom = true;
             Room* room = static_cast<Room*>(tileState.mBuilding);
             if(room->getSeat() == this)
                 refundPriceRoom = (RoomManager::costPerTile(room->getType()) / 2);
+
+            hasBridge = room->isBridge();
         }
         else if(tileState.mBuilding->getObjectType() == GameEntityType::trap)
         {
@@ -1390,6 +1420,9 @@ void Seat::exportTileToPacket(ODPacket& os, const Tile* tile) const
     os << isTrap;
     os << refundPriceRoom;
     os << refundPriceTrap;
+    os << displayTileMesh;
+    os << colorCustomMesh;
+    os << hasBridge;
     os << tileSeatId;
     os << meshName;
     os << scale;

@@ -41,9 +41,8 @@ public:
 
     virtual void doUpkeep() override;
 
-    //! \brief There is no building tile for this trap
-    virtual bool shouldDisplayBuildingTile() const override
-    { return false; }
+    virtual bool displayTileMesh() const override
+    { return true; }
 
     //! \brief The trap object covers the whole tile under
     //! but while it built, the ground tile still must be shown.
@@ -54,7 +53,7 @@ public:
 
     virtual TrapEntity* getTrapEntity(Tile* tile) override;
 
-    virtual bool canCreatureGoThroughTile(const Creature* creature, Tile* tile) const override;
+    virtual double getCreatureSpeed(const Creature* creature, Tile* tile) const override;
 
     //! Returns true if tiles North and South (or east and west) are suitable to have a door on the
     //! given tile

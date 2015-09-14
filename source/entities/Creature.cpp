@@ -3152,21 +3152,21 @@ double Creature::getMoveSpeed(Tile* tile) const
         return 1.0;
     }
 
-    switch(tile->getType())
+    if(getIsOnServerMap())
     {
-        case TileType::dirt:
-        case TileType::gold:
-        case TileType::rock:
-            return mGroundSpeed;
-        case TileType::water:
-            return mWaterSpeed;
-        case TileType::lava:
-            return mLavaSpeed;
-        default:
-            break;
+        // Check if the covering building allows this creature to go through
+        if(tile->getCoveringBuilding() != nullptr)
+            return tile->getCoveringBuilding()->getCreatureSpeed(this, tile);
+        else
+            return tile->getCreatureSpeedDefault(this);
     }
-
-    return mGroundSpeed;
+    else
+    {
+        if(tile->getHasBridge())
+            return getMoveSpeedGround();
+        else
+            return tile->getCreatureSpeedDefault(this);
+    }
 }
 
 double Creature::getPhysicalDamage(double range)
@@ -3907,46 +3907,7 @@ bool Creature::canGoThroughTile(Tile* tile) const
     if(tile == nullptr)
         return false;
 
-    // Check if the covering building allows this creature to go through
-    if((tile->getCoveringBuilding() != nullptr) &&
-       (!tile->getCoveringBuilding()->canCreatureGoThroughTile(this, tile)))
-    {
-        return false;
-    }
-
-    switch(tile->getType())
-    {
-        case TileType::dirt:
-        case TileType::gold:
-        case TileType::rock:
-        {
-            // Note: We don't care about water or lava fullness.
-            if (tile->isFullTile())
-                return false;
-
-            if(mGroundSpeed > 0.0)
-                return true;
-
-            break;
-        }
-        case TileType::water:
-        {
-            if(mWaterSpeed > 0.0)
-                return true;
-
-            break;
-        }
-        case TileType::lava:
-        {
-            if(mLavaSpeed > 0.0)
-                return true;
-
-            break;
-        }
-        default:
-            return false;
-    }
-    return false;
+    return getMoveSpeed(tile) > 0.0;
 }
 
 bool Creature::tryDrop(Seat* seat, Tile* tile)

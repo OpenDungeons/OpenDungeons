@@ -56,6 +56,9 @@ Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, do
     mScale              (Ogre::Vector3::ZERO),
     mIsRoom             (false),
     mIsTrap             (false),
+    mDisplayTileMesh    (true),
+    mColorCustomMesh    (true),
+    mHasBridge          (false),
     mLocalPlayerHasVision   (false),
     mGameMap(gameMap),
     mIsOnServerMap(isOnServerMap)
@@ -618,7 +621,8 @@ void Tile::copyFloodFillToOtherSeats(Seat* seatToCopy)
 
 void Tile::logFloodFill() const
 {
-    std::string str = "Tile floodfill : " + Tile::displayAsString(this)
+    std::string str = "Floodfill : " + Tile::displayAsString(this)
+        + " - type=" + Tile::tileVisualToString(getTileVisual())
         + " - fullness=" + Helper::toString(getFullness())
         + " - seatId=" + std::string(getSeat() == nullptr ? "-1" : Helper::toString(getSeat()->getId()));
     for(const std::vector<uint32_t>& values : mFloodFillColor)
@@ -647,7 +651,19 @@ bool Tile::isClaimedForSeat(const Seat* seat) const
 bool Tile::isClaimed() const
 {
     if(!mIsOnServerMap)
-        return ((mTileVisual == TileVisual::claimedGround) || (mTileVisual == TileVisual::claimedFull));
+    {
+        if(mTileVisual == TileVisual::claimedGround)
+            return true;
+
+        if(mTileVisual == TileVisual::claimedFull)
+            return true;
+
+        // For bridges
+        if(getHasBridge())
+            return true;
+
+        return false;
+    }
 
     if(getSeat() == nullptr)
         return false;
@@ -714,22 +730,23 @@ void Tile::changeNotifiedForSeat(Seat* seat)
 
 void Tile::computeTileVisual()
 {
-    if(isClaimed())
-    {
-        if(mFullness > 0.0)
-            mTileVisual = TileVisual::claimedFull;
-        else
-            mTileVisual = TileVisual::claimedGround;
-        return;
-    }
-
     switch(getType())
     {
         case TileType::dirt:
             if(mFullness > 0.0)
-                mTileVisual = TileVisual::dirtFull;
+            {
+                if(isClaimed())
+                    mTileVisual = TileVisual::claimedFull;
+                else
+                    mTileVisual = TileVisual::dirtFull;
+            }
             else
-                mTileVisual = TileVisual::dirtGround;
+            {
+                if(isClaimed())
+                    mTileVisual = TileVisual::claimedGround;
+                else
+                    mTileVisual = TileVisual::dirtGround;
+            }
             return;
 
         case TileType::rock:
@@ -741,9 +758,19 @@ void Tile::computeTileVisual()
 
         case TileType::gold:
             if(mFullness > 0.0)
-                mTileVisual = TileVisual::goldFull;
+            {
+                if(isClaimed())
+                    mTileVisual = TileVisual::claimedFull;
+                else
+                    mTileVisual = TileVisual::goldFull;
+            }
             else
-                mTileVisual = TileVisual::goldGround;
+            {
+                if(isClaimed())
+                    mTileVisual = TileVisual::claimedGround;
+                else
+                    mTileVisual = TileVisual::goldGround;
+            }
             return;
 
         case TileType::water:
@@ -797,6 +824,19 @@ uint32_t Tile::getFloodFillValue(Seat* seat, FloodFillType type) const
 void Tile::setTeamsNumber(uint32_t nbTeams)
 {
     mFloodFillColor = std::vector<std::vector<uint32_t>>(nbTeams, std::vector<uint32_t>(static_cast<uint32_t>(FloodFillType::nbValues), NO_FLOODFILL));
+}
+
+bool Tile::shouldColorTileMesh() const
+{
+    // We only set color for claimed tiles
+    switch(getTileVisual())
+    {
+        case TileVisual::claimedGround:
+        case TileVisual::claimedFull:
+            return true;
+        default:
+            return false;
+    }
 }
 
 void Tile::exportToStream(Tile* tile, std::ostream& os)

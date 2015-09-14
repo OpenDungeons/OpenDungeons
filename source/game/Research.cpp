@@ -96,6 +96,10 @@ std::string Research::researchTypeToString(ResearchType type)
     {
         case ResearchType::nullResearchType:
             return "nullResearchType";
+        case ResearchType::roomBridgeStone:
+            return "roomBridgeStone";
+        case ResearchType::roomBridgeWooden:
+            return "roomBridgeWooden";
         case ResearchType::roomCrypt:
             return "roomCrypt";
         case ResearchType::roomDormitory:
@@ -141,6 +145,10 @@ std::string Research::researchTypeToPlayerVisibleString(ResearchType type)
     {
         case ResearchType::nullResearchType:
             return "No Research type";
+        case ResearchType::roomBridgeStone:
+            return "The Stone Bridge Room";
+        case ResearchType::roomBridgeWooden:
+            return "The Wooden Bridge Room";
         case ResearchType::roomCrypt:
             return "The Crypt Room";
         case ResearchType::roomDormitory:

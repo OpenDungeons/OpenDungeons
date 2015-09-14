@@ -393,6 +393,7 @@ public:
     //! already know that no path exists.
     bool doFloodFill(Seat* seat, Tile* tile);
     void refreshFloodFill(Seat* seat, Tile* tile);
+    void replaceFloodFill(Seat* seat, FloodFillType floodFillType, uint32_t colorOld, uint32_t colorNew);
 
     //! \brief Temporarily disables the flood fill computations on this game map.
     void disableFloodFill()
@@ -538,6 +539,12 @@ public:
     //! allowed to go through tile
     void doorLock(Tile* tileDoor, Seat* seat, bool locked);
 
+    //! \brief Goes through all tile neighbors from startTile and replaces floodfill for all values in oldColors
+    //! by newColors for each value in oldColors != Tile::NO_FLOODFILL
+    //! If tileIgnored is not null, this tile won't be processed if found
+    void changeFloodFillConnectedTiles(Tile* startTile, Seat* seat, const std::vector<uint32_t>& oldColors,
+        const std::vector<uint32_t>& newColors, Tile* tileIgnored);
+
     void notifySeatsConfigured();
 
     const std::vector<int>& getTeamIds() const
@@ -550,8 +557,6 @@ public:
         const std::string& soundFamily, Tile* tile);
 
 private:
-    void replaceFloodFill(Seat* seat, FloodFillType floodFillType, uint32_t colorOld, uint32_t colorNew);
-
     //! \brief Tells whether this game map instance is used as a reference by the server-side,
     //! or as a standard client game map.
     bool mIsServerGameMap;

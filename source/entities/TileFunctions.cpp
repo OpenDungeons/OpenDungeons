@@ -144,14 +144,11 @@ bool Tile::isGroundClaimable(Seat* seat) const
     if(getFullness() > 0.0)
         return false;
 
+    if(getCoveringBuilding() != nullptr)
+        return getCoveringBuilding()->isClaimable(seat);
+
     if(mType != TileType::dirt && mType != TileType::gold)
         return false;
-
-    if((getCoveringBuilding() != nullptr) &&
-        (!getCoveringBuilding()->isClaimable(seat)))
-    {
-        return false;
-    }
 
     if(isClaimedForSeat(seat))
         return false;
@@ -176,6 +173,10 @@ void Tile::updateFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mIsTrap);
     OD_ASSERT_TRUE(is >> mRefundPriceRoom);
     OD_ASSERT_TRUE(is >> mRefundPriceTrap);
+
+    OD_ASSERT_TRUE(is >> mDisplayTileMesh);
+    OD_ASSERT_TRUE(is >> mColorCustomMesh);
+    OD_ASSERT_TRUE(is >> mHasBridge);
 
     OD_ASSERT_TRUE(is >> seatId);
 
@@ -884,4 +885,22 @@ void Tile::fireTileSound(TileSound sound)
 
     getGameMap()->fireSpatialSound(mSeatsWithVision, SpatialSoundType::Game,
         soundFamily, this);
+}
+
+double Tile::getCreatureSpeedDefault(const Creature* creature) const
+{
+    switch(getTileVisual())
+    {
+        case TileVisual::dirtGround:
+        case TileVisual::goldGround:
+        case TileVisual::rockGround:
+        case TileVisual::claimedGround:
+            return creature->getMoveSpeedGround();
+        case TileVisual::waterGround:
+            return creature->getMoveSpeedWater();
+        case TileVisual::lavaGround:
+            return creature->getMoveSpeedLava();
+        default:
+            return 0.0;
+    }
 }

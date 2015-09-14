@@ -9,76 +9,90 @@
         <Property name="RiseOnClickEnabled" value="False" />
 
         <Window type="OD/GameTabButton" name="DestroyRoomButton" >
-            <Property name="Area" value="{{0,20},{0,25},{0,80},{0,85}}" />
+            <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
             <Property name="NormalImage" value="OpenDungeonsIcons/DestroyRoomButton" />
             <Property name="TooltipText" value="Destroy a room (returns half its price)" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/GameTabButton" name="TreasuryButton" >
-            <Property name="Area" value="{{0,100},{0,25},{0,160},{0,85}}" />
+            <Property name="Area" value="{{0,100},{0,10},{0,140},{0,50}}" />
             <Property name="Visible" value="False" />
             <Property name="NormalImage" value="OpenDungeonsIcons/TreasuryButton" />
             <Property name="TooltipText" value="Build a treasury" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/GameTabButton" name="DormitoryButton" >
-            <Property name="Area" value="{{0,160},{0,25},{0,220},{0,85}}" />
+            <Property name="Area" value="{{0,140},{0,10},{0,180},{0,50}}" />
             <Property name="Visible" value="False" />
             <Property name="NormalImage" value="OpenDungeonsIcons/DormitoryButton" />
             <Property name="TooltipText" value="Build sleeping places for your creatures" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/GameTabButton" name="HatcheryButton" >
-            <Property name="Area" value="{{0,220},{0,25},{0,280},{0,85}}" />
+            <Property name="Area" value="{{0,180},{0,10},{0,220},{0,50}}" />
             <Property name="Visible" value="False" />
             <Property name="NormalImage" value="OpenDungeonsIcons/HatcheryButton" />
             <Property name="TooltipText" value="Build a Hatchery" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/GameTabButton" name="LibraryButton" >
-            <Property name="Area" value="{{0,280},{0,25},{0,340},{0,85}}" />
+            <Property name="Area" value="{{0,220},{0,10},{0,260},{0,50}}" />
             <Property name="Visible" value="False" />
             <Property name="NormalImage" value="OpenDungeonsIcons/LibraryButton" />
             <Property name="TooltipText" value="Build a Library" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/GameTabButton" name="TrainingHallButton" >
-            <Property name="Area" value="{{0,340},{0,25},{0,400},{0,85}}" />
+            <Property name="Area" value="{{0,260},{0,10},{0,300},{0,50}}" />
             <Property name="Visible" value="False" />
             <Property name="NormalImage" value="OpenDungeonsIcons/TrainingHallButton" />
             <Property name="TooltipText" value="Build a Training Hall" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/GameTabButton" name="WorkshopButton" >
-            <Property name="Area" value="{{0,400},{0,25},{0,460},{0,85}}" />
+            <Property name="Area" value="{{0,300},{0,10},{0,340},{0,50}}" />
             <Property name="Visible" value="False" />
             <Property name="NormalImage" value="OpenDungeonsIcons/WorkshopButton" />
             <Property name="TooltipText" value="Build a Workshop (for traps)" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/GameTabButton" name="CryptButton" >
-            <Property name="Area" value="{{0,460},{0,25},{0,520},{0,85}}" />
+            <Property name="Area" value="{{0,340},{0,10},{0,380},{0,50}}" />
             <Property name="Visible" value="False" />
             <Property name="NormalImage" value="OpenDungeonsIcons/CryptButton" />
             <Property name="TooltipText" value="Build a Crypt" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/GameTabButton" name="PrisonButton" >
-            <Property name="Area" value="{{0,520},{0,25},{0,580},{0,85}}" />
+            <Property name="Area" value="{{0,380},{0,10},{0,420},{0,50}}" />
             <Property name="Visible" value="False" />
             <Property name="NormalImage" value="OpenDungeonsIcons/PrisonButton" />
             <Property name="TooltipText" value="Build a Prison" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
+        <Window type="OD/GameTabButton" name="WoodenBridgeButton" >
+            <Property name="Area" value="{{0,100},{0,50},{0,140},{0,90}}" />
+            <Property name="Visible" value="False" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/WoodenBridgeButton" />
+            <Property name="TooltipText" value="Build a wooden bridge" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
+        <Window type="OD/GameTabButton" name="StoneBridgeButton" >
+            <Property name="Area" value="{{0,140},{0,50},{0,180},{0,90}}" />
+            <Property name="Visible" value="False" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/StoneBridgeButton" />
+            <Property name="TooltipText" value="Build a stone bridge" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
         <Window type="OD/GameTabButton" name="TempleButton" >
-            <Property name="Area" value="{{0,570},{0,25},{0,630},{0,85}}" />
+            <Property name="Area" value="{{0,570},{0,20},{0,630},{0,80}}" />
             <Property name="Visible" value="False" />
             <Property name="NormalImage" value="OpenDungeonsIcons/TempleButton" />
             <Property name="TooltipText" value="Build a Temple (3x3)" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/GameTabButton" name="PortalButton" >
-            <Property name="Area" value="{{0,630},{0,25},{0,690},{0,85}}" />
+            <Property name="Area" value="{{0,630},{0,20},{0,690},{0,80}}" />
             <Property name="Visible" value="False" />
             <Property name="NormalImage" value="OpenDungeonsIcons/PortalButton" />
             <Property name="TooltipText" value="Build a Portal (3x3)" />
