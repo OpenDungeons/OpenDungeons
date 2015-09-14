@@ -93,9 +93,11 @@ enum CreatureMoodEnum
     Furious = 0x0002,
     GetFee = 0x0004,
     LeaveDungeon = 0x0008,
-    KO = 0x0010,
+    KoDeath = 0x0010,
     Hungry = 0x0020,
-    Tired = 0x0040
+    Tired = 0x0040,
+    KoTemp = 0x0080,
+    KoDeathOrTemp = KoTemp | KoDeath
 };
 
 //! \brief CreatureAction is contained in a deque in the Creature class. However, we don't
@@ -554,7 +556,7 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
     if(seat->isAlliedSeat(getSeat()))
         moodValue = mOverlayMoodValue;
     else if((mSeatPrison != nullptr) && seat->isAlliedSeat(mSeatPrison))
-        moodValue = (mOverlayMoodValue & CreatureMoodEnum::KO);
+        moodValue = (mOverlayMoodValue & CreatureMoodEnum::KoTemp);
 
     os << moodValue;
     os << mSpeedModifier;
@@ -3280,7 +3282,7 @@ void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
     if(seat->isAlliedSeat(getSeat()))
         moodValue = mOverlayMoodValue;
     else if((mSeatPrison != nullptr) && seat->isAlliedSeat(mSeatPrison))
-        moodValue = (mOverlayMoodValue & CreatureMoodEnum::KO);
+        moodValue = (mOverlayMoodValue & CreatureMoodEnum::KoTemp);
 
     os << moodValue;
     os << mGroundSpeed;
@@ -4697,8 +4699,10 @@ void Creature::computeCreatureOverlayMoodValue()
         if(isActionInList(CreatureActionType::leaveDungeon))
             value |= CreatureMoodEnum::LeaveDungeon;
 
-        if(mKoTurnCounter != 0)
-            value |= CreatureMoodEnum::KO;
+        if(mKoTurnCounter < 0)
+            value |= CreatureMoodEnum::KoDeath;
+        else if(mKoTurnCounter > 0)
+            value |= CreatureMoodEnum::KoTemp;
 
         if(isHungry())
             value |= CreatureMoodEnum::Hungry;
@@ -4766,7 +4770,27 @@ bool Creature::isKo() const
         return mKoTurnCounter != 0;
 
     // On client side, we test mood overlay value
-    return (mOverlayMoodValue & CreatureMoodEnum::KO) != 0;
+    return (mOverlayMoodValue & KoDeathOrTemp) != 0;
+}
+
+bool Creature::isKoDeath() const
+{
+    //On server side, we test HP
+    if(getIsOnServerMap())
+        return mKoTurnCounter < 0;
+
+    // On client side, we test mood overlay value
+    return (mOverlayMoodValue & CreatureMoodEnum::KoDeath) != 0;
+}
+
+bool Creature::isKoTemp() const
+{
+    //On server side, we test HP
+    if(getIsOnServerMap())
+        return mKoTurnCounter > 0;
+
+    // On client side, we test mood overlay value
+    return (mOverlayMoodValue & CreatureMoodEnum::KoTemp) != 0;
 }
 
 void Creature::correctEntityMovePosition(Ogre::Vector3& position)

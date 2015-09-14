@@ -450,6 +450,8 @@ public:
     //! \brief Called on client side and server side. true if the creature is ko and false
     //! if not
     bool isKo() const;
+    bool isKoDeath() const;
+    bool isKoTemp() const;
 
     //! Checks if the creature current walk path is still valid. This will be called if tiles passability changes (for
     //! example if a door is closed)
