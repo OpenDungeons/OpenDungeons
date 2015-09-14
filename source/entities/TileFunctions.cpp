@@ -704,6 +704,23 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
 
                 break;
             }
+            case SelectionEntityWanted::creatureAliveInOwnedPrisonHurt:
+            {
+                if(entity->getObjectType() != GameEntityType::creature)
+                    continue;
+
+                Creature* creature = static_cast<Creature*>(entity);
+                if(!creature->isAlive())
+                    continue;
+
+                if(!creature->isInPrison())
+                    continue;
+
+                if(!creature->getSeatPrison()->canOwnedCreatureBePickedUpBy(player->getSeat()))
+                    continue;
+
+                break;
+            }
             default:
             {
                 static bool logMsg = false;

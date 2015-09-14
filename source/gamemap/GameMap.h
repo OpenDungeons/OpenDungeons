@@ -79,7 +79,8 @@ enum class SelectionEntityWanted
     creatureAliveAllied,
     creatureAliveEnemy,
     creatureAlive,
-    creatureAliveOrDead
+    creatureAliveOrDead,
+    creatureAliveInOwnedPrisonHurt
 };
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
