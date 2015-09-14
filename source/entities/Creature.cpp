@@ -87,6 +87,17 @@ const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 
 const uint32_t Creature::NB_OVERLAY_HEALTH_VALUES = 8;
 
+enum CreatureMoodEnum
+{
+    Angry = 0x0001,
+    Furious = 0x0002,
+    GetFee = 0x0004,
+    LeaveDungeon = 0x0008,
+    KO = 0x0010,
+    Hungry = 0x0020,
+    Tired = 0x0040
+};
+
 //! \brief CreatureAction is contained in a deque in the Creature class. However, we don't
 //! want to use this class directly in the handle action functions because the action can be
 //! removed from the deque within the handle function. To avoid that, we use this wrapper class
@@ -538,10 +549,12 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
     os << mWeaponlessAtkRange;
     os << mOverlayHealthValue;
 
-    // Only allied players should see creature mood
+    // Only allied players should see creature mood (except KO for creatures in jail)
     uint32_t moodValue = 0;
     if(seat->isAlliedSeat(getSeat()))
         moodValue = mOverlayMoodValue;
+    else if((mSeatPrison != nullptr) && seat->isAlliedSeat(mSeatPrison))
+        moodValue = (mOverlayMoodValue & CreatureMoodEnum::KO);
 
     os << moodValue;
     os << mSpeedModifier;
@@ -3262,10 +3275,12 @@ void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
     os << seatId;
     os << mOverlayHealthValue;
 
-    // Only allied players should see creature mood
+    // Only allied players should see creature mood (except KO for creatures in jail)
     uint32_t moodValue = 0;
     if(seat->isAlliedSeat(getSeat()))
         moodValue = mOverlayMoodValue;
+    else if((mSeatPrison != nullptr) && seat->isAlliedSeat(mSeatPrison))
+        moodValue = (mOverlayMoodValue & CreatureMoodEnum::KO);
 
     os << moodValue;
     os << mGroundSpeed;
@@ -4668,24 +4683,24 @@ void Creature::computeCreatureOverlayMoodValue()
     if(isAlive())
     {
         if(mMoodValue == CreatureMoodLevel::Angry)
-            value |= 0x0001;
+            value |= CreatureMoodEnum::Angry;
         else if(mMoodValue == CreatureMoodLevel::Furious)
-            value |= 0x0002;
+            value |= CreatureMoodEnum::Furious;
 
         if(isActionInList(CreatureActionType::getFee))
-            value |= 0x0004;
+            value |= CreatureMoodEnum::GetFee;
 
         if(isActionInList(CreatureActionType::leaveDungeon))
-            value |= 0x0008;
+            value |= CreatureMoodEnum::LeaveDungeon;
 
         if(mKoTurnCounter != 0)
-            value |= 0x0010;
+            value |= CreatureMoodEnum::KO;
 
         if(isHungry())
-            value |= 0x0020;
+            value |= CreatureMoodEnum::Hungry;
 
         if(isTired())
-            value |= 0x0040;
+            value |= CreatureMoodEnum::Tired;
     }
 
     if(mOverlayMoodValue != value)
@@ -4747,7 +4762,7 @@ bool Creature::isKo() const
         return mKoTurnCounter != 0;
 
     // On client side, we test mood overlay value
-    return (mOverlayMoodValue & 0x0010) != 0;
+    return (mOverlayMoodValue & CreatureMoodEnum::KO) != 0;
 }
 
 void Creature::correctEntityMovePosition(Ogre::Vector3& position)
@@ -4803,7 +4818,7 @@ bool Creature::isTired() const
     if(getIsOnServerMap())
         return mAwakeness <= 20.0;
 
-    return (mOverlayMoodValue & 0x0040) != 0;
+    return (mOverlayMoodValue & CreatureMoodEnum::Tired) != 0;
 }
 
 bool Creature::isHungry() const
@@ -4811,7 +4826,7 @@ bool Creature::isHungry() const
     if(getIsOnServerMap())
         return mHunger >= 80.0;
 
-    return (mOverlayMoodValue & 0x0020) != 0;
+    return (mOverlayMoodValue & CreatureMoodEnum::Hungry) != 0;
 }
 
 void Creature::releasedInBed()
