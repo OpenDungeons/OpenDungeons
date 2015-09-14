@@ -4340,6 +4340,10 @@ bool Creature::canSlap(Seat* seat)
     if(getHP() <= 0.0)
         return false;
 
+    // If the creature is in prison, it can be slapped by the jail owner only
+    if(mSeatPrison != nullptr)
+        return (mSeatPrison == seat);
+
     // Only the owning player can slap a creature
     if(getSeat() != seat)
         return false;
