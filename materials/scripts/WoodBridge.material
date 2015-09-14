@@ -24,9 +24,7 @@ material WoodBridge : RTSS/NormalMapping_MultiPass
         pass last
         {
             ambient 0.0 0.0 0.0 1.0
-            diffuse 1.0 1.0 1.0 0.0
-            specular 0.0 0.0 0.0 0.0 2.0
-            emissive 0.0 0.0 0.0 0.0
+            diffuse 0.65 0.65 0.65 0.0
 
             scene_blend add
             depth_write off
