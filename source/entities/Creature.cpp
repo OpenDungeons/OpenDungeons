@@ -3333,7 +3333,11 @@ void Creature::updateFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mWaterSpeed);
     OD_ASSERT_TRUE(is >> mLavaSpeed);
     OD_ASSERT_TRUE(is >> mSpeedModifier);
-    RenderManager::getSingleton().rrScaleEntity(this);
+
+    // We do not scale the creature if it is picked up (because it is already not at its normal size). It will be
+    // resized anyway when dropped
+    if(getIsOnMap())
+        RenderManager::getSingleton().rrScaleEntity(this);
 
     if(getSeat()->getId() != seatId)
     {

@@ -141,6 +141,8 @@ public:
     void rrMinimapRendering(bool postRender);
 
 private:
+    //! \brief Correctly places entities in hand next to the keeper hand
+    void changeRenderQueueRecursive(Ogre::SceneNode* node, uint8_t renderQueueId);
 
     //! \brief Correctly places entities in hand next to the keeper hand
     void rrOrderHand(Player* localPlayer);
