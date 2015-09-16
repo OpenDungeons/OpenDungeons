@@ -130,6 +130,10 @@ bool MenuModeLoad::launchSelectedButtonPressed(const CEGUI::EventArgs&)
         return true;
     }
 
+    std::string nickname = ConfigManager::getSingleton().getGameValue(Config::NICKNAME, std::string(), false);
+    if (!nickname.empty())
+        ODFrameListener::getSingleton().getClientGameMap()->setLocalPlayerNick(nickname);
+
     tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
     tmpWin->setText("Loading...");
     tmpWin->show();
