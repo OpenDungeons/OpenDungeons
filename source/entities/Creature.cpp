@@ -2118,20 +2118,20 @@ bool Creature::handleFindHomeAction(const CreatureActionWrapper& actionItem)
             }
         }
 
-        if (static_cast<RoomDormitory*>(myTile->getCoveringBuilding())->claimTileForSleeping(myTile, this))
+        Tile* homeTile = static_cast<RoomDormitory*>(myTile->getCoveringBuilding())->claimTileForSleeping(myTile, this);
+        if(homeTile != nullptr)
         {
             // We could install the bed in the dormitory. If we already had one, we remove it
             if(roomHomeTile != nullptr)
                 static_cast<RoomDormitory*>(roomHomeTile)->releaseTileForSleeping(mHomeTile, this);
 
-            mHomeTile = myTile;
+            mHomeTile = homeTile;
             popAction();
             return true;
         }
 
         // The tile where we are is not claimable. We search if there is another in this dormitory
-        Tile* tempTile = static_cast<RoomDormitory*>(myTile->getCoveringBuilding())->getLocationForBed(
-            mDefinition->getBedDim1(), mDefinition->getBedDim2());
+        Tile* tempTile = static_cast<RoomDormitory*>(myTile->getCoveringBuilding())->getLocationForBed(this);
         if(tempTile != nullptr)
         {
             std::list<Tile*> tempPath = getGameMap()->path(this, tempTile);
@@ -2161,13 +2161,7 @@ bool Creature::handleFindHomeAction(const CreatureActionWrapper& actionItem)
     {
         // Get the list of open rooms at the current dormitory and check to see if
         // there is a place where we could put a bed big enough to sleep in.
-        Tile* tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(
-                        mDefinition->getBedDim1(), mDefinition->getBedDim2());
-
-        // If the previous attempt to place the bed in this dormitory failed, try again with the bed the other way.
-        if (tempTile == nullptr)
-            tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(
-                                                                     mDefinition->getBedDim2(), mDefinition->getBedDim1());
+        Tile* tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(this);
 
         // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
         if (tempTile != nullptr)
@@ -2774,7 +2768,17 @@ bool Creature::handleSleepAction(const CreatureActionWrapper& actionItem)
         // We are at the home tile so sleep. If it is the first time we are sleeping,
         // we send the animation
         if(actionItem.mNbTurnsActive == 0)
-            setAnimationState(EntityAnimation::sleep_anim, false);
+        {
+            Room* roomHomeTile = mHomeTile->getCoveringRoom();
+            if((roomHomeTile == nullptr) || (roomHomeTile->getType() != RoomType::dormitory))
+            {
+                OD_LOG_ERR("creature=" + getName() + ", wrong sleep tile on " + Tile::displayAsString(mHomeTile));
+                popAction();
+                return false;
+            }
+            RoomDormitory* dormitory = static_cast<RoomDormitory*>(roomHomeTile);
+            setAnimationState(EntityAnimation::sleep_anim, false, dormitory->getSleepDirection(this));
+        }
 
         // Improve awakeness
         mAwakeness += 1.5;

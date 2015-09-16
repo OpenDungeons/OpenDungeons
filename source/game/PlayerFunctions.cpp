@@ -136,7 +136,7 @@ void Player::dropHand(Tile *t, unsigned int index)
     }
 
     entity->correctDropPosition(pos);
-    OD_LOG_INF("player seatId=" + Helper::toString(getSeat()->getId()) + " drop " + entity->getName());
+    OD_LOG_INF("player seatId=" + Helper::toString(getSeat()->getId()) + " drop " + entity->getName() + " on tile=" + Tile::displayAsString(t));
     entity->drop(pos);
 
     // If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it

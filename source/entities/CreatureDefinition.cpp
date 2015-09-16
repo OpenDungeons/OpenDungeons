@@ -71,7 +71,7 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mClassName
        << creatureJob
        << c->mMeshName;
-    os << c->mBedMeshName << c->mBedDim1 << c->mBedDim2;
+    os << c->mBedMeshName << c->mBedDim1 << c->mBedDim2 << c->mBedPosX << c->mBedPosY << c->mBedOrientX << c->mBedOrientY;
     os << c->mScale.x << c->mScale.y << c->mScale.z;
     os << c->mMinHP;
     os << c->mHpPerLevel;
@@ -116,7 +116,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mClassName >> tempString;
     c->mCreatureJob = CreatureDefinition::creatureJobFromString(tempString);
     is >> c->mMeshName;
-    is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2;
+    is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2 >>c->mBedPosX >> c->mBedPosY >> c->mBedOrientX >> c->mBedOrientY;
     is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
     is >> c->mMinHP >> c->mHpPerLevel >> c->mHpHealPerTurn;
     is >> c->mAwakenessLostPerTurn >> c->mHungerGrowthPerTurn;
@@ -282,16 +282,24 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mBedMeshName = nextParam;
                 continue;
             }
-            else if (nextParam == "BedDimX")
+            else if (nextParam == "BedDim")
             {
                 defFile >> nextParam;
                 creatureDef->mBedDim1 = Helper::toInt(nextParam);
-                continue;
-            }
-            else if (nextParam == "BedDimY")
-            {
                 defFile >> nextParam;
                 creatureDef->mBedDim2 = Helper::toInt(nextParam);
+                continue;
+            }
+            else if (nextParam == "BedSleepPos")
+            {
+                defFile >> nextParam;
+                creatureDef->mBedPosX = Helper::toInt(nextParam);
+                defFile >> nextParam;
+                creatureDef->mBedPosY = Helper::toInt(nextParam);
+                defFile >> nextParam;
+                creatureDef->mBedOrientX = Helper::toDouble(nextParam);
+                defFile >> nextParam;
+                creatureDef->mBedOrientY = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "MinHP")
@@ -587,11 +595,11 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
     if(def1 == nullptr || (def1->mBedMeshName.compare(def2->mBedMeshName) != 0))
         file << "    BedMeshName\t" << def2->mBedMeshName << std::endl;
 
-    if(def1 == nullptr || (def1->mBedDim1 != def2->mBedDim1))
-        file << "    BedDimX\t" << def2->mBedDim1 << std::endl;
+    if(def1 == nullptr || (def1->mBedDim1 != def2->mBedDim1) || (def1->mBedDim2 != def2->mBedDim2))
+        file << "    BedDim\t" << def2->mBedDim1 << "\t" << def2->mBedDim2 << std::endl;
 
-    if(def1 == nullptr || (def1->mBedDim2 != def2->mBedDim2))
-        file << "    BedDimY\t" << def2->mBedDim2 << std::endl;
+    if(def1 == nullptr || (def1->mBedPosX != def2->mBedPosX) || (def1->mBedPosY != def2->mBedPosY) || (def1->mBedOrientX != def2->mBedOrientX) || (def1->mBedOrientY != def2->mBedOrientY))
+        file << "    BedPos\t" << def2->mBedPosX << "\t" << def2->mBedPosY << "\t" << def2->mBedOrientX << "\t" << def2->mBedOrientY << std::endl;
 
     if(def1 == nullptr || (def1->mMinHP != def2->mMinHP))
         file << "    MinHP\t" << def2->mMinHP << std::endl;

@@ -72,7 +72,6 @@ bool RoomDormitory::removeCoveredTile(Tile* t)
         // Inform the creature that it no longer has a place to sleep
         // and remove the bed tile.
         releaseTileForSleeping(t, roomDormitoryTileData->mCreature);
-        roomDormitoryTileData->mCreature = nullptr;
     }
 
     if(Room::removeCoveredTile(t))
@@ -88,51 +87,77 @@ std::vector<Tile*> RoomDormitory::getOpenTiles()
     for (std::pair<Tile* const, TileData*>& p : mTileData)
     {
         RoomDormitoryTileData* roomDormitoryTileData = static_cast<RoomDormitoryTileData*>(p.second);
-        if (roomDormitoryTileData->mCreature == nullptr)
-            returnVector.push_back(p.first);
+        if (roomDormitoryTileData->mHP <=0)
+            continue;
+        if (roomDormitoryTileData->mCreature != nullptr)
+            continue;
+
+        returnVector.push_back(p.first);
     }
 
     return returnVector;
 }
 
-bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
+Tile* RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
 {
     if (t == nullptr || c == nullptr)
-        return false;
+        return nullptr;
 
     // Check to see if there is already a creature which has claimed this tile for sleeping.
     RoomDormitoryTileData* roomDormitoryTileData = static_cast<RoomDormitoryTileData*>(mTileData[t]);
     if (roomDormitoryTileData->mCreature != nullptr)
-        return false;
+        return nullptr;
 
     double rotationAngle = 0.0;
 
     // Check to see whether the bed should be situated x-by-y or y-by-x tiles.
-    if (tileCanAcceptBed(t, c->getDefinition()->getBedDim1(), c->getDefinition()->getBedDim2()))
+    int xSleep = t->getX();
+    int ySleep = t->getY();
+    int width;
+    int height;
+    Ogre::Vector3 sleepDirection = Ogre::Vector3::ZERO;
+    std::vector<Tile*> openTiles = getOpenTiles();
+    if (tileCanAcceptBed(t, c->getDefinition()->getBedDim1(), c->getDefinition()->getBedDim2(), openTiles))
+    {
         rotationAngle = 0.0;
-    else if (tileCanAcceptBed(t, c->getDefinition()->getBedDim2(), c->getDefinition()->getBedDim1()))
+        width = c->getDefinition()->getBedDim1();
+        height = c->getDefinition()->getBedDim2();
+        xSleep += (c->getDefinition()->getBedPosX() - 1);
+        ySleep += (c->getDefinition()->getBedPosY() - 1);
+        sleepDirection.x = c->getDefinition()->getBedOrientX();
+        sleepDirection.y = c->getDefinition()->getBedOrientY();
+    }
+    else if (tileCanAcceptBed(t, c->getDefinition()->getBedDim2(), c->getDefinition()->getBedDim1(), openTiles))
+    {
         rotationAngle = 90.0;
+        width = c->getDefinition()->getBedDim2();
+        height = c->getDefinition()->getBedDim1();
+        xSleep += (c->getDefinition()->getBedPosY() - 1);
+        ySleep += (c->getDefinition()->getBedPosX() - 1);
+        sleepDirection.x = c->getDefinition()->getBedOrientY();
+        sleepDirection.y = c->getDefinition()->getBedOrientX();
+    }
     else
-        return false;
+        return nullptr;
 
-    createBed(t, rotationAngle, c);
-    return true;
+    // We find the tile where the creature is supposed to sleep
+    Tile* homeTile = getGameMap()->getTile(xSleep, ySleep);
+
+    createBed(homeTile, t->getX(), t->getY(), width, height, rotationAngle, c, sleepDirection);
+    return homeTile;
 }
 
-void RoomDormitory::createBed(Tile* t, double rotationAngle, Creature* c)
+void RoomDormitory::createBed(Tile* sleepTile, int x, int y, int width, int height,
+        double rotationAngle, Creature* c, const Ogre::Vector3& sleepDirection)
 {
-    double xDim = (rotationAngle == 0.0 ? c->getDefinition()->getBedDim1() : c->getDefinition()->getBedDim2());
-    double yDim = (rotationAngle == 0.0 ? c->getDefinition()->getBedDim2() : c->getDefinition()->getBedDim1());
-
-    BedRoomObjectInfo bedInfo(static_cast<double>(t->getX()) + xDim / 2.0 - 0.5,
-        static_cast<double>(t->getY()) + yDim / 2.0 - 0.5, rotationAngle, c, t);
+    BedRoomObjectInfo bedInfo(x, y, rotationAngle, c, sleepTile, sleepDirection);
 
     // Mark all of the affected tiles as having this creature sleeping in them.
-    for (int i = 0; i < xDim; ++i)
+    for (int i = 0; i < width; ++i)
     {
-        for (int j = 0; j < yDim; ++j)
+        for (int j = 0; j < height; ++j)
         {
-            Tile *tempTile = getGameMap()->getTile(t->getX() + i, t->getY() + j);
+            Tile *tempTile = getGameMap()->getTile(x + i, y + j);
             RoomDormitoryTileData* roomDormitoryTileData = static_cast<RoomDormitoryTileData*>(mTileData[tempTile]);
             roomDormitoryTileData->mCreature = c;
             bedInfo.addTileTaken(tempTile);
@@ -140,8 +165,10 @@ void RoomDormitory::createBed(Tile* t, double rotationAngle, Creature* c)
     }
 
     // Add the model
-    RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), c->getDefinition()->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle, false);
-    addBuildingObject(t, ro);
+    double xMesh = static_cast<double>(x) + (static_cast<double>(width) / 2.0) - 0.5;
+    double yMesh = static_cast<double>(y) + (static_cast<double>(height) / 2.0) - 0.5;
+    RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), c->getDefinition()->getBedMeshName(), sleepTile, xMesh, yMesh, rotationAngle, false);
+    addBuildingObject(sleepTile, ro);
     ro->createMesh();
     // Save the info for later...
     mBedRoomObjectsInfo.push_back(bedInfo);
@@ -186,47 +213,74 @@ bool RoomDormitory::releaseTileForSleeping(Tile* t, Creature* c)
     return true;
 }
 
-Tile* RoomDormitory::getLocationForBed(int xDim, int yDim)
+Tile* RoomDormitory::getLocationForBed(Creature* creature)
 {
-    // Force the dimensions to be positive.
-    if (xDim < 0)
-        xDim *= -1;
-    if (yDim < 0)
-        yDim *= -1;
-
-    // Check to see if there is even enough space available for the bed.
-    std::vector<Tile*> tempVector = getOpenTiles();
-    unsigned int area = xDim * yDim;
-    if (tempVector.size() < area)
-        return nullptr;
-
-    // Randomly shuffle the open tiles in tempVector so that the dormitory are filled up in a random order.
-    std::random_shuffle(tempVector.begin(), tempVector.end());
-
-    // Loop over each of the open tiles in tempVector and for each one, check to see if it
-    for (unsigned int i = 0; i < tempVector.size(); ++i)
+    int bedDim1 = creature->getDefinition()->getBedDim1();
+    int bedDim2 = creature->getDefinition()->getBedDim2();
+    if((bedDim1 <= 0) || (bedDim2 <= 0))
     {
-        if (tileCanAcceptBed(tempVector[i], xDim, yDim))
-            return tempVector[i];
+        OD_LOG_ERR("creature=" + creature->getName() + " wrong bed size bedDim1=" + Helper::toString(bedDim1) + ", bedDim2=" + Helper::toString(bedDim2));
+        return nullptr;
+    }
+
+    for(int i = 0; i < 2; ++i)
+    {
+        int xDim;
+        int yDim;
+        // We try the default size and with a rotation
+        if(i == 0)
+        {
+            xDim = bedDim1;
+            yDim = bedDim2;
+        }
+        else
+        {
+            xDim = bedDim2;
+            yDim = bedDim1;
+        }
+
+        // Check to see if there is even enough space available for the bed.
+        std::vector<Tile*> tempVector = getOpenTiles();
+        unsigned int area = xDim * yDim;
+        if (tempVector.size() < area)
+            return nullptr;
+
+        // Randomly shuffle the open tiles in tempVector so that the dormitory are filled up in a random order.
+        std::random_shuffle(tempVector.begin(), tempVector.end());
+
+        // Loop over each of the open tiles in tempVector and for each one, check to see if it
+        for (unsigned int i = 0; i < tempVector.size(); ++i)
+        {
+            if (tileCanAcceptBed(tempVector[i], xDim, yDim, getOpenTiles()))
+                return tempVector[i];
+        }
     }
 
     // We got to the end of the open tile list without finding an open tile for the bed so return nullptr to indicate failure.
     return nullptr;
 }
 
-bool RoomDormitory::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
+const Ogre::Vector3& RoomDormitory::getSleepDirection(Creature* creature) const
 {
-    //TODO: This function could be made more efficient by making it take the list of open tiles as an argument so if it is called repeatedly the tempTiles vecotor below only has to be computed once in the calling function rather than N times in this function.
+    for (const BedRoomObjectInfo& infos : mBedRoomObjectsInfo)
+    {
+        if(infos.getCreature() != creature)
+            continue;
 
-    // Force the dimensions to be positive.
-    if (xDim < 0)
-        xDim *= -1;
-    if (yDim < 0)
-        yDim *= -1;
+        return infos.getSleepDirection();
+    }
 
-    // If either of the dimensions is 0 just return true, since the bed takes no space.  This should never really happen anyway.
-    if (xDim == 0 || yDim == 0)
-        return true;
+    OD_LOG_ERR("room=" + getName() + ", creature=" + creature->getName());
+    return Ogre::Vector3::UNIT_X;
+}
+
+bool RoomDormitory::tileCanAcceptBed(Tile *tile, int xDim, int yDim, const std::vector<Tile*>& openTiles)
+{
+    if((xDim <= 0) || (yDim <= 0))
+    {
+        OD_LOG_ERR("wrong bed size x=" + Helper::toString(xDim) + ", y=" + Helper::toString(yDim));
+        return false;
+    }
 
     // If the tile is invalid or not part of this room then the bed cannot be placed in this room.
     if (tile == nullptr || tile->getCoveringBuilding() != this)
@@ -241,27 +295,26 @@ bool RoomDormitory::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
 
     // Now loop over the list of all the open tiles in this dormitory.  For each tile, if it falls within
     // the xDim by yDim area from the starting tile we set the corresponding tileOpen entry to true.
-    std::vector<Tile*> tempTiles = getOpenTiles();
-    for (unsigned int i = 0; i < tempTiles.size(); ++i)
+    for (Tile* tempTile : openTiles)
     {
-        int xDist = tempTiles[i]->getX() - tile->getX();
-        int yDist = tempTiles[i]->getY() - tile->getY();
+        int xDist = tempTile->getX() - tile->getX();
+        int yDist = tempTile->getY() - tile->getY();
         if (xDist >= 0 && xDist < xDim && yDist >= 0 && yDist < yDim)
             tileOpen[xDist][yDist] = true;
     }
 
     // Loop over the tileOpen array and check to see if every value has been set to true, if it has then
     // we can place the a bed of the specified dimensions with its corner at the specified starting tile.
-    bool returnValue = true;
     for (int i = 0; i < xDim; ++i)
     {
         for (int j = 0; j < yDim; ++j)
         {
-            returnValue = returnValue && tileOpen[i][j];
+            if(!tileOpen[i][j])
+                return false;
         }
     }
 
-    return returnValue;
+    return true;
 }
 
 void RoomDormitory::exportToStream(std::ostream& os) const
@@ -271,9 +324,11 @@ void RoomDormitory::exportToStream(std::ostream& os) const
     os << nbBeds << "\n";
     for(const BedRoomObjectInfo& bed : mBedRoomObjectsInfo)
     {
+        // We save the position of the tile bottom left so that if the sleeping
+        // position of the creature changes, the savegames are not impacted
         os << bed.getCreature()->getName() << "\t";
-        os << bed.getOwningTile()->getX() << "\t";
-        os << bed.getOwningTile()->getY() << "\t";
+        os << bed.getX() << "\t";
+        os << bed.getY() << "\t";
         os << bed.getRotation() << "\n";
     }
 }
@@ -314,8 +369,39 @@ void RoomDormitory::restoreInitialEntityState()
                 + ", y=" + Helper::toString(bedLoad.getTileY()));
             continue;
         }
-        createBed(tile, bedLoad.getRotationAngle(), creature);
-        creature->setHomeTile(tile);
+        int x = tile->getX();
+        int y = tile->getY();
+        int width;
+        int height;
+        Ogre::Vector3 sleepDirection = Ogre::Vector3::ZERO;
+        if(bedLoad.getRotationAngle() == 0.0)
+        {
+            x += creature->getDefinition()->getBedPosX() - 1;
+            y += creature->getDefinition()->getBedPosY() - 1;
+            width = creature->getDefinition()->getBedDim1();
+            height = creature->getDefinition()->getBedDim2();
+            sleepDirection.x = creature->getDefinition()->getBedOrientX();
+            sleepDirection.y = creature->getDefinition()->getBedOrientY();
+        }
+        else
+        {
+            x += creature->getDefinition()->getBedPosY() - 1;
+            y += creature->getDefinition()->getBedPosX() - 1;
+            width = creature->getDefinition()->getBedDim2();
+            height = creature->getDefinition()->getBedDim1();
+            sleepDirection.x = creature->getDefinition()->getBedOrientY();
+            sleepDirection.y = creature->getDefinition()->getBedOrientX();
+        }
+
+        Tile* sleepTile = getGameMap()->getTile(x, y);
+        if(sleepTile == nullptr)
+        {
+            OD_LOG_ERR("creature=" + creature->getName() + ", tile x=" + Helper::toString(x)
+                + ", y=" + Helper::toString(y));
+            continue;
+        }
+        createBed(tile, tile->getX(), tile->getY(), width, height, bedLoad.getRotationAngle(), creature, sleepDirection);
+        creature->setHomeTile(sleepTile);
     }
 }
 

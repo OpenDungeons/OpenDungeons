@@ -65,8 +65,7 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
 {
     mCreatureDefinitionDefaultWorker = new CreatureDefinition(DefaultWorkerCreatureDefinition,
         CreatureDefinition::CreatureJob::Worker,
-        "Kobold.mesh",
-        "Bed", 1, 2, Ogre::Vector3(0.04, 0.04, 0.04));
+        "Kobold.mesh", Ogre::Vector3(0.04, 0.04, 0.04));
     if(!loadGlobalConfig(configPath))
     {
         OD_LOG_ERR("Couldn't read loadCreatureDefinitions");

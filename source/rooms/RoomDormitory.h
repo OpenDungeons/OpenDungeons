@@ -21,6 +21,8 @@
 #include "rooms/Room.h"
 #include "rooms/RoomType.h"
 
+#include <OgreVector3.h>
+
 class RoomDormitoryTileData : public TileData
 {
 public:
@@ -47,18 +49,19 @@ public:
 class BedRoomObjectInfo
 {
 public:
-    BedRoomObjectInfo(double x, double y, double rotation, Creature* creature, Tile* tile):
+    BedRoomObjectInfo(int x, int y, double rotation, Creature* creature, Tile* tile, const Ogre::Vector3& sleepDirection):
         mX(x),
         mY(y),
         mRotation(rotation),
         mCreature(creature),
-        mOwningTile(tile)
+        mOwningTile(tile),
+        mSleepDirection(sleepDirection)
     {}
 
-    inline double getX() const
+    inline int getX() const
     { return mX; }
 
-    inline double getY() const
+    inline int getY() const
     { return mY; }
 
     inline double getRotation() const
@@ -70,16 +73,20 @@ public:
     inline Tile* getOwningTile() const
     { return mOwningTile; }
 
+
     inline const std::vector<Tile*>& getTilesTaken() const
     { return mTilesTaken; }
+
+    inline const Ogre::Vector3& getSleepDirection() const
+    { return mSleepDirection; }
 
     inline void addTileTaken(Tile* tile)
     { mTilesTaken.push_back(tile); }
 
 private:
-    //! \brief Building object position.
-    double mX;
-    double mY;
+    //! \brief Position of bottom left of the bed
+    int mX;
+    int mY;
 
     //! \brief Rotation of the model
     double mRotation;
@@ -92,6 +99,8 @@ private:
 
     //! \brief The list of tiles taken by the object
     std::vector<Tile*> mTilesTaken;
+
+    Ogre::Vector3 mSleepDirection;
 };
 
 /*! Class used at room loading to save the data needed to recreate the beds after map loading when
@@ -142,9 +151,10 @@ public:
 
     // Functions specific to this class.
     std::vector<Tile*> getOpenTiles();
-    bool claimTileForSleeping(Tile *t, Creature *c);
+    Tile* claimTileForSleeping(Tile *t, Creature *c);
     bool releaseTileForSleeping(Tile *t, Creature *c);
-    Tile* getLocationForBed(int xDim, int yDim);
+    Tile* getLocationForBed(Creature* creature);
+    const Ogre::Vector3& getSleepDirection(Creature* creature) const;
 
     bool hasCarryEntitySpot(GameEntity* carriedEntity) override;
     Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
@@ -169,8 +179,9 @@ protected:
     {}
 
 private:
-    bool tileCanAcceptBed(Tile *tile, int xDim, int yDim);
-    void createBed(Tile* t, double rotationAngle, Creature* c);
+    bool tileCanAcceptBed(Tile *tile, int xDim, int yDim, const std::vector<Tile*>& openTiles);
+    void createBed(Tile* sleepTile, int x, int y, int width, int height,
+        double rotationAngle, Creature* c, const Ogre::Vector3& sleepDirection);
 
     //! \brief Keeps track of info about the beds in order to be able
     //! to recreate them.
