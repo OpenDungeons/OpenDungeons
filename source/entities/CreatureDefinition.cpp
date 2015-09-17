@@ -84,11 +84,13 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mClaimRate << c->mClaimRatePerLevel;
     os << c->mMoveSpeedGround << c->mMoveSpeedWater << c->mMoveSpeedLava;
     os << c->mGroundSpeedPerLevel << c->mWaterSpeedPerLevel << c->mLavaSpeedPerLevel;
-    os << c->mPhysicalAttack << c->mPhysicalAtkPerLevel;
-    os << c->mMagicalAttack << c->mMagicalAtkPerLevel;
+    os << c->mPhyAtkMel << c->mPhyAtkMelPerLvl;
+    os << c->mMagAtkMel << c->mMagAtkMelPerLvl;
     os << c->mPhysicalDefense << c->mPhysicalDefPerLevel;
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
     os << c->mAttackRange << c->mAtkRangePerLevel;
+    os << c->mPhyAtkRan << c->mPhyAtkRanPerLvl;
+    os << c->mMagAtkRan << c->mMagAtkRanPerLvl;
     os << c->mAttackWarmupTime;
     os << c->mWeakCoef;
     os << c->mFeeBase;
@@ -126,11 +128,13 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mClaimRate >> c->mClaimRatePerLevel;
     is >> c->mMoveSpeedGround >> c->mMoveSpeedWater >> c->mMoveSpeedLava;
     is >> c->mGroundSpeedPerLevel >> c->mWaterSpeedPerLevel >> c->mLavaSpeedPerLevel;
-    is >> c->mPhysicalAttack >> c->mPhysicalAtkPerLevel;
-    is >> c->mMagicalAttack >> c->mMagicalAtkPerLevel;
+    is >> c->mPhyAtkMel >> c->mPhyAtkMelPerLvl;
+    is >> c->mMagAtkMel >> c->mMagAtkMelPerLvl;
     is >> c->mPhysicalDefense >> c->mPhysicalDefPerLevel;
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
     is >> c->mAttackRange >> c->mAtkRangePerLevel;
+    is >> c->mPhyAtkRan >> c->mPhyAtkRanPerLvl;
+    is >> c->mMagAtkRan >> c->mMagAtkRanPerLvl;
     is >> c->mAttackWarmupTime;
     is >> c->mWeakCoef;
     is >> c->mFeeBase;
@@ -405,28 +409,52 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 continue;
             }
 
-            else if (nextParam == "PhysicalAttack")
+            else if (nextParam == "PhyAtkMel")
             {
                 defFile >> nextParam;
-                creatureDef->mPhysicalAttack = Helper::toDouble(nextParam);
+                creatureDef->mPhyAtkMel = Helper::toDouble(nextParam);
                 continue;
             }
-            else if (nextParam == "PhysicalAtk/Level")
+            else if (nextParam == "PhyAtkMel/Level")
             {
                 defFile >> nextParam;
-                creatureDef->mPhysicalAtkPerLevel = Helper::toDouble(nextParam);
+                creatureDef->mPhyAtkMelPerLvl = Helper::toDouble(nextParam);
                 continue;
             }
-            else if (nextParam == "MagicalAttack")
+            else if (nextParam == "MagAtkMel")
             {
                 defFile >> nextParam;
-                creatureDef->mMagicalAttack = Helper::toDouble(nextParam);
+                creatureDef->mMagAtkMel = Helper::toDouble(nextParam);
                 continue;
             }
-            else if (nextParam == "MagicalAtk/Level")
+            else if (nextParam == "MagAtkMel/Level")
             {
                 defFile >> nextParam;
-                creatureDef->mMagicalAtkPerLevel = Helper::toDouble(nextParam);
+                creatureDef->mMagAtkMelPerLvl = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "PhyAtkRan")
+            {
+                defFile >> nextParam;
+                creatureDef->mPhyAtkRan = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "PhyAtkRan/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mPhyAtkRanPerLvl = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "MagAtkRan")
+            {
+                defFile >> nextParam;
+                creatureDef->mMagAtkRan = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "MagAtkRan/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mMagAtkRanPerLvl = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "PhysicalDefense")
@@ -652,17 +680,17 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
     if(def1 == nullptr || (def1->mLavaSpeedPerLevel != def2->mLavaSpeedPerLevel))
         file << "    LavaSpeed/Level\t" << def2->mLavaSpeedPerLevel << std::endl;
 
-    if(def1 == nullptr || (def1->mPhysicalAttack != def2->mPhysicalAttack))
-        file << "    PhysicalAttack\t" << def2->mPhysicalAttack << std::endl;
+    if(def1 == nullptr || (def1->mPhyAtkMel != def2->mPhyAtkMel))
+        file << "    PhyAtkMel\t" << def2->mPhyAtkMel << std::endl;
 
-    if(def1 == nullptr || (def1->mPhysicalAtkPerLevel != def2->mPhysicalAtkPerLevel))
-        file << "    PhysicalAtk/Level\t" << def2->mPhysicalAtkPerLevel << std::endl;
+    if(def1 == nullptr || (def1->mPhyAtkMelPerLvl != def2->mPhyAtkMelPerLvl))
+        file << "    PhyAtkMel/Level\t" << def2->mPhyAtkMelPerLvl << std::endl;
 
-    if(def1 == nullptr || (def1->mMagicalAttack != def2->mMagicalAttack))
-        file << "    MagicalAttack\t" << def2->mMagicalAttack << std::endl;
+    if(def1 == nullptr || (def1->mMagAtkMel != def2->mMagAtkMel))
+        file << "    MagAtkMel\t" << def2->mMagAtkMel << std::endl;
 
-    if(def1 == nullptr || (def1->mMagicalAtkPerLevel != def2->mMagicalAtkPerLevel))
-        file << "    MagicalAtk/Level\t" << def2->mMagicalAtkPerLevel << std::endl;
+    if(def1 == nullptr || (def1->mMagAtkMelPerLvl != def2->mMagAtkMelPerLvl))
+        file << "    MagAtkMel/Level\t" << def2->mMagAtkMelPerLvl << std::endl;
 
     if(def1 == nullptr || (def1->mPhysicalDefense != def2->mPhysicalDefense))
         file << "    PhysicalDefense\t" << def2->mPhysicalDefense << std::endl;
@@ -681,6 +709,18 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
 
     if(def1 == nullptr || (def1->mAtkRangePerLevel != def2->mAtkRangePerLevel))
         file << "    AtkRange/Level\t" << def2->mAtkRangePerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mPhyAtkRan != def2->mPhyAtkRan))
+        file << "    PhyAtkRan\t" << def2->mPhyAtkRan << std::endl;
+
+    if(def1 == nullptr || (def1->mPhyAtkRanPerLvl != def2->mPhyAtkRanPerLvl))
+        file << "    PhyAtkRan/Level\t" << def2->mPhyAtkRanPerLvl << std::endl;
+
+    if(def1 == nullptr || (def1->mMagAtkRan != def2->mMagAtkRan))
+        file << "    MagAtkRan\t" << def2->mMagAtkRan << std::endl;
+
+    if(def1 == nullptr || (def1->mMagAtkRanPerLvl != def2->mMagAtkRanPerLvl))
+        file << "    MagAtkRan/Level\t" << def2->mMagAtkRanPerLvl << std::endl;
 
     if(def1 == nullptr || (def1->mAttackWarmupTime != def2->mAttackWarmupTime))
         file << "    AttackWarmupTime\t" << def2->mAttackWarmupTime << std::endl;

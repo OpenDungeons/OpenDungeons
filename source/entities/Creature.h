@@ -502,11 +502,13 @@ private:
     Creature(GameMap* gameMap, bool isOnServerMap);
 
     //! \brief Natural physical and magical attack and defense (without equipment)
-    double mPhysicalAttack;
-    double mMagicalAttack;
+    double mPhyAtkMel;
+    double mMagAtkMel;
     double mPhysicalDefense;
     double mMagicalDefense;
     double mWeaponlessAtkRange;
+    double mPhyAtkRan;
+    double mMagAtkRan;
 
     //! \brief The time left before being to draw an attack in seconds
     double mAttackWarmupTime;

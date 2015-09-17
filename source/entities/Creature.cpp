@@ -138,11 +138,13 @@ CreatureParticuleEffect::~CreatureParticuleEffect()
 
 Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position) :
     MovableGameEntity        (gameMap, isOnServerMap),
-    mPhysicalAttack          (1.0),
-    mMagicalAttack           (0.0),
+    mPhyAtkMel               (1.0),
+    mMagAtkMel               (0.0),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mWeaponlessAtkRange      (1.0),
+    mPhyAtkRan               (0.0),
+    mMagAtkRan               (0.0),
     mAttackWarmupTime        (1.0),
     mWeaponL                 (nullptr),
     mWeaponR                 (nullptr),
@@ -207,11 +209,13 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mClaimRate = mDefinition->getClaimRate();
 
     // Fighting stats
-    mPhysicalAttack = mDefinition->getPhysicalAttack();
-    mMagicalAttack = mDefinition->getMagicalAttack();
+    mPhyAtkMel = mDefinition->getPhyAtkMel();
+    mMagAtkMel = mDefinition->getMagAtkMel();
     mPhysicalDefense = mDefinition->getPhysicalDefense();
     mMagicalDefense = mDefinition->getMagicalDefense();
     mWeaponlessAtkRange = mDefinition->getAttackRange();
+    mPhyAtkRan = mDefinition->getPhyAtkRan();
+    mMagAtkRan = mDefinition->getMagAtkRan();
     mAttackWarmupTime = mDefinition->getAttackWarmupTime();
 
     if(mDefinition->getWeaponSpawnL().compare("none") != 0)
@@ -225,11 +229,13 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
 
 Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     MovableGameEntity        (gameMap, isOnServerMap),
-    mPhysicalAttack          (1.0),
-    mMagicalAttack           (0.0),
+    mPhyAtkMel               (1.0),
+    mMagAtkMel               (0.0),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mWeaponlessAtkRange      (1.0),
+    mPhyAtkRan               (0.0),
+    mMagAtkRan               (0.0),
     mAttackWarmupTime        (1.0),
     mWeaponL                 (nullptr),
     mWeaponR                 (nullptr),
@@ -485,11 +491,13 @@ void Creature::buildStats()
     mWaterSpeed = mDefinition->getMoveSpeedWater();
     mLavaSpeed  = mDefinition->getMoveSpeedLava();
 
-    mPhysicalAttack = mDefinition->getPhysicalAttack();
-    mMagicalAttack = mDefinition->getMagicalAttack();
+    mPhyAtkMel = mDefinition->getPhyAtkMel();
+    mMagAtkMel = mDefinition->getMagAtkMel();
     mPhysicalDefense = mDefinition->getPhysicalDefense();
     mMagicalDefense = mDefinition->getMagicalDefense();
     mWeaponlessAtkRange = mDefinition->getAttackRange();
+    mPhyAtkRan = mDefinition->getPhyAtkRan();
+    mMagAtkRan = mDefinition->getMagAtkRan();
     mAttackWarmupTime = mDefinition->getAttackWarmupTime();
 
     mScale = getDefinition()->getScale();
@@ -508,11 +516,13 @@ void Creature::buildStats()
     mWaterSpeed += mDefinition->getWaterSpeedPerLevel() * multiplier;
     mLavaSpeed += mDefinition->getLavaSpeedPerLevel() * multiplier;
 
-    mPhysicalAttack += mDefinition->getPhysicalAtkPerLevel() * multiplier;
-    mMagicalAttack += mDefinition->getMagicalAtkPerLevel() * multiplier;
+    mPhyAtkMel += mDefinition->getPhyAtkMelPerLvl() * multiplier;
+    mMagAtkMel += mDefinition->getMagAtkMelPerLvl() * multiplier;
     mPhysicalDefense += mDefinition->getPhysicalDefPerLevel() * multiplier;
     mMagicalDefense += mDefinition->getMagicalDefPerLevel() * multiplier;
     mWeaponlessAtkRange += mDefinition->getAtkRangePerLevel() * multiplier;
+    mPhyAtkRan += mDefinition->getPhyAtkRanPerLvl() * multiplier;
+    mMagAtkRan += mDefinition->getMagAtkRanPerLvl() * multiplier;
 }
 
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
@@ -550,11 +560,13 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
     os << mWaterSpeed;
     os << mLavaSpeed;
 
-    os << mPhysicalAttack;
-    os << mMagicalAttack;
+    os << mPhyAtkMel;
+    os << mMagAtkMel;
     os << mPhysicalDefense;
     os << mMagicalDefense;
     os << mWeaponlessAtkRange;
+    os << mPhyAtkRan;
+    os << mMagAtkRan;
     os << mOverlayHealthValue;
 
     // Only allied players should see creature mood (except some states)
@@ -614,11 +626,13 @@ void Creature::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mWaterSpeed);
     OD_ASSERT_TRUE(is >> mLavaSpeed);
 
-    OD_ASSERT_TRUE(is >> mPhysicalAttack);
-    OD_ASSERT_TRUE(is >> mMagicalAttack);
+    OD_ASSERT_TRUE(is >> mPhyAtkMel);
+    OD_ASSERT_TRUE(is >> mMagAtkMel);
     OD_ASSERT_TRUE(is >> mPhysicalDefense);
     OD_ASSERT_TRUE(is >> mMagicalDefense);
     OD_ASSERT_TRUE(is >> mWeaponlessAtkRange);
+    OD_ASSERT_TRUE(is >> mPhyAtkRan);
+    OD_ASSERT_TRUE(is >> mMagAtkRan);
     OD_ASSERT_TRUE(is >> mOverlayHealthValue);
     OD_ASSERT_TRUE(is >> mOverlayMoodValue);
     OD_ASSERT_TRUE(is >> mSpeedModifier);
@@ -3203,8 +3217,10 @@ double Creature::getPhysicalDamage(double range)
 {
     double hitroll = 0.0;
 
-    if (mWeaponlessAtkRange >= range)
-        hitroll += Random::Uint(1.0, mPhysicalAttack);
+    if (range <= 1.0)
+        hitroll += Random::Uint(1.0, mPhyAtkMel);
+    else if (mWeaponlessAtkRange >= range)
+        hitroll += Random::Uint(1.0, mPhyAtkRan);
 
     if (mWeaponL != nullptr && mWeaponL->getRange() >= range)
         hitroll += mWeaponL->getPhysicalDamage();
@@ -3218,8 +3234,10 @@ double Creature::getMagicalDamage(double range)
 {
     double hitroll = 0.0;
 
-    if (mWeaponlessAtkRange >= range)
-        hitroll += Random::Uint(0.0, mMagicalAttack);
+    if (range <= 1.0)
+        hitroll += Random::Uint(1.0, mMagAtkMel);
+    else if (mWeaponlessAtkRange >= range)
+        hitroll += Random::Uint(1.0, mMagAtkRan);
 
     if (mWeaponL != nullptr && mWeaponL->getRange() >= range)
         hitroll += mWeaponL->getMagicalDamage();
@@ -3740,7 +3758,8 @@ std::string Creature::getStatsText()
     }
     tempSS << "Move speed (Ground/Water/Lava): " << getMoveSpeedGround() << "/"
         << getMoveSpeedWater() << "/" << getMoveSpeedLava() << std::endl;
-    tempSS << "Atk(Phy/Mag): " << mPhysicalAttack << "/" << mMagicalAttack << ", Range: " << mWeaponlessAtkRange << std::endl;
+    tempSS << "AtkMelee(Phy/Mag): " << mPhyAtkMel << "/" << mMagAtkMel << std::endl;
+    tempSS << "AtkRange(Phy/Mag/range): " << mPhyAtkRan << "/" << mMagAtkRan << "/" << mWeaponlessAtkRange << std::endl;
     tempSS << "Weapons:" << std::endl;
     if(mWeaponL == nullptr)
         tempSS << "Left hand: none" << std::endl;

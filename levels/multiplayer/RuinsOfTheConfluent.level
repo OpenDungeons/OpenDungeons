@@ -2098,10 +2098,10 @@ BigKnight	5
     GroundSpeed/Level	0.012
     WaterSpeed/Level	0.005
     LavaSpeed/Level	0
-    PhysicalAttack	16
-    PhysicalAtk/Level	0.8
-    MagicalAttack	0
-    MagicalAtk/Level	0
+    PhyAtkMel	16
+    PhyAtkMel/Level	0.8
+    MagAtkMel	0
+    MagAtkMel/Level	0
     PhysicalDefense	4
     PhysicalDef/Level	0.2
     MagicalDefense	3

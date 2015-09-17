@@ -106,16 +106,20 @@ public:
             double                  waterSpeedPerLevel  = 0.0,
             double                  lavaSpeedPerLevel   = 0.0,
 
-            double                  physicalAttack      = 1.0,
-            double                  physicalAtkPerLevel = 0.6,
-            double                  magicalAttack       = 0.8,
-            double                  magicalAtkPerLevel  = 0.4,
+            double                  phyAtkMel           = 1.0,
+            double                  phyAtkMelPerLvl     = 0.6,
+            double                  magAtkMel           = 0.8,
+            double                  magAtkMelPerLvl     = 0.4,
             double                  physicalDefense     = 3.0,
             double                  physicalDefPerLevel = 0.2,
             double                  magicalDefense      = 1.5,
             double                  magicalDefPerLevel  = 0.1,
             double                  attackRange         = 1.0,
             double                  atkRangePerLevel    = 0.0,
+            double                  phyAtkRan           = 0.0,
+            double                  phyAtkRanPerLvl     = 0.0,
+            double                  magAtkRan           = 0.0,
+            double                  magAtkRanPerLvl     = 0.0,
             double                  attackWarmupTime    = 1.0,
             double                  weakCoef            = 0.3,
             int32_t                 feeBase             = 0,
@@ -150,18 +154,22 @@ public:
         mGroundSpeedPerLevel(groundSpeedPerLevel),
         mWaterSpeedPerLevel (waterSpeedPerLevel),
         mLavaSpeedPerLevel  (lavaSpeedPerLevel),
-        mPhysicalAttack     (physicalAttack),
-        mPhysicalAtkPerLevel(physicalAtkPerLevel),
-        mMagicalAttack      (magicalAttack),
-        mMagicalAtkPerLevel (magicalAtkPerLevel),
+        mPhyAtkMel          (phyAtkMel),
+        mPhyAtkMelPerLvl    (phyAtkMelPerLvl),
+        mMagAtkMel          (magAtkMel),
+        mMagAtkMelPerLvl    (magAtkMelPerLvl),
         mPhysicalDefense    (physicalDefense),
         mPhysicalDefPerLevel(physicalDefPerLevel),
         mMagicalDefense     (magicalDefense),
         mMagicalDefPerLevel (magicalDefPerLevel),
         mAttackRange        (attackRange),
         mAtkRangePerLevel   (atkRangePerLevel),
+        mPhyAtkRan          (phyAtkRan),
+        mPhyAtkRanPerLvl    (phyAtkRanPerLvl),
+        mMagAtkRan          (magAtkRan),
+        mMagAtkRanPerLvl    (magAtkRanPerLvl),
         mAttackWarmupTime   (attackWarmupTime),
-        mWeakCoef            (weakCoef),
+        mWeakCoef           (weakCoef),
         mFeeBase            (feeBase),
         mFeePerLevel        (feePerLevel),
         mSleepHeal          (sleepHeal),
@@ -233,10 +241,10 @@ public:
     inline double               getLavaSpeedPerLevel  () const  { return mLavaSpeedPerLevel; }
 
 
-    inline double               getPhysicalAttack() const       { return mPhysicalAttack; }
-    inline double               getPhysicalAtkPerLevel () const { return mPhysicalAtkPerLevel; }
-    inline double               getMagicalAttack  () const      { return mMagicalAttack; }
-    inline double               getMagicalAtkPerLevel () const  { return mMagicalAtkPerLevel; }
+    inline double               getPhyAtkMel() const            { return mPhyAtkMel; }
+    inline double               getPhyAtkMelPerLvl () const     { return mPhyAtkMelPerLvl; }
+    inline double               getMagAtkMel  () const          { return mMagAtkMel; }
+    inline double               getMagAtkMelPerLvl () const     { return mMagAtkMelPerLvl; }
     inline double               getPhysicalDefense() const      { return mPhysicalDefense; }
     inline double               getPhysicalDefPerLevel () const { return mPhysicalDefPerLevel; }
     inline double               getMagicalDefense  () const     { return mMagicalDefense; }
@@ -244,6 +252,10 @@ public:
 
     inline double               getAttackRange      () const    { return mAttackRange; }
     inline double               getAtkRangePerLevel () const    { return mAtkRangePerLevel; }
+    inline double               getPhyAtkRan() const            { return mPhyAtkRan; }
+    inline double               getPhyAtkRanPerLvl () const     { return mPhyAtkRanPerLvl; }
+    inline double               getMagAtkRan  () const          { return mMagAtkRan; }
+    inline double               getMagAtkRanPerLvl () const     { return mMagAtkRanPerLvl; }
 
     inline double               getAttackWarmupTime () const    { return mAttackWarmupTime; }
 
@@ -356,10 +368,10 @@ private:
     double mLavaSpeedPerLevel;
 
     //! \brief Physical and magical attack/defense stats (without equipment)
-    double mPhysicalAttack;
-    double mPhysicalAtkPerLevel;
-    double mMagicalAttack;
-    double mMagicalAtkPerLevel;
+    double mPhyAtkMel;
+    double mPhyAtkMelPerLvl;
+    double mMagAtkMel;
+    double mMagAtkMelPerLvl;
     double mPhysicalDefense;
     double mPhysicalDefPerLevel;
     double mMagicalDefense;
@@ -368,6 +380,10 @@ private:
     //! \brief Weapon-less attack range and growth
     double mAttackRange;
     double mAtkRangePerLevel;
+    double mPhyAtkRan;
+    double mPhyAtkRanPerLvl;
+    double mMagAtkRan;
+    double mMagAtkRanPerLvl;
 
     //! \brief The time to wait before dealing a blow, in seconds.
     double mAttackWarmupTime;

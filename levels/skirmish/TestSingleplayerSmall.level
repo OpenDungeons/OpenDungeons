@@ -1344,7 +1344,7 @@ DwarfWorker	1
 [Creature]
     Name	Kobold
     [Stats]
-    PhysicalAttack	4.1
+    PhyAtkMel	4.1
     [/Stats]
 [/Creature]
 [Creature]
@@ -1381,10 +1381,10 @@ DwarfWorker	1
     GroundSpeed/Level	0.005
     WaterSpeed/Level	0.005
     LavaSpeed/Level	0.005
-    PhysicalAttack	12
-    PhysicalAtk/Level	0.2
-    MagicalAttack	0
-    MagicalAtk/Level	0
+    PhyAtkMel	12
+    PhyAtkMel/Level	0.2
+    MagAtkMel	0
+    MagAtkMel/Level	0
     PhysicalDefense	1
     PhysicalDef/Level	0.1
     MagicalDefense	0

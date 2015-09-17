@@ -2331,10 +2331,10 @@ MineNGold	50
     GroundSpeed/Level	0.005
     WaterSpeed/Level	0.005
     LavaSpeed/Level	0
-    PhysicalAttack	13
-    PhysicalAtk/Level	1
-    MagicalAttack	7
-    MagicalAtk/Level	0
+    PhyAtkMel	13
+    PhyAtkMel/Level	1
+    MagAtkMel	7
+    MagAtkMel/Level	0
     PhysicalDefense	3
     PhysicalDef/Level	0.3
     MagicalDefense	4
