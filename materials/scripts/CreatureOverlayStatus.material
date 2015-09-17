@@ -128,7 +128,7 @@ material CreatureOverlayStatus_256
             scene_blend alpha_blend
             texture_unit
             {
-                texture CreatureInPrison.png
+                texture CreaturePrisoner.png
             }
         }
     }
