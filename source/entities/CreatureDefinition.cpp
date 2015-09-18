@@ -91,6 +91,7 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mAttackRange << c->mAtkRangePerLevel;
     os << c->mPhyAtkRan << c->mPhyAtkRanPerLvl;
     os << c->mMagAtkRan << c->mMagAtkRanPerLvl;
+    os << c->mRanAtkMesh << c->mRanAtkPartScript;
     os << c->mAttackWarmupTime;
     os << c->mWeakCoef;
     os << c->mFeeBase;
@@ -135,6 +136,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mAttackRange >> c->mAtkRangePerLevel;
     is >> c->mPhyAtkRan >> c->mPhyAtkRanPerLvl;
     is >> c->mMagAtkRan >> c->mMagAtkRanPerLvl;
+    is >> c->mRanAtkMesh >> c->mRanAtkPartScript;
     is >> c->mAttackWarmupTime;
     is >> c->mWeakCoef;
     is >> c->mFeeBase;
@@ -457,6 +459,16 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mMagAtkRanPerLvl = Helper::toDouble(nextParam);
                 continue;
             }
+            else if (nextParam == "RangeMesh")
+            {
+                defFile >> nextParam;
+                if(nextParam != "none")
+                    creatureDef->mRanAtkMesh = nextParam;
+                defFile >> nextParam;
+                if(nextParam != "none")
+                    creatureDef->mRanAtkPartScript = nextParam;
+                continue;
+            }
             else if (nextParam == "PhysicalDefense")
             {
                 defFile >> nextParam;
@@ -721,6 +733,23 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
 
     if(def1 == nullptr || (def1->mMagAtkRanPerLvl != def2->mMagAtkRanPerLvl))
         file << "    MagAtkRan/Level\t" << def2->mMagAtkRanPerLvl << std::endl;
+
+    if(def1 == nullptr || (def1->mRanAtkMesh != def2->mRanAtkMesh) || (def1->mRanAtkPartScript != def2->mRanAtkPartScript))
+    {
+        std::string mesh;
+        std::string script;
+        if(def2->mRanAtkMesh.empty())
+            mesh = "none";
+        else
+            mesh = def2->mRanAtkMesh;
+
+        if(def2->mRanAtkPartScript.empty())
+            script = "none";
+        else
+            script = def2->mRanAtkPartScript;
+
+        file << "    RangeMesh\t" << mesh << "\t" << script << std::endl;
+    }
 
     if(def1 == nullptr || (def1->mAttackWarmupTime != def2->mAttackWarmupTime))
         file << "    AttackWarmupTime\t" << def2->mAttackWarmupTime << std::endl;

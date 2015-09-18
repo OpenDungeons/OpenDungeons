@@ -249,6 +249,9 @@ public:
     //! \note Depends also on its equipment.
     double getBestAttackRange() const;
 
+    //! \brief Fills the mesh/particle script for the creature
+    void getRangeAtktMesh(std::string& mesh, std::string& particleScript) const;
+
     //! \brief Check whether a creature has earned one level. If yes, handle leveling it up
     void checkLevelUp();
 

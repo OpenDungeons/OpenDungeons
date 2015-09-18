@@ -120,6 +120,8 @@ public:
             double                  phyAtkRanPerLvl     = 0.0,
             double                  magAtkRan           = 0.0,
             double                  magAtkRanPerLvl     = 0.0,
+            const std::string&      ranAtkMesh          = std::string(),
+            const std::string&      ranAtkPartScript    = std::string(),
             double                  attackWarmupTime    = 1.0,
             double                  weakCoef            = 0.3,
             int32_t                 feeBase             = 0,
@@ -168,6 +170,8 @@ public:
         mPhyAtkRanPerLvl    (phyAtkRanPerLvl),
         mMagAtkRan          (magAtkRan),
         mMagAtkRanPerLvl    (magAtkRanPerLvl),
+        mRanAtkMesh         (ranAtkMesh),
+        mRanAtkPartScript   (ranAtkPartScript),
         mAttackWarmupTime   (attackWarmupTime),
         mWeakCoef           (weakCoef),
         mFeeBase            (feeBase),
@@ -256,6 +260,8 @@ public:
     inline double               getPhyAtkRanPerLvl () const     { return mPhyAtkRanPerLvl; }
     inline double               getMagAtkRan  () const          { return mMagAtkRan; }
     inline double               getMagAtkRanPerLvl () const     { return mMagAtkRanPerLvl; }
+    inline const std::string&   getRanAtkMesh () const          { return mRanAtkMesh; }
+    inline const std::string&   getRanAtkPartScript () const    { return mRanAtkPartScript; }
 
     inline double               getAttackWarmupTime () const    { return mAttackWarmupTime; }
 
@@ -384,6 +390,8 @@ private:
     double mPhyAtkRanPerLvl;
     double mMagAtkRan;
     double mMagAtkRanPerLvl;
+    std::string mRanAtkMesh;
+    std::string mRanAtkPartScript;
 
     //! \brief The time to wait before dealing a blow, in seconds.
     double mAttackWarmupTime;

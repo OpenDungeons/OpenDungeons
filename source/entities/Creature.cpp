@@ -2656,8 +2656,11 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
                 break;
         }
 
-        MissileOneHit* missile = new MissileOneHit(getGameMap(), getIsOnServerMap(), getSeat(), getName(), "Cannonball",
-            "MissileMagic", missileDirection, 3.0, physicalDamage, magicalDamage, tileBuilding, false);
+        std::string mesh;
+        std::string particleScript;
+        getRangeAtktMesh(mesh, particleScript);
+        MissileOneHit* missile = new MissileOneHit(getGameMap(), getIsOnServerMap(), getSeat(), getName(), mesh,
+            particleScript, missileDirection, 3.0, physicalDamage, magicalDamage, tileBuilding, false);
         missile->addToGameMap();
         missile->createMesh();
         missile->setPosition(position);
@@ -3280,6 +3283,13 @@ double Creature::getBestAttackRange() const
         range = mWeaponR->getRange();
 
     return range;
+}
+
+void Creature::getRangeAtktMesh(std::string& mesh, std::string& particleScript) const
+{
+    // TODO: use the weapon mesh if the creature is using a weapon
+    mesh = getDefinition()->getRanAtkMesh();
+    particleScript = getDefinition()->getRanAtkPartScript();
 }
 
 void Creature::checkLevelUp()
