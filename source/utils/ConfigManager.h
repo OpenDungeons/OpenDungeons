@@ -123,9 +123,6 @@ public:
     inline double getClaimingWallPenalty() const
     { return mClaimingWallPenalty; }
 
-    inline int32_t getNbTurnsKoCreatureDropped() const
-    { return mNbTurnsKoCreatureDropped; }
-
     inline int32_t getNbTurnsKoCreatureAttacked() const
     { return mNbTurnsKoCreatureAttacked; }
 
@@ -265,7 +262,6 @@ private:
     int64_t mNbTurnsFuriousMax;
     double mMaxManaPerSeat;
     double mClaimingWallPenalty;
-    int32_t mNbTurnsKoCreatureDropped;
     int32_t mNbTurnsKoCreatureAttacked;
     std::string mDefaultWorkerRogue;
     std::string mMainMenuMusic;

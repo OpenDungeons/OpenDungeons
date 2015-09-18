@@ -70,6 +70,12 @@ void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inp
 
     if(targets.empty())
     {
+        // If we have no owned creature that can be heal, we look for enemy creatures in jail
+        gameMap->playerSelects(targets, inputManager.mXPos, inputManager.mYPos, inputManager.mLStartDragX, inputManager.mLStartDragY,
+            SelectionTileAllowed::groundClaimedAllied, SelectionEntityWanted::creatureAliveInOwnedPrisonHurt, player);
+    }
+    if(targets.empty())
+    {
         std::string txt = formatCastSpell(SpellType::creatureHeal, 0);
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         return;
@@ -122,6 +128,8 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
     uint32_t nbCreatures;
     OD_ASSERT_TRUE(packet >> nbCreatures);
     std::vector<Creature*> creatures;
+    // We can cast heal on allied creatures or on enemy creatures in prison. But not on both at the same time
+    bool isEnemyTarget = false;
     while(nbCreatures > 0)
     {
         --nbCreatures;
@@ -131,12 +139,6 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
         // We check that the creatures are valid targets
         Creature* creature = gameMap->getCreature(creatureName);
         if(creature == nullptr)
-        {
-            OD_LOG_ERR("creatureName=" + creatureName);
-            continue;
-        }
-
-        if(!creature->getSeat()->isAlliedSeat(player->getSeat()))
         {
             OD_LOG_ERR("creatureName=" + creatureName);
             continue;
@@ -162,6 +164,7 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
             OD_LOG_INF("WARNING : " + creatureName + ", tile=" + Tile::displayAsString(pos));
             continue;
         }
+
         // That can happen if the creature is not in perfect synchronization and is full health on server side but not on client
         if(!creature->isHurt())
         {
@@ -169,6 +172,24 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
             continue;
         }
 
+        if(!creature->getSeat()->isAlliedSeat(player->getSeat()))
+        {
+            if(creatures.empty() || isEnemyTarget)
+            {
+                isEnemyTarget = true;
+                creatures.push_back(creature);
+                continue;
+            }
+            OD_LOG_ERR("creatureName=" + creatureName);
+            continue;
+        }
+
+        if(!creatures.empty() && isEnemyTarget)
+        {
+            OD_LOG_ERR("creatureName=" + creatureName);
+            continue;
+        }
+        isEnemyTarget = false;
         creatures.push_back(creature);
     }
 

@@ -103,3 +103,33 @@ material CreatureOverlayStatus_64
         }
     }
 }
+
+material CreatureOverlayStatus_128
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureStunned.png
+            }
+        }
+    }
+}
+
+material CreatureOverlayStatus_256
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreaturePrisoner.png
+            }
+        }
+    }
+}

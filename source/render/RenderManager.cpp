@@ -73,9 +73,9 @@ const uint8_t RenderManager::OD_RENDER_QUEUE_ID_GUI = 101;
 
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0f;
 
-const Ogre::Real RenderManager::KEEPER_HAND_WORLD_Z = 20.0f / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT;
+const Ogre::Real KEEPER_HAND_POS_Z = 20.0;
+const Ogre::Real RenderManager::KEEPER_HAND_WORLD_Z = KEEPER_HAND_POS_Z / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT;
 
-const Ogre::Real KEEPER_HAND_POS_Z = 1.0;
 const Ogre::Real KEEPER_HAND_CREATURE_PICKED_OFFSET = 5.0;
 const Ogre::Real KEEPER_HAND_CREATURE_PICKED_SCALE = 5.0;
 
@@ -289,7 +289,7 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
     Seat* seatColor = nullptr;
     if(!isSameMesh && !meshName.empty())
     {
-        // If the node does net exists, we create it
+        // If the node does not exist, we create it
         std::string tileMeshNodeName = tileMeshName + "_node";
         Ogre::SceneNode* tileMeshNode;
         if(!mSceneManager->hasSceneNode(tileMeshNodeName))
@@ -360,7 +360,7 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
     Ogre::Entity* customMeshEnt = nullptr;
     if(!isSameMesh && !meshName.empty())
     {
-        // If the node does net exists, we create it
+        // If the node does not exist, we create it
         std::string customMeshNodeName = customMeshName + "_node";
         Ogre::SceneNode* customMeshNode;
         if(!mSceneManager->hasSceneNode(customMeshNodeName))
@@ -778,8 +778,12 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
     }
 
     // Detach the entity from its scene node
-    Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
+    Ogre::SceneNode* curEntityNode = curEntity->getEntityNode();
     curEntity->getParentSceneNode()->removeChild(curEntityNode);
+
+    // We make sure the creature will be rendered over the scene by adding it to the same render queue as the keeper hand (and
+    // by clearing the depth buffer in ODFrameListener)
+    changeRenderQueueRecursive(curEntityNode, OD_RENDER_QUEUE_ID_GUI);
 
     // Attach the creature to the hand scene node
     mHandKeeperNode->addChild(curEntityNode);
@@ -802,8 +806,11 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
     }
 
     // Detach the entity from the "hand" scene node
-    Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
+    Ogre::SceneNode* curEntityNode = curEntity->getEntityNode();
     mHandKeeperNode->removeChild(curEntityNode);
+
+    // We put the creature back to the default render queue
+    changeRenderQueueRecursive(curEntityNode, Ogre::RenderQueueGroupID::RENDER_QUEUE_MAIN);
 
     // Attach the creature from the creature scene node
     curEntity->getParentSceneNode()->addChild(curEntityNode);
@@ -1383,4 +1390,22 @@ void RenderManager::rrMinimapRendering(bool postRender)
 {
     mHandLight->setVisible(postRender);
     mLightSceneNode->setVisible(postRender);
+}
+
+void RenderManager::changeRenderQueueRecursive(Ogre::SceneNode* node, uint8_t renderQueueId)
+{
+    for(uint32_t i = 0; i < node->numAttachedObjects(); ++i)
+    {
+        Ogre::MovableObject* obj = node->getAttachedObject(i);
+        obj->setRenderQueueGroup(renderQueueId);
+    }
+
+    for(uint32_t i = 0; i < node->numChildren(); ++i)
+    {
+        Ogre::SceneNode* childNode = dynamic_cast<Ogre::SceneNode *>(node->getChild(i));
+        if(childNode == nullptr)
+            continue;
+
+        changeRenderQueueRecursive(childNode, renderQueueId);
+    }
 }

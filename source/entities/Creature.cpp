@@ -87,6 +87,25 @@ const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 
 const uint32_t Creature::NB_OVERLAY_HEALTH_VALUES = 8;
 
+enum CreatureMoodEnum
+{
+    Angry = 0x0001,
+    Furious = 0x0002,
+    GetFee = 0x0004,
+    LeaveDungeon = 0x0008,
+    KoDeath = 0x0010,
+    Hungry = 0x0020,
+    Tired = 0x0040,
+    KoTemp = 0x0080,
+    InJail = 0x0100,
+    // To know if a creature is KO
+    KoDeathOrTemp = KoTemp | KoDeath,
+    // Mood filters for creatures in prison that every player will see
+    MoodPrisonFiltersAllPlayers = InJail,
+    // Mood filters for creatures in prison that prison allied will see
+    MoodPrisonFiltersPrisonAllies = KoTemp | InJail
+};
+
 //! \brief CreatureAction is contained in a deque in the Creature class. However, we don't
 //! want to use this class directly in the handle action functions because the action can be
 //! removed from the deque within the handle function. To avoid that, we use this wrapper class
@@ -538,10 +557,17 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
     os << mWeaponlessAtkRange;
     os << mOverlayHealthValue;
 
-    // Only allied players should see creature mood
+    // Only allied players should see creature mood (except some states)
     uint32_t moodValue = 0;
     if(seat->isAlliedSeat(getSeat()))
         moodValue = mOverlayMoodValue;
+    else if(mSeatPrison != nullptr)
+    {
+        if(mSeatPrison->isAlliedSeat(seat))
+            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersPrisonAllies;
+        else
+            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersAllPlayers;
+    }
 
     os << moodValue;
     os << mSpeedModifier;
@@ -2092,20 +2118,20 @@ bool Creature::handleFindHomeAction(const CreatureActionWrapper& actionItem)
             }
         }
 
-        if (static_cast<RoomDormitory*>(myTile->getCoveringBuilding())->claimTileForSleeping(myTile, this))
+        Tile* homeTile = static_cast<RoomDormitory*>(myTile->getCoveringBuilding())->claimTileForSleeping(myTile, this);
+        if(homeTile != nullptr)
         {
             // We could install the bed in the dormitory. If we already had one, we remove it
             if(roomHomeTile != nullptr)
                 static_cast<RoomDormitory*>(roomHomeTile)->releaseTileForSleeping(mHomeTile, this);
 
-            mHomeTile = myTile;
+            mHomeTile = homeTile;
             popAction();
             return true;
         }
 
         // The tile where we are is not claimable. We search if there is another in this dormitory
-        Tile* tempTile = static_cast<RoomDormitory*>(myTile->getCoveringBuilding())->getLocationForBed(
-            mDefinition->getBedDim1(), mDefinition->getBedDim2());
+        Tile* tempTile = static_cast<RoomDormitory*>(myTile->getCoveringBuilding())->getLocationForBed(this);
         if(tempTile != nullptr)
         {
             std::list<Tile*> tempPath = getGameMap()->path(this, tempTile);
@@ -2135,13 +2161,7 @@ bool Creature::handleFindHomeAction(const CreatureActionWrapper& actionItem)
     {
         // Get the list of open rooms at the current dormitory and check to see if
         // there is a place where we could put a bed big enough to sleep in.
-        Tile* tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(
-                        mDefinition->getBedDim1(), mDefinition->getBedDim2());
-
-        // If the previous attempt to place the bed in this dormitory failed, try again with the bed the other way.
-        if (tempTile == nullptr)
-            tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(
-                                                                     mDefinition->getBedDim2(), mDefinition->getBedDim1());
+        Tile* tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(this);
 
         // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
         if (tempTile != nullptr)
@@ -2748,7 +2768,17 @@ bool Creature::handleSleepAction(const CreatureActionWrapper& actionItem)
         // We are at the home tile so sleep. If it is the first time we are sleeping,
         // we send the animation
         if(actionItem.mNbTurnsActive == 0)
-            setAnimationState(EntityAnimation::sleep_anim, false);
+        {
+            Room* roomHomeTile = mHomeTile->getCoveringRoom();
+            if((roomHomeTile == nullptr) || (roomHomeTile->getType() != RoomType::dormitory))
+            {
+                OD_LOG_ERR("creature=" + getName() + ", wrong sleep tile on " + Tile::displayAsString(mHomeTile));
+                popAction();
+                return false;
+            }
+            RoomDormitory* dormitory = static_cast<RoomDormitory*>(roomHomeTile);
+            setAnimationState(EntityAnimation::sleep_anim, false, dormitory->getSleepDirection(this));
+        }
 
         // Improve awakeness
         mAwakeness += 1.5;
@@ -3262,10 +3292,17 @@ void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
     os << seatId;
     os << mOverlayHealthValue;
 
-    // Only allied players should see creature mood
+    // Only allied players should see creature mood (except some states)
     uint32_t moodValue = 0;
     if(seat->isAlliedSeat(getSeat()))
         moodValue = mOverlayMoodValue;
+    else if(mSeatPrison != nullptr)
+    {
+        if(mSeatPrison->isAlliedSeat(seat))
+            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersPrisonAllies;
+        else
+            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersAllPlayers;
+    }
 
     os << moodValue;
     os << mGroundSpeed;
@@ -3300,7 +3337,11 @@ void Creature::updateFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mWaterSpeed);
     OD_ASSERT_TRUE(is >> mLavaSpeed);
     OD_ASSERT_TRUE(is >> mSpeedModifier);
-    RenderManager::getSingleton().rrScaleEntity(this);
+
+    // We do not scale the creature if it is picked up (because it is already not at its normal size). It will be
+    // resized anyway when dropped
+    if(getIsOnMap())
+        RenderManager::getSingleton().rrScaleEntity(this);
 
     if(getSeat()->getId() != seatId)
     {
@@ -3951,7 +3992,7 @@ void Creature::drop(const Ogre::Vector3& v)
     fireCreatureSound(CreatureSound::Drop);
 
     // The creature is temporary KO
-    mKoTurnCounter = ConfigManager::getSingleton().getNbTurnsKoCreatureDropped();
+    mKoTurnCounter = mDefinition->getTurnsStunDropped();
     computeCreatureOverlayMoodValue();
 }
 
@@ -4325,6 +4366,10 @@ bool Creature::canSlap(Seat* seat)
     if(getHP() <= 0.0)
         return false;
 
+    // If the creature is in prison, it can be slapped by the jail owner only
+    if(mSeatPrison != nullptr)
+        return (mSeatPrison == seat);
+
     // Only the owning player can slap a creature
     if(getSeat() != seat)
         return false;
@@ -4668,24 +4713,29 @@ void Creature::computeCreatureOverlayMoodValue()
     if(isAlive())
     {
         if(mMoodValue == CreatureMoodLevel::Angry)
-            value |= 0x0001;
+            value |= CreatureMoodEnum::Angry;
         else if(mMoodValue == CreatureMoodLevel::Furious)
-            value |= 0x0002;
+            value |= CreatureMoodEnum::Furious;
 
         if(isActionInList(CreatureActionType::getFee))
-            value |= 0x0004;
+            value |= CreatureMoodEnum::GetFee;
 
         if(isActionInList(CreatureActionType::leaveDungeon))
-            value |= 0x0008;
+            value |= CreatureMoodEnum::LeaveDungeon;
 
-        if(mKoTurnCounter != 0)
-            value |= 0x0010;
+        if(mKoTurnCounter < 0)
+            value |= CreatureMoodEnum::KoDeath;
+        else if(mKoTurnCounter > 0)
+            value |= CreatureMoodEnum::KoTemp;
 
         if(isHungry())
-            value |= 0x0020;
+            value |= CreatureMoodEnum::Hungry;
 
         if(isTired())
-            value |= 0x0040;
+            value |= CreatureMoodEnum::Tired;
+
+        if(mSeatPrison != nullptr)
+            value |= CreatureMoodEnum::InJail;
     }
 
     if(mOverlayMoodValue != value)
@@ -4742,12 +4792,34 @@ bool Creature::isHurt() const
 
 bool Creature::isKo() const
 {
-    //On server side, we test HP
     if(getIsOnServerMap())
         return mKoTurnCounter != 0;
 
     // On client side, we test mood overlay value
-    return (mOverlayMoodValue & 0x0010) != 0;
+    return (mOverlayMoodValue & KoDeathOrTemp) != 0;
+}
+
+bool Creature::isKoDeath() const
+{
+    if(getIsOnServerMap())
+        return mKoTurnCounter < 0;
+
+    // On client side, we test mood overlay value
+    return (mOverlayMoodValue & CreatureMoodEnum::KoDeath) != 0;
+}
+
+bool Creature::isKoTemp() const
+{
+    if(getIsOnServerMap())
+        return mKoTurnCounter > 0;
+
+    // On client side, we test mood overlay value
+    return (mOverlayMoodValue & CreatureMoodEnum::KoTemp) != 0;
+}
+
+bool Creature::isInPrison() const
+{
+    return mSeatPrison != nullptr;
 }
 
 void Creature::correctEntityMovePosition(Ogre::Vector3& position)
@@ -4803,7 +4875,7 @@ bool Creature::isTired() const
     if(getIsOnServerMap())
         return mAwakeness <= 20.0;
 
-    return (mOverlayMoodValue & 0x0040) != 0;
+    return (mOverlayMoodValue & CreatureMoodEnum::Tired) != 0;
 }
 
 bool Creature::isHungry() const
@@ -4811,7 +4883,7 @@ bool Creature::isHungry() const
     if(getIsOnServerMap())
         return mHunger >= 80.0;
 
-    return (mOverlayMoodValue & 0x0020) != 0;
+    return (mOverlayMoodValue & CreatureMoodEnum::Hungry) != 0;
 }
 
 void Creature::releasedInBed()

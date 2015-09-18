@@ -198,7 +198,7 @@ void RoomBridge::checkBuildBridge(RoomType type, GameMap* gameMap, Seat* seat, c
     // claimed tile. If we find one, we will add the tiles in reverse order to make
     // sure the tiles are pushed in a buildable order
     std::vector<Tile*> tmpTiles;
-    bool isClaimedTileNeighFound = false;
+    bool isClaimedTileNeighFound = isEditor;
     while((x <= xEnd) && (y <= yEnd))
     {
         Tile* tile = gameMap->getTile(x, y);
@@ -306,7 +306,7 @@ void RoomBridge::checkBuildBridge(RoomType type, GameMap* gameMap, Seat* seat, c
 }
 
 bool RoomBridge::readBridgeFromPacket(std::vector<Tile*>& tiles, GameMap* gameMap, Seat* seat,
-    const std::vector<TileVisual>& allowedTilesVisual, ODPacket& packet)
+    const std::vector<TileVisual>& allowedTilesVisual, ODPacket& packet, bool isEditor)
 {
     // Note that here, we expect the client to have filled requested tiles in a correct
     // order: the first tile must be next to a claimed tile, the second next to the first
@@ -333,7 +333,7 @@ bool RoomBridge::readBridgeFromPacket(std::vector<Tile*>& tiles, GameMap* gameMa
         }
 
         const std::vector<Tile*>& neighs = tile->getAllNeighbors();
-        bool isOk = false;
+        bool isOk = isEditor;
         // We check if it is the next tile from the bridge
         if(!tiles.empty() &&
            std::find(neighs.begin(), neighs.end(), neighs.back()) != neighs.end())

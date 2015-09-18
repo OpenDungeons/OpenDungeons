@@ -38,6 +38,7 @@
 #include "utils/MakeUnique.h"
 
 #include <OgreRenderWindow.h>
+#include <OgreRoot.h>
 #include <OgreSceneManager.h>
 #include <Overlay/OgreOverlaySystem.h>
 #include <CEGUI/EventArgs.h>
@@ -216,6 +217,7 @@ void ODFrameListener::renderQueueStarted(Ogre::uint8 queueGroupId, const Ogre::S
 {
     if(queueGroupId == RenderManager::OD_RENDER_QUEUE_ID_GUI && invocation.empty())
     {
+        Ogre::Root::getSingleton().getRenderSystem()->clearFrameBuffer(Ogre::FBT_DEPTH);
         CEGUI::System::getSingleton().renderAllGUIContexts();
     }
 }

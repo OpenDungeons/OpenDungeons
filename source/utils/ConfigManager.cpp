@@ -60,14 +60,12 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
     mNbTurnsFuriousMax(120),
     mMaxManaPerSeat(250000.0),
     mClaimingWallPenalty(0.8),
-    mNbTurnsKoCreatureDropped(10),
     mNbTurnsKoCreatureAttacked(10),
     mCreatureDefinitionDefaultWorker(nullptr)
 {
     mCreatureDefinitionDefaultWorker = new CreatureDefinition(DefaultWorkerCreatureDefinition,
         CreatureDefinition::CreatureJob::Worker,
-        "Kobold.mesh",
-        "Bed", 1, 2, Ogre::Vector3(0.04, 0.04, 0.04));
+        "Kobold.mesh", Ogre::Vector3(0.04, 0.04, 0.04));
     if(!loadGlobalConfig(configPath))
     {
         OD_LOG_ERR("Couldn't read loadCreatureDefinitions");
@@ -520,13 +518,6 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mClaimingWallPenalty = Helper::toDouble(nextParam);
-            // Not mandatory
-        }
-
-        if(nextParam == "NbTurnsKoCreatureDropped")
-        {
-            configFile >> nextParam;
-            mNbTurnsKoCreatureDropped = Helper::toInt(nextParam);
             // Not mandatory
         }
 

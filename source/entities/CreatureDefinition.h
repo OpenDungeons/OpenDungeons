@@ -76,10 +76,14 @@ public:
             const std::string&      className   = std::string(),
             CreatureJob             job         = Fighter,
             const std::string&      meshName    = std::string(),
+            const Ogre::Vector3&    scale       = Ogre::Vector3(1, 1, 1),
             const std::string&      bedMeshName = std::string(),
             int                     bedDim1     = 1,
             int                     bedDim2     = 1,
-            const Ogre::Vector3&    scale       = Ogre::Vector3(1, 1, 1),
+            int                     bedPosX     = 1,
+            int                     bedPosY     = 1,
+            double                  bedOrientX  = 0,
+            double                  bedOrientY  = -1,
             double                  sightRadius = 15.0,
 
             int                     maxGoldCarryable = 0,
@@ -116,13 +120,18 @@ public:
             double                  weakCoef            = 0.3,
             int32_t                 feeBase             = 0,
             int32_t                 feePerLevel         = 0,
-            int32_t                 sleepHeal           = 1.0) :
+            int32_t                 sleepHeal           = 1.0,
+            int32_t                 turnsStunDropped    = 0) :
         mCreatureJob (job),
         mClassName   (className),
         mMeshName    (meshName),
         mBedMeshName (bedMeshName),
         mBedDim1     (bedDim1),
         mBedDim2     (bedDim2),
+        mBedPosX     (bedPosX),
+        mBedPosY     (bedPosY),
+        mBedOrientX  (bedOrientX),
+        mBedOrientY  (bedOrientY),
         mScale       (scale),
         mSightRadius (sightRadius),
         mMaxGoldCarryable (maxGoldCarryable),
@@ -156,6 +165,7 @@ public:
         mFeeBase            (feeBase),
         mFeePerLevel        (feePerLevel),
         mSleepHeal          (sleepHeal),
+        mTurnsStunDropped   (turnsStunDropped),
         mWeaponSpawnL       ("none"),
         mWeaponSpawnR       ("none"),
         mSoundFamilyPickup  ("Default/Pickup"),
@@ -194,6 +204,10 @@ public:
     inline const std::string&   getBedMeshName  () const    { return mBedMeshName; }
     inline int                  getBedDim1      () const    { return mBedDim1; }
     inline int                  getBedDim2      () const    { return mBedDim2; }
+    inline int                  getBedPosX      () const    { return mBedPosX; }
+    inline int                  getBedPosY      () const    { return mBedPosY; }
+    inline double               getBedOrientX   () const    { return mBedOrientX; }
+    inline double               getBedOrientY   () const    { return mBedOrientY; }
 
     inline int                  getSightRadius  () const    { return mSightRadius; }
 
@@ -242,6 +256,8 @@ public:
 
     inline double               getSleepHeal () const           { return mSleepHeal; }
 
+    inline int32_t              getTurnsStunDropped () const    { return mTurnsStunDropped; }
+
     double                      getXPNeededWhenLevel(unsigned int level) const;
 
     //! \brief Returns the creature affinity. The returned vector is assumed to be
@@ -286,6 +302,12 @@ private:
 
     //! \brief size of the bed (y)
     int mBedDim2;
+
+    //! \brief Position and orientation of the creature when it goes to sleep
+    int mBedPosX;
+    int mBedPosY;
+    double mBedOrientX;
+    double mBedOrientY;
 
     //! \brief The scale the mesh is displayed (bigger = stronger)
     Ogre::Vector3 mScale;
@@ -360,6 +382,9 @@ private:
 
     //! \brief How many HP the creature will get per turn while sleeping
     double mSleepHeal;
+
+    //! \brief Number of turns the creature will stay stunned after being dropped
+    int32_t mTurnsStunDropped;
 
     //! \brief Weapons a creature should spawn with ("none" if no weapon)
     std::string mWeaponSpawnL;
