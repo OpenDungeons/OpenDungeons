@@ -943,8 +943,6 @@ void Creature::doUpkeep()
     }
 
     mVisibleEnemyObjects         = getVisibleEnemyObjects();
-    mReachableEnemyObjects       = getReachableAttackableObjects(mVisibleEnemyObjects);
-    mReachableEnemyCreatures     = getCreaturesFromList(mReachableEnemyObjects, getDefinition()->isWorker());
     mVisibleAlliedObjects        = getVisibleAlliedObjects();
     mReachableAlliedObjects      = getReachableAttackableObjects(mVisibleAlliedObjects);
 
@@ -1089,7 +1087,7 @@ void Creature::decidePrioritaryAction()
 
     // If a creature is weak and there are foes, it shall flee
     bool isWeak = (mHp < mMaxHP * mDefinition->getWeakCoef());
-    if (!mReachableEnemyObjects.empty() && isWeak)
+    if (!mVisibleEnemyObjects.empty() && isWeak)
     {
         if(isActionInList(CreatureActionType::flee))
             return;
@@ -1104,8 +1102,8 @@ void Creature::decidePrioritaryAction()
     if (isWeak)
         return;
 
-    // If a fighter can see enemies that are reachable, he may attack
-    if (!mReachableEnemyObjects.empty() && !mDefinition->isWorker())
+    // If a creature can see enemies, it may attack
+    if (!mVisibleEnemyObjects.empty())
     {
         // Check if we are already fighting
         if(isActionInList(CreatureActionType::fight) || isActionInList(CreatureActionType::flee))
@@ -1131,19 +1129,6 @@ void Creature::decidePrioritaryAction()
         }
 
         // If we are not already fighting with a creature then start doing so.
-        clearDestinations(EntityAnimation::idle_anim, true);
-        clearActionQueue();
-        pushAction(CreatureActionType::fight, false, true);
-        return;
-    }
-
-    // If a worker can see other workers, he should attack. mReachableEnemyCreatures is filled with workers only if we are a worker
-    if (!mReachableEnemyCreatures.empty() && mDefinition->isWorker())
-    {
-        // If we are not already fighting with a creature then start doing so.
-        if(isActionInList(CreatureActionType::fight))
-            return;
-
         clearDestinations(EntityAnimation::idle_anim, true);
         clearActionQueue();
         pushAction(CreatureActionType::fight, false, true);
@@ -2600,10 +2585,6 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
     if (actionItem.mTile == nullptr)
         return true;
 
-    // The warmup time isn't yet finished.
-    if (mAttackWarmupTime > 0.0)
-        return false;
-
     // Reset the warmup time
     mAttackWarmupTime = mDefinition->getAttackWarmupTime();
 
@@ -2626,7 +2607,7 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
 
     // Calculate how much damage we do.
     Tile* myTile = getPositionTile();
-    Ogre::Real range = Pathfinding::distanceTile(*myTile, *attackedTile);
+    float range = Pathfinding::distanceTile(*myTile, *attackedTile);
     double physicalDamage = getPhysicalDamage(range);
     double magicalDamage = getMagicalDamage(range);
 
@@ -2658,7 +2639,7 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
 
         std::string mesh;
         std::string particleScript;
-        getRangeAtktMesh(mesh, particleScript);
+        getRangeAtkMesh(range, mesh, particleScript);
         MissileOneHit* missile = new MissileOneHit(getGameMap(), getIsOnServerMap(), getSeat(), getName(), mesh,
             particleScript, missileDirection, 3.0, physicalDamage, magicalDamage, tileBuilding, false);
         missile->addToGameMap();
@@ -2701,65 +2682,244 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
 
 bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
 {
-    // If worker
-    if(mDefinition->isWorker())
-    {
-        // If there are no more reachable enemies, stop fighting.
-        if (mReachableEnemyCreatures.empty())
-        {
-            popAction();
-            return true;
-        }
-
-        // We try to attack creatures
-        GameEntity* entityAttack = nullptr;
-        Tile* tileAttack = nullptr;
-        if (fightClosestObjectInList(mReachableEnemyCreatures, entityAttack, tileAttack))
-        {
-            if(entityAttack != nullptr)
-            {
-                pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
-            }
-            return (entityAttack != nullptr);
-        }
-
-        // We should not come here.
-        OD_LOG_ERR("No reachable enemy found name=" + getName());
+    // The warmup time isn't yet finished.
+    if (mAttackWarmupTime > 0.0)
         return false;
-    }
 
-    // If there are no more reachable enemies, stop fighting.
-    if (mReachableEnemyObjects.empty())
+    // If there are no more enemies, stop fighting.
+    if (mVisibleEnemyObjects.empty())
     {
         popAction();
         return true;
     }
 
-    // We try to attack creatures
+    Tile* myTile = getPositionTile();
+    if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName() + ", position=" + Helper::toString(getPosition()));
+        popAction();
+        return false;
+    }
+
+    if(getName() == "Adventurer2")
+        getName();
+
+    // We try to attack creatures first
+    std::vector<GameEntity*> enemyPrioritaryTargets;
+    std::vector<GameEntity*> enemySecondaryTargets;
+    for(GameEntity* entity : mVisibleEnemyObjects)
+    {
+        switch(entity->getObjectType())
+        {
+            case GameEntityType::creature:
+            {
+                Creature* creature = static_cast<Creature*>(entity);
+                if(!creature->isAlive())
+                    continue;
+
+                // Workers should attack workers only
+                if(getDefinition()->isWorker() && !creature->getDefinition()->isWorker())
+                    continue;
+
+                enemyPrioritaryTargets.push_back(creature);
+                break;
+            }
+            default:
+            {
+                // Workers can attack workers only
+                if(getDefinition()->isWorker())
+                    continue;
+
+                enemySecondaryTargets.push_back(entity);
+            }
+        }
+    }
+
+    if(!enemyPrioritaryTargets.empty())
+    {
+        GameEntity* entityAttack = nullptr;
+        Tile* tileAttack = nullptr;
+        Tile* tilePosition = nullptr;
+        if(getBestTargetInList(enemyPrioritaryTargets, entityAttack, tileAttack, tilePosition))
+        {
+            if(myTile == tilePosition)
+            {
+                // We can attack
+                pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
+                return true;
+            }
+
+            // We need to move to the entity
+            std::list<Tile*> result = getGameMap()->path(this, tilePosition);
+            if(result.empty())
+            {
+                OD_LOG_ERR("name" + getName() + ", myTile=" + Tile::displayAsString(myTile) + ", dest=" + Tile::displayAsString(tilePosition));
+                return false;
+            }
+
+            if(result.size() > 2)
+                result.resize(2);
+
+            std::vector<Ogre::Vector3> path;
+            tileToVector3(result, path, true, 0.0);
+            setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+            pushAction(CreatureActionType::walkToTile, false, true);
+            return false;
+        }
+    }
+
+    if(!enemySecondaryTargets.empty())
+    {
+        GameEntity* entityAttack = nullptr;
+        Tile* tileAttack = nullptr;
+        Tile* tilePosition = nullptr;
+        if(getBestTargetInList(enemySecondaryTargets, entityAttack, tileAttack, tilePosition))
+        {
+            if(myTile == tilePosition)
+            {
+                // We can attack
+                pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
+                return true;
+            }
+
+            // We need to move to the entity
+            std::list<Tile*> result = getGameMap()->path(this, tilePosition);
+            if(result.empty())
+            {
+                OD_LOG_ERR("name" + getName() + ", myTile=" + Tile::displayAsString(myTile) + ", dest=" + Tile::displayAsString(tilePosition));
+                return false;
+            }
+
+            if(result.size() > 2)
+                result.resize(2);
+
+            std::vector<Ogre::Vector3> path;
+            tileToVector3(result, path, true, 0.0);
+            setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+            pushAction(CreatureActionType::walkToTile, false, true);
+            return false;
+        }
+    }
+
+    // No suitable target
+    popAction();
+    return true;
+}
+
+bool Creature::getBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile)
+{
+    Tile* myTile = getPositionTile();
+    if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName() + ", position=" + Helper::toString(getPosition()));
+        popAction();
+        return false;
+    }
+
+    GameEntity* entityFlee = nullptr;
+    // Closest creature
     GameEntity* entityAttack = nullptr;
     Tile* tileAttack = nullptr;
-    if (!mReachableEnemyCreatures.empty() && fightClosestObjectInList(mReachableEnemyCreatures, entityAttack, tileAttack))
+    Tile* tilePosition = nullptr;
+    int closestDist = -1;
+    // We try to attack creatures first
+    for(GameEntity* entity : listObjects)
     {
-        if(entityAttack != nullptr)
+        GameEntity* entityAttackCheck = nullptr;
+        Tile* tileAttackCheck = nullptr;
+        int closestDistCheck = closestDist;
+        // We check if this creature is closer than the other one (if any)
+        std::vector<Tile*> coveredTiles = entity->getCoveredTiles();
+        for(Tile* tile : coveredTiles)
         {
-            pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
+            int dist = Pathfinding::squaredDistanceTile(*tile, *myTile);
+            if((closestDistCheck != -1) && (dist >= closestDistCheck))
+                continue;
+
+            // We found a tile closer
+            // Note that we don't break because if this entity is on more than 1 tile,
+            // we want to attack the closest tile
+            closestDistCheck = dist;
+            entityAttackCheck = entity;
+            tileAttackCheck = tile;
         }
-        return (entityAttack != nullptr);
+
+        if((entityAttackCheck == nullptr) || (tileAttackCheck == nullptr))
+            continue;
+
+        // If we found a suitable enemy, we check if we can attack it
+        double range = getBestAttackRange();
+        // We check if we can attack from somewhere. To do that, we check
+        // from the creature point of view if there is a tile with visibility within range
+        int distAttack = -1;
+        std::vector<Tile*> tiles = getGameMap()->visibleTiles(tileAttackCheck->getX(), tileAttackCheck->getY(), static_cast<int>(range));
+        for(Tile* tile : tiles)
+        {
+            if(tile->isFullTile())
+                continue;
+
+            if(!getGameMap()->pathExists(this, myTile, tile))
+                continue;
+
+            int dist = Pathfinding::squaredDistanceTile(*tile, *myTile);
+            if((distAttack != -1) && (dist >= distAttack))
+                continue;
+
+            // We found a closer target
+            distAttack = dist;
+            tilePosition = tile;
+            entityAttack = entityAttackCheck;
+            tileAttack = tileAttackCheck;
+            closestDist = closestDistCheck;
+            // We don't break because there might be a better spot
+            if((entityFlee == nullptr) && (entityAttackCheck->shouldFleeFrom(this, closestDist)))
+                entityFlee = entityAttackCheck;
+        }
     }
 
-    // If no creature, we attack the rest
-    if (fightInRangeObjectInList(mReachableEnemyObjects, entityAttack, tileAttack))
+    // If there is no suitable target, we cannot attack
+    if ((entityAttack == nullptr) ||
+        (tileAttack == nullptr) ||
+        (tilePosition == nullptr))
     {
-        if(entityAttack != nullptr)
-        {
-            pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
-        }
-        return (entityAttack != nullptr);
+        return false;
     }
 
-    // We should not come here.
-    OD_LOG_ERR("No enemy found name=" + getName());
-    return false;
+    // Handle flee is needed
+    if(entityFlee != nullptr)
+    {
+        // Let's run
+        std::vector<Tile*> tiles = getGameMap()->visibleTiles(myTile->getX(), myTile->getY(), 3);
+        Tile* fleeTile = nullptr;
+        int fleeDist = -1;
+        for(Tile* tile : tiles)
+        {
+            if(tile->isFullTile())
+                continue;
+
+            if(!getGameMap()->pathExists(this, myTile, tile))
+                continue;
+
+            int dist = Pathfinding::squaredDistanceTile(*tile, *myTile);
+            if((fleeDist != -1) && (dist <= fleeDist))
+                continue;
+
+            fleeDist = dist;
+            fleeTile = tile;
+        }
+
+        attackedEntity = nullptr;
+        attackedTile = nullptr;
+        positionTile = fleeTile;
+    }
+    else
+    {
+        attackedEntity = entityAttack;
+        attackedTile = tileAttack;
+        positionTile = tilePosition;
+    }
+
+    return true;
 }
 
 bool Creature::handleSleepAction(const CreatureActionWrapper& actionItem)
@@ -2821,7 +2981,7 @@ bool Creature::handleFleeAction(const CreatureActionWrapper& actionItem)
 {
     // We try to go as far as possible from the enemies within visible tiles. We will quit flee mode when there will be no more
     // enemy objects nearby or if we have already flee for too much time
-    if ((mReachableEnemyObjects.empty()) || (actionItem.mNbTurns > NB_TURN_FLEE_MAX))
+    if ((mVisibleEnemyObjects.empty()) || (actionItem.mNbTurns > NB_TURN_FLEE_MAX))
     {
         popAction();
         return true;
@@ -3138,31 +3298,62 @@ bool Creature::handleLeaveDungeon(const CreatureActionWrapper& actionItem)
 
 bool Creature::handleFightAlliedNaturalEnemyAction(const CreatureActionWrapper& actionItem)
 {
+    // The warmup time isn't yet finished.
+    if (mAttackWarmupTime > 0.0)
+        return false;
+
+    Tile* myTile = getPositionTile();
+    if(myTile == nullptr)
+    {
+        popAction();
+        return true;
+    }
+
     // We look for a reachable allied natural enemy
     GameEntity* entityAttack = nullptr;
     Tile* tileAttack = nullptr;
+    Tile* tilePosition = nullptr;
     std::vector<GameEntity*> alliedNaturalEnemies = getGameMap()->getNaturalEnemiesInList(this, mReachableAlliedObjects);
-    if (!alliedNaturalEnemies.empty() && fightClosestObjectInList(alliedNaturalEnemies, entityAttack, tileAttack))
+    if(!alliedNaturalEnemies.empty() && getBestTargetInList(alliedNaturalEnemies, entityAttack, tileAttack, tilePosition))
     {
-        if(entityAttack != nullptr)
-        {
-            // We found a natural enemy. We stop what we were doing
-            clearDestinations(EntityAnimation::idle_anim, true);
-            clearActionQueue();
-            stopJob();
-            stopEating();
+        // We found a natural enemy. We stop what we were doing
+        clearDestinations(EntityAnimation::idle_anim, true);
+        clearActionQueue();
+        stopJob();
+        stopEating();
 
-            // And we attack
-            if(entityAttack->getObjectType() != GameEntityType::creature)
-            {
-                OD_LOG_ERR("attacker=" + getName() + ", attacked=" + entityAttack->getName() + ", type=" + Helper::toString(static_cast<uint32_t>(entityAttack->getObjectType())));
-                return false;
-            }
-            Creature* attackedCreature = static_cast<Creature*>(entityAttack);
-            attackedCreature->engageAlliedNaturalEnemy(this);
-            pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
+        // And we attack
+        if(entityAttack->getObjectType() != GameEntityType::creature)
+        {
+            OD_LOG_ERR("attacker=" + getName() + ", attacked=" + entityAttack->getName() + ", type=" + Helper::toString(static_cast<uint32_t>(entityAttack->getObjectType())));
+            return false;
         }
-        return (entityAttack != nullptr);
+        Creature* attackedCreature = static_cast<Creature*>(entityAttack);
+        attackedCreature->engageAlliedNaturalEnemy(this);
+
+        if(myTile == tilePosition)
+        {
+            // We can attack
+            pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
+            return true;
+        }
+
+        // We need to move to the entity
+        std::list<Tile*> result = getGameMap()->path(this, tilePosition);
+        if(result.empty())
+        {
+            OD_LOG_ERR("name" + getName() + ", myTile=" + Tile::displayAsString(myTile) + ", dest=" + Tile::displayAsString(tilePosition));
+            return false;
+        }
+
+        if(result.size() > 2)
+            result.resize(2);
+
+        std::vector<Ogre::Vector3> path;
+        tileToVector3(result, path, true, 0.0);
+        setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+        pushAction(CreatureActionType::walkToTile, false, true);
+        return false;
     }
 
     // No reachable allied natural enemy. We pop action
@@ -3172,6 +3363,13 @@ bool Creature::handleFightAlliedNaturalEnemyAction(const CreatureActionWrapper& 
 
 void Creature::engageAlliedNaturalEnemy(Creature* attackerCreature)
 {
+    Tile* myTile = getPositionTile();
+    if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName() + ", pos=" + Helper::toString(getPosition()));
+        return;
+    }
+
     clearActionQueue();
     clearDestinations(EntityAnimation::idle_anim, true);
     stopJob();
@@ -3179,10 +3377,44 @@ void Creature::engageAlliedNaturalEnemy(Creature* attackerCreature)
     std::vector<GameEntity*> attacker;
     GameEntity* entityAttack = nullptr;
     Tile* tileAttack = nullptr;
+    Tile* tilePosition = nullptr;
     attacker.push_back(attackerCreature);
-    if (fightClosestObjectInList(attacker, entityAttack, tileAttack))
+    if(getBestTargetInList(attacker, entityAttack, tileAttack, tilePosition))
     {
-        pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
+        // We defend vs the attacking creature
+        clearDestinations(EntityAnimation::idle_anim, true);
+        clearActionQueue();
+        stopJob();
+        stopEating();
+
+        if(entityAttack->getObjectType() != GameEntityType::creature)
+        {
+            OD_LOG_ERR("attacker=" + getName() + ", attacked=" + entityAttack->getName() + ", type=" + Helper::toString(static_cast<uint32_t>(entityAttack->getObjectType())));
+            return;
+        }
+
+        if(myTile == tilePosition)
+        {
+            // We can attack
+            pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
+            return;
+        }
+
+        // We need to move to the entity
+        std::list<Tile*> result = getGameMap()->path(this, tilePosition);
+        if(result.empty())
+        {
+            OD_LOG_ERR("name" + getName() + ", myTile=" + Tile::displayAsString(myTile) + ", dest=" + Tile::displayAsString(tilePosition));
+            return;
+        }
+
+        if(result.size() > 2)
+            result.resize(2);
+
+        std::vector<Ogre::Vector3> path;
+        tileToVector3(result, path, true, 0.0);
+        setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+        pushAction(CreatureActionType::walkToTile, false, true);
     }
 }
 
@@ -3216,7 +3448,7 @@ double Creature::getMoveSpeed(Tile* tile) const
     }
 }
 
-double Creature::getPhysicalDamage(double range)
+double Creature::getPhysicalDamage(double range) const
 {
     double hitroll = 0.0;
 
@@ -3233,7 +3465,7 @@ double Creature::getPhysicalDamage(double range)
     return hitroll;
 }
 
-double Creature::getMagicalDamage(double range)
+double Creature::getMagicalDamage(double range) const
 {
     double hitroll = 0.0;
 
@@ -3277,19 +3509,37 @@ double Creature::getBestAttackRange() const
     double range = mWeaponlessAtkRange;
 
     // Note: The damage check is here to avoid taking defense equipment in account.
-    if (mWeaponL != nullptr && mWeaponL->getRange() > range && (mWeaponL->getPhysicalDamage() > 0.0 && mWeaponL->getMagicalDamage() > 0.0))
+    if (mWeaponL != nullptr && mWeaponL->getRange() > range && (mWeaponL->getPhysicalDamage() > 0.0 || mWeaponL->getMagicalDamage() > 0.0))
         range = mWeaponL->getRange();
-    if (mWeaponR != nullptr && mWeaponR->getRange() > range && (mWeaponR->getPhysicalDamage() > 0.0 && mWeaponR->getMagicalDamage() > 0.0))
+    if (mWeaponR != nullptr && mWeaponR->getRange() > range && (mWeaponR->getPhysicalDamage() > 0.0 || mWeaponR->getMagicalDamage() > 0.0))
         range = mWeaponR->getRange();
+
+    // If we have a free hand, we can use weaponless range
+    if(((mWeaponL == nullptr) || (mWeaponR == nullptr)) && (mWeaponlessAtkRange > range) && (mPhyAtkRan > 0.0 || mMagAtkRan > 0.0))
+        range = mWeaponlessAtkRange;
 
     return range;
 }
 
-void Creature::getRangeAtktMesh(std::string& mesh, std::string& particleScript) const
+void Creature::getRangeAtkMesh(float range, std::string& mesh, std::string& particleScript) const
 {
-    // TODO: use the weapon mesh if the creature is using a weapon
-    mesh = getDefinition()->getRanAtkMesh();
-    particleScript = getDefinition()->getRanAtkPartScript();
+    // We take the first mesh that fits with range
+    if (mWeaponL != nullptr && mWeaponL->getRange() >= range && (mWeaponL->getPhysicalDamage() > 0.0 || mWeaponL->getMagicalDamage() > 0.0))
+    {
+        mesh = mWeaponL->getRangeMesh();
+        particleScript = mWeaponL->getRangeScript();
+    }
+    else if (mWeaponR != nullptr && mWeaponR->getRange() >= range && (mWeaponR->getPhysicalDamage() > 0.0 || mWeaponR->getMagicalDamage() > 0.0))
+    {
+        mesh = mWeaponR->getRangeMesh();
+        particleScript = mWeaponR->getRangeScript();
+    }
+    else if((mWeaponL == nullptr) || (mWeaponR == nullptr))
+    {
+        // If we are not using any ranged, use the ranged attack
+        mesh = getDefinition()->getRanAtkMesh();
+        particleScript = getDefinition()->getRanAtkPartScript();
+    }
 }
 
 void Creature::checkLevelUp()
@@ -4043,150 +4293,6 @@ bool Creature::setDestination(Tile* tile)
     return true;
 }
 
-bool Creature::fightClosestObjectInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile)
-{
-    if(listObjects.empty())
-        return false;
-
-    // We check if we are at the best range of our foe. That will allow ranged units to hit and run
-    Tile* tileCreature = getPositionTile();
-    if(tileCreature == nullptr)
-        return false;
-
-    // We try to find the closest enemy object
-    Tile* tile = nullptr;
-    GameEntity* gameEntity = getGameMap()->getClosestTileWhereGameEntityFromList(listObjects, tileCreature, tile);
-    if(gameEntity == nullptr)
-        return false;
-
-    // Now that we found the closest enemy, we move to attack
-    std::list<Tile*> tempPath;
-    if(!getGameMap()->pathToBestFightingPosition(tempPath, this, tile))
-    {
-        // We couldn't find a way to the foe. We wander somewhere else
-        popAction();
-        wanderRandomly(EntityAnimation::walk_anim);
-        return true;
-    }
-
-    // If we are already on the good tile, we can attack
-    if(tempPath.empty())
-    {
-        // We are in a good spot. We can attack
-        attackedTile = tile;
-        attackedEntity = gameEntity;
-        return true;
-    }
-
-    // We have to move to the attacked tile. If we are 1 tile from our foe (tempPath contains 2 values), before
-    // moving, we check if he is moving to the same tile as we are. If yes, we don't move
-    // to avoid 2 creatures going to each others tiles for ages
-    if((tempPath.size() == 2) && (gameEntity->getObjectType() == GameEntityType::creature))
-    {
-        Creature* attackedCreature = static_cast<Creature*>(gameEntity);
-        if(!attackedCreature->mWalkQueue.empty())
-        {
-            Ogre::Vector3 attackedCreatureDest = attackedCreature->mWalkQueue.front();
-            int x = Helper::round(attackedCreatureDest.x);
-            int y = Helper::round(attackedCreatureDest.y);
-            Tile* tileAttackedCreatureDest = getGameMap()->getTile(x, y);
-            Tile* tileDest = tempPath.back();
-            if(tileAttackedCreatureDest == tileDest)
-            {
-                // We are going to the same tile. We do nothing
-                return true;
-            }
-        }
-    }
-
-    std::vector<Ogre::Vector3> path;
-    tileToVector3(tempPath, path, true, 0.0);
-    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-    pushAction(CreatureActionType::walkToTile, false, true);
-    return true;
-}
-
-bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile)
-{
-    if(listObjects.empty())
-        return false;
-
-    // We check if we are at the best range of our foe. That will allow ranged units to hit and run
-    Tile* tileCreature = getPositionTile();
-    if(tileCreature == nullptr)
-        return false;
-
-    // We try to find the closest enemy object within attack range
-    GameEntity* closestEnemyEntity = nullptr;
-    Tile* closestEnemyTile = nullptr;
-    double closestEnemyDist = 0.0;
-    Tile* closestNotInRangeEnemyTile = nullptr;
-    double closestNotInRangeEnemyDist = 0.0;
-
-    // Use the weapon range when equipped, and the natural one when not.
-    double weaponRangeSquared = getBestAttackRange();
-    weaponRangeSquared *= weaponRangeSquared;
-
-    // Loop over the enemyObjectsToCheck and add any within range to the tempVector.
-    for (std::vector<GameEntity*>::const_iterator it = listObjects.begin(); it != listObjects.end(); ++it)
-    {
-        GameEntity* gameEntity = *it;
-        std::vector<Tile*> tiles = gameEntity->getCoveredTiles();
-        for(std::vector<Tile*>::iterator itTile = tiles.begin(); itTile != tiles.end(); ++itTile)
-        {
-            Tile *tempTile = *itTile;
-            if (tempTile == nullptr)
-                continue;
-
-            double rSquared = std::pow(tileCreature->getX() - tempTile->getX(), 2.0)
-                            + std::pow(tileCreature->getY() - tempTile->getY(), 2.0);
-
-            if (rSquared <= weaponRangeSquared)
-            {
-                if((closestEnemyTile == nullptr) ||
-                   (rSquared < closestEnemyDist))
-                {
-                    closestEnemyDist = rSquared;
-                    closestEnemyTile = tempTile;
-                    closestEnemyEntity = gameEntity;
-                }
-            }
-            else
-            {
-                if((closestNotInRangeEnemyTile == nullptr) ||
-                   (rSquared < closestNotInRangeEnemyDist))
-                {
-                    closestNotInRangeEnemyDist = rSquared;
-                    closestNotInRangeEnemyTile = tempTile;
-                }
-            }
-        }
-    }
-
-    if(closestEnemyEntity != nullptr)
-    {
-        attackedEntity = closestEnemyEntity;
-        attackedTile = closestEnemyTile;
-        return true;
-    }
-
-    // There is no enemy in range. We move to the closest non reachable
-    std::list<Tile*> tempPath;
-    if(!getGameMap()->pathToBestFightingPosition(tempPath, this, closestNotInRangeEnemyTile))
-    {
-        // We couldn't find a way to the foe. We wander somewhere else
-        popAction();
-        wanderRandomly(EntityAnimation::walk_anim);
-        return true;
-    }
-
-    std::vector<Ogre::Vector3> path;
-    tileToVector3(tempPath, path, true, 0.0);
-    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-    pushAction(CreatureActionType::walkToTile, false, true);
-    return true;
-}
-
 bool Creature::wanderRandomly(const std::string& animationState)
 {
     // We pick randomly a visible tile far away (at the end of visible tiles)
@@ -4933,6 +5039,29 @@ void Creature::setSeatPrison(Seat* seat)
 
     mSeatPrison = seat;
     mNeedFireRefresh = true;
+}
+
+bool Creature::isMelee() const
+{
+    return (mPhyAtkMel > 0.0) || (mMagAtkMel > 0.0);
+}
+
+bool Creature::isRange() const
+{
+    double range = getBestAttackRange();
+    if(range <= 1.0)
+        return false;
+
+    return (getPhysicalDamage(range) > 0.0) || (getMagicalDamage(range) > 0.0);
+}
+
+bool Creature::shouldFleeFrom(const Creature* creature, int distance) const
+{
+    if(getDefinition()->isWorker())
+        return false;
+
+    // If the creature is not melee and we are at melee distance, it should flee
+    return ((distance <= 1) && !creature->isMelee());
 }
 
 void Creature::clientUpkeep()

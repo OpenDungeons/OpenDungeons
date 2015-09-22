@@ -227,6 +227,10 @@ class GameEntity : public EntityBase
     virtual void notifyCarryMove(const Ogre::Vector3& position)
     { mPosition = position; }
 
+    //! \brief Returns true if the given enemy creature should flee from this
+    virtual bool shouldFleeFrom(const Creature* creature, int distance) const
+    { return false; }
+
     //! This function should be called on client side just after the entity is added to the gamemap.
     //! It should restore the entity state (if it was dead before the client got vision, it should
     //! be dead on the ground for example).

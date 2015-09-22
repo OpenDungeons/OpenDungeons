@@ -587,9 +587,9 @@ ProtectDungeonTemple	NULL
 19	13	1	0
 19	15	1	0	1
 19	16	1	0	1
-19	17	1	0	1
-19	18	1	0	1
-19	19	1	0	1
+19	17	5	0
+19	18	5	0
+19	19	5	0
 19	24	2	100
 19	25	2	100
 19	30	1	0	2
@@ -601,7 +601,7 @@ ProtectDungeonTemple	NULL
 20	13	1	0
 20	15	1	0	1
 20	16	1	0	1
-20	17	1	0	1
+20	17	5	0
 20	18	1	0	1
 20	19	1	0	1
 20	24	2	100
@@ -1362,8 +1362,8 @@ DwarfWorker	1
     MeshScaleY	0.8
     MeshScaleZ	0.8
     BedMeshName	DragonBed
-    BedDimX	2
-    BedDimY	2
+    BedDim	1	1
+    BedPos	1	1	0	-1
     MinHP	50
     HP/Level	10
     Heal/Turn	0.5
@@ -1391,11 +1391,17 @@ DwarfWorker	1
     MagicalDef/Level	0
     AttackRange	1
     AtkRange/Level	0
+    PhyAtkRan	0
+    PhyAtkRan/Level	0
+    MagAtkRan	0
+    MagAtkRan/Level	0
+    RangeMesh	none	none
     AttackWarmupTime	1.5
     WeakCoef	0
     FeeBase	0
     FeePerLevel	0
     SleepHeal	1
+    TurnsStunDropped	0
     WeaponSpawnL	none
     WeaponSpawnL	none
     SoundFamilyPickup	Default/Pickup
@@ -1433,6 +1439,7 @@ DwarfWorker	1
     Range	10
     PhysicalDefense	1
     MagicalDefense	0
+    RangeMesh	Cannonball	MissileMagic
     [/Stats]
 [/Equipment]
 [/EquipmentDefinitions]
