@@ -453,11 +453,6 @@ public:
     //! \brief Searches for a worker owned by the seat for path finding
     Creature* getWorkerForPathFinding(Seat* seat);
 
-    //! \brief Finds a path for the creature to the best tile within range from target
-    //! Returns true and path will contain the path if a path is found.
-    //! Returns false otherwise
-    bool pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creature* attackingCreature, Tile* attackedTile);
-
     uint32_t getMaxNumberCreatures(Seat* seat) const;
 
     void logFloodFileTiles();

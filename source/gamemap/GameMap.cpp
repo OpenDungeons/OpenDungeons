@@ -2786,67 +2786,6 @@ Creature* GameMap::getWorkerForPathFinding(Seat* seat)
     return nullptr;
 }
 
-bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creature* attackingCreature,
-    Tile* attackedTile)
-{
-    // First, we search the tiles from where we can attack as far as possible
-    Tile* tileCreature = attackingCreature->getPositionTile();
-    if((tileCreature == nullptr) || (attackedTile == nullptr))
-        return false;
-
-    double range = attackingCreature->getBestAttackRange();
-
-    std::vector<Tile*> possibleTiles;
-    while(possibleTiles.empty() && range >= 0)
-    {
-        for(int i = -range; i <= range; ++i)
-        {
-            int diffY = range - std::abs(i);
-            Tile* tile;
-            tile = getTile(attackedTile->getX() + i, attackedTile->getY() + diffY);
-            if(tile != nullptr && pathExists(attackingCreature, tileCreature, tile))
-                possibleTiles.push_back(tile);
-
-            if(diffY == 0)
-                continue;
-
-            tile = getTile(attackedTile->getX() + i, attackedTile->getY() - diffY);
-            if(tile != nullptr && pathExists(attackingCreature, tileCreature, tile))
-                possibleTiles.push_back(tile);
-        }
-
-        // If we could find no tile within range, we decrease range and search again
-        if(possibleTiles.empty())
-            --range;
-    }
-
-    // If we found no tile, return empty list
-    if(possibleTiles.empty())
-        return false;
-
-    // To find the closest tile, we only consider distance to avoid too complex
-    Tile* closestTile = *possibleTiles.begin();
-    double shortestDist = std::pow(static_cast<double>(std::abs(closestTile->getX() - tileCreature->getX())), 2);
-    shortestDist += std::pow(static_cast<double>(std::abs(closestTile->getY() - tileCreature->getY())), 2);
-    for(std::vector<Tile*>::iterator it = (possibleTiles.begin() + 1); it != possibleTiles.end(); ++it)
-    {
-        Tile* tile = *it;
-        double dist = std::pow(static_cast<double>(std::abs(tile->getX() - tileCreature->getX())), 2);
-        dist += std::pow(static_cast<double>(std::abs(tile->getY() - tileCreature->getY())), 2);
-        if(dist < shortestDist)
-        {
-            shortestDist = dist;
-            closestTile = tile;
-        }
-    }
-
-    if(tileCreature == closestTile)
-        return true;
-
-    pathToTarget = path(attackingCreature, closestTile);
-    return true;
-}
-
 void GameMap::updateVisibleEntities()
 {
     // Notify what happened to entities on visible tiles
