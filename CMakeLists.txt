@@ -245,6 +245,9 @@ set(OD_SOURCEFILES
     ${SRC}/creaturemood/CreatureMoodHpLoss.cpp
     ${SRC}/creaturemood/CreatureMoodTurnsWithoutFight.cpp
 
+    ${SRC}/creatureskill/CreatureSkill.cpp
+    ${SRC}/creatureskill/CreatureSkillHealSelf.cpp
+
     ${SRC}/entities/Building.cpp
     ${SRC}/entities/BuildingObject.cpp
     ${SRC}/entities/ChickenEntity.cpp

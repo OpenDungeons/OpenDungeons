@@ -19,9 +19,8 @@
 
 #include "creatureeffect/CreatureEffect.h"
 #include "creatureeffect/CreatureEffectSlap.h"
-
 #include "creaturemood/CreatureMood.h"
-
+#include "creatureskill/CreatureSkill.h"
 #include "entities/ChickenEntity.h"
 #include "entities/CreatureAction.h"
 #include "entities/CreatureDefinition.h"
@@ -29,39 +28,28 @@
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
 #include "entities/Weapon.h"
-
 #include "game/Player.h"
 #include "game/Research.h"
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
-
 #include "giftboxes/GiftBoxResearch.h"
-
 #include "network/ODClient.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
-
 #include "render/CreatureOverlayStatus.h"
 #include "render/RenderManager.h"
-
 #include "rooms/RoomCrypt.h"
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomDormitory.h"
-
 #include "sound/SoundEffectsManager.h"
-
 #include "spells/Spell.h"
 #include "spells/SpellType.h"
-
 #include "traps/Trap.h"
-
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
-
 
 #include <CEGUI/System.h>
 #include <CEGUI/WindowManager.h>
@@ -963,6 +951,36 @@ void Creature::doUpkeep()
     }
 
     ++mNbTurnsWithoutBattle;
+
+    bool isWarmUp = false;
+    // We use creature skills if we can
+    for(CreatureSkillData& skillData : mSkillData)
+    {
+        if(skillData.mWarmup > 0)
+        {
+            --skillData.mWarmup;
+            isWarmUp = true;
+        }
+
+        if(skillData.mCooldown > 0)
+        {
+            --skillData.mCooldown;
+            continue;
+        }
+
+        if(!skillData.mSkill->canBeUsedBy(this))
+            continue;
+
+        if(skillData.mSkill->tryUseSupport(*getGameMap(), this))
+        {
+            skillData.mCooldown = skillData.mSkill->getCooldownNbTurns();
+            skillData.mWarmup = skillData.mSkill->getWarmupNbTurns();
+        }
+    }
+
+    // If a warmup is active, we do nothing
+    if(isWarmUp)
+        return;
 
     decidePrioritaryAction();
 
@@ -2847,8 +2865,15 @@ bool Creature::getBestTargetInList(const std::vector<GameEntity*>& listObjects, 
         if((entityAttackCheck == nullptr) || (tileAttackCheck == nullptr))
             continue;
 
+        // We check if we are supposed to flee from this entity
+        if((entityFlee == nullptr) && entityAttackCheck->shouldScare(this, closestDistCheck))
+            entityFlee = entityAttackCheck;
+
         // If we found a suitable enemy, we check if we can attack it
-        double range = getBestAttackRange();
+        double range = getHighestAttackRange(entityAttackCheck);
+        if(range <= 0)
+            continue;
+
         // We check if we can attack from somewhere. To do that, we check
         // from the creature point of view if there is a tile with visibility within range
         int distAttack = -1;
@@ -2872,8 +2897,6 @@ bool Creature::getBestTargetInList(const std::vector<GameEntity*>& listObjects, 
             tileAttack = tileAttackCheck;
             closestDist = closestDistCheck;
             // We don't break because there might be a better spot
-            if((entityFlee == nullptr) && (entityAttackCheck->shouldFleeFrom(this, closestDist)))
-                entityFlee = entityAttackCheck;
         }
     }
 
@@ -3504,7 +3527,7 @@ double Creature::getMagicalDefense() const
     return defense;
 }
 
-double Creature::getBestAttackRange() const
+double Creature::getHighestAttackRange(GameEntity* entityAttack) const
 {
     double range = mWeaponlessAtkRange;
 
@@ -4657,6 +4680,15 @@ void Creature::setupDefinition(GameMap& gameMap, const CreatureDefinition& defau
         }
     }
 
+    if(getIsOnServerMap())
+    {
+        for(const CreatureSkill* skill : mDefinition->getCreatureSkills())
+        {
+            CreatureSkillData skillData(skill, skill->getCooldownNbTurns(), 0);
+            mSkillData.push_back(skillData);
+        }
+    }
+
     buildStats();
 
     // Now, the max hp is known. If needed, we set it
@@ -5041,27 +5073,13 @@ void Creature::setSeatPrison(Seat* seat)
     mNeedFireRefresh = true;
 }
 
-bool Creature::isMelee() const
-{
-    return (mPhyAtkMel > 0.0) || (mMagAtkMel > 0.0);
-}
-
-bool Creature::isRange() const
-{
-    double range = getBestAttackRange();
-    if(range <= 1.0)
-        return false;
-
-    return (getPhysicalDamage(range) > 0.0) || (getMagicalDamage(range) > 0.0);
-}
-
-bool Creature::shouldFleeFrom(const Creature* creature, int distance) const
+bool Creature::shouldScare(const Creature* creature, int distance) const
 {
     if(getDefinition()->isWorker())
         return false;
 
     // If the creature is not melee and we are at melee distance, it should flee
-    return ((distance <= 1) && !creature->isMelee());
+    return ((distance <= 1) && (mPhyAtkMel <= 0.0) && (mMagAtkMel <= 0.0));
 }
 
 void Creature::clientUpkeep()

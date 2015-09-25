@@ -228,7 +228,7 @@ class GameEntity : public EntityBase
     { mPosition = position; }
 
     //! \brief Returns true if the given enemy creature should flee from this
-    virtual bool shouldFleeFrom(const Creature* creature, int distance) const
+    virtual bool shouldScare(const Creature* creature, int distance) const
     { return false; }
 
     //! This function should be called on client side just after the entity is added to the gamemap.

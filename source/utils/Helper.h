@@ -99,6 +99,8 @@ namespace Helper
     int round(double d);
     int round(float d);
 
+    void trim(std::string& str);
+
     //! \brief Fills listDir with the absolute path of directories in the given directory.
     //! Returns true on success, false otherwise
     bool fillDirList(const std::string& path,

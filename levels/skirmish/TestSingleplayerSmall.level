@@ -1420,6 +1420,10 @@ DwarfWorker	1
     # 21-30
     379	409	440	473	506	540	576	613	650	700
     [/XP]
+    [CreatureSkills]
+    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	EffectValue
+    HealSelf	30	5	1	5	1
+    [/CreatureSkills]
 [/Creature]
 [/CreatureDefinitions]
 
@@ -1449,6 +1453,7 @@ DwarfWorker	1
 1	DefaultWorker1	Kobold.mesh	11	11	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 2	DefaultWorker2	Kobold.mesh	12	39	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 1	BigKnight1	BigKnight	7	7	0	BigKnight	1	0	10	100	0	0	Longsword	none	0	none	0
+1	BigDragon1	BigDragon	7	9	0	BigDragon	1	0	10	100	0	0	none	none	0	none	0
 1	Adventurer2	Adventurer	7	8	0	Adventurer	1	0	10	100	0	0	none	SpecialStaff	0	none	0
 2	Adventurer3	Adventurer	7	40	0	Adventurer	1	0	10	100	0	0	none	none	0	none	0
 0	Dragon1	BigDragon	9	5	0	BigDragon	1	0	max	100	0	0	none	none	0	none	0

@@ -24,6 +24,7 @@
 #include <iosfwd>
 #include <cstdint>
 
+class CreatureSkill;
 class ODPacket;
 
 enum class RoomType;
@@ -127,67 +128,11 @@ public:
             int32_t                 feeBase             = 0,
             int32_t                 feePerLevel         = 0,
             int32_t                 sleepHeal           = 1.0,
-            int32_t                 turnsStunDropped    = 0) :
-        mCreatureJob (job),
-        mClassName   (className),
-        mMeshName    (meshName),
-        mBedMeshName (bedMeshName),
-        mBedDim1     (bedDim1),
-        mBedDim2     (bedDim2),
-        mBedPosX     (bedPosX),
-        mBedPosY     (bedPosY),
-        mBedOrientX  (bedOrientX),
-        mBedOrientY  (bedOrientY),
-        mScale       (scale),
-        mSightRadius (sightRadius),
-        mMaxGoldCarryable (maxGoldCarryable),
-        mDigRate     (digRate),
-        mDigRatePerLevel (digRatePerLevel),
-        mClaimRate   (claimRate),
-        mClaimRatePerLevel(claimRatePerLevel),
-        mMinHP       (minHP),
-        mHpPerLevel  (hpPerLevel),
-        mHpHealPerTurn      (hpHealPerTurn),
-        mAwakenessLostPerTurn(awakenessLostPerTurn),
-        mHungerGrowthPerTurn(hungerGrowthPerTurn),
-        mMoveSpeedGround    (moveSpeedGround),
-        mMoveSpeedWater     (moveSpeedWater),
-        mMoveSpeedLava      (moveSpeedLava),
-        mGroundSpeedPerLevel(groundSpeedPerLevel),
-        mWaterSpeedPerLevel (waterSpeedPerLevel),
-        mLavaSpeedPerLevel  (lavaSpeedPerLevel),
-        mPhyAtkMel          (phyAtkMel),
-        mPhyAtkMelPerLvl    (phyAtkMelPerLvl),
-        mMagAtkMel          (magAtkMel),
-        mMagAtkMelPerLvl    (magAtkMelPerLvl),
-        mPhysicalDefense    (physicalDefense),
-        mPhysicalDefPerLevel(physicalDefPerLevel),
-        mMagicalDefense     (magicalDefense),
-        mMagicalDefPerLevel (magicalDefPerLevel),
-        mAttackRange        (attackRange),
-        mAtkRangePerLevel   (atkRangePerLevel),
-        mPhyAtkRan          (phyAtkRan),
-        mPhyAtkRanPerLvl    (phyAtkRanPerLvl),
-        mMagAtkRan          (magAtkRan),
-        mMagAtkRanPerLvl    (magAtkRanPerLvl),
-        mRanAtkMesh         (ranAtkMesh),
-        mRanAtkPartScript   (ranAtkPartScript),
-        mAttackWarmupTime   (attackWarmupTime),
-        mWeakCoef           (weakCoef),
-        mFeeBase            (feeBase),
-        mFeePerLevel        (feePerLevel),
-        mSleepHeal          (sleepHeal),
-        mTurnsStunDropped   (turnsStunDropped),
-        mWeaponSpawnL       ("none"),
-        mWeaponSpawnR       ("none"),
-        mSoundFamilyPickup  ("Default/Pickup"),
-        mSoundFamilyDrop    ("Default/Drop"),
-        mSoundFamilyAttack  ("Default/Attack"),
-        mSoundFamilyDie     ("Default/Die"),
-        mSoundFamilySlap    ("Default/Slap")
-    {
-        mXPTable.assign(MAX_LEVEL - 1, 100.0);
-    }
+            int32_t                 turnsStunDropped    = 0);
+
+    CreatureDefinition(const CreatureDefinition& def);
+
+    virtual ~CreatureDefinition();
 
     static CreatureJob creatureJobFromString(const std::string& s);
     static std::string creatureJobToString(CreatureJob c);
@@ -282,6 +227,9 @@ public:
     //! sorted so that highest likeness is at first
     inline const std::vector<CreatureRoomAffinity>& getRoomAffinity() const
     { return mRoomAffinity; }
+
+    inline const std::vector<const CreatureSkill*>& getCreatureSkills() const
+    { return mCreatureSkills; }
 
     const CreatureRoomAffinity& getRoomAffinity(RoomType roomType) const;
 
@@ -418,6 +366,9 @@ private:
     //! \note The creature starting at level 1, it can only change its level MAX_LEVEL - 1 times.
     std::vector<double> mXPTable;
 
+    //! \brief Skills the creature can use
+    std::vector<const CreatureSkill*> mCreatureSkills;
+
     //! \brief The rooms the creature should choose according to availability
     std::vector<CreatureRoomAffinity> mRoomAffinity;
 
@@ -434,6 +385,9 @@ private:
 
     //! \brief Loads the creature XP values for the given definition.
     static void loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef);
+
+    //! \brief Loads the creature XP values for the given definition.
+    static void loadCreatureSkills(std::stringstream& defFile, CreatureDefinition* creatureDef);
 
     //! \brief Loads the creature room affinity for the given definition.
     static void loadRoomAffinity(std::stringstream& defFile, CreatureDefinition* creatureDef);

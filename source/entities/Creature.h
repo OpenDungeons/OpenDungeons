@@ -37,6 +37,7 @@ class CreatureActionWrapper;
 class CreatureEffect;
 class CreatureDefinition;
 class CreatureOverlayStatus;
+class CreatureSkill;
 class GameMap;
 class ODPacket;
 class Room;
@@ -64,6 +65,21 @@ enum class CreatureSound
     Die,
     Slap,
     Dig
+};
+
+class CreatureSkillData
+{
+public:
+    CreatureSkillData(const CreatureSkill* skill, uint32_t cooldown, uint32_t warmup) :
+        mSkill(skill),
+        mCooldown(cooldown),
+        mWarmup(warmup)
+    {
+    }
+
+    const CreatureSkill* mSkill;
+    uint32_t mCooldown;
+    uint32_t mWarmup;
 };
 
 //! Class used on server side to link creature effects (spells, slap, ...) with particle effects
@@ -245,9 +261,9 @@ public:
     double getMagicalDamage(double range) const;
     double getMagicalDefense() const;
 
-    //! \brief Returns the currently best attack range of the creature.
+    //! \brief Returns the currently highest attack range of the creature.
     //! \note Depends also on its equipment.
-    double getBestAttackRange() const;
+    double getHighestAttackRange(GameEntity* entityAttack) const;
 
     //! \brief Fills the mesh/particle script for the creature
     void getRangeAtkMesh(float range, std::string& mesh, std::string& particleScript) const;
@@ -475,9 +491,7 @@ public:
 
     bool isMelee() const;
 
-    bool isRange() const;
-
-    virtual bool shouldFleeFrom(const Creature* creature, int distance) const override;
+    virtual bool shouldScare(const Creature* creature, int distance) const override;
 
     virtual void clientUpkeep() override;
 
@@ -661,6 +675,9 @@ private:
     //! \brief If nullptr, the creature is not in prison. If not, it is in the prison of
     //! the given seat
     Seat*                           mSeatPrison;
+
+    //! \brief Skills the creature can use
+    std::vector<CreatureSkillData> mSkillData;
 
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
