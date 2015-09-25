@@ -3908,11 +3908,11 @@ std::string Creature::getStatsText()
     if(mWeaponL == nullptr)
         tempSS << "Left hand: none" << std::endl;
     else
-        tempSS << "Left hand: " << mWeaponL->getName() << "-Atk(Phy/Mag): " << mWeaponL->getPhysicalDamage() << "/" << mWeaponL->getMagicalDamage() << ", Range: " << mWeaponL->getRange() << std::endl;
+        tempSS << "Left hand: " << mWeaponL->getName() << "-Atk(Phy/Mag): " << mWeaponL->getPhysicalDamage() << "/" << mWeaponL->getMagicalDamage() << std::endl;
     if(mWeaponR == nullptr)
         tempSS << "Right hand: none" << std::endl;
     else
-        tempSS << "Right hand: " << mWeaponR->getName() << "-Atk(Phy/Mag): " << mWeaponR->getPhysicalDamage() << "/" << mWeaponR->getMagicalDamage() << ", Range: " << mWeaponR->getRange() << std::endl;
+        tempSS << "Right hand: " << mWeaponR->getName() << "-Atk(Phy/Mag): " << mWeaponR->getPhysicalDamage() << "/" << mWeaponR->getMagicalDamage() << std::endl;
     tempSS << "Total Defense (Phys/Mag): " << getPhysicalDefense() << "/" << getMagicalDefense() << std::endl;
     if (getDefinition()->isWorker())
     {

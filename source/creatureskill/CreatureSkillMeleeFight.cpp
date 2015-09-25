@@ -19,6 +19,7 @@
 
 #include "entities/Creature.h"
 #include "entities/Tile.h"
+#include "entities/Weapon.h"
 #include "gamemap/GameMap.h"
 #include "sound/SoundEffectsManager.h"
 #include "utils/Helper.h"
@@ -46,6 +47,16 @@ bool CreatureSkillMeleeFight::tryUseFight(GameMap& gameMap, Creature* creature, 
     double level = static_cast<double>(creature->getLevel());
     double phyAtk = mPhyAtk + (level * mPhyAtkPerLvl);
     double magAtk = mMagAtk + (level * mMagAtkPerLvl);
+    if(creature->getWeaponL() != nullptr)
+    {
+        phyAtk +=creature->getWeaponL()->getPhysicalDamage();
+        magAtk +=creature->getWeaponL()->getMagicalDamage();
+    }
+    if(creature->getWeaponR() != nullptr)
+    {
+        phyAtk +=creature->getWeaponR()->getPhysicalDamage();
+        magAtk +=creature->getWeaponR()->getMagicalDamage();
+    }
     attackedObject->takeDamage(creature, phyAtk, magAtk, attackedTile, false, false);
 
     return true;

@@ -33,7 +33,6 @@ public:
        mName(name),
        mPhysicalDamage(0.0),
        mMagicalDamage(0.0),
-       mRange(0.0),
        mPhysicalDefense(0.0),
        mMagicalDefense(0.0)
     {}
@@ -65,20 +64,11 @@ public:
     inline double getMagicalDamage() const
     { return mMagicalDamage; }
 
-    inline double getRange() const
-    { return mRange; }
-
     inline double getPhysicalDefense() const
     { return mPhysicalDefense; }
 
     inline double getMagicalDefense() const
     { return mMagicalDefense; }
-
-    inline const std::string& getRangeMesh() const
-    { return mRangeMesh; }
-
-    inline const std::string& getRangeScript() const
-    { return mRangeScript; }
 
     friend ODPacket& operator <<(ODPacket& os, const Weapon *weapon);
     friend ODPacket& operator >>(ODPacket& is, Weapon *weapon);
@@ -87,7 +77,6 @@ private:
     Weapon() :
        mPhysicalDamage(0.0),
        mMagicalDamage(0.0),
-       mRange(0.0),
        mPhysicalDefense(0.0),
        mMagicalDefense(0.0)
     {}
@@ -98,11 +87,8 @@ private:
     std::string     mMeshName;
     double          mPhysicalDamage;
     double          mMagicalDamage;
-    double          mRange;
     double          mPhysicalDefense;
     double          mMagicalDefense;
-    std::string     mRangeMesh;
-    std::string     mRangeScript;
 };
 
 #endif // WEAPON_H

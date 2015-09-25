@@ -1484,10 +1484,8 @@ DwarfWorker	1
     MeshName	Staff.mesh
     PhysicalDamage	12
     MagicalDamage	0
-    Range	10
     PhysicalDefense	1
     MagicalDefense	0
-    RangeMesh	Cannonball	MissileMagic
     [/Stats]
 [/Equipment]
 [/EquipmentDefinitions]
