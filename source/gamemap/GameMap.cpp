@@ -2162,7 +2162,7 @@ bool GameMap::doFloodFill(Seat* seat, Tile* tile)
     // If a neigboor is colored with the same colors, we color the tile
     for(Tile* neigh : tile->getAllNeighbors())
     {
-        switch(neigh->getType())
+        switch(tile->getType())
         {
             case TileType::dirt:
             case TileType::gold:

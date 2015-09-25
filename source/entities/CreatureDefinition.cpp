@@ -1142,6 +1142,9 @@ void CreatureDefinition::loadCreatureSkills(std::stringstream& defFile, Creature
             break;
 
         Helper::trim(nextParam);
+        if(nextParam.empty())
+            continue;
+
         if (nextParam == "[/CreatureSkills]" || nextParam == "[/Stats]" ||
             nextParam == "[/Creature]" || nextParam == "[/Creatures]")
         {

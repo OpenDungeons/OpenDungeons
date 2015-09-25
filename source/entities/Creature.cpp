@@ -2782,7 +2782,7 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
             std::list<Tile*> result = getGameMap()->path(this, tilePosition);
             if(result.empty())
             {
-                OD_LOG_ERR("name" + getName() + ", myTile=" + Tile::displayAsString(myTile) + ", dest=" + Tile::displayAsString(tilePosition));
+                OD_LOG_ERR("name=" + getName() + ", myTile=" + Tile::displayAsString(myTile) + ", dest=" + Tile::displayAsString(tilePosition));
                 return false;
             }
 
