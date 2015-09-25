@@ -942,14 +942,6 @@ void GameMap::createAllEntities()
 {
     mTileSet = ConfigManager::getSingleton().getTileSet(mTileSetName);
 
-    for (Creature* creature : mCreatures)
-    {
-        //Set up definition for creature. This was previously done in createMesh for some reason.
-        creature->setupDefinition(*this, *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
-        //Doesn't do anything currently.
-        //creature->restoreInitialEntityState();
-    }
-
     if(isServerGameMap())
     {
         // Set positions and update active spots

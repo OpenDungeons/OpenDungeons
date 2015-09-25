@@ -24,6 +24,7 @@
 
 class Tile;
 class Creature;
+class CreatureSkillData;
 
 enum class CreatureActionType
 {
@@ -53,7 +54,7 @@ enum class CreatureActionType
 class CreatureAction : public GameEntityListener
 {
 public:
-    CreatureAction(Creature* creature, const CreatureActionType actionType, GameEntity* attackedEntity, Tile* tile);
+    CreatureAction(Creature* creature, const CreatureActionType actionType, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* creatureSkillData);
     virtual ~CreatureAction();
 
     inline const CreatureActionType getType() const
@@ -80,6 +81,9 @@ public:
     inline Tile* getTile() const
     { return mTile; }
 
+    inline CreatureSkillData* getCreatureSkillData() const
+    { return mCreatureSkillData; }
+
     std::string toString() const;
 
     std::string getListenerName() const override;
@@ -94,6 +98,7 @@ private:
     CreatureActionType mActionType;
     GameEntity* mAttackedEntity;
     Tile* mTile;
+    CreatureSkillData* mCreatureSkillData;
     //! Number of turns the action is in the creature pending actions
     int32_t mNbTurns;
     //! Number of turns the action is the one active

@@ -29,6 +29,7 @@ class Tile;
 
 enum class CreatureSkillType
 {
+    Explosion,
     HealSelf,
     nb
 };

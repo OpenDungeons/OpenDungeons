@@ -17,6 +17,7 @@
 
 #include "creatureskill/CreatureSkill.h"
 
+#include "creatureskill/CreatureSkillExplosion.h"
 #include "creatureskill/CreatureSkillHealSelf.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -28,6 +29,8 @@ std::string CreatureSkill::toString(CreatureSkillType type)
 {
     switch(type)
     {
+        case CreatureSkillType::Explosion:
+            return "Explosion";
         case CreatureSkillType::HealSelf:
             return "HealSelf";
         default:
@@ -62,6 +65,11 @@ CreatureSkill* CreatureSkill::load(std::istream& defFile)
         case CreatureSkillType::HealSelf:
         {
             skill = new CreatureSkillHealSelf;
+            break;
+        }
+        case CreatureSkillType::Explosion:
+        {
+            skill = new CreatureSkillExplosion;
             break;
         }
         case CreatureSkillType::nb:

@@ -246,6 +246,7 @@ set(OD_SOURCEFILES
     ${SRC}/creaturemood/CreatureMoodTurnsWithoutFight.cpp
 
     ${SRC}/creatureskill/CreatureSkill.cpp
+    ${SRC}/creatureskill/CreatureSkillExplosion.cpp
     ${SRC}/creatureskill/CreatureSkillHealSelf.cpp
 
     ${SRC}/entities/Building.cpp

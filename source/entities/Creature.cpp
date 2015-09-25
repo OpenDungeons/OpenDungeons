@@ -104,6 +104,7 @@ public:
         mType(action.getType()),
         mAttackedEntity(action.getAttackedEntity()),
         mTile(action.getTile()),
+        mCreatureSkillData(action.getCreatureSkillData()),
         mNbTurns(action.getNbTurns()),
         mNbTurnsActive(action.getNbTurnsActive())
     {
@@ -112,6 +113,7 @@ public:
     const CreatureActionType mType;
     GameEntity* const mAttackedEntity;
     Tile* const mTile;
+    CreatureSkillData* const mCreatureSkillData;
     const int32_t mNbTurns;
     const int32_t mNbTurnsActive;
 };
@@ -2626,6 +2628,14 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
     // Calculate how much damage we do.
     Tile* myTile = getPositionTile();
     float range = Pathfinding::distanceTile(*myTile, *attackedTile);
+    if(actionItem.mCreatureSkillData != nullptr)
+    {
+        // We use the skill
+        actionItem.mCreatureSkillData->mSkill->tryUseFight(*getGameMap(), this, range, attackedObject, attackedTile);
+        actionItem.mCreatureSkillData->mWarmup = actionItem.mCreatureSkillData->mSkill->getWarmupNbTurns();
+        actionItem.mCreatureSkillData->mCooldown = actionItem.mCreatureSkillData->mSkill->getCooldownNbTurns();
+        return false;
+    }
     double physicalDamage = getPhysicalDamage(range);
     double magicalDamage = getMagicalDamage(range);
 
@@ -2758,12 +2768,13 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
         GameEntity* entityAttack = nullptr;
         Tile* tileAttack = nullptr;
         Tile* tilePosition = nullptr;
-        if(getBestTargetInList(enemyPrioritaryTargets, entityAttack, tileAttack, tilePosition))
+        CreatureSkillData* skillData = nullptr;
+        if(getBestTargetInList(enemyPrioritaryTargets, entityAttack, tileAttack, tilePosition, skillData))
         {
             if(myTile == tilePosition)
             {
                 // We can attack
-                pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
+                pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack, skillData);
                 return true;
             }
 
@@ -2791,12 +2802,13 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
         GameEntity* entityAttack = nullptr;
         Tile* tileAttack = nullptr;
         Tile* tilePosition = nullptr;
-        if(getBestTargetInList(enemySecondaryTargets, entityAttack, tileAttack, tilePosition))
+        CreatureSkillData* skillData = nullptr;
+        if(getBestTargetInList(enemySecondaryTargets, entityAttack, tileAttack, tilePosition, skillData))
         {
             if(myTile == tilePosition)
             {
                 // We can attack
-                pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
+                pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack, skillData);
                 return true;
             }
 
@@ -2824,7 +2836,7 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
     return true;
 }
 
-bool Creature::getBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile)
+bool Creature::getBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData)
 {
     Tile* myTile = getPositionTile();
     if(myTile == nullptr)
@@ -2838,6 +2850,7 @@ bool Creature::getBestTargetInList(const std::vector<GameEntity*>& listObjects, 
     // Closest creature
     GameEntity* entityAttack = nullptr;
     Tile* tileAttack = nullptr;
+    CreatureSkillData* skillData = nullptr;
     Tile* tilePosition = nullptr;
     int closestDist = -1;
     // We try to attack creatures first
@@ -2845,6 +2858,7 @@ bool Creature::getBestTargetInList(const std::vector<GameEntity*>& listObjects, 
     {
         GameEntity* entityAttackCheck = nullptr;
         Tile* tileAttackCheck = nullptr;
+        CreatureSkillData* skillDataCheck = nullptr;
         int closestDistCheck = closestDist;
         // We check if this creature is closer than the other one (if any)
         std::vector<Tile*> coveredTiles = entity->getCoveredTiles();
@@ -2871,6 +2885,23 @@ bool Creature::getBestTargetInList(const std::vector<GameEntity*>& listObjects, 
 
         // If we found a suitable enemy, we check if we can attack it
         double range = getHighestAttackRange(entityAttackCheck);
+        for(CreatureSkillData& skillDataTmp : mSkillData)
+        {
+            if(skillDataTmp.mCooldown > 0)
+                continue;
+
+            if(!skillDataTmp.mSkill->canBeUsedBy(this))
+                continue;
+
+            double skillRange = skillDataTmp.mSkill->getRangeMax(entityAttackCheck);
+            if(skillRange <= 0)
+                continue;
+            if(skillRange < range)
+                continue;
+
+            range = skillRange;
+            skillDataCheck = &skillDataTmp;
+        }
         if(range <= 0)
             continue;
 
@@ -2895,6 +2926,7 @@ bool Creature::getBestTargetInList(const std::vector<GameEntity*>& listObjects, 
             tilePosition = tile;
             entityAttack = entityAttackCheck;
             tileAttack = tileAttackCheck;
+            skillData = skillDataCheck;
             closestDist = closestDistCheck;
             // We don't break because there might be a better spot
         }
@@ -2939,6 +2971,7 @@ bool Creature::getBestTargetInList(const std::vector<GameEntity*>& listObjects, 
     {
         attackedEntity = entityAttack;
         attackedTile = tileAttack;
+        creatureSkillData = skillData;
         positionTile = tilePosition;
     }
 
@@ -3336,8 +3369,9 @@ bool Creature::handleFightAlliedNaturalEnemyAction(const CreatureActionWrapper& 
     GameEntity* entityAttack = nullptr;
     Tile* tileAttack = nullptr;
     Tile* tilePosition = nullptr;
+    CreatureSkillData* skillData = nullptr;
     std::vector<GameEntity*> alliedNaturalEnemies = getGameMap()->getNaturalEnemiesInList(this, mReachableAlliedObjects);
-    if(!alliedNaturalEnemies.empty() && getBestTargetInList(alliedNaturalEnemies, entityAttack, tileAttack, tilePosition))
+    if(!alliedNaturalEnemies.empty() && getBestTargetInList(alliedNaturalEnemies, entityAttack, tileAttack, tilePosition, skillData))
     {
         // We found a natural enemy. We stop what we were doing
         clearDestinations(EntityAnimation::idle_anim, true);
@@ -3357,7 +3391,7 @@ bool Creature::handleFightAlliedNaturalEnemyAction(const CreatureActionWrapper& 
         if(myTile == tilePosition)
         {
             // We can attack
-            pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
+            pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack, skillData);
             return true;
         }
 
@@ -3401,8 +3435,9 @@ void Creature::engageAlliedNaturalEnemy(Creature* attackerCreature)
     GameEntity* entityAttack = nullptr;
     Tile* tileAttack = nullptr;
     Tile* tilePosition = nullptr;
+    CreatureSkillData* skillData = nullptr;
     attacker.push_back(attackerCreature);
-    if(getBestTargetInList(attacker, entityAttack, tileAttack, tilePosition))
+    if(getBestTargetInList(attacker, entityAttack, tileAttack, tilePosition, skillData))
     {
         // We defend vs the attacking creature
         clearDestinations(EntityAnimation::idle_anim, true);
@@ -3419,7 +3454,7 @@ void Creature::engageAlliedNaturalEnemy(Creature* attackerCreature)
         if(myTile == tilePosition)
         {
             // We can attack
-            pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack);
+            pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack, skillData);
             return;
         }
 
@@ -4172,10 +4207,10 @@ void Creature::clearActionQueue()
     if(mCarriedEntity != nullptr)
         releaseCarriedEntity();
 
-    mActionQueue.emplace_front(this, CreatureActionType::idle, nullptr, nullptr);
+    mActionQueue.emplace_front(this, CreatureActionType::idle, nullptr, nullptr, nullptr);
 }
 
-bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity, Tile* tile)
+bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* skillData)
 {
     if(std::find(mActionTry.begin(), mActionTry.end(), actionType) == mActionTry.end())
     {
@@ -4190,7 +4225,7 @@ bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, 
     if(popCurrentIfPush && !mActionQueue.empty())
         mActionQueue.pop_front();
 
-    mActionQueue.emplace_front(this, actionType, attackedEntity, tile);
+    mActionQueue.emplace_front(this, actionType, attackedEntity, tile, skillData);
     return true;
 }
 
