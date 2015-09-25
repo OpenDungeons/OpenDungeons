@@ -240,14 +240,17 @@ public:
 
     virtual bool isAttackable(Tile* tile, Seat* seat) const;
 
-    double getPhysicalDamage(double range);
+    double getPhysicalDamage(double range) const;
     double getPhysicalDefense() const;
-    double getMagicalDamage(double range);
+    double getMagicalDamage(double range) const;
     double getMagicalDefense() const;
 
     //! \brief Returns the currently best attack range of the creature.
     //! \note Depends also on its equipment.
     double getBestAttackRange() const;
+
+    //! \brief Fills the mesh/particle script for the creature
+    void getRangeAtkMesh(float range, std::string& mesh, std::string& particleScript) const;
 
     //! \brief Check whether a creature has earned one level. If yes, handle leveling it up
     void checkLevelUp();
@@ -470,6 +473,12 @@ public:
     inline Seat* getSeatPrison() const
     { return mSeatPrison; }
 
+    bool isMelee() const;
+
+    bool isRange() const;
+
+    virtual bool shouldFleeFrom(const Creature* creature, int distance) const override;
+
     virtual void clientUpkeep() override;
 
     virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const override;
@@ -502,11 +511,13 @@ private:
     Creature(GameMap* gameMap, bool isOnServerMap);
 
     //! \brief Natural physical and magical attack and defense (without equipment)
-    double mPhysicalAttack;
-    double mMagicalAttack;
+    double mPhyAtkMel;
+    double mMagAtkMel;
     double mPhysicalDefense;
     double mMagicalDefense;
     double mWeaponlessAtkRange;
+    double mPhyAtkRan;
+    double mMagAtkRan;
 
     //! \brief The time left before being to draw an attack in seconds
     double mAttackWarmupTime;
@@ -580,8 +591,6 @@ private:
     std::vector<Tile*>              mVisibleMarkedTiles;
 
     std::vector<GameEntity*>        mVisibleEnemyObjects;
-    std::vector<GameEntity*>        mReachableEnemyObjects;
-    std::vector<GameEntity*>        mReachableEnemyCreatures;
     std::vector<GameEntity*>        mVisibleAlliedObjects;
     std::vector<GameEntity*>        mReachableAlliedObjects;
     std::deque<CreatureAction>      mActionQueue;
@@ -665,18 +674,14 @@ private:
     //! Returns false if no reachable Tile was found
     bool wanderRandomly(const std::string& animationState);
 
-    //! \brief Search within listObjects the closest one and handle attacks (by moving or attacking)
-    //! If a foe can be attacked (in this case, a fight action can be pushed), attackedEntity is set to the attackable entity
-    //! and attackedTile to the attacked tile
-    //! returns true if a fitting object is found and false otherwise
-    bool fightClosestObjectInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile);
-
-    //! \brief Search within listObjects if an object is reachable and handle attacks (by moving or attacking)
-    //! canAttackObject is set to true is a foe is in the good range to hit
-    //! If a foe can be attacked (in this case, a fight action can be pushed), attackedEntity is set to the attackable entity
-    //! and attackedTile to the attacked tile
-    //! returns true if a fitting object is found and false otherwise
-    bool fightInRangeObjectInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile);
+    //! \brief Search within listObjects the closest attackable one.
+    //! If a target is found and can be attacked, returns true and
+    //! attackedEntity, attackedTile will be set to the target closest tile and positionTile will
+    //! be set to the best spot.
+    //! If the creature should flee (ranged units attacked by melee), true is returned, positionTile is
+    //! set to the tile where it should flee and attackedEntity = nullptr and attackedTile = nullptr
+    //! If no suitable target is found, returns false
+    bool getBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile);
 
     //! \brief A sub-function called by doTurn()
     //! This one checks if there is something prioritary to do (like fighting). If it is the case,

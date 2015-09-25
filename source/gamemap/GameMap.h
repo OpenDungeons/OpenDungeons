@@ -458,9 +458,6 @@ public:
     //! Returns false otherwise
     bool pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creature* attackingCreature, Tile* attackedTile);
 
-    //! \brief Returns the closest tile from origin where a GameEntity in listObjects is
-    GameEntity* getClosestTileWhereGameEntityFromList(std::vector<GameEntity*> listObjects, Tile* origin, Tile*& attackedTile);
-
     uint32_t getMaxNumberCreatures(Seat* seat) const;
 
     void logFloodFileTiles();

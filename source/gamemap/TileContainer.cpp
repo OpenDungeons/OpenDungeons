@@ -820,8 +820,7 @@ std::vector<Tile*> TileContainer::visibleTiles(int x, int y, int radius)
     int radiusSquared = radius * radius;
 
     // To have all the tiles around, we process mTileDistance 8 times.
-    // Because of the symmetry, there will be some duplicates (horizontal and diagonal
-    // tiles). We will process in, this order (c being the starting tile):
+    // We will process in, this order (c being the starting tile):
     // 514
     // 2c0
     // 637
@@ -933,6 +932,10 @@ std::vector<Tile*> TileContainer::visibleTiles(int x, int y, int radius)
         {
             TileDistanceProcess& tileDistanceProcess = tilesProcess[k][i];
             if(tileDistanceProcess.getTile() == nullptr)
+                continue;
+
+            // We avoid adding several times the center tile
+            if((k > 0) && (tileDistanceProcess.getTileDistance().getDistSquared() == 0))
                 continue;
 
             // Because horizontal tiles are common, we don't process them for the 4 last vectors

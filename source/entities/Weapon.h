@@ -74,6 +74,12 @@ public:
     inline double getMagicalDefense() const
     { return mMagicalDefense; }
 
+    inline const std::string& getRangeMesh() const
+    { return mRangeMesh; }
+
+    inline const std::string& getRangeScript() const
+    { return mRangeScript; }
+
     friend ODPacket& operator <<(ODPacket& os, const Weapon *weapon);
     friend ODPacket& operator >>(ODPacket& is, Weapon *weapon);
 
@@ -95,6 +101,8 @@ private:
     double          mRange;
     double          mPhysicalDefense;
     double          mMagicalDefense;
+    std::string     mRangeMesh;
+    std::string     mRangeScript;
 };
 
 #endif // WEAPON_H

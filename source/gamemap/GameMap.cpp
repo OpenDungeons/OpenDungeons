@@ -2847,38 +2847,6 @@ bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creatur
     return true;
 }
 
-GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntity*> listObjects, Tile* origin, Tile*& attackedTile)
-{
-    if(listObjects.empty())
-        return nullptr;
-
-    GameEntity* closestGameEntity = nullptr;
-    double shortestDist = 0.0;
-    for(std::vector<GameEntity*>::iterator itObj = listObjects.begin(); itObj != listObjects.end(); ++itObj)
-    {
-        GameEntity* gameEntity = *itObj;
-        std::vector<Tile*> tiles = gameEntity->getCoveredTiles();
-        for(Tile* tile : tiles)
-        {
-            if(tile == nullptr)
-            {
-                OD_LOG_ERR("unexpected null tile");
-                continue;
-            }
-            double dist = std::pow(static_cast<double>(std::abs(tile->getX() - origin->getX())), 2);
-            dist += std::pow(static_cast<double>(std::abs(tile->getY() - origin->getY())), 2);
-            if(closestGameEntity == nullptr || dist < shortestDist)
-            {
-                shortestDist = dist;
-                closestGameEntity = gameEntity;
-                attackedTile = tile;
-            }
-        }
-    }
-
-    return closestGameEntity;
-}
-
 void GameMap::updateVisibleEntities()
 {
     // Notify what happened to entities on visible tiles
