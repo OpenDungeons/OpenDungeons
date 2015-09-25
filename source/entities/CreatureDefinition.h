@@ -115,6 +115,7 @@ public:
             double                  physicalDefPerLevel = 0.2,
             double                  magicalDefense      = 1.5,
             double                  magicalDefPerLevel  = 0.1,
+            int32_t                 fightIdleDist       = 1,
             double                  attackRange         = 1.0,
             double                  atkRangePerLevel    = 0.0,
             double                  phyAtkRan           = 0.0,
@@ -189,26 +190,12 @@ public:
     inline double               getWaterSpeedPerLevel () const  { return mWaterSpeedPerLevel; }
     inline double               getLavaSpeedPerLevel  () const  { return mLavaSpeedPerLevel; }
 
-
-    inline double               getPhyAtkMel() const            { return mPhyAtkMel; }
-    inline double               getPhyAtkMelPerLvl () const     { return mPhyAtkMelPerLvl; }
-    inline double               getMagAtkMel  () const          { return mMagAtkMel; }
-    inline double               getMagAtkMelPerLvl () const     { return mMagAtkMelPerLvl; }
     inline double               getPhysicalDefense() const      { return mPhysicalDefense; }
     inline double               getPhysicalDefPerLevel () const { return mPhysicalDefPerLevel; }
     inline double               getMagicalDefense  () const     { return mMagicalDefense; }
     inline double               getMagicalDefPerLevel () const  { return mMagicalDefPerLevel; }
 
-    inline double               getAttackRange      () const    { return mAttackRange; }
-    inline double               getAtkRangePerLevel () const    { return mAtkRangePerLevel; }
-    inline double               getPhyAtkRan() const            { return mPhyAtkRan; }
-    inline double               getPhyAtkRanPerLvl () const     { return mPhyAtkRanPerLvl; }
-    inline double               getMagAtkRan  () const          { return mMagAtkRan; }
-    inline double               getMagAtkRanPerLvl () const     { return mMagAtkRanPerLvl; }
-    inline const std::string&   getRanAtkMesh () const          { return mRanAtkMesh; }
-    inline const std::string&   getRanAtkPartScript () const    { return mRanAtkPartScript; }
-
-    inline double               getAttackWarmupTime () const    { return mAttackWarmupTime; }
+    inline int32_t              getFightIdleDist() const        { return mFightIdleDist; }
 
     inline double               getWeakCoef () const            { return mWeakCoef; }
 
@@ -321,28 +308,14 @@ private:
     double mWaterSpeedPerLevel;
     double mLavaSpeedPerLevel;
 
-    //! \brief Physical and magical attack/defense stats (without equipment)
-    double mPhyAtkMel;
-    double mPhyAtkMelPerLvl;
-    double mMagAtkMel;
-    double mMagAtkMelPerLvl;
+    //! \brief Physical and magical defense stats (without equipment)
     double mPhysicalDefense;
     double mPhysicalDefPerLevel;
     double mMagicalDefense;
     double mMagicalDefPerLevel;
 
-    //! \brief Weapon-less attack range and growth
-    double mAttackRange;
-    double mAtkRangePerLevel;
-    double mPhyAtkRan;
-    double mPhyAtkRanPerLvl;
-    double mMagAtkRan;
-    double mMagAtkRanPerLvl;
-    std::string mRanAtkMesh;
-    std::string mRanAtkPartScript;
-
-    //! \brief The time to wait before dealing a blow, in seconds.
-    double mAttackWarmupTime;
+    //! \brief Distance from the nearest enemy creature that the creature will try to let when no skill can be used
+    int32_t mFightIdleDist;
 
     //! \brief The coefficient applied on hp to check if the creature is weak. It will be
     //! if hp < hpMax * mWeakCoef. A weak creature will flee combat and will try to rest

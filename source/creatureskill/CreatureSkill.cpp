@@ -19,6 +19,8 @@
 
 #include "creatureskill/CreatureSkillExplosion.h"
 #include "creatureskill/CreatureSkillHealSelf.h"
+#include "creatureskill/CreatureSkillMeleeFight.h"
+#include "creatureskill/CreatureSkillMissileLaunch.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -33,6 +35,10 @@ std::string CreatureSkill::toString(CreatureSkillType type)
             return "Explosion";
         case CreatureSkillType::HealSelf:
             return "HealSelf";
+        case CreatureSkillType::Melee:
+            return "Melee";
+        case CreatureSkillType::MissileLaunch:
+            return "MissileLaunch";
         default:
             OD_LOG_ERR("type=" + Helper::toString(static_cast<int>(type)));
             return "";
@@ -70,6 +76,16 @@ CreatureSkill* CreatureSkill::load(std::istream& defFile)
         case CreatureSkillType::Explosion:
         {
             skill = new CreatureSkillExplosion;
+            break;
+        }
+        case CreatureSkillType::Melee:
+        {
+            skill = new CreatureSkillMeleeFight;
+            break;
+        }
+        case CreatureSkillType::MissileLaunch:
+        {
+            skill = new CreatureSkillMissileLaunch;
             break;
         }
         case CreatureSkillType::nb:

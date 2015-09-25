@@ -63,6 +63,7 @@ CreatureDefinition::CreatureDefinition(
             double                  physicalDefPerLevel,
             double                  magicalDefense,
             double                  magicalDefPerLevel,
+            int32_t                 fightIdleDist,
             double                  attackRange,
             double                  atkRangePerLevel,
             double                  phyAtkRan,
@@ -105,23 +106,11 @@ CreatureDefinition::CreatureDefinition(
         mGroundSpeedPerLevel(groundSpeedPerLevel),
         mWaterSpeedPerLevel (waterSpeedPerLevel),
         mLavaSpeedPerLevel  (lavaSpeedPerLevel),
-        mPhyAtkMel          (phyAtkMel),
-        mPhyAtkMelPerLvl    (phyAtkMelPerLvl),
-        mMagAtkMel          (magAtkMel),
-        mMagAtkMelPerLvl    (magAtkMelPerLvl),
         mPhysicalDefense    (physicalDefense),
         mPhysicalDefPerLevel(physicalDefPerLevel),
         mMagicalDefense     (magicalDefense),
         mMagicalDefPerLevel (magicalDefPerLevel),
-        mAttackRange        (attackRange),
-        mAtkRangePerLevel   (atkRangePerLevel),
-        mPhyAtkRan          (phyAtkRan),
-        mPhyAtkRanPerLvl    (phyAtkRanPerLvl),
-        mMagAtkRan          (magAtkRan),
-        mMagAtkRanPerLvl    (magAtkRanPerLvl),
-        mRanAtkMesh         (ranAtkMesh),
-        mRanAtkPartScript   (ranAtkPartScript),
-        mAttackWarmupTime   (attackWarmupTime),
+        mFightIdleDist      (fightIdleDist),
         mWeakCoef           (weakCoef),
         mFeeBase            (feeBase),
         mFeePerLevel        (feePerLevel),
@@ -167,23 +156,11 @@ CreatureDefinition::CreatureDefinition(const CreatureDefinition& def) :
         mGroundSpeedPerLevel(def.mGroundSpeedPerLevel),
         mWaterSpeedPerLevel(def.mWaterSpeedPerLevel),
         mLavaSpeedPerLevel(def.mLavaSpeedPerLevel),
-        mPhyAtkMel(def.mPhyAtkMel),
-        mPhyAtkMelPerLvl(def.mPhyAtkMelPerLvl),
-        mMagAtkMel(def.mMagAtkMel),
-        mMagAtkMelPerLvl(def.mMagAtkMelPerLvl),
         mPhysicalDefense(def.mPhysicalDefense),
         mPhysicalDefPerLevel(def.mPhysicalDefPerLevel),
         mMagicalDefense(def.mMagicalDefense),
         mMagicalDefPerLevel(def.mMagicalDefPerLevel),
-        mAttackRange(def.mAttackRange),
-        mAtkRangePerLevel(def.mAtkRangePerLevel),
-        mPhyAtkRan(def.mPhyAtkRan),
-        mPhyAtkRanPerLvl(def.mPhyAtkRanPerLvl),
-        mMagAtkRan(def.mMagAtkRan),
-        mMagAtkRanPerLvl(def.mMagAtkRanPerLvl),
-        mRanAtkMesh(def.mRanAtkMesh),
-        mRanAtkPartScript(def.mRanAtkPartScript),
-        mAttackWarmupTime(def.mAttackWarmupTime),
+        mFightIdleDist(def.mFightIdleDist),
         mWeakCoef(def.mWeakCoef),
         mFeeBase(def.mFeeBase),
         mFeePerLevel(def.mFeePerLevel),
@@ -279,15 +256,9 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mClaimRate << c->mClaimRatePerLevel;
     os << c->mMoveSpeedGround << c->mMoveSpeedWater << c->mMoveSpeedLava;
     os << c->mGroundSpeedPerLevel << c->mWaterSpeedPerLevel << c->mLavaSpeedPerLevel;
-    os << c->mPhyAtkMel << c->mPhyAtkMelPerLvl;
-    os << c->mMagAtkMel << c->mMagAtkMelPerLvl;
     os << c->mPhysicalDefense << c->mPhysicalDefPerLevel;
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
-    os << c->mAttackRange << c->mAtkRangePerLevel;
-    os << c->mPhyAtkRan << c->mPhyAtkRanPerLvl;
-    os << c->mMagAtkRan << c->mMagAtkRanPerLvl;
-    os << c->mRanAtkMesh << c->mRanAtkPartScript;
-    os << c->mAttackWarmupTime;
+    os << c->mFightIdleDist;
     os << c->mWeakCoef;
     os << c->mFeeBase;
     os << c->mFeePerLevel;
@@ -324,15 +295,9 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mClaimRate >> c->mClaimRatePerLevel;
     is >> c->mMoveSpeedGround >> c->mMoveSpeedWater >> c->mMoveSpeedLava;
     is >> c->mGroundSpeedPerLevel >> c->mWaterSpeedPerLevel >> c->mLavaSpeedPerLevel;
-    is >> c->mPhyAtkMel >> c->mPhyAtkMelPerLvl;
-    is >> c->mMagAtkMel >> c->mMagAtkMelPerLvl;
     is >> c->mPhysicalDefense >> c->mPhysicalDefPerLevel;
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
-    is >> c->mAttackRange >> c->mAtkRangePerLevel;
-    is >> c->mPhyAtkRan >> c->mPhyAtkRanPerLvl;
-    is >> c->mMagAtkRan >> c->mMagAtkRanPerLvl;
-    is >> c->mRanAtkMesh >> c->mRanAtkPartScript;
-    is >> c->mAttackWarmupTime;
+    is >> c->mFightIdleDist;
     is >> c->mWeakCoef;
     is >> c->mFeeBase;
     is >> c->mFeePerLevel;
@@ -612,64 +577,6 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 continue;
             }
 
-            else if (nextParam == "PhyAtkMel")
-            {
-                defFile >> nextParam;
-                creatureDef->mPhyAtkMel = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "PhyAtkMel/Level")
-            {
-                defFile >> nextParam;
-                creatureDef->mPhyAtkMelPerLvl = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "MagAtkMel")
-            {
-                defFile >> nextParam;
-                creatureDef->mMagAtkMel = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "MagAtkMel/Level")
-            {
-                defFile >> nextParam;
-                creatureDef->mMagAtkMelPerLvl = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "PhyAtkRan")
-            {
-                defFile >> nextParam;
-                creatureDef->mPhyAtkRan = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "PhyAtkRan/Level")
-            {
-                defFile >> nextParam;
-                creatureDef->mPhyAtkRanPerLvl = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "MagAtkRan")
-            {
-                defFile >> nextParam;
-                creatureDef->mMagAtkRan = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "MagAtkRan/Level")
-            {
-                defFile >> nextParam;
-                creatureDef->mMagAtkRanPerLvl = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "RangeMesh")
-            {
-                defFile >> nextParam;
-                if(nextParam != "none")
-                    creatureDef->mRanAtkMesh = nextParam;
-                defFile >> nextParam;
-                if(nextParam != "none")
-                    creatureDef->mRanAtkPartScript = nextParam;
-                continue;
-            }
             else if (nextParam == "PhysicalDefense")
             {
                 defFile >> nextParam;
@@ -694,22 +601,10 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mMagicalDefPerLevel = Helper::toDouble(nextParam);
                 continue;
             }
-            else if (nextParam == "AttackRange")
+            else if (nextParam == "FightIdleDist")
             {
                 defFile >> nextParam;
-                creatureDef->mAttackRange = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "AtkRange/Level")
-            {
-                defFile >> nextParam;
-                creatureDef->mAtkRangePerLevel = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "AttackWarmupTime")
-            {
-                defFile >> nextParam;
-                creatureDef->mAttackWarmupTime = Helper::toDouble(nextParam);
+                creatureDef->mFightIdleDist = Helper::toInt(nextParam);
                 continue;
             }
             else if (nextParam == "WeakCoef")
@@ -893,18 +788,6 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
     if(def1 == nullptr || (def1->mLavaSpeedPerLevel != def2->mLavaSpeedPerLevel))
         file << "    LavaSpeed/Level\t" << def2->mLavaSpeedPerLevel << std::endl;
 
-    if(def1 == nullptr || (def1->mPhyAtkMel != def2->mPhyAtkMel))
-        file << "    PhyAtkMel\t" << def2->mPhyAtkMel << std::endl;
-
-    if(def1 == nullptr || (def1->mPhyAtkMelPerLvl != def2->mPhyAtkMelPerLvl))
-        file << "    PhyAtkMel/Level\t" << def2->mPhyAtkMelPerLvl << std::endl;
-
-    if(def1 == nullptr || (def1->mMagAtkMel != def2->mMagAtkMel))
-        file << "    MagAtkMel\t" << def2->mMagAtkMel << std::endl;
-
-    if(def1 == nullptr || (def1->mMagAtkMelPerLvl != def2->mMagAtkMelPerLvl))
-        file << "    MagAtkMel/Level\t" << def2->mMagAtkMelPerLvl << std::endl;
-
     if(def1 == nullptr || (def1->mPhysicalDefense != def2->mPhysicalDefense))
         file << "    PhysicalDefense\t" << def2->mPhysicalDefense << std::endl;
 
@@ -917,43 +800,8 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
     if(def1 == nullptr || (def1->mMagicalDefPerLevel != def2->mMagicalDefPerLevel))
         file << "    MagicalDef/Level\t" << def2->mMagicalDefPerLevel << std::endl;
 
-    if(def1 == nullptr || (def1->mAttackRange != def2->mAttackRange))
-        file << "    AttackRange\t" << def2->mAttackRange << std::endl;
-
-    if(def1 == nullptr || (def1->mAtkRangePerLevel != def2->mAtkRangePerLevel))
-        file << "    AtkRange/Level\t" << def2->mAtkRangePerLevel << std::endl;
-
-    if(def1 == nullptr || (def1->mPhyAtkRan != def2->mPhyAtkRan))
-        file << "    PhyAtkRan\t" << def2->mPhyAtkRan << std::endl;
-
-    if(def1 == nullptr || (def1->mPhyAtkRanPerLvl != def2->mPhyAtkRanPerLvl))
-        file << "    PhyAtkRan/Level\t" << def2->mPhyAtkRanPerLvl << std::endl;
-
-    if(def1 == nullptr || (def1->mMagAtkRan != def2->mMagAtkRan))
-        file << "    MagAtkRan\t" << def2->mMagAtkRan << std::endl;
-
-    if(def1 == nullptr || (def1->mMagAtkRanPerLvl != def2->mMagAtkRanPerLvl))
-        file << "    MagAtkRan/Level\t" << def2->mMagAtkRanPerLvl << std::endl;
-
-    if(def1 == nullptr || (def1->mRanAtkMesh != def2->mRanAtkMesh) || (def1->mRanAtkPartScript != def2->mRanAtkPartScript))
-    {
-        std::string mesh;
-        std::string script;
-        if(def2->mRanAtkMesh.empty())
-            mesh = "none";
-        else
-            mesh = def2->mRanAtkMesh;
-
-        if(def2->mRanAtkPartScript.empty())
-            script = "none";
-        else
-            script = def2->mRanAtkPartScript;
-
-        file << "    RangeMesh\t" << mesh << "\t" << script << std::endl;
-    }
-
-    if(def1 == nullptr || (def1->mAttackWarmupTime != def2->mAttackWarmupTime))
-        file << "    AttackWarmupTime\t" << def2->mAttackWarmupTime << std::endl;
+    if(def1 == nullptr || (def1->mFightIdleDist != def2->mFightIdleDist))
+        file << "    FightIdleDist\t" << def2->mFightIdleDist << std::endl;
 
     if(def1 == nullptr || (def1->mWeakCoef != def2->mWeakCoef))
         file << "    WeakCoef\t" << def2->mWeakCoef << std::endl;

@@ -248,6 +248,8 @@ set(OD_SOURCEFILES
     ${SRC}/creatureskill/CreatureSkill.cpp
     ${SRC}/creatureskill/CreatureSkillExplosion.cpp
     ${SRC}/creatureskill/CreatureSkillHealSelf.cpp
+    ${SRC}/creatureskill/CreatureSkillMeleeFight.cpp
+    ${SRC}/creatureskill/CreatureSkillMissileLaunch.cpp
 
     ${SRC}/entities/Building.cpp
     ${SRC}/entities/BuildingObject.cpp

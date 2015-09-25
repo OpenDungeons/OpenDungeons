@@ -93,7 +93,8 @@ public:
      */
     std::list<Tile*> tilesBetween(int x1, int y1, int x2, int y2) const;
 
-    //! \brief Returns the tiles visible from the given start tile within tilesWithinSightRadius.
+    //! \brief Returns the tiles visible from the given start tile within radius. The tiles are ordered from the closest to
+    //! the furthest
     std::vector<Tile*> visibleTiles(int x, int y, int radius);
 
 protected:

@@ -31,6 +31,8 @@ enum class CreatureSkillType
 {
     Explosion,
     HealSelf,
+    Melee,
+    MissileLaunch,
     nb
 };
 
@@ -63,7 +65,7 @@ public:
     //! \brief To check if it can attack, the creature needs to know the range it can reach.
     //! This function returns the max range which the creature can use. It can return 0 if
     //! no range
-    virtual double getRangeMax(GameEntity* entityAttack) const
+    virtual double getRangeMax(const Creature* creature, GameEntity* entityAttack) const
     { return 0; }
 
     //! \brief Tries to use the skill during support (at beginning of each turn).

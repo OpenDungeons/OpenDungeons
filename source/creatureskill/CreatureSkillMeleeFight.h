@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CREATURESKILLEXPLOSION_H
-#define CREATURESKILLEXPLOSION_H
+#ifndef CREATURESKILLMELEEFIGHT_H
+#define CREATURESKILLMELEEFIGHT_H
 
 #include "creatureskill/CreatureSkill.h"
 
@@ -27,24 +27,26 @@
 class Creature;
 class GameMap;
 
-class CreatureSkillExplosion : public CreatureSkill
+class CreatureSkillMeleeFight : public CreatureSkill
 {
 public:
     // Constructors
-    CreatureSkillExplosion() :
-        mMaxRange(0.0),
+    CreatureSkillMeleeFight() :
         mCreatureLevelMin(0),
-        mEffectDuration(0),
-        mEffectValue(0.0)
+        mPhyAtk(0.0),
+        mPhyAtkPerLvl(0.0),
+        mMagAtk(0.0),
+        mMagAtkPerLvl(0.0)
     {}
 
-    virtual ~CreatureSkillExplosion()
+    virtual ~CreatureSkillMeleeFight()
     {}
 
     virtual CreatureSkillType getCreatureSkillType() const override
-    { return CreatureSkillType::Explosion; }
+    { return CreatureSkillType::Melee; }
 
-    virtual double getRangeMax(const Creature* creature, GameEntity* entityAttack) const override;
+    virtual double getRangeMax(const Creature* creature, GameEntity* entityAttack) const override
+    { return 1.0; }
 
     virtual bool canBeUsedBy(const Creature* creature) const override;
 
@@ -54,7 +56,7 @@ public:
     virtual bool tryUseFight(GameMap& gameMap, Creature* creature, float range,
         GameEntity* attackedObject, Tile* attackedTile) const override;
 
-    virtual CreatureSkillExplosion* clone() const override;
+    virtual CreatureSkillMeleeFight* clone() const override;
 
     virtual bool isEqual(const CreatureSkill& creatureSkill) const override;
 
@@ -64,11 +66,12 @@ protected:
     virtual bool importFromStream(std::istream& is) override;
 
 private:
-    double mMaxRange;
     uint32_t mCreatureLevelMin;
-    uint32_t mEffectDuration;
-    double mEffectValue;
+    double mPhyAtk;
+    double mPhyAtkPerLvl;
+    double mMagAtk;
+    double mMagAtkPerLvl;
 
 };
 
-#endif // CREATURESKILLEXPLOSION_H
+#endif // CREATURESKILLMELEEFIGHT_H

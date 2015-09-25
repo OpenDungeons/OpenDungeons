@@ -15,27 +15,18 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "creatureskill/CreatureSkillExplosion.h"
+#include "creatureskill/CreatureSkillMeleeFight.h"
 
-#include "creatureeffect/CreatureEffectExplosion.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
 #include "sound/SoundEffectsManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 #include <istream>
 
-double CreatureSkillExplosion::getRangeMax(const Creature* creature, GameEntity* entityAttack) const
-{
-    // Explosion can be cast on creatures only
-    if(entityAttack->getObjectType() != GameEntityType::creature)
-        return 0.0;
-
-    return mMaxRange;
-}
-
-bool CreatureSkillExplosion::canBeUsedBy(const Creature* creature) const
+bool CreatureSkillMeleeFight::canBeUsedBy(const Creature* creature) const
 {
     if(creature->getLevel() < mCreatureLevelMin)
         return false;
@@ -43,7 +34,7 @@ bool CreatureSkillExplosion::canBeUsedBy(const Creature* creature) const
     return true;
 }
 
-bool CreatureSkillExplosion::tryUseFight(GameMap& gameMap, Creature* creature, float range,
+bool CreatureSkillMeleeFight::tryUseFight(GameMap& gameMap, Creature* creature, float range,
         GameEntity* attackedObject, Tile* attackedTile) const
 {
     if(attackedObject->getObjectType() != GameEntityType::creature)
@@ -52,70 +43,76 @@ bool CreatureSkillExplosion::tryUseFight(GameMap& gameMap, Creature* creature, f
         return false;
     }
 
-    Creature* attackedCreature = static_cast<Creature*>(attackedObject);
-    CreatureEffectExplosion* effect = new CreatureEffectExplosion(mEffectDuration, mEffectValue, "SpellCreatureExplosion");
-    attackedCreature->addCreatureEffect(effect);
+    double level = static_cast<double>(creature->getLevel());
+    double phyAtk = mPhyAtk + (level * mPhyAtkPerLvl);
+    double magAtk = mMagAtk + (level * mMagAtkPerLvl);
+    attackedObject->takeDamage(creature, phyAtk, magAtk, attackedTile, false, false);
 
     return true;
 }
 
-CreatureSkillExplosion* CreatureSkillExplosion::clone() const
+CreatureSkillMeleeFight* CreatureSkillMeleeFight::clone() const
 {
-    return new CreatureSkillExplosion(*this);
+    return new CreatureSkillMeleeFight(*this);
 }
 
-void CreatureSkillExplosion::getFormatString(std::string& format) const
+void CreatureSkillMeleeFight::getFormatString(std::string& format) const
 {
     CreatureSkill::getFormatString(format);
     if(!format.empty())
         format += "\t";
 
-    format += "RangeMax\tLevelMin\tEffectDuration\tEffectValue";
+    format += "LevelMin\tPhyAtk\tPhyAtkPerLvl\tMagAtk\tMagAtkPerLvl";
 
 }
 
-void CreatureSkillExplosion::exportToStream(std::ostream& os) const
+void CreatureSkillMeleeFight::exportToStream(std::ostream& os) const
 {
     CreatureSkill::exportToStream(os);
-    os << "\t" << mMaxRange;
     os << "\t" << mCreatureLevelMin;
-    os << "\t" << mEffectDuration;
-    os << "\t" << mEffectValue;
+    os << "\t" << mPhyAtk;
+    os << "\t" << mPhyAtkPerLvl;
+    os << "\t" << mMagAtk;
+    os << "\t" << mMagAtkPerLvl;
 }
 
-bool CreatureSkillExplosion::importFromStream(std::istream& is)
+bool CreatureSkillMeleeFight::importFromStream(std::istream& is)
 {
     if(!CreatureSkill::importFromStream(is))
         return false;
 
-    if(!(is >> mMaxRange))
-        return false;
     if(!(is >> mCreatureLevelMin))
         return false;
-    if(!(is >> mEffectDuration))
+    if(!(is >> mPhyAtk))
         return false;
-    if(!(is >> mEffectValue))
+    if(!(is >> mPhyAtkPerLvl))
+        return false;
+    if(!(is >> mMagAtk))
+        return false;
+    if(!(is >> mMagAtkPerLvl))
         return false;
 
     return true;
 }
 
-bool CreatureSkillExplosion::isEqual(const CreatureSkill& creatureSkill) const
+bool CreatureSkillMeleeFight::isEqual(const CreatureSkill& creatureSkill) const
 {
     if(!CreatureSkill::isEqual(creatureSkill))
         return false;
 
-    const CreatureSkillExplosion* skill = dynamic_cast<const CreatureSkillExplosion*>(&creatureSkill);
+    const CreatureSkillMeleeFight* skill = dynamic_cast<const CreatureSkillMeleeFight*>(&creatureSkill);
     if(skill == nullptr)
         return false;
 
-    if(mMaxRange != skill->mMaxRange)
-        return false;
     if(mCreatureLevelMin != skill->mCreatureLevelMin)
         return false;
-    if(mEffectDuration != skill->mEffectDuration)
+    if(mPhyAtk != skill->mPhyAtk)
         return false;
-    if(mEffectValue != skill->mEffectValue)
+    if(mPhyAtkPerLvl != skill->mPhyAtkPerLvl)
+        return false;
+    if(mMagAtk != skill->mMagAtk)
+        return false;
+    if(mMagAtkPerLvl != skill->mMagAtkPerLvl)
         return false;
 
     return true;

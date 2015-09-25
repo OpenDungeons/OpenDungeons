@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CREATURESKILLEXPLOSION_H
-#define CREATURESKILLEXPLOSION_H
+#ifndef CREATURESKILLMISSILELAUNCH_H
+#define CREATURESKILLMISSILELAUNCH_H
 
 #include "creatureskill/CreatureSkill.h"
 
@@ -27,22 +27,26 @@
 class Creature;
 class GameMap;
 
-class CreatureSkillExplosion : public CreatureSkill
+class CreatureSkillMissileLaunch : public CreatureSkill
 {
 public:
     // Constructors
-    CreatureSkillExplosion() :
-        mMaxRange(0.0),
+    CreatureSkillMissileLaunch() :
+        mRangeMax(0.0),
+        mRangePerLvl(0.0),
         mCreatureLevelMin(0),
-        mEffectDuration(0),
-        mEffectValue(0.0)
+        mMissileSpeed(0.0),
+        mPhyAtk(0.0),
+        mPhyAtkPerLvl(0.0),
+        mMagAtk(0.0),
+        mMagAtkPerLvl(0.0)
     {}
 
-    virtual ~CreatureSkillExplosion()
+    virtual ~CreatureSkillMissileLaunch()
     {}
 
     virtual CreatureSkillType getCreatureSkillType() const override
-    { return CreatureSkillType::Explosion; }
+    { return CreatureSkillType::MissileLaunch; }
 
     virtual double getRangeMax(const Creature* creature, GameEntity* entityAttack) const override;
 
@@ -54,7 +58,7 @@ public:
     virtual bool tryUseFight(GameMap& gameMap, Creature* creature, float range,
         GameEntity* attackedObject, Tile* attackedTile) const override;
 
-    virtual CreatureSkillExplosion* clone() const override;
+    virtual CreatureSkillMissileLaunch* clone() const override;
 
     virtual bool isEqual(const CreatureSkill& creatureSkill) const override;
 
@@ -64,11 +68,17 @@ protected:
     virtual bool importFromStream(std::istream& is) override;
 
 private:
-    double mMaxRange;
+    double mRangeMax;
+    double mRangePerLvl;
     uint32_t mCreatureLevelMin;
-    uint32_t mEffectDuration;
-    double mEffectValue;
+    std::string mMissileMesh;
+    std::string mMissilePartScript;
+    double mMissileSpeed;
+    double mPhyAtk;
+    double mPhyAtkPerLvl;
+    double mMagAtk;
+    double mMagAtkPerLvl;
 
 };
 
-#endif // CREATURESKILLEXPLOSION_H
+#endif // CREATURESKILLMISSILELAUNCH_H
