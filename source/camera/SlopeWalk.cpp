@@ -44,7 +44,7 @@ void SlopeWalk::buildSlopes()
 {
     int ii;
     myArray.sort();
-    myArray.zoom(1.5532);
+    myArray.zoom(1.2532);
     rightSlopes.clear();
     leftSlopes.clear();
     rightVertices.clear();
