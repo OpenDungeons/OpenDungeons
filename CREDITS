@@ -168,6 +168,7 @@ textures/
 -> Portal{,Normal}.png                 Yughues                 CC0                     http://opengameart.org/users/yughues
 -> PortalVortex.png
 -> RangerBed*.png                      PantherOne              CC0                     http://opengameart.org/content/tent-pack
+-> Roach*.png                               Danimal, Atmostatic     CC-BY-SA 3.0            http://opengameart.org/content/roach-game-ready-and-animated
 -> Rock.png                            Yughues                 CC0                     http://opengameart.org/users/yughues
 -> Roundshield.png
 -> RunelordDwarf*.png
@@ -272,6 +273,7 @@ PortalObject.*                         Danimal                 CC-BY-SA 3.0     
 Portal.mesh                            Skorpio                 CC-BY-SA 3.0
 PrisonGround.mesh                      Hwoarangmy              CC-BY-SA 3.0
 RangerBed.mesh                         PantherOne              CC0                     http://opengameart.org/content/tent-pack
+Roach                                  Danimal, Atmostatic     CC-BY-SA 3.0            http://opengameart.org/content/roach-game-ready-and-animated
 Roundshield.mesh                       Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
 RunelordDwarf.*                        thecubber (OGA), MrBeast (OGA), Skorpio
  ->                                                            CC-BY-SA 3.0, GPLv3+    http://opengameart.org/content/dwarf-fixed
