@@ -29,6 +29,7 @@ endif()
 if(WIN32)
     set(OD_DATA_PATH ".")
     set(OD_PLUGINS_CFG_PATH ".")
+    set(OD_BIN_PATH ${CMAKE_INSTALL_PREFIX})
 else()
     # Set binary and data install locations if we want to use the installer
     set(OD_BIN_PATH ${CMAKE_INSTALL_PREFIX}/games CACHE PATH "Absolute path to the game binary directory")
@@ -688,6 +689,139 @@ if(UNIX)
             DESTINATION ${OD_SHARE_PATH}/doc/${PROJECT_NAME})
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/hicolor
             DESTINATION ${OD_SHARE_PATH}/icons)
+elseif(WIN32)
+    # To include redistributable needed files
+    include(InstallRequiredSystemLibraries)
+    message(STATUS "RUNTIME_LIBS: ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}")
+
+    # try to locate needed dlls
+    if(Boost_CHRONO_LIBRARY_RELEASE)
+        get_filename_component(BOOST_CHRONO_NAME ${Boost_CHRONO_LIBRARY_RELEASE} NAME_WE)
+        find_file(DEPS_BOOST_CHRONO_BIN_REL NAMES "${BOOST_CHRONO_NAME}.dll" PATH_SUFFIXES "${Boost_LIBRARY_DIR}" "")
+        set(BOOST_BIN_REL ${BOOST_BIN_REL} ${DEPS_BOOST_CHRONO_BIN_REL})
+    endif()
+    if(Boost_FILESYSTEM_LIBRARY_RELEASE)
+        get_filename_component(BOOST_FILESYSTEM_NAME ${Boost_FILESYSTEM_LIBRARY_RELEASE} NAME_WE)
+        find_file(DEPS_BOOST_FILESYSTEM_BIN_REL NAMES "${BOOST_FILESYSTEM_NAME}.dll" PATH_SUFFIXES "${Boost_LIBRARY_DIR}" "")
+        set(BOOST_BIN_REL ${BOOST_BIN_REL} ${BOOST_FILESYSTEM_NAME})
+    endif()
+    if(Boost_LOCALE_LIBRARY_RELEASE)
+        get_filename_component(BOOST_LOCALE_NAME ${Boost_LOCALE_LIBRARY_RELEASE} NAME_WE)
+        find_file(DEPS_BOOST_LOCALE_BIN_REL NAMES "${BOOST_LOCALE_NAME}.dll" PATH_SUFFIXES "${Boost_LIBRARY_DIR}" "")
+        set(BOOST_BIN_REL ${BOOST_BIN_REL} ${DEPS_BOOST_LOCALE_BIN_REL})
+    endif()
+    if(Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE)
+        get_filename_component(BOOST_PROGRAM_OPTIONS_NAME ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE} NAME_WE)
+        find_file(DEPS_BOOST_PROGRAM_OPTIONS_BIN_REL NAMES "${BOOST_PROGRAM_OPTIONS_NAME}.dll" PATH_SUFFIXES "${Boost_LIBRARY_DIR}" "")
+        set(BOOST_BIN_REL ${BOOST_BIN_REL} ${DEPS_BOOST_PROGRAM_OPTIONS_BIN_REL})
+    endif()
+    if(Boost_SYSTEM_LIBRARY_RELEASE)
+        get_filename_component(BOOST_SYSTEM_NAME ${Boost_SYSTEM_LIBRARY_RELEASE} NAME_WE)
+        find_file(DEPS_BOOST_SYSTEM_BIN_REL NAMES "${BOOST_SYSTEM_NAME}.dll" PATH_SUFFIXES "${Boost_LIBRARY_DIR}" "")
+        set(BOOST_BIN_REL ${BOOST_BIN_REL} ${DEPS_BOOST_SYSTEM_BIN_REL})
+    endif()
+    if(Boost_THREAD_LIBRARY_RELEASE)
+        get_filename_component(BOOST_THREAD_NAME ${Boost_THREAD_LIBRARY_RELEASE} NAME_WE)
+        find_file(DEPS_BOOST_THREAD_BIN_REL NAMES "${BOOST_THREAD_NAME}.dll" PATH_SUFFIXES "${Boost_LIBRARY_DIR}" "")
+        set(BOOST_BIN_REL ${BOOST_BIN_REL} ${DEPS_BOOST_THREAD_BIN_REL})
+    endif()
+
+    #CEGUI
+    find_file(DEPS_CEGUI_MAIN_BIN_REL NAMES "CEGUIBase-0.dll" "libCEGUIBase-0.dll" PATH_SUFFIXES "")
+    find_file(DEPS_CEGUI_COREWINDOWRENDERERSET_BIN_REL NAMES "CEGUICoreWindowRendererSet.dll" "libCEGUICoreWindowRendererSet.dll" PATH_SUFFIXES "")
+    find_file(DEPS_CEGUI_EXPATPARSER_BIN_REL NAMES "CEGUIExpatParser.dll" "libCEGUIExpatParser.dll" PATH_SUFFIXES "")
+    find_file(DEPS_CEGUI_OGRERENDERER_BIN_REL NAMES "CEGUIOgreRenderer-0.dll" "libCEGUIOgreRenderer-0.dll" PATH_SUFFIXES "")
+    # Ogre
+    find_file(DEPS_OGRE_MAIN_BIN_REL NAMES "OgreMain.dll" "libOgreMain.dll" PATH_SUFFIXES "")
+    find_file(DEPS_OGRE_OVERLAY_BIN_REL NAMES "OgreOverlay.dll" "libOgreOverlay.dll" PATH_SUFFIXES "")
+    find_file(DEPS_OGRE_RTSHADERSSYSTEM_BIN_REL NAMES "OgreRTShaderSystem.dll" "libOgreRTShaderSystem.dll" PATH_SUFFIXES "")
+    find_file(DEPS_OGRE_PLUGIN_OCTREE_BIN_REL NAMES "Plugin_OctreeSceneManager.dll" "libPlugin_OctreeSceneManager.dll" PATH_SUFFIXES "")
+    find_file(DEPS_OGRE_PLUGIN_PARTICLEFX_BIN_REL NAMES "Plugin_ParticleFX.dll" "libPlugin_ParticleFX.dll" PATH_SUFFIXES "")
+    find_file(DEPS_OGRE_RENDER_GL_BIN_REL NAMES "RenderSystem_GL.dll" "libRenderSystem_GL.dll" PATH_SUFFIXES "")
+    find_file(DEPS_OGRE_RENDER_D3D9_BIN_REL NAMES "RenderSystem_Direct3D9.dll" "libRenderSystem_Direct3D9.dll" PATH_SUFFIXES "")
+    # SFML
+    find_file(DEPS_SFML_AUDIO_BIN_REL NAMES "sfml-audio-2.dll" PATH_SUFFIXES "")
+    find_file(DEPS_SFML_NETWORK_BIN_REL NAMES "sfml-network-2.dll" PATH_SUFFIXES "")
+    find_file(DEPS_SFML_SYSTEM_BIN_REL NAMES "sfml-system-2.dll" PATH_SUFFIXES "")
+    # Other
+    find_file(DEPS_OIS_BIN_REL NAMES "OIS.dll" "libOIS.dll" PATH_SUFFIXES "")
+    find_file(DEPS_FREETYPE_BIN_REL NAMES "freetype.dll" "libfreetype.dll" PATH_SUFFIXES "")
+    find_file(DEPS_EXPAT_BIN_REL NAMES "expat.dll" "libexpat.dll" PATH_SUFFIXES "")
+    find_file(DEPS_OPENAL32_BIN_REL NAMES "openal32.dll" "libopenal32.dll" PATH_SUFFIXES "")
+
+    set(OD_PLUGINSCFGFILE ${CMAKE_BINARY_DIR}/plugins.cfg)
+
+    set(OD_RESOURCESFILE ${CMAKE_BINARY_DIR}/resources.cfg)
+
+    set(OD_RESOURCES   ${CMAKE_SOURCE_DIR}/config
+                       ${CMAKE_SOURCE_DIR}/gui
+                       ${CMAKE_SOURCE_DIR}/levels
+                       ${CMAKE_SOURCE_DIR}/licenses
+                       ${CMAKE_SOURCE_DIR}/materials
+                       ${CMAKE_SOURCE_DIR}/models
+                       ${CMAKE_SOURCE_DIR}/music
+                       ${CMAKE_SOURCE_DIR}/particles
+                       ${CMAKE_SOURCE_DIR}/scripts
+                       ${CMAKE_SOURCE_DIR}/sounds)
+
+    set(OD_DOC         ${CMAKE_SOURCE_DIR}/AUTHORS
+                       ${CMAKE_SOURCE_DIR}/CREDITS
+                       ${CMAKE_SOURCE_DIR}/LICENSE.md
+                       ${CMAKE_SOURCE_DIR}/README.md
+                       ${CMAKE_SOURCE_DIR}/RELEASE-NOTES.md)
+
+    set(EXT_LIBS       # boost
+                       ${BOOST_BIN_REL}
+                       #CEGUI
+                       ${DEPS_CEGUI_MAIN_BIN_REL}
+                       ${DEPS_CEGUI_COREWINDOWRENDERERSET_BIN_REL}
+                       ${DEPS_CEGUI_EXPATPARSER_BIN_REL}
+                       ${DEPS_CEGUI_OGRERENDERER_BIN_REL}
+                       # Ogre
+                       ${DEPS_OGRE_MAIN_BIN_REL}
+                       ${DEPS_OGRE_OVERLAY_BIN_REL}
+                       ${DEPS_OGRE_RTSHADERSSYSTEM_BIN_REL}
+                       ${DEPS_OGRE_PLUGIN_OCTREE_BIN_REL}
+                       ${DEPS_OGRE_PLUGIN_PARTICLEFX_BIN_REL}
+                       # SFML
+                       ${DEPS_SFML_AUDIO_BIN_REL}
+                       ${DEPS_SFML_NETWORK_BIN_REL}
+                       ${DEPS_SFML_SYSTEM_BIN_REL}
+                       # Dependencies
+                       ${DEPS_OIS_BIN_REL}
+                       ${DEPS_FREETYPE_BIN_REL}
+                       ${DEPS_EXPAT_BIN_REL}
+                       ${DEPS_OPENAL32_BIN_REL}
+                       )
+    # Optional renderers
+    if(DEPS_OGRE_RENDER_GL_BIN_REL)
+       set(EXT_LIBS ${EXT_LIBS} ${DEPS_OGRE_RENDER_GL_BIN_REL})
+    endif()
+    if(DEPS_OGRE_RENDER_D3D9_BIN_REL)
+       set(EXT_LIBS ${EXT_LIBS} ${DEPS_OGRE_RENDER_D3D9_BIN_REL})
+    endif()
+    if(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+       set(EXT_LIBS ${EXT_LIBS} ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
+    endif()
+
+    # Install required game files: binary, configuration files and resources
+    install(TARGETS ${PROJECT_BINARY_NAME}
+            RUNTIME DESTINATION ${OD_BIN_PATH}
+            PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install(FILES ${OD_PLUGINSCFGFILE}
+            DESTINATION ${OD_PLUGINS_CFG_PATH})
+    install(FILES ${OD_RESOURCESFILE}
+            DESTINATION ${OD_DATA_PATH})
+    install(DIRECTORY ${OD_RESOURCES}
+            DESTINATION ${OD_DATA_PATH})
+
+    # Additional distribution content (desktop file, icons, man page, doc)
+    install(FILES ${OD_DOC}
+            DESTINATION ${OD_BIN_PATH})
+
+    # External libraries
+    install(FILES ${EXT_LIBS}
+            DESTINATION ${OD_BIN_PATH})
 endif()
 
 ##################################
