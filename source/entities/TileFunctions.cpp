@@ -436,14 +436,21 @@ double Tile::digOut(double digRate)
 {
     // We scle dig rate depending on the tile type
     double digRateScaled;
+    double fullnessLost;
     switch(getTileVisual())
     {
         case TileVisual::claimedFull:
             digRateScaled = digRate * 0.2;
+            fullnessLost = digRate * 0.2;
             break;
         case TileVisual::dirtFull:
         case TileVisual::goldFull:
             digRateScaled = digRate;
+            fullnessLost = digRate;
+            break;
+        case TileVisual::gemFull:
+            digRateScaled = digRate;
+            fullnessLost = 0.0;
             break;
         default:
             // Non diggable type!
@@ -451,10 +458,19 @@ double Tile::digOut(double digRate)
             return 0.0;
     }
 
-    double amountDug = 0.0;
-    if (digRateScaled >= mFullness)
+    // Nothing to dig
+    if(fullnessLost <= 0.0)
+        return digRateScaled;
+
+    if(mFullness <= 0.0)
     {
-        amountDug = mFullness;
+        OD_LOG_ERR("tile=" + Tile::displayAsString(this) + ", mFullness=" + Helper::toString(mFullness));
+        return 0.0;
+    }
+
+    if(fullnessLost >= mFullness)
+    {
+        digRateScaled = mFullness;
         setFullness(0.0);
 
         computeTileVisual();
@@ -470,14 +486,12 @@ double Tile::digOut(double digRate)
                 building->createMesh();
             }
         }
-    }
-    else
-    {
-        amountDug = digRateScaled;
-        setFullness(mFullness - digRateScaled);
+        return digRateScaled;
     }
 
-    return amountDug;
+    digRateScaled = fullnessLost;
+    setFullness(mFullness - fullnessLost);
+    return digRateScaled;
 }
 
 void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert)

@@ -1881,13 +1881,30 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
             receiveExp(1.5 * mDigRate / 20.0);
 
             // If the tile is a gold tile accumulate gold for this creature.
-            if (tempTile->getType() == TileType::gold)
+            switch(tempTile->getType())
             {
-                double tempDouble = 5.0 * amountDug;
-                mGoldCarried += static_cast<int>(tempDouble);
-                getSeat()->addGoldMined(static_cast<int>(tempDouble));
-                // Receive extra experience for digging gold
-                receiveExp(5.0 * mDigRate / 20.0);
+                case TileType::gold:
+                {
+                    static const double digCoefGold = ConfigManager::getSingleton().getDigCoefGold();
+                    double tempDouble = digCoefGold * amountDug;
+                    mGoldCarried += static_cast<int>(tempDouble);
+                    getSeat()->addGoldMined(static_cast<int>(tempDouble));
+                    // Receive extra experience for digging gold
+                    receiveExp(digCoefGold * mDigRate / 20.0);
+                    break;
+                }
+                case TileType::gem:
+                {
+                    static const double digCoefGem = ConfigManager::getSingleton().getDigCoefGold();
+                    double tempDouble = digCoefGem * amountDug;
+                    mGoldCarried += static_cast<int>(tempDouble);
+                    getSeat()->addGoldMined(static_cast<int>(tempDouble));
+                    // Receive extra experience for digging gold
+                    receiveExp(digCoefGem * mDigRate / 20.0);
+                    break;
+                }
+                default:
+                    break;
             }
 
             // If the tile has been dug out, move into that tile and try to continue digging.

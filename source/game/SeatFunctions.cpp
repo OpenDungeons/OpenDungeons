@@ -1503,6 +1503,7 @@ bool Seat::isTileDiggableForClient(Tile* tile) const
             return false;
         case TileVisual::goldFull:
         case TileVisual::dirtFull:
+        case TileVisual::gemFull:
             return true;
         default:
             break;

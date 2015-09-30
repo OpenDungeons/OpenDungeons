@@ -123,6 +123,12 @@ public:
     inline double getClaimingWallPenalty() const
     { return mClaimingWallPenalty; }
 
+    inline double getDigCoefGold() const
+    { return mDigCoefGold; }
+
+    inline double getDigCoefGem() const
+    { return mDigCoefGem; }
+
     inline int32_t getNbTurnsKoCreatureAttacked() const
     { return mNbTurnsKoCreatureAttacked; }
 
@@ -262,6 +268,8 @@ private:
     int64_t mNbTurnsFuriousMax;
     double mMaxManaPerSeat;
     double mClaimingWallPenalty;
+    double mDigCoefGold;
+    double mDigCoefGem;
     int32_t mNbTurnsKoCreatureAttacked;
     std::string mDefaultWorkerRogue;
     std::string mMainMenuMusic;

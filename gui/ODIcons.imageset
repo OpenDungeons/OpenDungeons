@@ -50,4 +50,5 @@
     <Image height="64" name="WaterButton" width="64" xPos="192" yPos="64" />
     <Image height="64" name="DirtButton" width="64" xPos="256" yPos="64" />
     <Image height="64" name="ClaimedButton" width="64" xPos="320" yPos="64" />
+    <Image height="64" name="GemButton" width="64" xPos="384" yPos="64" />
 </Imageset>

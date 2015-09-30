@@ -655,18 +655,26 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // Tiles
             std::vector<Tile*> goldTiles;
             std::vector<Tile*> rockTiles;
+            std::vector<Tile*> gemTiles;
             for (int xxx = 0; xxx < mapSizeX; ++xxx)
             {
                 for (int yyy = 0; yyy < mapSizeY; ++yyy)
                 {
                     Tile* tile = gameMap->getTile(xxx,yyy);
-                    if(tile->getType() == TileType::gold)
+                    switch(tile->getType())
                     {
-                        goldTiles.push_back(tile);
-                    }
-                    else if(tile->getType() == TileType::rock)
-                    {
-                        rockTiles.push_back(tile);
+                        case TileType::gold:
+                            goldTiles.push_back(tile);
+                            break;
+                        case TileType::rock:
+                            rockTiles.push_back(tile);
+                            break;
+                        case TileType::gem:
+                            gemTiles.push_back(tile);
+                            break;
+                        default:
+                            // Per default, tiles are dirt and don't need to be notified
+                            break;
                     }
                 }
             }
@@ -681,6 +689,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             nb = rockTiles.size();
             packet << nb;
             for(Tile* tile : rockTiles)
+            {
+                gameMap->tileToPacket(packet, tile);
+            }
+
+            nb = gemTiles.size();
+            packet << nb;
+            for(Tile* tile : gemTiles)
             {
                 gameMap->tileToPacket(packet, tile);
             }

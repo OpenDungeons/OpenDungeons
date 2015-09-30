@@ -112,6 +112,7 @@ public:
     static const std::string EDITOR_WATER_BUTTON;
     static const std::string EDITOR_DIRT_BUTTON;
     static const std::string EDITOR_CLAIMED_BUTTON;
+    static const std::string EDITOR_GEM_BUTTON;
     static const std::string EDITOR_FULLNESS;
     static const std::string EDITOR_CURSOR_POS;
     static const std::string EDITOR_SEAT_ID;

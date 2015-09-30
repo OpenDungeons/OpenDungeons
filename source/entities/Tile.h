@@ -54,6 +54,7 @@ enum class TileType
     rock = 3,
     water = 4,
     lava = 5,
+    gem = 6,
     countTileType
 };
 
@@ -86,6 +87,7 @@ enum class TileVisual
     lavaGround,
     claimedGround,
     claimedFull,
+    gemFull,
     countTileVisual
 };
 
