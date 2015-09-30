@@ -144,8 +144,6 @@ void CullingManager::hideAllTiles(void)
     }
 }
 
-
-
 void CullingManager::showAllTiles(void)
 {
     GameMap* gm = mCm->mGameMap;
@@ -160,10 +158,6 @@ void CullingManager::showAllTiles(void)
         }
     }
 }
-
-
-
-
 
 void CullingManager::newBashAndSplashTiles(int64_t mode){
     int64_t xxLeftOld = oldWalk.getTopLeftVertex().x;
@@ -199,6 +193,7 @@ void CullingManager::newBashAndSplashTiles(int64_t mode){
     
         int64_t mm = ((std::min(xxLeft, xxLeftOld) >> mPrecisionDigits) << mPrecisionDigits) ;
         if(std::min(xxLeft, xxLeftOld) < max(xxRight,xxRightOld) )
+        {
             for (int64_t xx = mm ; xx <= max(xxRight,xxRightOld) ; xx+= Unit)
             {
                 bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= oldWalk.getBottomLeftVertex().y) && yy <= oldWalk.getTopLeftVertex().y);
@@ -222,7 +217,7 @@ void CullingManager::newBashAndSplashTiles(int64_t mode){
                 else if (gm && splash && (mode & SHOW) && xxp>=0 && yyp>= 0 && xxp<mCm->mGameMap->getMapSizeX() && yyp < mCm->mGameMap->getMapSizeY())
                     gm->getTile(xxp, yyp)->show();
             }
-
+        }
     }
 }
 
@@ -257,7 +252,6 @@ bool CullingManager::onFrameStarted()
         getIntersectionPoints();
     if(mCullTilesFlag)
         cullTiles();
-
     return true;
 }
 
