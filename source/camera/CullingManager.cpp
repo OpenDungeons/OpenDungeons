@@ -242,9 +242,6 @@ bool CullingManager::getIntersectionPoints()
         intersectionResult =  mMyRay[ii].intersects(mMyplanes);
         if(intersectionResult.first)
             mOgreVectorsArray[ii]= (mMyRay[ii].getPoint(intersectionResult.second));
-        if(intersectionResult.first)
-        {
-        }
         else
         {
             cerr<< "I didn't find the intersection point for " << ii <<"th ray"<<endl;
