@@ -242,7 +242,6 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
     if (tile.getEntityNode() == nullptr)
         return;
 
-    bool isSameMesh = false;
     std::string tileName = tile.getOgreNamePrefix() + tile.getName();
     bool displayTilesetMesh = tile.shouldDisplayTileMesh();
     std::string meshName;
@@ -271,35 +270,45 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
         meshName = tileSetValue.getMeshName();
     }
 
+    Ogre::Entity* tileMeshEnt = nullptr;
     const std::string tileMeshName = tileName + "_tileMesh";
     if(mSceneManager->hasEntity(tileMeshName))
     {
-        Ogre::Entity* oldEnt = mSceneManager->getEntity(tileMeshName);
-        if(oldEnt->getMesh()->getName().compare(meshName) != 0)
+        tileMeshEnt = mSceneManager->getEntity(tileMeshName);
+        if(tileMeshEnt->getMesh()->getName().compare(meshName) != 0)
         {
             // Unlink and delete the old mesh
-            mSceneManager->getSceneNode(tileMeshName + "_node")->detachObject(oldEnt);
-            mSceneManager->destroyEntity(oldEnt);
+            mSceneManager->getSceneNode(tileMeshName + "_node")->detachObject(tileMeshEnt);
+            mSceneManager->destroyEntity(tileMeshEnt);
+            tileMeshEnt = nullptr;
         }
-        else
-            isSameMesh = true;
     }
 
-    Ogre::Entity* tileMeshEnt = nullptr;
-    Seat* seatColor = nullptr;
-    if(!isSameMesh && !meshName.empty())
-    {
-        // If the node does not exist, we create it
-        std::string tileMeshNodeName = tileMeshName + "_node";
-        Ogre::SceneNode* tileMeshNode;
-        if(!mSceneManager->hasSceneNode(tileMeshNodeName))
-            tileMeshNode = tile.getEntityNode()->createChildSceneNode(tileMeshNodeName);
-        else
-            tileMeshNode = mSceneManager->getSceneNode(tileMeshNodeName);
+    Ogre::SceneNode* tileMeshNode = nullptr;
+    std::string tileMeshNodeName = tileMeshName + "_node";
+    if(mSceneManager->hasSceneNode(tileMeshNodeName))
+        tileMeshNode = mSceneManager->getSceneNode(tileMeshNodeName);
 
+    if((tileMeshEnt == nullptr) && !meshName.empty())
+    {
         tileMeshEnt = mSceneManager->createEntity(tileMeshName, meshName);
+        // If the node does not exist, we create it
+        if(tileMeshNode == nullptr)
+            tileMeshNode = tile.getEntityNode()->createChildSceneNode(tileMeshNodeName);
         // Link the tile mesh back to the relevant scene node so OGRE will render it
         tileMeshNode->attachObject(tileMeshEnt);
+
+        Ogre::MeshPtr meshPtr = tileMeshEnt->getMesh();
+        unsigned short src, dest;
+        if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
+        {
+            meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
+        }
+    }
+
+    // We rescale and set the orientation that may have changed
+    if(tileMeshNode != nullptr)
+    {
         tileMeshNode->setScale(gameMap.getTileSetScale());
         tileMeshNode->resetOrientation();
 
@@ -316,16 +325,7 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
 
         if(q != Ogre::Quaternion::IDENTITY)
             tileMeshNode->rotate(q);
-
-        Ogre::MeshPtr meshPtr = tileMeshEnt->getMesh();
-        unsigned short src, dest;
-        if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
-        {
-            meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
-        }
     }
-    else if(mSceneManager->hasEntity(tileMeshName))
-        tileMeshEnt = mSceneManager->getEntity(tileMeshName);
 
     if(tileMeshEnt != nullptr)
     {
@@ -333,6 +333,7 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
         if(!tileSetValue.getMaterialName().empty())
             tileMeshEnt->setMaterialName(tileSetValue.getMaterialName());
 
+        Seat* seatColor = nullptr;
         if(tile.shouldColorTileMesh())
             seatColor = tile.getSeat();
 
@@ -342,23 +343,20 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
     // We display the custom mesh if there is one
     const std::string customMeshName = tileName + "_customMesh";
     meshName = tile.getMeshName();
-    isSameMesh = false;
+    Ogre::Entity* customMeshEnt = nullptr;
     if(mSceneManager->hasEntity(customMeshName))
     {
-        Ogre::Entity* oldEnt = mSceneManager->getEntity(customMeshName);
-        if(oldEnt->getMesh()->getName().compare(meshName) != 0)
+        customMeshEnt = mSceneManager->getEntity(customMeshName);
+        if(customMeshEnt->getMesh()->getName().compare(meshName) != 0)
         {
             // Unlink and delete the old mesh
-            mSceneManager->getSceneNode(customMeshName + "_node")->detachObject(oldEnt);
-            mSceneManager->destroyEntity(oldEnt);
+            mSceneManager->getSceneNode(customMeshName + "_node")->detachObject(customMeshEnt);
+            mSceneManager->destroyEntity(customMeshEnt);
+            customMeshEnt = nullptr;
         }
-        else
-            isSameMesh = true;
     }
 
-    seatColor = nullptr;
-    Ogre::Entity* customMeshEnt = nullptr;
-    if(!isSameMesh && !meshName.empty())
+    if((customMeshEnt == nullptr) && !meshName.empty())
     {
         // If the node does not exist, we create it
         std::string customMeshNodeName = customMeshName + "_node";
@@ -381,11 +379,10 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
             meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
         }
     }
-    else if(mSceneManager->hasEntity(customMeshName))
-        customMeshEnt = mSceneManager->getEntity(customMeshName);
 
     if(customMeshEnt != nullptr)
     {
+        Seat* seatColor = nullptr;
         if(tile.shouldColorCustomMesh())
             seatColor = tile.getSeat();
 
