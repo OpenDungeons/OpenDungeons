@@ -432,17 +432,27 @@ void Tile::unclaimTile()
     }
 }
 
-double Tile::digOut(double digRate, bool doScaleDigRate)
+double Tile::digOut(double digRate)
 {
-    if (doScaleDigRate)
-        digRate = scaleDigRate(digRate);
+    // We scle dig rate depending on the tile type
+    double digRateScaled;
+    switch(getTileVisual())
+    {
+        case TileVisual::claimedFull:
+            digRateScaled = digRate * 0.2;
+            break;
+        case TileVisual::dirtFull:
+        case TileVisual::goldFull:
+            digRateScaled = digRate;
+            break;
+        default:
+            // Non diggable type!
+            OD_LOG_ERR("Wrong tile visual for digging tile=" + Tile::displayAsString(this) + ", visual=" + tileVisualToString(getTileVisual()));
+            return 0.0;
+    }
 
     double amountDug = 0.0;
-
-    if (getFullness() == 0.0 || mType == TileType::lava || mType == TileType::water || mType == TileType::rock)
-        return 0.0;
-
-    if (digRate >= mFullness)
+    if (digRateScaled >= mFullness)
     {
         amountDug = mFullness;
         setFullness(0.0);
@@ -463,8 +473,8 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
     }
     else
     {
-        amountDug = digRate;
-        setFullness(mFullness - digRate);
+        amountDug = digRateScaled;
+        setFullness(mFullness - digRateScaled);
     }
 
     return amountDug;

@@ -1871,23 +1871,24 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
 
         // We found a tile marked by our controlling seat, dig out the tile.
 
-        // If the tile is a gold tile accumulate gold for this creature.
-        if (tempTile->getType() == TileType::gold)
-        {
-            double tempDouble = 5 * std::min(mDigRate, tempTile->getFullness());
-            mGoldCarried += static_cast<int>(tempDouble);
-            getSeat()->addGoldMined(static_cast<int>(tempDouble));
-            receiveExp(5.0 * mDigRate / 20.0);
-        }
-
         // Dig out the tile by decreasing the tile's fullness.
         Ogre::Vector3 walkDirection(tempTile->getX() - getPosition().x, tempTile->getY() - getPosition().y, 0);
         walkDirection.normalise();
         setAnimationState(EntityAnimation::dig_anim, true, walkDirection);
-        double amountDug = tempTile->digOut(mDigRate, true);
+        double amountDug = tempTile->digOut(mDigRate);
         if(amountDug > 0.0)
         {
             receiveExp(1.5 * mDigRate / 20.0);
+
+            // If the tile is a gold tile accumulate gold for this creature.
+            if (tempTile->getType() == TileType::gold)
+            {
+                double tempDouble = 5.0 * amountDug;
+                mGoldCarried += static_cast<int>(tempDouble);
+                getSeat()->addGoldMined(static_cast<int>(tempDouble));
+                // Receive extra experience for digging gold
+                receiveExp(5.0 * mDigRate / 20.0);
+            }
 
             // If the tile has been dug out, move into that tile and try to continue digging.
             if (tempTile->getFullness() == 0.0)

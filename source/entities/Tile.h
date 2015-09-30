@@ -229,8 +229,7 @@ public:
     void claimForSeat(Seat* seat, double nDanceRate);
     void claimTile(Seat* seat);
     void unclaimTile();
-    double digOut(double digRate, bool doScaleDigRate = false);
-    double scaleDigRate(double digRate);
+    double digOut(double digRate);
 
     inline Building* getCoveringBuilding() const
     { return mCoveringBuilding; }

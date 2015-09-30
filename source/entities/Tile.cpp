@@ -411,14 +411,6 @@ void Tile::addNeighbor(Tile *n)
     mNeighbors.push_back(n);
 }
 
-double Tile::scaleDigRate(double digRate)
-{
-    if(!isClaimed())
-        return digRate;
-
-    return 0.2 * digRate;
-}
-
 Tile* Tile::getNeighbor(unsigned int index)
 {
     if(index >= mNeighbors.size())
