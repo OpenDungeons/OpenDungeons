@@ -38,12 +38,6 @@ bool CreatureSkillMeleeFight::canBeUsedBy(const Creature* creature) const
 bool CreatureSkillMeleeFight::tryUseFight(GameMap& gameMap, Creature* creature, float range,
         GameEntity* attackedObject, Tile* attackedTile) const
 {
-    if(attackedObject->getObjectType() != GameEntityType::creature)
-    {
-        OD_LOG_ERR("creature=" + creature->getName() + ", attackedObject=" + attackedObject->getName() + ", attackedTile=" + Tile::displayAsString(attackedTile));
-        return false;
-    }
-
     double level = static_cast<double>(creature->getLevel());
     double phyAtk = mPhyAtk + (level * mPhyAtkPerLvl);
     double magAtk = mMagAtk + (level * mMagAtkPerLvl);

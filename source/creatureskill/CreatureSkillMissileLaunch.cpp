@@ -47,12 +47,6 @@ bool CreatureSkillMissileLaunch::canBeUsedBy(const Creature* creature) const
 bool CreatureSkillMissileLaunch::tryUseFight(GameMap& gameMap, Creature* creature, float range,
         GameEntity* attackedObject, Tile* attackedTile) const
 {
-    if(attackedObject->getObjectType() != GameEntityType::creature)
-    {
-        OD_LOG_ERR("creature=" + creature->getName() + ", attackedObject=" + attackedObject->getName() + ", attackedTile=" + Tile::displayAsString(attackedTile));
-        return false;
-    }
-
     Tile* creatureTile = creature->getPositionTile();
     if(creatureTile == nullptr)
     {
