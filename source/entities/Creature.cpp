@@ -2835,14 +2835,12 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
 
         // We check if we can attack from somewhere. To do that, we check
         // from the target point of view if there is a tile with visibility within range
-        int distFoe = -1;
-        int distAttack = -1;
-        std::vector<Tile*> tiles = getGameMap()->visibleTiles(tileAttackCheck->getX(), tileAttackCheck->getY(), static_cast<int>(skillRangeMax));
-        // Since tiles are ordered by distance to the center (the entity we want to get away from), we process them
-        // in reverse order. Then, we look for the closest to
-        for(auto itr = tiles.rbegin(); itr != tiles.rend(); ++itr)
+        int skillRangeMaxInt = static_cast<int>(skillRangeMax);
+        int skillRangeMaxIntSquared = skillRangeMaxInt * skillRangeMaxInt;
+        int bestScoreAttack = -1;
+        std::vector<Tile*> tiles = getGameMap()->visibleTiles(tileAttackCheck->getX(), tileAttackCheck->getY(), skillRangeMaxInt);
+        for(Tile* tile : tiles)
         {
-            Tile* tile = *itr;
             if(tile->isFullTile())
                 continue;
 
@@ -2851,12 +2849,14 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
 
             int distFoeTmp = Pathfinding::squaredDistanceTile(*tile, *tileAttackCheck);
             int distAttackTmp = Pathfinding::squaredDistanceTile(*tile, *myTile);
-            if((distAttack != -1) && (distFoe != -1) && (distFoeTmp >= distFoe) && (distAttackTmp >= distAttack))
-                break;
+            // We compute a score for each tile. We will choose the best one. Note that we try to be as close as possible
+            // from the fightIdleDist but by walking the less possible. We need to find a compromise
+            int scoreAttack = std::abs(skillRangeMaxIntSquared - distFoeTmp) * 2 + distAttackTmp;
+            if((bestScoreAttack != -1) && (bestScoreAttack <= scoreAttack))
+                continue;
 
-            // We found a closer target
-            distFoe = distFoeTmp;
-            distAttack = distAttackTmp;
+            // We found a better target
+            bestScoreAttack = scoreAttack;
             tilePosition = tile;
             entityAttack = entityAttackCheck;
             tileAttack = tileAttackCheck;
@@ -2877,16 +2877,13 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
             return false;
         }
 
-        int distFoe = -1;
+        int bestScoreFlee = -1;
         int32_t fightIdleDist = getDefinition()->getFightIdleDist();
         Tile* fleeTile = nullptr;
-        int fleeDist = -1;
         std::vector<Tile*> tiles = getGameMap()->visibleTiles(tileEntityFlee->getX(), tileEntityFlee->getY(), fightIdleDist);
-        // Since tiles are ordered by distance to the center (the entity we want to get away from), we process them
-        // in reverse order. Then, we look for the closest to
-        for(auto itr = tiles.rbegin(); itr != tiles.rend(); ++itr)
+        int32_t fightIdleDistSquared = fightIdleDist * fightIdleDist;
+        for(Tile* tile : tiles)
         {
-            Tile* tile = *itr;
             if(tile->isFullTile())
                 continue;
 
@@ -2895,11 +2892,13 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
 
             int distFoeTmp = Pathfinding::squaredDistanceTile(*tile, *tileEntityFlee);
             int fleeDistTmp = Pathfinding::squaredDistanceTile(*tile, *myTile);
-            if((fleeDist != -1) && (distFoe != -1) && (distFoe >= distFoeTmp) && (fleeDistTmp >= fleeDist))
-                break;
+            // We compute a score for each tile. We will choose the best one. Note that we try to be as close as possible
+            // from the fightIdleDist but by walking the less possible. We need to find a compromise
+            int scoreFlee = std::abs(fightIdleDistSquared - distFoeTmp) * 2 + fleeDistTmp;
+            if((bestScoreFlee != -1) && (bestScoreFlee <= scoreFlee))
+                continue;
 
-            distFoe = distFoeTmp;
-            fleeDist = fleeDistTmp;
+            bestScoreFlee = scoreFlee;
             fleeTile = tile;
         }
 
