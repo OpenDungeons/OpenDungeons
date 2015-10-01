@@ -22,8 +22,9 @@
 #include <iostream>
 #include <OgreVector3.h>
 
-extern const int mPrecisionDigits;
-extern const int Unit;
+const int mPrecisionDigits = 20;
+constexpr int Unit = (1 << mPrecisionDigits);
+
 
 //! \brief A custom vector used commonly between the CameraManager and the CullingManager classes
 class Vector3i

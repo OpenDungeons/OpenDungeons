@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
 #include <iostream>
 #include <sstream>
 
-extern const int mPrecisionDigits = 20;
-extern const int Unit = (1 << mPrecisionDigits);
 using std::cerr;
 using std::endl;
 using std::cout;

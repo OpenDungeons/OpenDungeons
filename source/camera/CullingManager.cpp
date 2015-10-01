@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,9 +34,6 @@ using  std::cerr; using std::endl;
 //! Values used to know whether to show and/or hide a mesh
 static const int HIDE =  1;
 static const int SHOW =  2;
-
-extern const int mPrecisionDigits ;
-extern const int Unit ;
 
 
 CullingManager::CullingManager(CameraManager* cameraManager):

@@ -17,9 +17,6 @@
 
 #include "Vector3i.h"
 
-extern const int mPrecisionDigits;
-extern const int Unit;
-
 Vector3i& Vector3i::operator+(Vector3i& vv)
 {
     x += vv.x;
