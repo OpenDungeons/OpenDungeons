@@ -23,14 +23,15 @@
 #include <array>
 #include <vector>
 
+/*! \brief The DummyArrayClass class is a wrapper 
+ *  around the std::array mainly to overload the 
+ *  operator [].        
+ */
+
+
 class DummyArrayClass
 {
 public:
-
-    bool clockwise(int ii , int jj);
-    bool anticlockwise(int ii , int jj);
-    Vector3i* getClockwiseNext();
-    Vector3i* getAntiClockwiseNext();
     Vector3i& operator[](int ii) ;
     void sort();
     void sortByPhi(std::vector<Vector3i> &ll, Vector3i& cc);
