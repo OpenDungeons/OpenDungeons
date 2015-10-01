@@ -16,13 +16,7 @@
  */
 
 
-/* Currently I try to impment the most general polygon rasterizing algorithm , that is : 
- * 1. We choose the max and min points due to their Y value . 
- * 2. We sort all the points by the angle value in it's polar representation ( that is going , by visiting them clockwise due to the center of the polygon ) 
- * 3. Now we have two paths from which we can walk from top to down vertices : call them left and right . 
- * 4. Between each following pair of vertices we can establish a >> slope << , which is just the the "a" in the eq. of linear form y = ax + b 
- * 5. Now start drawing our polygon Row by Row From top to bottom . Each Row has given the most left and rightmost tile due to use of both paths prepared before -- Left path for tracing the most Leftmost Tile , Right path teh most Rightmost Tile in each  
-*/
+
 
 
 
@@ -41,6 +35,16 @@
 using std::deque;
 using std::array;
 using std::string;
+
+/*! \brief The Class SlopeWalk keeps data required to rasterize
+ *   one polygon made of game tiles. To do that it remembers two
+ *  sides of polygon ; and on left and right side we keep a list 
+ *  of Vertexes and Slopes -- the tangens of an angle between two 
+ *  polygons edges ( remember the school equation y = ax + b
+ *  We add also a bunch of auxilary functions to be able to 
+ *  actually trace the position of some abstract point travelling
+ *  top - down along polygon's edges.
+ */
 
 class SlopeWalk
 {
