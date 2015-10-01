@@ -1391,14 +1391,12 @@ DwarfWorker	1
 [Creature]
     Name	Adventurer
     [Stats]
-    MagicalDef/Level	-4.8367e-026
     WeaponSpawnL	RustyShield
     [/Stats]
 [/Creature]
 [Creature]
     Name	Wizard
     [Stats]
-    MagicalDef/Level	-4.8367e-026
     WeaponSpawnL	RustyShield
     [/Stats]
 [/Creature]
