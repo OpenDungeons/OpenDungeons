@@ -39,7 +39,9 @@ public:
         mPhyAtk(0.0),
         mPhyAtkPerLvl(0.0),
         mMagAtk(0.0),
-        mMagAtkPerLvl(0.0)
+        mMagAtkPerLvl(0.0),
+        mEleAtk(0.0),
+        mEleAtkPerLvl(0.0)
     {}
 
     virtual ~CreatureSkillMissileLaunch()
@@ -78,6 +80,8 @@ private:
     double mPhyAtkPerLvl;
     double mMagAtk;
     double mMagAtkPerLvl;
+    double mEleAtk;
+    double mEleAtkPerLvl;
 
 };
 

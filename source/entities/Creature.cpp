@@ -130,6 +130,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     MovableGameEntity        (gameMap, isOnServerMap),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
+    mElementDefense          (0.0),
     mWeaponL                 (nullptr),
     mWeaponR                 (nullptr),
     mHomeTile                (nullptr),
@@ -195,6 +196,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     // Fighting stats
     mPhysicalDefense = mDefinition->getPhysicalDefense();
     mMagicalDefense = mDefinition->getMagicalDefense();
+    mElementDefense = mDefinition->getElementDefense();
 
     if(mDefinition->getWeaponSpawnL().compare("none") != 0)
         mWeaponL = gameMap->getWeapon(mDefinition->getWeaponSpawnL());
@@ -209,6 +211,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     MovableGameEntity        (gameMap, isOnServerMap),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
+    mElementDefense          (0.0),
     mWeaponL                 (nullptr),
     mWeaponR                 (nullptr),
     mHomeTile                (nullptr),
@@ -465,6 +468,7 @@ void Creature::buildStats()
 
     mPhysicalDefense = mDefinition->getPhysicalDefense();
     mMagicalDefense = mDefinition->getMagicalDefense();
+    mElementDefense = mDefinition->getElementDefense();
 
     mScale = getDefinition()->getScale();
     Ogre::Real scaleFactor = static_cast<Ogre::Real>(1.0 + 0.02 * static_cast<double>(getLevel()));
@@ -484,6 +488,7 @@ void Creature::buildStats()
 
     mPhysicalDefense += mDefinition->getPhysicalDefPerLevel() * multiplier;
     mMagicalDefense += mDefinition->getMagicalDefPerLevel() * multiplier;
+    mElementDefense += mDefinition->getElementDefPerLevel() * multiplier;
 }
 
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
@@ -523,6 +528,7 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
 
     os << mPhysicalDefense;
     os << mMagicalDefense;
+    os << mElementDefense;
     os << mOverlayHealthValue;
 
     // Only allied players should see creature mood (except some states)
@@ -584,6 +590,7 @@ void Creature::importFromPacket(ODPacket& is)
 
     OD_ASSERT_TRUE(is >> mPhysicalDefense);
     OD_ASSERT_TRUE(is >> mMagicalDefense);
+    OD_ASSERT_TRUE(is >> mElementDefense);
 
     OD_ASSERT_TRUE(is >> mOverlayHealthValue);
     OD_ASSERT_TRUE(is >> mOverlayMoodValue);
@@ -3445,6 +3452,17 @@ double Creature::getMagicalDefense() const
     return defense;
 }
 
+double Creature::getElementDefense() const
+{
+    double defense = mElementDefense;
+    if (mWeaponL != nullptr)
+        defense += mWeaponL->getElementDefense();
+    if (mWeaponR != nullptr)
+        defense += mWeaponR->getElementDefense();
+
+    return defense;
+}
+
 void Creature::checkLevelUp()
 {
     if (getLevel() >= MAX_LEVEL)
@@ -3956,15 +3974,17 @@ std::string Creature::getStatsText()
     return tempSS.str();
 }
 
-double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage,
-        bool ignorePhysicalDefense, bool ignoreMagicalDefense)
+double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense)
 {
     mNbTurnsWithoutBattle = 0;
     if(!ignorePhysicalDefense)
         physicalDamage = std::max(physicalDamage - getPhysicalDefense(), 0.0);
     if(!ignoreMagicalDefense)
         magicalDamage = std::max(magicalDamage - getMagicalDefense(), 0.0);
-    double damageDone = std::min(mHp, physicalDamage + magicalDamage);
+    if(!ignoreElementDefense)
+        elementDamage = std::max(elementDamage - getElementDefense(), 0.0);
+    double damageDone = std::min(mHp, physicalDamage + magicalDamage + elementDamage);
     mHp -= damageDone;
     if(mHp <= 0)
     {

@@ -120,6 +120,13 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
                 continue;
             }
 
+            if (nextParam == "ElementDamage")
+            {
+                defFile >> nextParam;
+                weapon->mElementDamage = Helper::toDouble(nextParam);
+                continue;
+            }
+
             if (nextParam == "PhysicalDefense")
             {
                 defFile >> nextParam;
@@ -131,6 +138,13 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
             {
                 defFile >> nextParam;
                 weapon->mMagicalDefense = Helper::toDouble(nextParam);
+                continue;
+            }
+
+            if (nextParam == "ElementDefense")
+            {
+                defFile >> nextParam;
+                weapon->mElementDefense = Helper::toDouble(nextParam);
                 continue;
             }
         }
@@ -171,11 +185,17 @@ void Weapon::writeWeaponDiff(const Weapon* def1, const Weapon* def2, std::ofstre
     if(def1 == nullptr || (def1->mMagicalDamage != def2->mMagicalDamage))
         file << "    MagicalDamage\t" << def2->mMagicalDamage << std::endl;
 
+    if(def1 == nullptr || (def1->mElementDamage != def2->mElementDamage))
+        file << "    ElementDamage\t" << def2->mElementDamage << std::endl;
+
     if(def1 == nullptr || (def1->mPhysicalDefense != def2->mPhysicalDefense))
         file << "    PhysicalDefense\t" << def2->mPhysicalDefense << std::endl;
 
     if(def1 == nullptr || (def1->mMagicalDefense != def2->mMagicalDefense))
         file << "    MagicalDefense\t" << def2->mMagicalDefense << std::endl;
+
+    if(def1 == nullptr || (def1->mElementDefense != def2->mElementDefense))
+        file << "    ElementDefense\t" << def2->mElementDefense << std::endl;
 
     file << "    [/Stats]" << std::endl;
     file << "[/Equipment]" << std::endl;
@@ -188,8 +208,10 @@ ODPacket& operator <<(ODPacket& os, const Weapon *weapon)
     os << weapon->mMeshName;
     os << weapon->mPhysicalDamage;
     os << weapon->mMagicalDamage;
+    os << weapon->mElementDamage;
     os << weapon->mPhysicalDefense;
     os << weapon->mMagicalDefense;
+    os << weapon->mElementDefense;
     return os;
 }
 
@@ -200,7 +222,9 @@ ODPacket& operator >>(ODPacket& is, Weapon *weapon)
     OD_ASSERT_TRUE(is >> weapon->mMeshName);
     OD_ASSERT_TRUE(is >> weapon->mPhysicalDamage);
     OD_ASSERT_TRUE(is >> weapon->mMagicalDamage);
+    OD_ASSERT_TRUE(is >> weapon->mElementDamage);
     OD_ASSERT_TRUE(is >> weapon->mPhysicalDefense);
     OD_ASSERT_TRUE(is >> weapon->mMagicalDefense);
+    OD_ASSERT_TRUE(is >> weapon->mElementDefense);
     return is;
 }

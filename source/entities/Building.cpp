@@ -306,8 +306,8 @@ double Building::getHP(Tile *tile) const
     return total;
 }
 
-double Building::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage,
-        bool ignorePhysicalDefense, bool ignoreMagicalDefense)
+double Building::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense)
 {
     if(mTileData.count(tileTakingDamage) <= 0)
     {

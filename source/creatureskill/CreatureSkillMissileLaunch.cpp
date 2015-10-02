@@ -66,15 +66,18 @@ bool CreatureSkillMissileLaunch::tryUseFight(GameMap& gameMap, Creature* creatur
     double level = static_cast<double>(creature->getLevel());
     double phyAtk = mPhyAtk + (level * mPhyAtkPerLvl);
     double magAtk = mMagAtk + (level * mMagAtkPerLvl);
+    double eleAtk = mMagAtk + (level * mEleAtkPerLvl);
     if(creature->getWeaponL() != nullptr)
     {
         phyAtk +=creature->getWeaponL()->getPhysicalDamage();
         magAtk +=creature->getWeaponL()->getMagicalDamage();
+        eleAtk +=creature->getWeaponL()->getElementDamage();
     }
     if(creature->getWeaponR() != nullptr)
     {
         phyAtk +=creature->getWeaponR()->getPhysicalDamage();
         magAtk +=creature->getWeaponR()->getMagicalDamage();
+        eleAtk +=creature->getWeaponR()->getElementDamage();
     }
 
     // If we are attacking a building we set the tile
@@ -91,7 +94,7 @@ bool CreatureSkillMissileLaunch::tryUseFight(GameMap& gameMap, Creature* creatur
             break;
     }
     MissileOneHit* missile = new MissileOneHit(&gameMap, gameMap.isServerGameMap(), creature->getSeat(),
-        creature->getName(), mMissileMesh, mMissilePartScript, missileDirection, mMissileSpeed, phyAtk, magAtk,
+        creature->getName(), mMissileMesh, mMissilePartScript, missileDirection, mMissileSpeed, phyAtk, magAtk, eleAtk,
         tileBuilding, false);
     missile->addToGameMap();
     missile->createMesh();
@@ -115,7 +118,7 @@ void CreatureSkillMissileLaunch::getFormatString(std::string& format) const
     if(!format.empty())
         format += "\t";
 
-    format += "RangeMax\tRangePerLvl\tLevelMin\tMissileMesh\tMissilePartScript\tMissileSpeed\tPhyAtk\tPhyAtkPerLvl\tMagAtk\tMagAtkPerLvl";
+    format += "RangeMax\tRangePerLvl\tLevelMin\tMissileMesh\tMissilePartScript\tMissileSpeed\tPhyAtk\tPhyAtkPerLvl\tMagAtk\tMagAtkPerLvl\tEleAtk\tEleAtkPerLvl";
 
 }
 
@@ -132,6 +135,8 @@ void CreatureSkillMissileLaunch::exportToStream(std::ostream& os) const
     os << "\t" << mPhyAtkPerLvl;
     os << "\t" << mMagAtk;
     os << "\t" << mMagAtkPerLvl;
+    os << "\t" << mEleAtk;
+    os << "\t" << mEleAtkPerLvl;
 }
 
 bool CreatureSkillMissileLaunch::importFromStream(std::istream& is)
@@ -158,6 +163,10 @@ bool CreatureSkillMissileLaunch::importFromStream(std::istream& is)
     if(!(is >> mMagAtk))
         return false;
     if(!(is >> mMagAtkPerLvl))
+        return false;
+    if(!(is >> mEleAtk))
+        return false;
+    if(!(is >> mEleAtkPerLvl))
         return false;
 
     return true;
@@ -191,6 +200,10 @@ bool CreatureSkillMissileLaunch::isEqual(const CreatureSkill& creatureSkill) con
     if(mMagAtk != skill->mMagAtk)
         return false;
     if(mMagAtkPerLvl != skill->mMagAtkPerLvl)
+        return false;
+    if(mEleAtk != skill->mEleAtk)
+        return false;
+    if(mEleAtkPerLvl != skill->mEleAtkPerLvl)
         return false;
 
     return true;

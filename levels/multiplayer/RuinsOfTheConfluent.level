@@ -2129,8 +2129,8 @@ BigKnight	5
     447	491	538	588	641	697	756	818	883	951
     [/XP]
     [CreatureSkills]
-    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	PhyAtk	PhyAtkPerLvl	MagAtk	MagAtkPerLvl
-    Melee	5	2	1	16	0.8	0	0
+    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	PhyAtk	PhyAtkPerLvl	MagAtk	MagAtkPerLvl	EleAtk	EleAtkPerLvl
+    Melee	5	2	1	16	0.8	0	0	0	0
     [/CreatureSkills]
 [/Creature]
 [/CreatureDefinitions]

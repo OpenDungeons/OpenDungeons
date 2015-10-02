@@ -2358,8 +2358,8 @@ MineNGold	50
     758	818	880	946	1012	1080	1152	1226	1300	1400
     [/XP]
     [CreatureSkills]
-    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	PhyAtk	PhyAtkPerLvl	MagAtk	MagAtkPerLvl
-    Melee	5	2	1	13	1	7	0
+    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	PhyAtk	PhyAtkPerLvl	MagAtk	MagAtkPerLvl	EleAtk	EleAtkPerLvl
+    Melee	5	2	1	13	1	7	0	0	0
     [/CreatureSkills]
 [/Creature]
 [/CreatureDefinitions]

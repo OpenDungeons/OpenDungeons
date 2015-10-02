@@ -185,8 +185,8 @@ class GameEntity : public EntityBase
     //! \brief Subtracts the given number of hitpoints from the object, the tile specifies where
     //! the enemy inflicted the damage and the object can use this accordingly. attacker is
     //! the entity damaging
-    virtual double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage,
-        bool ignorePhysicalDefense, bool ignoreMagicalDefense) = 0;
+    virtual double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense) = 0;
 
     //! \brief Adds the entity to the correct spaces of the gamemap (animated objects, creature, ...)
     virtual void addToGameMap() = 0;

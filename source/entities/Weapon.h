@@ -33,8 +33,10 @@ public:
        mName(name),
        mPhysicalDamage(0.0),
        mMagicalDamage(0.0),
+       mElementDamage(0.0),
        mPhysicalDefense(0.0),
-       mMagicalDefense(0.0)
+       mMagicalDefense(0.0),
+       mElementDefense(0.0)
     {}
 
     virtual ~Weapon()
@@ -64,11 +66,17 @@ public:
     inline double getMagicalDamage() const
     { return mMagicalDamage; }
 
+    inline double getElementDamage() const
+    { return mElementDamage; }
+
     inline double getPhysicalDefense() const
     { return mPhysicalDefense; }
 
     inline double getMagicalDefense() const
     { return mMagicalDefense; }
+
+    inline double getElementDefense() const
+    { return mElementDefense; }
 
     friend ODPacket& operator <<(ODPacket& os, const Weapon *weapon);
     friend ODPacket& operator >>(ODPacket& is, Weapon *weapon);
@@ -77,8 +85,10 @@ private:
     Weapon() :
        mPhysicalDamage(0.0),
        mMagicalDamage(0.0),
+       mElementDamage(0.0),
        mPhysicalDefense(0.0),
-       mMagicalDefense(0.0)
+       mMagicalDefense(0.0),
+       mElementDefense(0.0)
     {}
 
     std::string     mName;
@@ -87,8 +97,10 @@ private:
     std::string     mMeshName;
     double          mPhysicalDamage;
     double          mMagicalDamage;
+    double          mElementDamage;
     double          mPhysicalDefense;
     double          mMagicalDefense;
+    double          mElementDefense;
 };
 
 #endif // WEAPON_H
