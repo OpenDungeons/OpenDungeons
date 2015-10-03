@@ -123,10 +123,7 @@ bool RoomPortalWave::removeCoveredTile(Tile* t)
 
 bool RoomPortalWave::isClaimable(Seat* seat) const
 {
-    if(getSeat()->canBuildingBeDestroyedBy(seat))
-        return false;
-
-    return true;
+    return !getSeat()->isAlliedSeat(seat);
 }
 
 void RoomPortalWave::claimForSeat(Seat* seat, Tile* tile, double danceRate)
