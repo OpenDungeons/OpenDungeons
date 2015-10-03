@@ -37,6 +37,7 @@ class CreatureActionWrapper;
 class CreatureEffect;
 class CreatureDefinition;
 class CreatureOverlayStatus;
+class CreatureSkill;
 class GameMap;
 class ODPacket;
 class Room;
@@ -64,6 +65,21 @@ enum class CreatureSound
     Die,
     Slap,
     Dig
+};
+
+class CreatureSkillData
+{
+public:
+    CreatureSkillData(const CreatureSkill* skill, uint32_t cooldown, uint32_t warmup) :
+        mSkill(skill),
+        mCooldown(cooldown),
+        mWarmup(warmup)
+    {
+    }
+
+    const CreatureSkill* mSkill;
+    uint32_t mCooldown;
+    uint32_t mWarmup;
 };
 
 //! Class used on server side to link creature effects (spells, slap, ...) with particle effects
@@ -240,17 +256,8 @@ public:
 
     virtual bool isAttackable(Tile* tile, Seat* seat) const;
 
-    double getPhysicalDamage(double range) const;
     double getPhysicalDefense() const;
-    double getMagicalDamage(double range) const;
     double getMagicalDefense() const;
-
-    //! \brief Returns the currently best attack range of the creature.
-    //! \note Depends also on its equipment.
-    double getBestAttackRange() const;
-
-    //! \brief Fills the mesh/particle script for the creature
-    void getRangeAtkMesh(float range, std::string& mesh, std::string& particleScript) const;
 
     //! \brief Check whether a creature has earned one level. If yes, handle leveling it up
     void checkLevelUp();
@@ -475,9 +482,7 @@ public:
 
     bool isMelee() const;
 
-    bool isRange() const;
-
-    virtual bool shouldFleeFrom(const Creature* creature, int distance) const override;
+    virtual bool isDangerous(const Creature* creature, int distance) const override;
 
     virtual void clientUpkeep() override;
 
@@ -511,16 +516,8 @@ private:
     Creature(GameMap* gameMap, bool isOnServerMap);
 
     //! \brief Natural physical and magical attack and defense (without equipment)
-    double mPhyAtkMel;
-    double mMagAtkMel;
     double mPhysicalDefense;
     double mMagicalDefense;
-    double mWeaponlessAtkRange;
-    double mPhyAtkRan;
-    double mMagAtkRan;
-
-    //! \brief The time left before being to draw an attack in seconds
-    double mAttackWarmupTime;
 
     //! \brief The weapon the creature is holding in its left hand or nullptr if none. It will be set by a pointer
     //! managed by the game map and thus, should not be deleted by the creature class
@@ -662,11 +659,14 @@ private:
     //! the given seat
     Seat*                           mSeatPrison;
 
+    //! \brief Skills the creature can use
+    std::vector<CreatureSkillData> mSkillData;
+
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
     //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
     //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
-    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr);
+    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
     void popAction();
 
     //! \brief Picks a destination far away in the visible tiles and goes there
@@ -681,7 +681,7 @@ private:
     //! If the creature should flee (ranged units attacked by melee), true is returned, positionTile is
     //! set to the tile where it should flee and attackedEntity = nullptr and attackedTile = nullptr
     //! If no suitable target is found, returns false
-    bool getBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile);
+    bool searchBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData);
 
     //! \brief A sub-function called by doTurn()
     //! This one checks if there is something prioritary to do (like fighting). If it is the case,

@@ -24,6 +24,7 @@
 #include <iosfwd>
 #include <cstdint>
 
+class CreatureSkill;
 class ODPacket;
 
 enum class RoomType;
@@ -114,6 +115,7 @@ public:
             double                  physicalDefPerLevel = 0.2,
             double                  magicalDefense      = 1.5,
             double                  magicalDefPerLevel  = 0.1,
+            int32_t                 fightIdleDist       = 1,
             double                  attackRange         = 1.0,
             double                  atkRangePerLevel    = 0.0,
             double                  phyAtkRan           = 0.0,
@@ -127,67 +129,11 @@ public:
             int32_t                 feeBase             = 0,
             int32_t                 feePerLevel         = 0,
             int32_t                 sleepHeal           = 1.0,
-            int32_t                 turnsStunDropped    = 0) :
-        mCreatureJob (job),
-        mClassName   (className),
-        mMeshName    (meshName),
-        mBedMeshName (bedMeshName),
-        mBedDim1     (bedDim1),
-        mBedDim2     (bedDim2),
-        mBedPosX     (bedPosX),
-        mBedPosY     (bedPosY),
-        mBedOrientX  (bedOrientX),
-        mBedOrientY  (bedOrientY),
-        mScale       (scale),
-        mSightRadius (sightRadius),
-        mMaxGoldCarryable (maxGoldCarryable),
-        mDigRate     (digRate),
-        mDigRatePerLevel (digRatePerLevel),
-        mClaimRate   (claimRate),
-        mClaimRatePerLevel(claimRatePerLevel),
-        mMinHP       (minHP),
-        mHpPerLevel  (hpPerLevel),
-        mHpHealPerTurn      (hpHealPerTurn),
-        mAwakenessLostPerTurn(awakenessLostPerTurn),
-        mHungerGrowthPerTurn(hungerGrowthPerTurn),
-        mMoveSpeedGround    (moveSpeedGround),
-        mMoveSpeedWater     (moveSpeedWater),
-        mMoveSpeedLava      (moveSpeedLava),
-        mGroundSpeedPerLevel(groundSpeedPerLevel),
-        mWaterSpeedPerLevel (waterSpeedPerLevel),
-        mLavaSpeedPerLevel  (lavaSpeedPerLevel),
-        mPhyAtkMel          (phyAtkMel),
-        mPhyAtkMelPerLvl    (phyAtkMelPerLvl),
-        mMagAtkMel          (magAtkMel),
-        mMagAtkMelPerLvl    (magAtkMelPerLvl),
-        mPhysicalDefense    (physicalDefense),
-        mPhysicalDefPerLevel(physicalDefPerLevel),
-        mMagicalDefense     (magicalDefense),
-        mMagicalDefPerLevel (magicalDefPerLevel),
-        mAttackRange        (attackRange),
-        mAtkRangePerLevel   (atkRangePerLevel),
-        mPhyAtkRan          (phyAtkRan),
-        mPhyAtkRanPerLvl    (phyAtkRanPerLvl),
-        mMagAtkRan          (magAtkRan),
-        mMagAtkRanPerLvl    (magAtkRanPerLvl),
-        mRanAtkMesh         (ranAtkMesh),
-        mRanAtkPartScript   (ranAtkPartScript),
-        mAttackWarmupTime   (attackWarmupTime),
-        mWeakCoef           (weakCoef),
-        mFeeBase            (feeBase),
-        mFeePerLevel        (feePerLevel),
-        mSleepHeal          (sleepHeal),
-        mTurnsStunDropped   (turnsStunDropped),
-        mWeaponSpawnL       ("none"),
-        mWeaponSpawnR       ("none"),
-        mSoundFamilyPickup  ("Default/Pickup"),
-        mSoundFamilyDrop    ("Default/Drop"),
-        mSoundFamilyAttack  ("Default/Attack"),
-        mSoundFamilyDie     ("Default/Die"),
-        mSoundFamilySlap    ("Default/Slap")
-    {
-        mXPTable.assign(MAX_LEVEL - 1, 100.0);
-    }
+            int32_t                 turnsStunDropped    = 0);
+
+    CreatureDefinition(const CreatureDefinition& def);
+
+    virtual ~CreatureDefinition();
 
     static CreatureJob creatureJobFromString(const std::string& s);
     static std::string creatureJobToString(CreatureJob c);
@@ -244,26 +190,12 @@ public:
     inline double               getWaterSpeedPerLevel () const  { return mWaterSpeedPerLevel; }
     inline double               getLavaSpeedPerLevel  () const  { return mLavaSpeedPerLevel; }
 
-
-    inline double               getPhyAtkMel() const            { return mPhyAtkMel; }
-    inline double               getPhyAtkMelPerLvl () const     { return mPhyAtkMelPerLvl; }
-    inline double               getMagAtkMel  () const          { return mMagAtkMel; }
-    inline double               getMagAtkMelPerLvl () const     { return mMagAtkMelPerLvl; }
     inline double               getPhysicalDefense() const      { return mPhysicalDefense; }
     inline double               getPhysicalDefPerLevel () const { return mPhysicalDefPerLevel; }
     inline double               getMagicalDefense  () const     { return mMagicalDefense; }
     inline double               getMagicalDefPerLevel () const  { return mMagicalDefPerLevel; }
 
-    inline double               getAttackRange      () const    { return mAttackRange; }
-    inline double               getAtkRangePerLevel () const    { return mAtkRangePerLevel; }
-    inline double               getPhyAtkRan() const            { return mPhyAtkRan; }
-    inline double               getPhyAtkRanPerLvl () const     { return mPhyAtkRanPerLvl; }
-    inline double               getMagAtkRan  () const          { return mMagAtkRan; }
-    inline double               getMagAtkRanPerLvl () const     { return mMagAtkRanPerLvl; }
-    inline const std::string&   getRanAtkMesh () const          { return mRanAtkMesh; }
-    inline const std::string&   getRanAtkPartScript () const    { return mRanAtkPartScript; }
-
-    inline double               getAttackWarmupTime () const    { return mAttackWarmupTime; }
+    inline int32_t              getFightIdleDist() const        { return mFightIdleDist; }
 
     inline double               getWeakCoef () const            { return mWeakCoef; }
 
@@ -282,6 +214,9 @@ public:
     //! sorted so that highest likeness is at first
     inline const std::vector<CreatureRoomAffinity>& getRoomAffinity() const
     { return mRoomAffinity; }
+
+    inline const std::vector<const CreatureSkill*>& getCreatureSkills() const
+    { return mCreatureSkills; }
 
     const CreatureRoomAffinity& getRoomAffinity(RoomType roomType) const;
 
@@ -373,28 +308,14 @@ private:
     double mWaterSpeedPerLevel;
     double mLavaSpeedPerLevel;
 
-    //! \brief Physical and magical attack/defense stats (without equipment)
-    double mPhyAtkMel;
-    double mPhyAtkMelPerLvl;
-    double mMagAtkMel;
-    double mMagAtkMelPerLvl;
+    //! \brief Physical and magical defense stats (without equipment)
     double mPhysicalDefense;
     double mPhysicalDefPerLevel;
     double mMagicalDefense;
     double mMagicalDefPerLevel;
 
-    //! \brief Weapon-less attack range and growth
-    double mAttackRange;
-    double mAtkRangePerLevel;
-    double mPhyAtkRan;
-    double mPhyAtkRanPerLvl;
-    double mMagAtkRan;
-    double mMagAtkRanPerLvl;
-    std::string mRanAtkMesh;
-    std::string mRanAtkPartScript;
-
-    //! \brief The time to wait before dealing a blow, in seconds.
-    double mAttackWarmupTime;
+    //! \brief Distance from the nearest enemy creature that the creature will try to let when no skill can be used
+    int32_t mFightIdleDist;
 
     //! \brief The coefficient applied on hp to check if the creature is weak. It will be
     //! if hp < hpMax * mWeakCoef. A weak creature will flee combat and will try to rest
@@ -418,6 +339,9 @@ private:
     //! \note The creature starting at level 1, it can only change its level MAX_LEVEL - 1 times.
     std::vector<double> mXPTable;
 
+    //! \brief Skills the creature can use
+    std::vector<const CreatureSkill*> mCreatureSkills;
+
     //! \brief The rooms the creature should choose according to availability
     std::vector<CreatureRoomAffinity> mRoomAffinity;
 
@@ -434,6 +358,9 @@ private:
 
     //! \brief Loads the creature XP values for the given definition.
     static void loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef);
+
+    //! \brief Loads the creature XP values for the given definition.
+    static void loadCreatureSkills(std::stringstream& defFile, CreatureDefinition* creatureDef);
 
     //! \brief Loads the creature room affinity for the given definition.
     static void loadRoomAffinity(std::stringstream& defFile, CreatureDefinition* creatureDef);

@@ -24,6 +24,7 @@
 
 #include "utils/LogManager.h"
 
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/filesystem.hpp>
 #include <fstream>
 
@@ -86,6 +87,11 @@ namespace Helper
     int round(float f)
     {
         return static_cast<int>(f + 0.5f);
+    }
+
+    void trim(std::string& str)
+    {
+        boost::algorithm::trim(str);
     }
 
     bool fillDirList(const std::string& path,

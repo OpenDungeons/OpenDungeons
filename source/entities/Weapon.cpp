@@ -120,13 +120,6 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
                 continue;
             }
 
-            if (nextParam == "Range")
-            {
-                defFile >> nextParam;
-                weapon->mRange = Helper::toDouble(nextParam);
-                continue;
-            }
-
             if (nextParam == "PhysicalDefense")
             {
                 defFile >> nextParam;
@@ -140,30 +133,12 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
                 weapon->mMagicalDefense = Helper::toDouble(nextParam);
                 continue;
             }
-
-            if (nextParam == "RangeMesh")
-            {
-                defFile >> nextParam;
-                if(nextParam != "none")
-                    weapon->mRangeMesh = nextParam;
-                defFile >> nextParam;
-                if(nextParam != "none")
-                    weapon->mRangeScript = nextParam;
-                continue;
-            }
         }
     }
 
     if (name.empty() || weapon->mMeshName.empty())
     {
         OD_LOG_ERR("name=" + name + ", weapon mesh name=" + weapon->mMeshName);
-        return false;
-    }
-
-    // If the weapon range mesh is empty, it cannot be a ranged weapon
-    if(weapon->mRangeMesh.empty() && (weapon->mRange > 1))
-    {
-        OD_LOG_ERR("name=" + name + ", range=" + Helper::toString(weapon->mRange));
         return false;
     }
 
@@ -196,17 +171,11 @@ void Weapon::writeWeaponDiff(const Weapon* def1, const Weapon* def2, std::ofstre
     if(def1 == nullptr || (def1->mMagicalDamage != def2->mMagicalDamage))
         file << "    MagicalDamage\t" << def2->mMagicalDamage << std::endl;
 
-    if(def1 == nullptr || (def1->mRange != def2->mRange))
-        file << "    Range\t" << def2->mRange << std::endl;
-
     if(def1 == nullptr || (def1->mPhysicalDefense != def2->mPhysicalDefense))
         file << "    PhysicalDefense\t" << def2->mPhysicalDefense << std::endl;
 
     if(def1 == nullptr || (def1->mMagicalDefense != def2->mMagicalDefense))
         file << "    MagicalDefense\t" << def2->mMagicalDefense << std::endl;
-
-    if(def1 == nullptr || (def1->mRangeMesh != def2->mRangeMesh) || (def1->mRangeScript != def2->mRangeScript))
-        file << "    RangeMesh\t" << def2->mRangeMesh << "\t" << def2->mRangeScript << std::endl;
 
     file << "    [/Stats]" << std::endl;
     file << "[/Equipment]" << std::endl;
@@ -219,11 +188,8 @@ ODPacket& operator <<(ODPacket& os, const Weapon *weapon)
     os << weapon->mMeshName;
     os << weapon->mPhysicalDamage;
     os << weapon->mMagicalDamage;
-    os << weapon->mRange;
     os << weapon->mPhysicalDefense;
     os << weapon->mMagicalDefense;
-    os << weapon->mRangeMesh;
-    os << weapon->mRangeScript;
     return os;
 }
 
@@ -234,10 +200,7 @@ ODPacket& operator >>(ODPacket& is, Weapon *weapon)
     OD_ASSERT_TRUE(is >> weapon->mMeshName);
     OD_ASSERT_TRUE(is >> weapon->mPhysicalDamage);
     OD_ASSERT_TRUE(is >> weapon->mMagicalDamage);
-    OD_ASSERT_TRUE(is >> weapon->mRange);
     OD_ASSERT_TRUE(is >> weapon->mPhysicalDefense);
     OD_ASSERT_TRUE(is >> weapon->mMagicalDefense);
-    OD_ASSERT_TRUE(is >> weapon->mRangeMesh);
-    OD_ASSERT_TRUE(is >> weapon->mRangeScript);
     return is;
 }

@@ -2331,17 +2331,10 @@ MineNGold	50
     GroundSpeed/Level	0.005
     WaterSpeed/Level	0.005
     LavaSpeed/Level	0
-    PhyAtkMel	13
-    PhyAtkMel/Level	1
-    MagAtkMel	7
-    MagAtkMel/Level	0
     PhysicalDefense	3
     PhysicalDef/Level	0.3
     MagicalDefense	4
     MagicalDef/Level	0
-    AttackRange	1
-    AtkRange/Level	0
-    AttackWarmupTime	2.5
     WeakCoef	0.3
     FeeBase	0
     FeePerLevel	0
@@ -2364,6 +2357,10 @@ MineNGold	50
     # 21-30
     758	818	880	946	1012	1080	1152	1226	1300	1400
     [/XP]
+    [CreatureSkills]
+    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	PhyAtk	PhyAtkPerLvl	MagAtk	MagAtkPerLvl
+    Melee	5	2	1	13	1	7	0
+    [/CreatureSkills]
 [/Creature]
 [/CreatureDefinitions]
 

@@ -17,6 +17,7 @@
 
 #include "entities/CreatureDefinition.h"
 
+#include "creatureskill/CreatureSkill.h"
 #include "network/ODPacket.h"
 #include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
@@ -24,6 +25,177 @@
 #include "utils/LogManager.h"
 
 static CreatureRoomAffinity EMPTY_AFFINITY(RoomType::nullRoomType, 0, 0);
+
+CreatureDefinition::CreatureDefinition(
+            const std::string&      className,
+            CreatureJob             job,
+            const std::string&      meshName,
+            const Ogre::Vector3&    scale,
+            const std::string&      bedMeshName,
+            int                     bedDim1,
+            int                     bedDim2,
+            int                     bedPosX,
+            int                     bedPosY,
+            double                  bedOrientX,
+            double                  bedOrientY,
+            double                  sightRadius,
+            int                     maxGoldCarryable,
+            double                  digRate,
+            double                  digRatePerLevel,
+            double                  claimRate,
+            double                  claimRatePerLevel,
+            double                  minHP,
+            double                  hpPerLevel,
+            double                  hpHealPerTurn,
+            double                  awakenessLostPerTurn,
+            double                  hungerGrowthPerTurn,
+            double                  moveSpeedGround,
+            double                  moveSpeedWater,
+            double                  moveSpeedLava,
+            double                  groundSpeedPerLevel,
+            double                  waterSpeedPerLevel,
+            double                  lavaSpeedPerLevel,
+            double                  phyAtkMel,
+            double                  phyAtkMelPerLvl,
+            double                  magAtkMel,
+            double                  magAtkMelPerLvl,
+            double                  physicalDefense,
+            double                  physicalDefPerLevel,
+            double                  magicalDefense,
+            double                  magicalDefPerLevel,
+            int32_t                 fightIdleDist,
+            double                  attackRange,
+            double                  atkRangePerLevel,
+            double                  phyAtkRan,
+            double                  phyAtkRanPerLvl,
+            double                  magAtkRan,
+            double                  magAtkRanPerLvl,
+            const std::string&      ranAtkMesh,
+            const std::string&      ranAtkPartScript,
+            double                  attackWarmupTime,
+            double                  weakCoef,
+            int32_t                 feeBase,
+            int32_t                 feePerLevel,
+            int32_t                 sleepHeal,
+            int32_t                 turnsStunDropped) :
+        mCreatureJob (job),
+        mClassName   (className),
+        mMeshName    (meshName),
+        mBedMeshName (bedMeshName),
+        mBedDim1     (bedDim1),
+        mBedDim2     (bedDim2),
+        mBedPosX     (bedPosX),
+        mBedPosY     (bedPosY),
+        mBedOrientX  (bedOrientX),
+        mBedOrientY  (bedOrientY),
+        mScale       (scale),
+        mSightRadius (sightRadius),
+        mMaxGoldCarryable (maxGoldCarryable),
+        mDigRate     (digRate),
+        mDigRatePerLevel (digRatePerLevel),
+        mClaimRate   (claimRate),
+        mClaimRatePerLevel(claimRatePerLevel),
+        mMinHP       (minHP),
+        mHpPerLevel  (hpPerLevel),
+        mHpHealPerTurn      (hpHealPerTurn),
+        mAwakenessLostPerTurn(awakenessLostPerTurn),
+        mHungerGrowthPerTurn(hungerGrowthPerTurn),
+        mMoveSpeedGround    (moveSpeedGround),
+        mMoveSpeedWater     (moveSpeedWater),
+        mMoveSpeedLava      (moveSpeedLava),
+        mGroundSpeedPerLevel(groundSpeedPerLevel),
+        mWaterSpeedPerLevel (waterSpeedPerLevel),
+        mLavaSpeedPerLevel  (lavaSpeedPerLevel),
+        mPhysicalDefense    (physicalDefense),
+        mPhysicalDefPerLevel(physicalDefPerLevel),
+        mMagicalDefense     (magicalDefense),
+        mMagicalDefPerLevel (magicalDefPerLevel),
+        mFightIdleDist      (fightIdleDist),
+        mWeakCoef           (weakCoef),
+        mFeeBase            (feeBase),
+        mFeePerLevel        (feePerLevel),
+        mSleepHeal          (sleepHeal),
+        mTurnsStunDropped   (turnsStunDropped),
+        mWeaponSpawnL       ("none"),
+        mWeaponSpawnR       ("none"),
+        mSoundFamilyPickup  ("Default/Pickup"),
+        mSoundFamilyDrop    ("Default/Drop"),
+        mSoundFamilyAttack  ("Default/Attack"),
+        mSoundFamilyDie     ("Default/Die"),
+        mSoundFamilySlap    ("Default/Slap")
+{
+    mXPTable.assign(MAX_LEVEL - 1, 100.0);
+}
+
+CreatureDefinition::CreatureDefinition(const CreatureDefinition& def) :
+        mCreatureJob(def.mCreatureJob),
+        mClassName(def.mClassName),
+        mMeshName(def.mMeshName),
+        mBedMeshName(def.mBedMeshName),
+        mBedDim1(def.mBedDim1),
+        mBedDim2(def.mBedDim2),
+        mBedPosX(def.mBedPosX),
+        mBedPosY(def.mBedPosY),
+        mBedOrientX(def.mBedOrientX),
+        mBedOrientY(def.mBedOrientY),
+        mScale(def.mScale),
+        mSightRadius(def.mSightRadius),
+        mMaxGoldCarryable(def.mMaxGoldCarryable),
+        mDigRate(def.mDigRate),
+        mDigRatePerLevel(def.mDigRatePerLevel),
+        mClaimRate(def.mClaimRate),
+        mClaimRatePerLevel(def.mClaimRatePerLevel),
+        mMinHP(def.mMinHP),
+        mHpPerLevel(def.mHpPerLevel),
+        mHpHealPerTurn(def.mHpHealPerTurn),
+        mAwakenessLostPerTurn(def.mAwakenessLostPerTurn),
+        mHungerGrowthPerTurn(def.mHungerGrowthPerTurn),
+        mMoveSpeedGround(def.mMoveSpeedGround),
+        mMoveSpeedWater(def.mMoveSpeedWater),
+        mMoveSpeedLava(def.mMoveSpeedLava),
+        mGroundSpeedPerLevel(def.mGroundSpeedPerLevel),
+        mWaterSpeedPerLevel(def.mWaterSpeedPerLevel),
+        mLavaSpeedPerLevel(def.mLavaSpeedPerLevel),
+        mPhysicalDefense(def.mPhysicalDefense),
+        mPhysicalDefPerLevel(def.mPhysicalDefPerLevel),
+        mMagicalDefense(def.mMagicalDefense),
+        mMagicalDefPerLevel(def.mMagicalDefPerLevel),
+        mFightIdleDist(def.mFightIdleDist),
+        mWeakCoef(def.mWeakCoef),
+        mFeeBase(def.mFeeBase),
+        mFeePerLevel(def.mFeePerLevel),
+        mSleepHeal(def.mSleepHeal),
+        mTurnsStunDropped(def.mTurnsStunDropped),
+        mWeaponSpawnL(def.mWeaponSpawnL),
+        mWeaponSpawnR(def.mWeaponSpawnR),
+        mSoundFamilyPickup(def.mSoundFamilyPickup),
+        mSoundFamilyDrop(def.mSoundFamilyDrop),
+        mSoundFamilyAttack(def.mSoundFamilyAttack),
+        mSoundFamilyDie(def.mSoundFamilyDie),
+        mSoundFamilySlap(def.mSoundFamilySlap)
+{
+    for(const double& xp : def.mXPTable)
+    {
+        mXPTable.push_back(xp);
+    }
+    for(const CreatureRoomAffinity& aff : def.mRoomAffinity)
+    {
+        mRoomAffinity.push_back(aff);
+    }
+    for(const CreatureSkill* skill : def.mCreatureSkills)
+    {
+        mCreatureSkills.push_back(skill->clone());
+    }
+}
+
+CreatureDefinition::~CreatureDefinition()
+{
+    for(const CreatureSkill* skill : mCreatureSkills)
+    {
+        delete skill;
+    }
+    mCreatureSkills.clear();
+}
 
 double CreatureDefinition::getXPNeededWhenLevel(unsigned int level) const
 {
@@ -84,15 +256,9 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mClaimRate << c->mClaimRatePerLevel;
     os << c->mMoveSpeedGround << c->mMoveSpeedWater << c->mMoveSpeedLava;
     os << c->mGroundSpeedPerLevel << c->mWaterSpeedPerLevel << c->mLavaSpeedPerLevel;
-    os << c->mPhyAtkMel << c->mPhyAtkMelPerLvl;
-    os << c->mMagAtkMel << c->mMagAtkMelPerLvl;
     os << c->mPhysicalDefense << c->mPhysicalDefPerLevel;
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
-    os << c->mAttackRange << c->mAtkRangePerLevel;
-    os << c->mPhyAtkRan << c->mPhyAtkRanPerLvl;
-    os << c->mMagAtkRan << c->mMagAtkRanPerLvl;
-    os << c->mRanAtkMesh << c->mRanAtkPartScript;
-    os << c->mAttackWarmupTime;
+    os << c->mFightIdleDist;
     os << c->mWeakCoef;
     os << c->mFeeBase;
     os << c->mFeePerLevel;
@@ -129,15 +295,9 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mClaimRate >> c->mClaimRatePerLevel;
     is >> c->mMoveSpeedGround >> c->mMoveSpeedWater >> c->mMoveSpeedLava;
     is >> c->mGroundSpeedPerLevel >> c->mWaterSpeedPerLevel >> c->mLavaSpeedPerLevel;
-    is >> c->mPhyAtkMel >> c->mPhyAtkMelPerLvl;
-    is >> c->mMagAtkMel >> c->mMagAtkMelPerLvl;
     is >> c->mPhysicalDefense >> c->mPhysicalDefPerLevel;
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
-    is >> c->mAttackRange >> c->mAtkRangePerLevel;
-    is >> c->mPhyAtkRan >> c->mPhyAtkRanPerLvl;
-    is >> c->mMagAtkRan >> c->mMagAtkRanPerLvl;
-    is >> c->mRanAtkMesh >> c->mRanAtkPartScript;
-    is >> c->mAttackWarmupTime;
+    is >> c->mFightIdleDist;
     is >> c->mWeakCoef;
     is >> c->mFeeBase;
     is >> c->mFeePerLevel;
@@ -222,6 +382,12 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
         if (nextParam == "[XP]")
         {
             loadXPTable(defFile, creatureDef);
+            continue;
+        }
+
+        if (nextParam == "[CreatureSkills]")
+        {
+            loadCreatureSkills(defFile, creatureDef);
             continue;
         }
 
@@ -411,64 +577,6 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 continue;
             }
 
-            else if (nextParam == "PhyAtkMel")
-            {
-                defFile >> nextParam;
-                creatureDef->mPhyAtkMel = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "PhyAtkMel/Level")
-            {
-                defFile >> nextParam;
-                creatureDef->mPhyAtkMelPerLvl = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "MagAtkMel")
-            {
-                defFile >> nextParam;
-                creatureDef->mMagAtkMel = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "MagAtkMel/Level")
-            {
-                defFile >> nextParam;
-                creatureDef->mMagAtkMelPerLvl = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "PhyAtkRan")
-            {
-                defFile >> nextParam;
-                creatureDef->mPhyAtkRan = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "PhyAtkRan/Level")
-            {
-                defFile >> nextParam;
-                creatureDef->mPhyAtkRanPerLvl = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "MagAtkRan")
-            {
-                defFile >> nextParam;
-                creatureDef->mMagAtkRan = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "MagAtkRan/Level")
-            {
-                defFile >> nextParam;
-                creatureDef->mMagAtkRanPerLvl = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "RangeMesh")
-            {
-                defFile >> nextParam;
-                if(nextParam != "none")
-                    creatureDef->mRanAtkMesh = nextParam;
-                defFile >> nextParam;
-                if(nextParam != "none")
-                    creatureDef->mRanAtkPartScript = nextParam;
-                continue;
-            }
             else if (nextParam == "PhysicalDefense")
             {
                 defFile >> nextParam;
@@ -493,22 +601,10 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mMagicalDefPerLevel = Helper::toDouble(nextParam);
                 continue;
             }
-            else if (nextParam == "AttackRange")
+            else if (nextParam == "FightIdleDist")
             {
                 defFile >> nextParam;
-                creatureDef->mAttackRange = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "AtkRange/Level")
-            {
-                defFile >> nextParam;
-                creatureDef->mAtkRangePerLevel = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "AttackWarmupTime")
-            {
-                defFile >> nextParam;
-                creatureDef->mAttackWarmupTime = Helper::toDouble(nextParam);
+                creatureDef->mFightIdleDist = Helper::toInt(nextParam);
                 continue;
             }
             else if (nextParam == "WeakCoef")
@@ -692,18 +788,6 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
     if(def1 == nullptr || (def1->mLavaSpeedPerLevel != def2->mLavaSpeedPerLevel))
         file << "    LavaSpeed/Level\t" << def2->mLavaSpeedPerLevel << std::endl;
 
-    if(def1 == nullptr || (def1->mPhyAtkMel != def2->mPhyAtkMel))
-        file << "    PhyAtkMel\t" << def2->mPhyAtkMel << std::endl;
-
-    if(def1 == nullptr || (def1->mPhyAtkMelPerLvl != def2->mPhyAtkMelPerLvl))
-        file << "    PhyAtkMel/Level\t" << def2->mPhyAtkMelPerLvl << std::endl;
-
-    if(def1 == nullptr || (def1->mMagAtkMel != def2->mMagAtkMel))
-        file << "    MagAtkMel\t" << def2->mMagAtkMel << std::endl;
-
-    if(def1 == nullptr || (def1->mMagAtkMelPerLvl != def2->mMagAtkMelPerLvl))
-        file << "    MagAtkMel/Level\t" << def2->mMagAtkMelPerLvl << std::endl;
-
     if(def1 == nullptr || (def1->mPhysicalDefense != def2->mPhysicalDefense))
         file << "    PhysicalDefense\t" << def2->mPhysicalDefense << std::endl;
 
@@ -716,43 +800,8 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
     if(def1 == nullptr || (def1->mMagicalDefPerLevel != def2->mMagicalDefPerLevel))
         file << "    MagicalDef/Level\t" << def2->mMagicalDefPerLevel << std::endl;
 
-    if(def1 == nullptr || (def1->mAttackRange != def2->mAttackRange))
-        file << "    AttackRange\t" << def2->mAttackRange << std::endl;
-
-    if(def1 == nullptr || (def1->mAtkRangePerLevel != def2->mAtkRangePerLevel))
-        file << "    AtkRange/Level\t" << def2->mAtkRangePerLevel << std::endl;
-
-    if(def1 == nullptr || (def1->mPhyAtkRan != def2->mPhyAtkRan))
-        file << "    PhyAtkRan\t" << def2->mPhyAtkRan << std::endl;
-
-    if(def1 == nullptr || (def1->mPhyAtkRanPerLvl != def2->mPhyAtkRanPerLvl))
-        file << "    PhyAtkRan/Level\t" << def2->mPhyAtkRanPerLvl << std::endl;
-
-    if(def1 == nullptr || (def1->mMagAtkRan != def2->mMagAtkRan))
-        file << "    MagAtkRan\t" << def2->mMagAtkRan << std::endl;
-
-    if(def1 == nullptr || (def1->mMagAtkRanPerLvl != def2->mMagAtkRanPerLvl))
-        file << "    MagAtkRan/Level\t" << def2->mMagAtkRanPerLvl << std::endl;
-
-    if(def1 == nullptr || (def1->mRanAtkMesh != def2->mRanAtkMesh) || (def1->mRanAtkPartScript != def2->mRanAtkPartScript))
-    {
-        std::string mesh;
-        std::string script;
-        if(def2->mRanAtkMesh.empty())
-            mesh = "none";
-        else
-            mesh = def2->mRanAtkMesh;
-
-        if(def2->mRanAtkPartScript.empty())
-            script = "none";
-        else
-            script = def2->mRanAtkPartScript;
-
-        file << "    RangeMesh\t" << mesh << "\t" << script << std::endl;
-    }
-
-    if(def1 == nullptr || (def1->mAttackWarmupTime != def2->mAttackWarmupTime))
-        file << "    AttackWarmupTime\t" << def2->mAttackWarmupTime << std::endl;
+    if(def1 == nullptr || (def1->mFightIdleDist != def2->mFightIdleDist))
+        file << "    FightIdleDist\t" << def2->mFightIdleDist << std::endl;
 
     if(def1 == nullptr || (def1->mWeakCoef != def2->mWeakCoef))
         file << "    WeakCoef\t" << def2->mWeakCoef << std::endl;
@@ -848,6 +897,32 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
         }
         file << "    [/XP]" << std::endl;
     }
+
+    isSame = (def1 != nullptr && (def1->mCreatureSkills.size() == def2->mCreatureSkills.size()));
+    if(isSame)
+    {
+        for(uint32_t i = 0; i < def1->mCreatureSkills.size(); ++i)
+        {
+            if(!def1->mCreatureSkills[i]->isEqual(*(def2->mCreatureSkills[i])))
+            {
+                isSame = false;
+                break;
+            }
+        }
+    }
+    if(!isSame && !def2->mCreatureSkills.empty())
+    {
+        file << "    [CreatureSkills]" << std::endl;
+        for(const CreatureSkill* skill : def2->mCreatureSkills)
+        {
+            std::string format;
+            skill->getFormatString(format);
+            file << "    " << format << std::endl;
+            file << "    ";
+            CreatureSkill::write(skill, file);
+        }
+        file << "    [/CreatureSkills]" << std::endl;
+    }
     file << "[/Creature]" << std::endl;
 }
 
@@ -888,6 +963,52 @@ void CreatureDefinition::loadXPTable(std::stringstream& defFile, CreatureDefinit
         }
 
         creatureDef->mXPTable[i++] = Helper::toDouble(nextParam);
+    }
+}
+
+void CreatureDefinition::loadCreatureSkills(std::stringstream& defFile, CreatureDefinition* creatureDef)
+{
+    if (creatureDef == nullptr)
+    {
+        OD_LOG_ERR("Cannot load null creature def");
+        return;
+    }
+
+    if(!defFile.good())
+    {
+        OD_LOG_ERR("input file invalid");
+        return;
+    }
+
+    std::string nextParam;
+    // We want to start on the next line
+    std::getline(defFile, nextParam);
+    while (defFile.good())
+    {
+        std::getline(defFile, nextParam);
+        if(!defFile.good())
+            break;
+
+        Helper::trim(nextParam);
+        if(nextParam.empty())
+            continue;
+
+        if (nextParam == "[/CreatureSkills]" || nextParam == "[/Stats]" ||
+            nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        {
+            break;
+        }
+
+        // Ignore values after the max level
+        std::stringstream ss(nextParam);
+        CreatureSkill* skill = CreatureSkill::load(ss);
+        if (skill == nullptr)
+        {
+            OD_LOG_ERR("line=" + nextParam);
+            continue;
+        }
+
+        creatureDef->mCreatureSkills.push_back(skill);
     }
 }
 

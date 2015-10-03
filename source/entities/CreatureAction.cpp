@@ -20,11 +20,12 @@
 
 #include "utils/LogManager.h"
 
-CreatureAction::CreatureAction(Creature* creature, const CreatureActionType actionType, GameEntity* attackedEntity, Tile* tile) :
+CreatureAction::CreatureAction(Creature* creature, const CreatureActionType actionType, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* creatureSkillData) :
     mCreature(creature),
     mActionType(actionType),
     mAttackedEntity(attackedEntity),
     mTile(tile),
+    mCreatureSkillData(creatureSkillData),
     mNbTurns(0),
     mNbTurnsActive(0)
 {
