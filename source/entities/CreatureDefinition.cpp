@@ -63,6 +63,8 @@ CreatureDefinition::CreatureDefinition(
             double                  physicalDefPerLevel,
             double                  magicalDefense,
             double                  magicalDefPerLevel,
+            double                  elementDefense,
+            double                  elementDefPerLevel,
             int32_t                 fightIdleDist,
             double                  attackRange,
             double                  atkRangePerLevel,
@@ -110,6 +112,8 @@ CreatureDefinition::CreatureDefinition(
         mPhysicalDefPerLevel(physicalDefPerLevel),
         mMagicalDefense     (magicalDefense),
         mMagicalDefPerLevel (magicalDefPerLevel),
+        mElementDefense     (elementDefense),
+        mElementDefPerLevel (elementDefPerLevel),
         mFightIdleDist      (fightIdleDist),
         mWeakCoef           (weakCoef),
         mFeeBase            (feeBase),
@@ -160,6 +164,8 @@ CreatureDefinition::CreatureDefinition(const CreatureDefinition& def) :
         mPhysicalDefPerLevel(def.mPhysicalDefPerLevel),
         mMagicalDefense(def.mMagicalDefense),
         mMagicalDefPerLevel(def.mMagicalDefPerLevel),
+        mElementDefense(def.mElementDefense),
+        mElementDefPerLevel(def.mElementDefPerLevel),
         mFightIdleDist(def.mFightIdleDist),
         mWeakCoef(def.mWeakCoef),
         mFeeBase(def.mFeeBase),
@@ -258,6 +264,7 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mGroundSpeedPerLevel << c->mWaterSpeedPerLevel << c->mLavaSpeedPerLevel;
     os << c->mPhysicalDefense << c->mPhysicalDefPerLevel;
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
+    os << c->mElementDefense << c->mElementDefPerLevel;
     os << c->mFightIdleDist;
     os << c->mWeakCoef;
     os << c->mFeeBase;
@@ -297,6 +304,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mGroundSpeedPerLevel >> c->mWaterSpeedPerLevel >> c->mLavaSpeedPerLevel;
     is >> c->mPhysicalDefense >> c->mPhysicalDefPerLevel;
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
+    is >> c->mElementDefense >> c->mElementDefPerLevel;
     is >> c->mFightIdleDist;
     is >> c->mWeakCoef;
     is >> c->mFeeBase;
@@ -601,6 +609,18 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mMagicalDefPerLevel = Helper::toDouble(nextParam);
                 continue;
             }
+            else if (nextParam == "ElementDefense")
+            {
+                defFile >> nextParam;
+                creatureDef->mElementDefense = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "ElementDef/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mElementDefPerLevel = Helper::toDouble(nextParam);
+                continue;
+            }
             else if (nextParam == "FightIdleDist")
             {
                 defFile >> nextParam;
@@ -799,6 +819,12 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
 
     if(def1 == nullptr || (def1->mMagicalDefPerLevel != def2->mMagicalDefPerLevel))
         file << "    MagicalDef/Level\t" << def2->mMagicalDefPerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mElementDefense != def2->mElementDefense))
+        file << "    ElementDefense\t" << def2->mElementDefense << std::endl;
+
+    if(def1 == nullptr || (def1->mElementDefPerLevel != def2->mElementDefPerLevel))
+        file << "    ElementDef/Level\t" << def2->mElementDefPerLevel << std::endl;
 
     if(def1 == nullptr || (def1->mFightIdleDist != def2->mFightIdleDist))
         file << "    FightIdleDist\t" << def2->mFightIdleDist << std::endl;

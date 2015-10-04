@@ -557,10 +557,7 @@ bool Trap::isTileVisibleForSeat(Tile* tile, Seat* seat) const
 
 bool Trap::isClaimable(Seat* seat) const
 {
-    if(getSeat()->canBuildingBeDestroyedBy(seat))
-        return false;
-
-    return true;
+    return !getSeat()->isAlliedSeat(seat);
 }
 
 void Trap::claimForSeat(Seat* seat, Tile* tile, double danceRate)

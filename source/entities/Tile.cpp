@@ -90,6 +90,7 @@ bool Tile::isDiggable(const Seat* seat) const
             return false;
         case TileVisual::goldFull:
         case TileVisual::dirtFull:
+        case TileVisual::gemFull:
             return true;
         default:
             break;
@@ -284,6 +285,9 @@ std::string Tile::tileTypeToString(TileType t)
         case TileType::lava:
             return "Lava";
 
+        case TileType::gem:
+            return "Gem";
+
         default:
             return "Unknown tile type=" + Helper::toString(static_cast<uint32_t>(t));
     }
@@ -322,6 +326,9 @@ std::string Tile::tileVisualToString(TileVisual tileVisual)
 
         case TileVisual::claimedGround:
             return "claimedGround";
+
+        case TileVisual::gemFull:
+            return "gemFull";
 
         case TileVisual::claimedFull:
             return "claimedFull";
@@ -409,14 +416,6 @@ void Tile::removePlayerMarkingTile(const Player *p)
 void Tile::addNeighbor(Tile *n)
 {
     mNeighbors.push_back(n);
-}
-
-double Tile::scaleDigRate(double digRate)
-{
-    if(!isClaimed())
-        return digRate;
-
-    return 0.2 * digRate;
 }
 
 Tile* Tile::getNeighbor(unsigned int index)
@@ -781,7 +780,12 @@ void Tile::computeTileVisual()
             mTileVisual = TileVisual::lavaGround;
             return;
 
+        case TileType::gem:
+            mTileVisual = TileVisual::gemFull;
+            return;
+
         default:
+            OD_LOG_ERR("Computing tile visual for unknown tile type tile=" + Tile::displayAsString(this) + ", TileType=" + tileTypeToString(getType()));
             mTileVisual = TileVisual::nullTileVisual;
             return;
     }

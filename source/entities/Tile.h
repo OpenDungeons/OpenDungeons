@@ -54,6 +54,7 @@ enum class TileType
     rock = 3,
     water = 4,
     lava = 5,
+    gem = 6,
     countTileType
 };
 
@@ -86,6 +87,7 @@ enum class TileVisual
     lavaGround,
     claimedGround,
     claimedFull,
+    gemFull,
     countTileVisual
 };
 
@@ -229,8 +231,7 @@ public:
     void claimForSeat(Seat* seat, double nDanceRate);
     void claimTile(Seat* seat);
     void unclaimTile();
-    double digOut(double digRate, bool doScaleDigRate = false);
-    double scaleDigRate(double digRate);
+    double digOut(double digRate);
 
     inline Building* getCoveringBuilding() const
     { return mCoveringBuilding; }

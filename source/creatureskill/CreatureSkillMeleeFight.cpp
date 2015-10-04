@@ -41,17 +41,20 @@ bool CreatureSkillMeleeFight::tryUseFight(GameMap& gameMap, Creature* creature, 
     double level = static_cast<double>(creature->getLevel());
     double phyAtk = mPhyAtk + (level * mPhyAtkPerLvl);
     double magAtk = mMagAtk + (level * mMagAtkPerLvl);
+    double eleAtk = mEleAtk + (level * mEleAtkPerLvl);
     if(creature->getWeaponL() != nullptr)
     {
         phyAtk +=creature->getWeaponL()->getPhysicalDamage();
         magAtk +=creature->getWeaponL()->getMagicalDamage();
+        eleAtk +=creature->getWeaponL()->getElementDamage();
     }
     if(creature->getWeaponR() != nullptr)
     {
         phyAtk +=creature->getWeaponR()->getPhysicalDamage();
         magAtk +=creature->getWeaponR()->getMagicalDamage();
+        eleAtk +=creature->getWeaponR()->getElementDamage();
     }
-    attackedObject->takeDamage(creature, phyAtk, magAtk, attackedTile, false, false);
+    attackedObject->takeDamage(creature, phyAtk, magAtk, eleAtk, attackedTile, false, false, false);
 
     return true;
 }
@@ -67,7 +70,7 @@ void CreatureSkillMeleeFight::getFormatString(std::string& format) const
     if(!format.empty())
         format += "\t";
 
-    format += "LevelMin\tPhyAtk\tPhyAtkPerLvl\tMagAtk\tMagAtkPerLvl";
+    format += "LevelMin\tPhyAtk\tPhyAtkPerLvl\tMagAtk\tMagAtkPerLvl\tEleAtk\tEleAtkPerLvl";
 
 }
 
@@ -79,6 +82,8 @@ void CreatureSkillMeleeFight::exportToStream(std::ostream& os) const
     os << "\t" << mPhyAtkPerLvl;
     os << "\t" << mMagAtk;
     os << "\t" << mMagAtkPerLvl;
+    os << "\t" << mEleAtk;
+    os << "\t" << mEleAtkPerLvl;
 }
 
 bool CreatureSkillMeleeFight::importFromStream(std::istream& is)
@@ -95,6 +100,10 @@ bool CreatureSkillMeleeFight::importFromStream(std::istream& is)
     if(!(is >> mMagAtk))
         return false;
     if(!(is >> mMagAtkPerLvl))
+        return false;
+    if(!(is >> mEleAtk))
+        return false;
+    if(!(is >> mEleAtkPerLvl))
         return false;
 
     return true;
@@ -118,6 +127,10 @@ bool CreatureSkillMeleeFight::isEqual(const CreatureSkill& creatureSkill) const
     if(mMagAtk != skill->mMagAtk)
         return false;
     if(mMagAtkPerLvl != skill->mMagAtkPerLvl)
+        return false;
+    if(mEleAtk != skill->mEleAtk)
+        return false;
+    if(mEleAtkPerLvl != skill->mEleAtkPerLvl)
         return false;
 
     return true;

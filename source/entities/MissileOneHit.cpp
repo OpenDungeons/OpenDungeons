@@ -27,10 +27,11 @@
 
 MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const std::string& particleScript, const Ogre::Vector3& direction, double speed, double physicalDamage, double magicalDamage,
-        Tile* tileBuildingTarget, bool damageAllies) :
+        double elementDamage, Tile* tileBuildingTarget, bool damageAllies) :
     MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, tileBuildingTarget, damageAllies),
     mPhysicalDamage(physicalDamage),
-    mMagicalDamage(magicalDamage)
+    mMagicalDamage(magicalDamage),
+    mElementDamage(elementDamage)
 {
     if(!particleScript.empty())
     {
@@ -42,7 +43,8 @@ MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap, Seat* seat, c
 MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap) :
         MissileObject(gameMap, isOnServerMap),
     mPhysicalDamage(0.0),
-    mMagicalDamage(0.0)
+    mMagicalDamage(0.0),
+    mElementDamage(0.0)
 {
 }
 
@@ -53,13 +55,13 @@ bool MissileOneHit::hitCreature(GameEntity* entity)
         return true;
 
     Tile* hitTile = tiles[0];
-    entity->takeDamage(this, mPhysicalDamage, mMagicalDamage, hitTile, false, false);
+    entity->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, hitTile, false, false, false);
     return false;
 }
 
 void MissileOneHit::hitTargetBuilding(Tile* tile, Building* target)
 {
-    target->takeDamage(this, mPhysicalDamage, mMagicalDamage, tile, false, false);
+    target->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, false, false, false);
 }
 
 MissileOneHit* MissileOneHit::getMissileOneHitFromStream(GameMap* gameMap, std::istream& is)
@@ -81,6 +83,7 @@ void MissileOneHit::exportToStream(std::ostream& os) const
     MissileObject::exportToStream(os);
     os << mPhysicalDamage << "\t";
     os << mMagicalDamage << "\t";
+    os << mElementDamage << "\t";
 
     uint32_t nbEffects = mEntityParticleEffects.size();
     os << "\t" << nbEffects;
@@ -95,6 +98,7 @@ void MissileOneHit::importFromStream(std::istream& is)
     MissileObject::importFromStream(is);
     OD_ASSERT_TRUE(is >> mPhysicalDamage);
     OD_ASSERT_TRUE(is >> mMagicalDamage);
+    OD_ASSERT_TRUE(is >> mElementDamage);
     uint32_t nbEffects;
     OD_ASSERT_TRUE(is >> nbEffects);
     while(nbEffects > 0)

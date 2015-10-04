@@ -258,6 +258,7 @@ public:
 
     double getPhysicalDefense() const;
     double getMagicalDefense() const;
+    double getElementDefense() const;
 
     //! \brief Check whether a creature has earned one level. If yes, handle leveling it up
     void checkLevelUp();
@@ -294,8 +295,8 @@ public:
     uint32_t numCoveredTiles();
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
-    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile* tileTakingDamage,
-        bool ignorePhysicalDefense, bool ignoreMagicalDefense) override;
+    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense) override;
 
     //! \brief Conform: AttackableObject - Adds experience to this creature.
     void receiveExp(double experience);
@@ -518,6 +519,7 @@ private:
     //! \brief Natural physical and magical attack and defense (without equipment)
     double mPhysicalDefense;
     double mMagicalDefense;
+    double mElementDefense;
 
     //! \brief The weapon the creature is holding in its left hand or nullptr if none. It will be set by a pointer
     //! managed by the game map and thus, should not be deleted by the creature class

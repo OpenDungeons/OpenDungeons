@@ -164,6 +164,7 @@ bool ODClient::processOneClientSocketMessage()
             }
 
             // Tiles
+            // Gold
             OD_ASSERT_TRUE(packetReceived >> nb);
             while(nb > 0)
             {
@@ -172,6 +173,7 @@ bool ODClient::processOneClientSocketMessage()
                 tile->setType(TileType::gold);
                 tile->setTileVisual(TileVisual::goldFull);
             }
+            // Rock
             OD_ASSERT_TRUE(packetReceived >> nb);
             while(nb > 0)
             {
@@ -179,6 +181,15 @@ bool ODClient::processOneClientSocketMessage()
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
                 tile->setType(TileType::rock);
                 tile->setTileVisual(TileVisual::rockFull);
+            }
+            // Gem
+            OD_ASSERT_TRUE(packetReceived >> nb);
+            while(nb > 0)
+            {
+                --nb;
+                Tile* tile = gameMap->tileFromPacket(packetReceived);
+                tile->setType(TileType::gem);
+                tile->setTileVisual(TileVisual::gemFull);
             }
             gameMap->setAllFullnessAndNeighbors();
 

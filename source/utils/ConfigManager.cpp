@@ -60,6 +60,8 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
     mNbTurnsFuriousMax(120),
     mMaxManaPerSeat(250000.0),
     mClaimingWallPenalty(0.8),
+    mDigCoefGold(5.0),
+    mDigCoefGem(1.0),
     mNbTurnsKoCreatureAttacked(10),
     mCreatureDefinitionDefaultWorker(nullptr)
 {
@@ -518,6 +520,20 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mClaimingWallPenalty = Helper::toDouble(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "DigCoefGold")
+        {
+            configFile >> nextParam;
+            mDigCoefGold = Helper::toDouble(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "DigCoefGem")
+        {
+            configFile >> nextParam;
+            mDigCoefGem = Helper::toDouble(nextParam);
             // Not mandatory
         }
 
@@ -1197,6 +1213,8 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
         if(!loadTilesetValues(defFile, TileVisual::claimedGround, tileSet->configureTileValues(TileVisual::claimedGround)))
             return false;
         if(!loadTilesetValues(defFile, TileVisual::claimedFull, tileSet->configureTileValues(TileVisual::claimedFull)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::gemFull, tileSet->configureTileValues(TileVisual::gemFull)))
             return false;
     }
 

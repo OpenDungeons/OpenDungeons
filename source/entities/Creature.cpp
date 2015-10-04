@@ -130,6 +130,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     MovableGameEntity        (gameMap, isOnServerMap),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
+    mElementDefense          (0.0),
     mWeaponL                 (nullptr),
     mWeaponR                 (nullptr),
     mHomeTile                (nullptr),
@@ -195,6 +196,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     // Fighting stats
     mPhysicalDefense = mDefinition->getPhysicalDefense();
     mMagicalDefense = mDefinition->getMagicalDefense();
+    mElementDefense = mDefinition->getElementDefense();
 
     if(mDefinition->getWeaponSpawnL().compare("none") != 0)
         mWeaponL = gameMap->getWeapon(mDefinition->getWeaponSpawnL());
@@ -209,6 +211,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     MovableGameEntity        (gameMap, isOnServerMap),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
+    mElementDefense          (0.0),
     mWeaponL                 (nullptr),
     mWeaponR                 (nullptr),
     mHomeTile                (nullptr),
@@ -465,6 +468,7 @@ void Creature::buildStats()
 
     mPhysicalDefense = mDefinition->getPhysicalDefense();
     mMagicalDefense = mDefinition->getMagicalDefense();
+    mElementDefense = mDefinition->getElementDefense();
 
     mScale = getDefinition()->getScale();
     Ogre::Real scaleFactor = static_cast<Ogre::Real>(1.0 + 0.02 * static_cast<double>(getLevel()));
@@ -484,6 +488,7 @@ void Creature::buildStats()
 
     mPhysicalDefense += mDefinition->getPhysicalDefPerLevel() * multiplier;
     mMagicalDefense += mDefinition->getMagicalDefPerLevel() * multiplier;
+    mElementDefense += mDefinition->getElementDefPerLevel() * multiplier;
 }
 
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
@@ -523,6 +528,7 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
 
     os << mPhysicalDefense;
     os << mMagicalDefense;
+    os << mElementDefense;
     os << mOverlayHealthValue;
 
     // Only allied players should see creature mood (except some states)
@@ -584,6 +590,7 @@ void Creature::importFromPacket(ODPacket& is)
 
     OD_ASSERT_TRUE(is >> mPhysicalDefense);
     OD_ASSERT_TRUE(is >> mMagicalDefense);
+    OD_ASSERT_TRUE(is >> mElementDefense);
 
     OD_ASSERT_TRUE(is >> mOverlayHealthValue);
     OD_ASSERT_TRUE(is >> mOverlayMoodValue);
@@ -1871,23 +1878,41 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
 
         // We found a tile marked by our controlling seat, dig out the tile.
 
-        // If the tile is a gold tile accumulate gold for this creature.
-        if (tempTile->getType() == TileType::gold)
-        {
-            double tempDouble = 5 * std::min(mDigRate, tempTile->getFullness());
-            mGoldCarried += static_cast<int>(tempDouble);
-            getSeat()->addGoldMined(static_cast<int>(tempDouble));
-            receiveExp(5.0 * mDigRate / 20.0);
-        }
-
         // Dig out the tile by decreasing the tile's fullness.
         Ogre::Vector3 walkDirection(tempTile->getX() - getPosition().x, tempTile->getY() - getPosition().y, 0);
         walkDirection.normalise();
         setAnimationState(EntityAnimation::dig_anim, true, walkDirection);
-        double amountDug = tempTile->digOut(mDigRate, true);
+        double amountDug = tempTile->digOut(mDigRate);
         if(amountDug > 0.0)
         {
             receiveExp(1.5 * mDigRate / 20.0);
+
+            // If the tile is a gold tile accumulate gold for this creature.
+            switch(tempTile->getType())
+            {
+                case TileType::gold:
+                {
+                    static const double digCoefGold = ConfigManager::getSingleton().getDigCoefGold();
+                    double tempDouble = digCoefGold * amountDug;
+                    mGoldCarried += static_cast<int>(tempDouble);
+                    getSeat()->addGoldMined(static_cast<int>(tempDouble));
+                    // Receive extra experience for digging gold
+                    receiveExp(digCoefGold * mDigRate / 20.0);
+                    break;
+                }
+                case TileType::gem:
+                {
+                    static const double digCoefGem = ConfigManager::getSingleton().getDigCoefGold();
+                    double tempDouble = digCoefGem * amountDug;
+                    mGoldCarried += static_cast<int>(tempDouble);
+                    getSeat()->addGoldMined(static_cast<int>(tempDouble));
+                    // Receive extra experience for digging gold
+                    receiveExp(digCoefGem * mDigRate / 20.0);
+                    break;
+                }
+                default:
+                    break;
+            }
 
             // If the tile has been dug out, move into that tile and try to continue digging.
             if (tempTile->getFullness() == 0.0)
@@ -2817,14 +2842,12 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
 
         // We check if we can attack from somewhere. To do that, we check
         // from the target point of view if there is a tile with visibility within range
-        int distFoe = -1;
-        int distAttack = -1;
-        std::vector<Tile*> tiles = getGameMap()->visibleTiles(tileAttackCheck->getX(), tileAttackCheck->getY(), static_cast<int>(skillRangeMax));
-        // Since tiles are ordered by distance to the center (the entity we want to get away from), we process them
-        // in reverse order. Then, we look for the closest to
-        for(auto itr = tiles.rbegin(); itr != tiles.rend(); ++itr)
+        int skillRangeMaxInt = static_cast<int>(skillRangeMax);
+        int skillRangeMaxIntSquared = skillRangeMaxInt * skillRangeMaxInt;
+        int bestScoreAttack = -1;
+        std::vector<Tile*> tiles = getGameMap()->visibleTiles(tileAttackCheck->getX(), tileAttackCheck->getY(), skillRangeMaxInt);
+        for(Tile* tile : tiles)
         {
-            Tile* tile = *itr;
             if(tile->isFullTile())
                 continue;
 
@@ -2833,12 +2856,14 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
 
             int distFoeTmp = Pathfinding::squaredDistanceTile(*tile, *tileAttackCheck);
             int distAttackTmp = Pathfinding::squaredDistanceTile(*tile, *myTile);
-            if((distAttack != -1) && (distFoe != -1) && (distFoeTmp >= distFoe) && (distAttackTmp >= distAttack))
-                break;
+            // We compute a score for each tile. We will choose the best one. Note that we try to be as close as possible
+            // from the fightIdleDist but by walking the less possible. We need to find a compromise
+            int scoreAttack = std::abs(skillRangeMaxIntSquared - distFoeTmp) * 2 + distAttackTmp;
+            if((bestScoreAttack != -1) && (bestScoreAttack <= scoreAttack))
+                continue;
 
-            // We found a closer target
-            distFoe = distFoeTmp;
-            distAttack = distAttackTmp;
+            // We found a better target
+            bestScoreAttack = scoreAttack;
             tilePosition = tile;
             entityAttack = entityAttackCheck;
             tileAttack = tileAttackCheck;
@@ -2859,16 +2884,13 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
             return false;
         }
 
-        int distFoe = -1;
+        int bestScoreFlee = -1;
         int32_t fightIdleDist = getDefinition()->getFightIdleDist();
         Tile* fleeTile = nullptr;
-        int fleeDist = -1;
         std::vector<Tile*> tiles = getGameMap()->visibleTiles(tileEntityFlee->getX(), tileEntityFlee->getY(), fightIdleDist);
-        // Since tiles are ordered by distance to the center (the entity we want to get away from), we process them
-        // in reverse order. Then, we look for the closest to
-        for(auto itr = tiles.rbegin(); itr != tiles.rend(); ++itr)
+        int32_t fightIdleDistSquared = fightIdleDist * fightIdleDist;
+        for(Tile* tile : tiles)
         {
-            Tile* tile = *itr;
             if(tile->isFullTile())
                 continue;
 
@@ -2877,11 +2899,13 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
 
             int distFoeTmp = Pathfinding::squaredDistanceTile(*tile, *tileEntityFlee);
             int fleeDistTmp = Pathfinding::squaredDistanceTile(*tile, *myTile);
-            if((fleeDist != -1) && (distFoe != -1) && (distFoe >= distFoeTmp) && (fleeDistTmp >= fleeDist))
-                break;
+            // We compute a score for each tile. We will choose the best one. Note that we try to be as close as possible
+            // from the fightIdleDist but by walking the less possible. We need to find a compromise
+            int scoreFlee = std::abs(fightIdleDistSquared - distFoeTmp) * 2 + fleeDistTmp;
+            if((bestScoreFlee != -1) && (bestScoreFlee <= scoreFlee))
+                continue;
 
-            distFoe = distFoeTmp;
-            fleeDist = fleeDistTmp;
+            bestScoreFlee = scoreFlee;
             fleeTile = tile;
         }
 
@@ -3428,6 +3452,17 @@ double Creature::getMagicalDefense() const
     return defense;
 }
 
+double Creature::getElementDefense() const
+{
+    double defense = mElementDefense;
+    if (mWeaponL != nullptr)
+        defense += mWeaponL->getElementDefense();
+    if (mWeaponR != nullptr)
+        defense += mWeaponR->getElementDefense();
+
+    return defense;
+}
+
 void Creature::checkLevelUp()
 {
     if (getLevel() >= MAX_LEVEL)
@@ -3939,15 +3974,17 @@ std::string Creature::getStatsText()
     return tempSS.str();
 }
 
-double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage,
-        bool ignorePhysicalDefense, bool ignoreMagicalDefense)
+double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense)
 {
     mNbTurnsWithoutBattle = 0;
     if(!ignorePhysicalDefense)
         physicalDamage = std::max(physicalDamage - getPhysicalDefense(), 0.0);
     if(!ignoreMagicalDefense)
         magicalDamage = std::max(magicalDamage - getMagicalDefense(), 0.0);
-    double damageDone = std::min(mHp, physicalDamage + magicalDamage);
+    if(!ignoreElementDefense)
+        elementDamage = std::max(elementDamage - getElementDefense(), 0.0);
+    double damageDone = std::min(mHp, physicalDamage + magicalDamage + elementDamage);
     mHp -= damageDone;
     if(mHp <= 0)
     {

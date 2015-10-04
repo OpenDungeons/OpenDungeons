@@ -115,6 +115,8 @@ public:
             double                  physicalDefPerLevel = 0.2,
             double                  magicalDefense      = 1.5,
             double                  magicalDefPerLevel  = 0.1,
+            double                  elementDefense      = 1.5,
+            double                  elementDefPerLevel  = 0.1,
             int32_t                 fightIdleDist       = 1,
             double                  attackRange         = 1.0,
             double                  atkRangePerLevel    = 0.0,
@@ -194,6 +196,8 @@ public:
     inline double               getPhysicalDefPerLevel () const { return mPhysicalDefPerLevel; }
     inline double               getMagicalDefense  () const     { return mMagicalDefense; }
     inline double               getMagicalDefPerLevel () const  { return mMagicalDefPerLevel; }
+    inline double               getElementDefense  () const     { return mElementDefense; }
+    inline double               getElementDefPerLevel () const  { return mElementDefPerLevel; }
 
     inline int32_t              getFightIdleDist() const        { return mFightIdleDist; }
 
@@ -308,11 +312,13 @@ private:
     double mWaterSpeedPerLevel;
     double mLavaSpeedPerLevel;
 
-    //! \brief Physical and magical defense stats (without equipment)
+    //! \brief Defense stats (without equipment)
     double mPhysicalDefense;
     double mPhysicalDefPerLevel;
     double mMagicalDefense;
     double mMagicalDefPerLevel;
+    double mElementDefense;
+    double mElementDefPerLevel;
 
     //! \brief Distance from the nearest enemy creature that the creature will try to let when no skill can be used
     int32_t mFightIdleDist;

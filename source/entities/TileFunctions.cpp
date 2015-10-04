@@ -432,19 +432,45 @@ void Tile::unclaimTile()
     }
 }
 
-double Tile::digOut(double digRate, bool doScaleDigRate)
+double Tile::digOut(double digRate)
 {
-    if (doScaleDigRate)
-        digRate = scaleDigRate(digRate);
-
-    double amountDug = 0.0;
-
-    if (getFullness() == 0.0 || mType == TileType::lava || mType == TileType::water || mType == TileType::rock)
-        return 0.0;
-
-    if (digRate >= mFullness)
+    // We scle dig rate depending on the tile type
+    double digRateScaled;
+    double fullnessLost;
+    switch(getTileVisual())
     {
-        amountDug = mFullness;
+        case TileVisual::claimedFull:
+            digRateScaled = digRate * 0.2;
+            fullnessLost = digRate * 0.2;
+            break;
+        case TileVisual::dirtFull:
+        case TileVisual::goldFull:
+            digRateScaled = digRate;
+            fullnessLost = digRate;
+            break;
+        case TileVisual::gemFull:
+            digRateScaled = digRate;
+            fullnessLost = 0.0;
+            break;
+        default:
+            // Non diggable type!
+            OD_LOG_ERR("Wrong tile visual for digging tile=" + Tile::displayAsString(this) + ", visual=" + tileVisualToString(getTileVisual()));
+            return 0.0;
+    }
+
+    // Nothing to dig
+    if(fullnessLost <= 0.0)
+        return digRateScaled;
+
+    if(mFullness <= 0.0)
+    {
+        OD_LOG_ERR("tile=" + Tile::displayAsString(this) + ", mFullness=" + Helper::toString(mFullness));
+        return 0.0;
+    }
+
+    if(fullnessLost >= mFullness)
+    {
+        digRateScaled = mFullness;
         setFullness(0.0);
 
         computeTileVisual();
@@ -460,14 +486,12 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
                 building->createMesh();
             }
         }
-    }
-    else
-    {
-        amountDug = digRate;
-        setFullness(mFullness - digRate);
+        return digRateScaled;
     }
 
-    return amountDug;
+    digRateScaled = fullnessLost;
+    setFullness(mFullness - fullnessLost);
+    return digRateScaled;
 }
 
 void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
