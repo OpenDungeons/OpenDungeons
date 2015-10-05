@@ -23,21 +23,27 @@
 class CreatureMoodHpLoss : public CreatureMood
 {
 public:
-    CreatureMoodHpLoss(int32_t moodModifier) :
-        mMoodModifier(moodModifier)
+    CreatureMoodHpLoss() :
+        mMoodModifier(0)
     {}
 
     virtual ~CreatureMoodHpLoss() {}
 
-    virtual CreatureMoodType getCreatureMoodType() const
+    virtual CreatureMoodType getCreatureMoodType() const override
     { return CreatureMoodType::hploss; }
 
-    virtual int32_t computeMood(const Creature* creature) const;
+    virtual int32_t computeMood(const Creature* creature) const override;
 
-    inline CreatureMood* clone() const
+    inline CreatureMood* clone() const override
     {  return new CreatureMoodHpLoss(mMoodModifier); }
 
+    virtual bool importFromStream(std::istream& is) override;
+
 private:
+    CreatureMoodHpLoss(int32_t moodModifier) :
+        mMoodModifier(moodModifier)
+    {}
+
     int32_t mMoodModifier;
 };
 

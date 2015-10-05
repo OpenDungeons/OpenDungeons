@@ -27,12 +27,13 @@ class GameMap;
 
 enum class CreatureMoodType
 {
-    unknown,
     awakness,
     creature,
     fee,
     hploss,
-    hunger
+    hunger,
+    turnsWithoutFight,
+    nb
 };
 
 enum class CreatureMoodLevel
@@ -54,8 +55,7 @@ public:
     virtual ~CreatureMood()
     {}
 
-    virtual CreatureMoodType getCreatureMoodType() const
-    { return CreatureMoodType::unknown; }
+    virtual CreatureMoodType getCreatureMoodType() const = 0;
 
     //! \brief Computes the creature mood for this modifier
     virtual int32_t computeMood(const Creature* creature) const = 0;
@@ -63,13 +63,15 @@ public:
     //! \brief This function should return a copy of the current class
     virtual CreatureMood* clone() const = 0;
 
+    //! \brief Can be overriden to read additional parameters from the stream
+    virtual bool importFromStream(std::istream& file)
+    { return true; }
+
     //! \brief This function will be called after loading the level
     virtual void init(GameMap* gameMap)
     {}
 
     static std::string toString(CreatureMoodLevel moodLevel);
-
-    static CreatureMood* load(std::istream& defFile);
 };
 
 #endif // CREATUREMOOD_H

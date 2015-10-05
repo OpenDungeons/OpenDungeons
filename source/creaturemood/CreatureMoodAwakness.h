@@ -23,22 +23,29 @@
 class CreatureMoodAwakness : public CreatureMood
 {
 public:
+    CreatureMoodAwakness() :
+        mStartAwakness(0),
+        mMoodModifier(0)
+    {}
+
+    virtual ~CreatureMoodAwakness() {}
+
+    virtual CreatureMoodType getCreatureMoodType() const override
+    { return CreatureMoodType::awakness; }
+
+    virtual int32_t computeMood(const Creature* creature) const override;
+
+    inline CreatureMood* clone() const override
+    {  return new CreatureMoodAwakness(mStartAwakness, mMoodModifier); }
+
+    virtual bool importFromStream(std::istream& is) override;
+
+private:
     CreatureMoodAwakness(int32_t startAwakness, int32_t moodModifier) :
         mStartAwakness(startAwakness),
         mMoodModifier(moodModifier)
     {}
 
-    virtual ~CreatureMoodAwakness() {}
-
-    virtual CreatureMoodType getCreatureMoodType() const
-    { return CreatureMoodType::awakness; }
-
-    virtual int32_t computeMood(const Creature* creature) const;
-
-    inline CreatureMood* clone() const
-    {  return new CreatureMoodAwakness(mStartAwakness, mMoodModifier); }
-
-private:
     int32_t mStartAwakness;
     int32_t mMoodModifier;
 };

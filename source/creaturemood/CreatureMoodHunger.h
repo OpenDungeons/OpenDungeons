@@ -23,22 +23,29 @@
 class CreatureMoodHunger : public CreatureMood
 {
 public:
+    CreatureMoodHunger() :
+        mStartHunger(0),
+        mMoodModifier(0)
+    {}
+
+    virtual ~CreatureMoodHunger() {}
+
+    virtual CreatureMoodType getCreatureMoodType() const override
+    { return CreatureMoodType::hunger; }
+
+    virtual int32_t computeMood(const Creature* creature) const override;
+
+    inline CreatureMood* clone() const override
+    {  return new CreatureMoodHunger(mStartHunger, mMoodModifier); }
+
+    virtual bool importFromStream(std::istream& is) override;
+
+private:
     CreatureMoodHunger(int32_t startHunger, int32_t moodModifier) :
         mStartHunger(startHunger),
         mMoodModifier(moodModifier)
     {}
 
-    virtual ~CreatureMoodHunger() {}
-
-    virtual CreatureMoodType getCreatureMoodType() const
-    { return CreatureMoodType::hunger; }
-
-    virtual int32_t computeMood(const Creature* creature) const;
-
-    inline CreatureMood* clone() const
-    {  return new CreatureMoodHunger(mStartHunger, mMoodModifier); }
-
-private:
     int32_t mStartHunger;
     int32_t mMoodModifier;
 };

@@ -17,7 +17,26 @@
 
 #include "creaturemood/CreatureMoodHunger.h"
 
+#include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
+
+class CreatureMoodFactoryHunger : public CreatureMoodFactory
+{
+    CreatureMood* createCreatureMood() const override
+    { return new CreatureMoodHunger; }
+
+    CreatureMoodType getCreatureMoodType() const override
+    { return CreatureMoodType::hunger; }
+
+    const std::string& getCreatureMoodName() const override
+    {
+        static const std::string name = "Hunger";
+        return name;
+    }
+};
+
+//! \brief Register the mood type
+static CreatureMoodRegister reg(new CreatureMoodFactoryHunger);
 
 int32_t CreatureMoodHunger::computeMood(const Creature* creature) const
 {
@@ -26,4 +45,17 @@ int32_t CreatureMoodHunger::computeMood(const Creature* creature) const
         return 0;
 
     return (hunger - mStartHunger) * mMoodModifier;
+}
+
+bool CreatureMoodHunger::importFromStream(std::istream& is)
+{
+    if(!CreatureMood::importFromStream(is))
+        return false;
+
+    if(!(is >> mStartHunger))
+        return false;
+    if(!(is >> mMoodModifier))
+        return false;
+
+    return true;
 }

@@ -23,6 +23,25 @@
 class CreatureMoodTurnsWithoutFight : public CreatureMood
 {
 public:
+    CreatureMoodTurnsWithoutFight() :
+        mTurnsWithoutFightMin(0),
+        mTurnsWithoutFightMax(0),
+        mMoodModifier(0)
+    {}
+
+    virtual ~CreatureMoodTurnsWithoutFight() {}
+
+    virtual CreatureMoodType getCreatureMoodType() const override
+    { return CreatureMoodType::fee; }
+
+    virtual int32_t computeMood(const Creature* creature) const override;
+
+    inline CreatureMood* clone() const override
+    {  return new CreatureMoodTurnsWithoutFight(mTurnsWithoutFightMin, mTurnsWithoutFightMax, mMoodModifier); }
+
+    virtual bool importFromStream(std::istream& is) override;
+
+private:
     CreatureMoodTurnsWithoutFight(int32_t turnsWithoutFightMin, int32_t turnsWithoutFightMax,
             int32_t moodModifier) :
         mTurnsWithoutFightMin(turnsWithoutFightMin),
@@ -30,17 +49,6 @@ public:
         mMoodModifier(moodModifier)
     {}
 
-    virtual ~CreatureMoodTurnsWithoutFight() {}
-
-    virtual CreatureMoodType getCreatureMoodType() const
-    { return CreatureMoodType::fee; }
-
-    virtual int32_t computeMood(const Creature* creature) const;
-
-    inline CreatureMood* clone() const
-    {  return new CreatureMoodTurnsWithoutFight(mTurnsWithoutFightMin, mTurnsWithoutFightMax, mMoodModifier); }
-
-private:
     int32_t mTurnsWithoutFightMin;
     int32_t mTurnsWithoutFightMax;
     int32_t mMoodModifier;

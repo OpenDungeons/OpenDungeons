@@ -17,7 +17,26 @@
 
 #include "creaturemood/CreatureMoodAwakness.h"
 
+#include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
+
+class CreatureMoodFactoryAwakness : public CreatureMoodFactory
+{
+    CreatureMood* createCreatureMood() const override
+    { return new CreatureMoodAwakness; }
+
+    CreatureMoodType getCreatureMoodType() const override
+    { return CreatureMoodType::awakness; }
+
+    const std::string& getCreatureMoodName() const override
+    {
+        static const std::string name = "Awakness";
+        return name;
+    }
+};
+
+//! \brief Register the mood type
+static CreatureMoodRegister reg(new CreatureMoodFactoryAwakness);
 
 int32_t CreatureMoodAwakness::computeMood(const Creature* creature) const
 {
@@ -26,4 +45,17 @@ int32_t CreatureMoodAwakness::computeMood(const Creature* creature) const
         return 0;
 
     return (mStartAwakness - awakness) * mMoodModifier;
+}
+
+bool CreatureMoodAwakness::importFromStream(std::istream& is)
+{
+    if(!CreatureMood::importFromStream(is))
+        return false;
+
+    if(!(is >> mStartAwakness))
+        return false;
+    if(!(is >> mMoodModifier))
+        return false;
+
+    return true;
 }
