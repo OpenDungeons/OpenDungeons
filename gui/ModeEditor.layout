@@ -152,7 +152,7 @@
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/GameTabButton" name="GemButton" >
-                    <Property name="Area" value="{{0,320},{0,25},{0,380},{0,85}}" />
+                    <Property name="Area" value="{{0,380},{0,25},{0,440},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/GemButton" />
                     <Property name="TooltipText" value="Place gem tiles." />
                     <Property name="InheritsAlpha" value="False" />
