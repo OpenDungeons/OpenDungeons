@@ -21,22 +21,11 @@
 #include <iostream>
 #include <sstream>
 
-using std::cerr;
-using std::endl;
-using std::cout;
-using std::stringstream;
-
-
-
 SlopeWalk::SlopeWalk():
     leftVertexPassed(false),
     rightVertexPassed(false)
 {
-    
-
-
 }
-
 
 void SlopeWalk::buildSlopes()
 {
@@ -200,12 +189,12 @@ Vector3i& SlopeWalk::getBottomRightVertex()
 
 void SlopeWalk::printState()
 {
-    cerr << "leftVertices" << endl;
+    std::cerr << "leftVertices" << std::endl;
     for(auto ii = leftVertices.begin(); ii != leftVertices.end(); ii++)
-        cerr << myArray[*ii] << endl;
-    cerr << "rightVertices" << endl;
+        std::cerr << myArray[*ii] << std::endl;
+    std::cerr << "rightVertices" << std::endl;
     for(auto ii = rightVertices.begin(); ii != rightVertices.end(); ii++)
-        cerr << myArray[*ii] << endl;
+        std::cerr << myArray[*ii] << std::endl;
 }
 
 void SlopeWalk::findMinMaxLeft(std::array<Vector3i,4> &aa)
@@ -248,34 +237,34 @@ void SlopeWalk::findMinMaxRight(std::array<Vector3i,4> &aa)
 string SlopeWalk::debug()
 {
 
-    stringstream ss;
-    ss << "top_left_index " << top_left_index << " top_right_index " << top_right_index << " down_left_index " << down_left_index << " down_right_index" << down_right_index << endl;
+    std::stringstream ss;
+    ss << "top_left_index " << top_left_index << " top_right_index " << top_right_index << " down_left_index " << down_left_index << " down_right_index" << down_right_index << std::endl;
     
     for (int ii = 0 ; ii < 4 ; ii++ )
     {
         Vector3i foobar = myArray[ii];
-        ss<< ii << " " <<double(foobar.x)/Unit << " " << double(foobar.y)/Unit <<  endl;
+        ss<< ii << " " <<double(foobar.x)/Unit << " " << double(foobar.y)/Unit <<  std::endl;
     }
  
-    ss << "leftVertices" << endl;
+    ss << "leftVertices" << std::endl;
 
     for(auto ii : leftVertices)
         ss << ii << " " ;
-    ss << endl ;
-    ss << "rightVertices" << endl;
+    ss << std::endl ;
+    ss << "rightVertices" << std::endl;
 
     for(auto ii : rightVertices)
         ss << ii << " " ;    
-    ss << endl ; 
+    ss << std::endl ; 
 
-    ss<< "rightSlopes " << endl;
+    ss<< "rightSlopes " << std::endl;
     for(auto ii : rightSlopes)
-        ss << double(ii)/Unit << endl;
-    ss << endl; 
+        ss << double(ii)/Unit << std::endl;
+    ss << std::endl; 
 
-    ss<< "leftSlopes " << endl;    
+    ss<< "leftSlopes " << std::endl;    
     for(auto ii : leftSlopes)
-        ss << double(ii)/Unit << endl;
+        ss << double(ii)/Unit << std::endl;
 
     return ss.str();
 }

@@ -28,9 +28,6 @@
 #include <sstream>
 #include <algorithm>
 
-using  std::set; using std::swap; using std::max; using std::min;
-using  std::cerr; using std::endl;
-
 //! Values used to know whether to show and/or hide a mesh
 static const int HIDE =  1;
 static const int SHOW =  2;
@@ -179,7 +176,7 @@ void CullingManager::newBashAndSplashTiles(int64_t mode){
    
         if(mDebug)
         {
-            ss << endl;
+            ss << std::endl;
             ss << "DxLeft, DxRight: " << double(DxLeft)/Unit << " " << double(DxRight)/Unit << " " ;
             LogManager::getSingleton().logMessage( ss.str(),LogMessageLevel::NORMAL);
             ss.str("");
@@ -189,16 +186,16 @@ void CullingManager::newBashAndSplashTiles(int64_t mode){
         }
     
         int64_t mm = ((std::min(xxLeft, xxLeftOld) >> mPrecisionDigits) << mPrecisionDigits) ;
-        if(std::min(xxLeft, xxLeftOld) < max(xxRight,xxRightOld) )
+        if(std::min(xxLeft, xxLeftOld) < std::max(xxRight,xxRightOld) )
         {
-            for (int64_t xx = mm ; xx <= max(xxRight,xxRightOld) ; xx+= Unit)
+            for (int64_t xx = mm ; xx <= std::max(xxRight,xxRightOld) ; xx+= Unit)
             {
                 bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= oldWalk.getBottomLeftVertex().y) && yy <= oldWalk.getTopLeftVertex().y);
                 bool splash = (xx >= xxLeft && xx <= xxRight && (yy >= mWalk.getBottomLeftVertex().y) && yy <= mWalk.getTopLeftVertex().y);
 
                 if (mDebug)
                 {
-                    ss<< " x " <<  (xx >> mPrecisionDigits )<< " y " << (yy >> mPrecisionDigits ) << " " << (splash && (mode & SHOW)) << (bash && (mode & HIDE)) << endl;
+                    ss<< " x " <<  (xx >> mPrecisionDigits )<< " y " << (yy >> mPrecisionDigits ) << " " << (splash && (mode & SHOW)) << (bash && (mode & HIDE)) << std::endl;
             
                 }
                 xxp = ((xx >>mPrecisionDigits) - 128.0);
@@ -210,9 +207,13 @@ void CullingManager::newBashAndSplashTiles(int64_t mode){
                 }
 
                 else if (gm && bash && (mode & HIDE) && xxp>=0 && yyp>= 0 && xxp<mCm->mGameMap->getMapSizeX() && yyp < mCm->mGameMap->getMapSizeY())
+                {
                     gm->getTile(xxp, yyp)->hide();
+                }
                 else if (gm && splash && (mode & SHOW) && xxp>=0 && yyp>= 0 && xxp<mCm->mGameMap->getMapSizeX() && yyp < mCm->mGameMap->getMapSizeY())
+                {
                     gm->getTile(xxp, yyp)->show();
+                }
             }
         }
     }
@@ -236,8 +237,8 @@ bool CullingManager::getIntersectionPoints()
             mOgreVectorsArray[ii]= (mMyRay[ii].getPoint(intersectionResult.second));
         else
         {
-            cerr<< "I didn't find the intersection point for " << ii <<"th ray"<<endl;
-            exit(1);
+            std::cerr<< "I didn't find the intersection point for " << ii <<"th ray"<<std::endl;
+            // exit(1);
         }
     }
     return true;
