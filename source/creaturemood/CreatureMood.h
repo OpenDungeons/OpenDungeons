@@ -25,17 +25,6 @@
 class Creature;
 class GameMap;
 
-enum class CreatureMoodType
-{
-    awakness,
-    creature,
-    fee,
-    hploss,
-    hunger,
-    turnsWithoutFight,
-    nb
-};
-
 enum class CreatureMoodLevel
 {
     Happy,
@@ -55,8 +44,6 @@ public:
     virtual ~CreatureMood()
     {}
 
-    virtual CreatureMoodType getCreatureMoodType() const = 0;
-
     //! \brief Computes the creature mood for this modifier
     virtual int32_t computeMood(const Creature* creature) const = 0;
 
@@ -70,6 +57,9 @@ public:
     //! \brief This function will be called after loading the level
     virtual void init(GameMap* gameMap)
     {}
+
+    virtual bool isNaturalEnemy(const Creature* creature) const
+    { return false; }
 
     static std::string toString(CreatureMoodLevel moodLevel);
 };

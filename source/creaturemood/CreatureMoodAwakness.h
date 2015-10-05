@@ -30,9 +30,6 @@ public:
 
     virtual ~CreatureMoodAwakness() {}
 
-    virtual CreatureMoodType getCreatureMoodType() const override
-    { return CreatureMoodType::awakness; }
-
     virtual int32_t computeMood(const Creature* creature) const override;
 
     inline CreatureMood* clone() const override

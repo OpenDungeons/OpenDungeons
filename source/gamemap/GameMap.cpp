@@ -25,7 +25,6 @@
 #include "gamemap/GameMap.h"
 
 #include "creaturemood/CreatureMood.h"
-#include "creaturemood/CreatureMoodCreature.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
@@ -2859,15 +2858,11 @@ std::vector<GameEntity*> GameMap::getNaturalEnemiesInList(const Creature* creatu
         Creature* alliedCreature = static_cast<Creature*>(entity);
         for(const CreatureMood* mood : moodModifiers)
         {
-            if(mood->getCreatureMoodType() != CreatureMoodType::creature)
+            if(!mood->isNaturalEnemy(alliedCreature))
                 continue;
 
-            const CreatureMoodCreature* moodCreature = static_cast<const CreatureMoodCreature*>(mood);
-            if(alliedCreature->getDefinition() == moodCreature->getCreatureDefinition())
-            {
-                ret.push_back(entity);
-                break;
-            }
+            ret.push_back(entity);
+            break;
         }
     }
 

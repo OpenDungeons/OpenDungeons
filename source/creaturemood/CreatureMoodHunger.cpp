@@ -25,9 +25,6 @@ class CreatureMoodFactoryHunger : public CreatureMoodFactory
     CreatureMood* createCreatureMood() const override
     { return new CreatureMoodHunger; }
 
-    CreatureMoodType getCreatureMoodType() const override
-    { return CreatureMoodType::hunger; }
-
     const std::string& getCreatureMoodName() const override
     {
         static const std::string name = "Hunger";

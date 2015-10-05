@@ -27,9 +27,6 @@ class CreatureMoodFactoryTurnsWithoutFight : public CreatureMoodFactory
     CreatureMood* createCreatureMood() const override
     { return new CreatureMoodTurnsWithoutFight; }
 
-    CreatureMoodType getCreatureMoodType() const override
-    { return CreatureMoodType::turnsWithoutFight; }
-
     const std::string& getCreatureMoodName() const override
     {
         static const std::string name = "TurnsWithoutFight";

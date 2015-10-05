@@ -29,9 +29,6 @@ public:
 
     virtual ~CreatureMoodHpLoss() {}
 
-    virtual CreatureMoodType getCreatureMoodType() const override
-    { return CreatureMoodType::hploss; }
-
     virtual int32_t computeMood(const Creature* creature) const override;
 
     inline CreatureMood* clone() const override

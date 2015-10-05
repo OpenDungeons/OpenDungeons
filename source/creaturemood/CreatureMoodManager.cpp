@@ -28,29 +28,15 @@ namespace
 {
     static std::vector<const CreatureMoodFactory*>& getFactories()
     {
-        static std::vector<const CreatureMoodFactory*> factory(static_cast<uint32_t>(CreatureMoodType::nb), nullptr);
+        static std::vector<const CreatureMoodFactory*> factory;
         return factory;
     }
 }
 
 void CreatureMoodManager::registerFactory(const CreatureMoodFactory* factory)
 {
-    CreatureMoodType type = factory->getCreatureMoodType();
-    if(type == CreatureMoodType::nb)
-    {
-        OD_LOG_ERR("Unexpected type for registering factory=" + factory->getCreatureMoodName());
-        return;
-    }
-
     std::vector<const CreatureMoodFactory*>& factories = getFactories();
-    uint32_t index = static_cast<uint32_t>(type);
-    if(index >= factories.size())
-    {
-        OD_LOG_ERR("Unexpected index for registering factory=" + factory->getCreatureMoodName() + ", index=" + Helper::toString(index) + ", size=" + Helper::toString(factories.size()));
-        return;
-    }
-
-    factories[index] = factory;
+    factories.push_back(factory);
 }
 
 void CreatureMoodManager::unregisterFactory(const CreatureMoodFactory* factory)

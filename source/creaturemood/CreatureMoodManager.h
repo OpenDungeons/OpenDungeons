@@ -24,8 +24,6 @@
 
 class CreatureMood;
 
-enum class CreatureMoodType;
-
 //! \brief Factory class to register a new mood modifier
 class CreatureMoodFactory
 {
@@ -34,8 +32,6 @@ public:
     {}
 
     virtual CreatureMood* createCreatureMood() const = 0;
-
-    virtual CreatureMoodType getCreatureMoodType() const = 0;
 
     virtual const std::string& getCreatureMoodName() const = 0;
 };

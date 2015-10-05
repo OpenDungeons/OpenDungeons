@@ -34,9 +34,6 @@ public:
 
     virtual ~CreatureMoodCreature() {}
 
-    virtual CreatureMoodType getCreatureMoodType() const override
-    { return CreatureMoodType::creature; }
-
     virtual int32_t computeMood(const Creature* creature) const override;
     virtual void init(GameMap* gameMap);
 
@@ -45,8 +42,7 @@ public:
 
     virtual bool importFromStream(std::istream& is) override;
 
-    inline const CreatureDefinition* getCreatureDefinition() const
-    { return mCreatureDefinition; }
+    virtual bool isNaturalEnemy(const Creature* creature) const override;
 
 private:
     CreatureMoodCreature(const std::string& creatureClass, int32_t moodModifier) :

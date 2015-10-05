@@ -26,9 +26,6 @@ class CreatureMoodFactoryHpLoss : public CreatureMoodFactory
     CreatureMood* createCreatureMood() const override
     { return new CreatureMoodHpLoss; }
 
-    CreatureMoodType getCreatureMoodType() const override
-    { return CreatureMoodType::hploss; }
-
     const std::string& getCreatureMoodName() const override
     {
         static const std::string name = "HpLoss";

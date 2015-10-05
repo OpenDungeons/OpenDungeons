@@ -25,9 +25,6 @@ class CreatureMoodFactoryAwakness : public CreatureMoodFactory
     CreatureMood* createCreatureMood() const override
     { return new CreatureMoodAwakness; }
 
-    CreatureMoodType getCreatureMoodType() const override
-    { return CreatureMoodType::awakness; }
-
     const std::string& getCreatureMoodName() const override
     {
         static const std::string name = "Awakness";

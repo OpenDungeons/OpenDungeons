@@ -481,8 +481,6 @@ public:
     inline Seat* getSeatPrison() const
     { return mSeatPrison; }
 
-    bool isMelee() const;
-
     virtual bool isDangerous(const Creature* creature, int distance) const override;
 
     virtual void clientUpkeep() override;

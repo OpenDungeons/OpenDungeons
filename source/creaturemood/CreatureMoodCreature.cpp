@@ -28,9 +28,6 @@ class CreatureMoodFactoryCreature : public CreatureMoodFactory
     CreatureMood* createCreatureMood() const override
     { return new CreatureMoodCreature; }
 
-    CreatureMoodType getCreatureMoodType() const override
-    { return CreatureMoodType::creature; }
-
     const std::string& getCreatureMoodName() const override
     {
         static const std::string name = "Creature";
@@ -67,6 +64,14 @@ void CreatureMoodCreature::init(GameMap* gameMap)
     {
         OD_LOG_ERR("Unknown creature class=" + mCreatureClass);
     }
+}
+
+bool CreatureMoodCreature::isNaturalEnemy(const Creature* creature) const
+{
+    if(mMoodModifier >= 0)
+        return false;
+
+    return (creature->getDefinition() == mCreatureDefinition);
 }
 
 bool CreatureMoodCreature::importFromStream(std::istream& is)

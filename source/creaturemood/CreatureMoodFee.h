@@ -29,9 +29,6 @@ public:
 
     virtual ~CreatureMoodFee() {}
 
-    virtual CreatureMoodType getCreatureMoodType() const override
-    { return CreatureMoodType::fee; }
-
     virtual int32_t computeMood(const Creature* creature) const override;
 
     inline CreatureMood* clone() const override
