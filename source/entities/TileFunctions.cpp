@@ -930,6 +930,12 @@ void Tile::fireTileSound(TileSound sound)
 
 double Tile::getCreatureSpeedDefault(const Creature* creature) const
 {
+    // If we are on a full tile, we set the speed to ground speed. That can happen
+    // on client side if there is a desynchro between server and client and the
+    // creature is not exactly on the same tile
+    if(!mIsOnServerMap && isFullTile())
+        return creature->getMoveSpeedGround();
+
     switch(getTileVisual())
     {
         case TileVisual::dirtGround:
