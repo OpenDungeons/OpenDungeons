@@ -486,13 +486,17 @@ void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* rendere
     std::string meshName = renderedMovableEntity->getMeshName();
     std::string tempString = renderedMovableEntity->getOgreNamePrefix() + renderedMovableEntity->getName();
 
-    Ogre::Entity* ent = mSceneManager->createEntity(tempString, meshName + ".mesh");
     Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString + "_node");
 
     node->setPosition(renderedMovableEntity->getPosition());
     node->setScale(renderedMovableEntity->getScale());
     node->roll(Ogre::Degree(renderedMovableEntity->getRotationAngle()));
-    node->attachObject(ent);
+    Ogre::Entity* ent = nullptr;
+    if(!meshName.empty())
+    {
+        ent = mSceneManager->createEntity(tempString, meshName + ".mesh");
+        node->attachObject(ent);
+    }
 
     renderedMovableEntity->setParentSceneNode(node->getParentSceneNode());
     renderedMovableEntity->setEntityNode(node);
@@ -513,7 +517,7 @@ void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* rendere
         entity->setVisible(false);
     }
 
-    if (renderedMovableEntity->getOpacity() < 1.0f)
+    if ((ent != nullptr) && (renderedMovableEntity->getOpacity() < 1.0f))
         setEntityOpacity(ent, renderedMovableEntity->getOpacity());
 }
 
@@ -521,11 +525,14 @@ void RenderManager::rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRen
 {
     std::string tempString = curRenderedMovableEntity->getOgreNamePrefix()
                              + curRenderedMovableEntity->getName();
-    Ogre::Entity* ent = mSceneManager->getEntity(tempString);
-    Ogre::SceneNode* node = mSceneManager->getSceneNode(tempString + "_node");
-    node->detachObject(ent);
-    mSceneManager->destroySceneNode(node->getName());
-    mSceneManager->destroyEntity(ent);
+    Ogre::SceneNode* node = curRenderedMovableEntity->getEntityNode();
+    if(mSceneManager->hasEntity(tempString))
+    {
+        Ogre::Entity* ent = mSceneManager->getEntity(tempString);
+        node->detachObject(ent);
+        mSceneManager->destroyEntity(ent);
+    }
+    mSceneManager->destroySceneNode(node);
     curRenderedMovableEntity->setParentSceneNode(nullptr);
     curRenderedMovableEntity->setEntityNode(nullptr);
 
@@ -925,9 +932,12 @@ void RenderManager::rrDestroySeatVisionVisualDebug(int seatId, Tile* tile)
 
 void RenderManager::rrSetObjectAnimationState(MovableGameEntity* curAnimatedObject, const std::string& animation, bool loop)
 {
-    Ogre::Entity* objectEntity = mSceneManager->getEntity(
-                                     curAnimatedObject->getOgreNamePrefix()
-                                     + curAnimatedObject->getName());
+    std::string objectName = curAnimatedObject->getOgreNamePrefix()
+        + curAnimatedObject->getName();
+    if (!mSceneManager->hasEntity(objectName))
+        return;
+
+    Ogre::Entity* objectEntity = mSceneManager->getEntity(objectName);
 
     // Can't animate entities without skeleton
     if (!objectEntity->hasSkeleton())
