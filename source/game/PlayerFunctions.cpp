@@ -45,6 +45,9 @@ const int MIN_DIST_EVENT_SQUARED = 100;
 //! \brief The number of seconds the local player will not be notified again if the research queue is empty
 const float NO_RESEARCH_TIME_COUNT = 60.0f;
 
+//! \brief The number of seconds the local player will not be notified again if he has no worker
+const float NO_WORKER_TIME_COUNT = 60.0f;
+
 //! \brief The number of seconds the local player will not be notified again if no treasury is available
 const float NO_TREASURY_TIME_COUNT = 30.0f;
 
@@ -281,6 +284,20 @@ void Player::notifyNoResearchInQueue()
     }
 }
 
+void Player::notifyNoWorker()
+{
+    if(mNoWorkerTime > 0.0f)
+        return;
+
+    mNoWorkerTime = NO_WORKER_TIME_COUNT;
+
+    std::string chatMsg = "You have no worker to fullfill your dark wishes.";
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::chatServer, this);
+    serverNotification->mPacket << chatMsg << EventShortNoticeType::genericGameInfo;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
 void Player::notifyNoTreasuryAvailable()
 {
     if(mNoTreasuryAvailableTime == 0.0f)
@@ -461,6 +478,19 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
             // Reprint the warning if there is still no research being done
             if(getSeat() != nullptr && !getSeat()->isResearching() && !ResearchManager::isAllResearchesDoneForSeat(getSeat()))
                 notifyNoResearchInQueue();
+        }
+    }
+
+    if(getIsHuman())
+    {
+        if(mNoWorkerTime > timeSinceLastUpkeep)
+            mNoWorkerTime -= timeSinceLastUpkeep;
+        else
+        {
+            mNoWorkerTime = 0.0f;
+
+            if(getSeat()->getNumCreaturesWorkers() <= 0)
+                notifyNoWorker();
         }
     }
 

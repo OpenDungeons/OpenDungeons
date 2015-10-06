@@ -407,7 +407,7 @@ void RoomPortalWave::handleSpawnWave()
 
     // Portal waves is not concerned about creature limit per seat. Only by the absolute limit
     uint32_t maxCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeatAbsolute();
-    uint32_t numCreatures = getGameMap()->getNbFightersForSeat(getSeat());
+    uint32_t numCreatures = getSeat()->getNumCreaturesFighters();
 
     if(numCreatures >= maxCreatures)
         return;

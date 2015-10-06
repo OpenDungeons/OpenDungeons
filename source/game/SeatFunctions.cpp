@@ -1588,6 +1588,7 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
     os << s->mColorId;
     os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
     os << s->mNumCreaturesFighters << s->mNumCreaturesFightersMax;
+    os << s->mNumCreaturesWorkers;
     os << s->mHasGoalsChanged;
     for(const uint32_t& nbRooms : s->mNbRooms)
     {
@@ -1616,6 +1617,7 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     is >> s->mColorId;
     is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mNumCreaturesFighters >> s->mNumCreaturesFightersMax;
+    is >> s->mNumCreaturesWorkers;
     is >> s->mHasGoalsChanged;
     for(uint32_t& nbRooms : s->mNbRooms)
     {

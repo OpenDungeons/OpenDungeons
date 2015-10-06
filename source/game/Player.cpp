@@ -35,6 +35,7 @@ Player::Player(GameMap* gameMap, int32_t id) :
     mSeat(nullptr),
     mIsHuman(false),
     mNoResearchInQueueTime(0.0f),
+    mNoWorkerTime(0.0f),
     mNoTreasuryAvailableTime(0.0f),
     mHasLost(false),
     mSpellsCooldown(std::vector<std::pair<uint32_t, float>>(static_cast<uint32_t>(SpellType::nbSpells), std::pair<uint32_t, float>(0,0.0f)))

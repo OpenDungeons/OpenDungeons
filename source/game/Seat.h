@@ -192,6 +192,9 @@ public:
     inline int getNumCreaturesFightersMax() const
     { return mNumCreaturesFightersMax; }
 
+    inline int getNumCreaturesWorkers() const
+    { return mNumCreaturesWorkers; }
+
     inline bool getKoCreatures() const
     { return mKoCreatures; }
 
@@ -397,6 +400,7 @@ private:
     //! \brief The number of living creatures fighters under this seat's control
     int mNumCreaturesFighters;
     int mNumCreaturesFightersMax;
+    int mNumCreaturesWorkers;
 
     //! \brief The actual color that this color index translates into.
     std::string mColorId;

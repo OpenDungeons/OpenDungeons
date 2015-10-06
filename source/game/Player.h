@@ -172,6 +172,9 @@ public:
     //! Should be called on the server game map for human players only
     void notifyNoResearchInQueue();
 
+    //! \brief Notify the player that he has no worker
+    void notifyNoWorker();
+
     //! \brief Notify the player that no treasury tiles are available for gold storage
     //! Should be called on the server game map for human players only
     void notifyNoTreasuryAvailable();
@@ -231,6 +234,10 @@ private:
     //! \brief This counter tells for how much time is left before considering
     //! the player should be notified again that he has not queued a research.
     float mNoResearchInQueueTime;
+
+    //! \brief This counter tells for how much time is left before considering
+    //! the player should be notified again that he has no worker.
+    float mNoWorkerTime;
 
     //! \brief This counter tells for how much time is left before considering
     //! the player should be notified again that he has no free space to store gold.

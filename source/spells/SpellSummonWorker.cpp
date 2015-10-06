@@ -61,7 +61,7 @@ void SpellSummonWorker::checkSpellCast(GameMap* gameMap, const InputManager& inp
         inputManager.mLStartDragY, SelectionTileAllowed::groundClaimedAllied, SelectionEntityWanted::tiles, player);
 
     int32_t nbFreeWorkers = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerNbFree");
-    int32_t nbWorkers = gameMap->getNbWorkersForSeat(player->getSeat());
+    int32_t nbWorkers = player->getSeat()->getNumCreaturesWorkers();
     int32_t pricePerWorker = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerBasePrice");
     if(nbWorkers > nbFreeWorkers)
         pricePerWorker *= std::pow(2, nbWorkers - nbFreeWorkers);
@@ -151,7 +151,7 @@ bool SpellSummonWorker::summonWorkersOnTiles(GameMap* gameMap, Player* player, c
     }
 
     int32_t nbFreeWorkers = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerNbFree");
-    int32_t nbWorkers = gameMap->getNbWorkersForSeat(player->getSeat());
+    int32_t nbWorkers = player->getSeat()->getNumCreaturesWorkers();
     int32_t pricePerWorker = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerBasePrice");
     if(nbWorkers > nbFreeWorkers)
         pricePerWorker *= std::pow(2, nbWorkers - nbFreeWorkers);
@@ -200,7 +200,7 @@ bool SpellSummonWorker::summonWorkersOnTiles(GameMap* gameMap, Player* player, c
 
 int32_t SpellSummonWorker::getNextWorkerPriceForPlayer(GameMap* gameMap, Player* player)
 {
-    int32_t nbWorkers = gameMap->getNbWorkersForSeat(player->getSeat());
+    int32_t nbWorkers = player->getSeat()->getNumCreaturesWorkers();
     int32_t nbFreeWorkers = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerNbFree");
     if(nbWorkers < nbFreeWorkers)
         return 0;
