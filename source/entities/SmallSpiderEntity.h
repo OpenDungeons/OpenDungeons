@@ -35,12 +35,14 @@ public:
     SmallSpiderEntity(GameMap* gameMap, bool isOnServerMap, const std::string& cryptName, int32_t nbTurnLife);
     SmallSpiderEntity(GameMap* gameMap, bool isOnServerMap);
 
-    virtual void doUpkeep();
+    virtual void doUpkeep() override;
 
     virtual GameEntityType getObjectType() const override
     { return GameEntityType::smallSpiderEntity; }
 
-    bool canSlap(Seat* seat);
+    bool canSlap(Seat* seat) override;
+
+    virtual void correctEntityMovePosition(Ogre::Vector3& position) override;
 
     void slap()
     { mIsSlapped = true; }

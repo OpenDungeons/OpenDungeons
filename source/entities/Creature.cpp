@@ -4889,7 +4889,7 @@ bool Creature::isInPrison() const
 
 void Creature::correctEntityMovePosition(Ogre::Vector3& position)
 {
-    const double offset = 0.3;
+    static const double offset = 0.3;
     if(position.x > 0)
         position.x += Random::Double(-offset, offset);
 

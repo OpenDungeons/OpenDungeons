@@ -230,6 +230,19 @@ bool ChickenEntity::tryDrop(Seat* seat, Tile* tile)
     return false;
 }
 
+void ChickenEntity::correctEntityMovePosition(Ogre::Vector3& position)
+{
+    static const double offset = 0.3;
+    if(position.x > 0)
+        position.x += Random::Double(-offset, offset);
+
+    if(position.y > 0)
+        position.y += Random::Double(-offset, offset);
+
+    if(position.z > 0)
+        position.z += Random::Double(-offset, offset);
+}
+
 bool ChickenEntity::eatChicken(Creature* creature)
 {
     if(mChickenState != ChickenState::free)
