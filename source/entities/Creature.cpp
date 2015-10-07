@@ -2643,9 +2643,6 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
         return false;
     }
 
-    if(getName() == "Adventurer2")
-        getName();
-
     // We try to attack creatures first
     std::vector<GameEntity*> enemyPrioritaryTargets;
     std::vector<GameEntity*> enemySecondaryTargets;
