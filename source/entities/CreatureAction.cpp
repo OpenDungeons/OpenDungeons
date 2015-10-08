@@ -111,8 +111,6 @@ std::string CreatureAction::toString() const
     case CreatureActionType::leaveDungeon:
         return "leaveDungeon";
 
-    case CreatureActionType::fightNaturalEnemy:
-        return "fightNaturalEnemy";
     default:
         assert(false);
         break;

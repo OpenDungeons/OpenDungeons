@@ -781,12 +781,6 @@ private:
     //! \return true when another action should handled after that one.
     bool handleLeaveDungeon(const CreatureActionWrapper& actionItem);
 
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature fighting action logic when
-    //! fighting an allied natural enemy (when in bad mood)
-    //! \return true when another action should handled after that one.
-    bool handleFightAlliedNaturalEnemyAction(const CreatureActionWrapper& actionItem);
-
     //! \brief Restores the creature's stats according to its current level
     void buildStats();
 

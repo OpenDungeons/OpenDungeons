@@ -1080,10 +1080,6 @@ void Creature::doUpkeep()
                     loopBack = handleLeaveDungeon(topActionItem);
                     break;
 
-                case CreatureActionType::fightNaturalEnemy:
-                    loopBack = handleFightAlliedNaturalEnemyAction(topActionItem);
-                    break;
-
                 default:
                     OD_LOG_ERR("Unhandled action type in Creature::doUpkeep():" + mActionQueue.front().toString()
                         + ", action=" + Helper::toString(static_cast<int>(topActionItem.mType)));
@@ -2545,13 +2541,6 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
 
 bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
 {
-    // If there are no more enemies, stop fighting.
-    if (mVisibleEnemyObjects.empty())
-    {
-        popAction();
-        return true;
-    }
-
     Tile* myTile = getPositionTile();
     if(myTile == nullptr)
     {
@@ -2560,33 +2549,49 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
         return false;
     }
 
-    // We try to attack creatures first
     std::vector<GameEntity*> enemyPrioritaryTargets;
     std::vector<GameEntity*> enemySecondaryTargets;
-    for(GameEntity* entity : mVisibleEnemyObjects)
+    // If we have a particular target, we attack it. Otherwise, we search for one
+    if((actionItem.mAttackedEntity != nullptr) &&
+       (actionItem.mAttackedEntity->getHP(nullptr) > 0))
     {
-        switch(entity->getObjectType())
+        enemyPrioritaryTargets.push_back(actionItem.mAttackedEntity);
+    }
+    else
+    {
+        // If there are no more enemies, stop fighting.
+        if (mVisibleEnemyObjects.empty())
         {
-            case GameEntityType::creature:
+            popAction();
+            return true;
+        }
+
+        // We try to attack creatures first
+        for(GameEntity* entity : mVisibleEnemyObjects)
+        {
+            switch(entity->getObjectType())
             {
-                Creature* creature = static_cast<Creature*>(entity);
-                if(!creature->isAlive())
-                    continue;
+                case GameEntityType::creature:
+                {
+                    Creature* creature = static_cast<Creature*>(entity);
+                    if(!creature->isAlive())
+                        continue;
 
-                // Workers should attack workers only
-                if(getDefinition()->isWorker() && !creature->getDefinition()->isWorker())
-                    continue;
+                    // Workers should attack workers only
+                    if(getDefinition()->isWorker() && !creature->getDefinition()->isWorker())
+                        continue;
 
-                enemyPrioritaryTargets.push_back(creature);
-                break;
-            }
-            default:
-            {
-                // Workers can attack workers only
-                if(getDefinition()->isWorker())
-                    continue;
+                    enemyPrioritaryTargets.push_back(creature);
+                    break;
+                }
+                default:
+                {
+                    // Workers can attack workers only
+                    if(getDefinition()->isWorker())
+                        continue;
 
-                enemySecondaryTargets.push_back(entity);
+                    enemySecondaryTargets.push_back(entity);
+                }
             }
         }
     }
@@ -3242,79 +3247,6 @@ bool Creature::handleLeaveDungeon(const CreatureActionWrapper& actionItem)
     return false;
 }
 
-// TODO: try to merge handleFightAlliedNaturalEnemyAction with handleFightAction
-bool Creature::handleFightAlliedNaturalEnemyAction(const CreatureActionWrapper& actionItem)
-{
-    Tile* myTile = getPositionTile();
-    if(myTile == nullptr)
-    {
-        popAction();
-        return true;
-    }
-
-    if(actionItem.mAttackedEntity == nullptr)
-    {
-        popAction();
-        return true;
-    }
-    // We look for a reachable allied natural enemy
-    GameEntity* entityAttack = nullptr;
-    Tile* tileAttack = nullptr;
-    Tile* tilePosition = nullptr;
-    CreatureSkillData* skillData = nullptr;
-    // If we are being attacked by a natural enemy, we attack it. Otherwise, we start looking
-    // for a natural enemy to attack
-    std::vector<GameEntity*> alliedNaturalEnemies;
-    alliedNaturalEnemies.push_back(actionItem.mAttackedEntity);
-    if(searchBestTargetInList(alliedNaturalEnemies, entityAttack, tileAttack, tilePosition, skillData))
-    {
-        // We found a natural enemy. We stop what we were doing
-        clearDestinations(EntityAnimation::idle_anim, true);
-        clearActionQueue();
-        stopJob();
-        stopEating();
-
-        // And we attack
-        if(entityAttack->getObjectType() != GameEntityType::creature)
-        {
-            OD_LOG_ERR("attacker=" + getName() + ", attacked=" + entityAttack->getName() + ", type=" + Helper::toString(static_cast<uint32_t>(entityAttack->getObjectType())));
-            popAction();
-            return false;
-        }
-
-        if((myTile == tilePosition) &&
-           (entityAttack != nullptr) &&
-           (tileAttack != nullptr) &&
-           (skillData != nullptr))
-        {
-            // We can attack
-            pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack, skillData);
-            return true;
-        }
-
-        // We need to move to the entity
-        std::list<Tile*> result = getGameMap()->path(this, tilePosition);
-        if(result.empty())
-        {
-            OD_LOG_ERR("name" + getName() + ", myTile=" + Tile::displayAsString(myTile) + ", dest=" + Tile::displayAsString(tilePosition));
-            return false;
-        }
-
-        if(result.size() > 2)
-            result.resize(2);
-
-        std::vector<Ogre::Vector3> path;
-        tileToVector3(result, path, true, 0.0);
-        setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-        pushAction(CreatureActionType::walkToTile, false, true);
-        return false;
-    }
-
-    // No reachable allied natural enemy. We pop action
-    popAction();
-    return true;
-}
-
 void Creature::engageAlliedNaturalEnemy(Creature& attackerCreature)
 {
     Tile* myTile = getPositionTile();
@@ -3325,14 +3257,14 @@ void Creature::engageAlliedNaturalEnemy(Creature& attackerCreature)
     }
 
     // If we are already fighting a natural enemy, do nothing
-    if(isActionInList(CreatureActionType::fightNaturalEnemy))
+    if(isActionInList(CreatureActionType::fight))
         return;
 
     clearActionQueue();
     clearDestinations(EntityAnimation::idle_anim, true);
     stopJob();
     stopEating();
-    pushAction(CreatureActionType::fightNaturalEnemy, false, true, &attackerCreature);
+    pushAction(CreatureActionType::fight, false, true, &attackerCreature);
 }
 
 double Creature::getMoveSpeed() const
