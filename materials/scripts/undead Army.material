@@ -1,0 +1,23 @@
+material undead
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.5 0.5 0.5 1
+			diffuse 1 1 1 1
+			specular 0 0 0 106.844
+			emissive 0 0 0
+
+			texture_unit
+			{
+				texture undead_color.png
+				tex_coord_set 0
+				colour_op modulate
+				scale 1 1
+				scroll 0 0
+				rotate 0
+			}
+		}
+	}
+}

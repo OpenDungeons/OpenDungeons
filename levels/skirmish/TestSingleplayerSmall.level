@@ -1435,7 +1435,6 @@ DwarfWorker	1
     ElementDefense	1.5
     ElementDef/Level	0.1
     FightIdleDist	1
-    WeakCoef	0
     FeeBase	0
     FeePerLevel	0
     SleepHeal	1
@@ -1524,6 +1523,7 @@ DwarfWorker	1
 0	Troll1	Troll.mesh	48	21	0	Troll	1	0	max	100	0	0	none	none	0	none	0
 1	Wizard2	Wizard.mesh	12	8	0	Wizard	1	0	max	100	0	0	RustyShield	none	0	none	0
 0	Troll2	Troll.mesh	26	5	0	Troll	1	0	max	100	0	0	none	none	0	none	0
+1	Skeleton1	skeleton.mesh	12	9	0	Skeleton	1	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
 [Spells]
