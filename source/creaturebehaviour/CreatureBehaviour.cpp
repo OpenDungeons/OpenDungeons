@@ -15,27 +15,16 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "creaturemood/CreatureMood.h"
+#include "creaturebehaviour/CreatureBehaviour.h"
 
-#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-std::string CreatureMood::toString(CreatureMoodLevel moodLevel)
+#include <istream>
+
+bool CreatureBehaviour::isEqual(const CreatureBehaviour& creatureBehaviour) const
 {
-    switch(moodLevel)
-    {
-        case CreatureMoodLevel::Happy:
-            return "Happy";
-        case CreatureMoodLevel::Neutral:
-            return "Neutral";
-        case CreatureMoodLevel::Upset:
-            return "Upset";
-        case CreatureMoodLevel::Angry:
-            return "Angry";
-        case CreatureMoodLevel::Furious:
-            return "Furious";
-        default:
-            OD_LOG_ERR("moodLevel=" + Helper::toString(static_cast<int>(moodLevel)));
-            return "";
-    }
+    if(typeid(*this) != typeid(creatureBehaviour))
+        return false;
+
+    return true;
 }

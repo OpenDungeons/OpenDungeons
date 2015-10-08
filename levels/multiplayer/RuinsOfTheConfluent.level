@@ -2132,6 +2132,14 @@ BigKnight	5
     # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	PhyAtk	PhyAtkPerLvl	MagAtk	MagAtkPerLvl	EleAtk	EleAtkPerLvl
     Melee	5	2	1	16	0.8	0	0	0	0
     [/CreatureSkills]
+    [CreatureBehaviours]
+    # BehaviourName	WeakCoef
+    FleeWhenWeak	0.3
+    # BehaviourName
+    AttackEnemy
+    # BehaviourName
+    LeaveDungeonWhenFurious
+    [/CreatureBehaviours]
 [/Creature]
 [/CreatureDefinitions]
 

@@ -86,7 +86,7 @@ public:
 
     virtual bool isEqual(const CreatureSkill& creatureSkill) const;
 
-    //! \brief Returns the format string
+    //! \brief Returns the format string (including specific additional parameters)
     virtual void getFormatString(std::string& format) const;
 
     static std::string toString(CreatureSkillType type);

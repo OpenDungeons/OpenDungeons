@@ -66,14 +66,6 @@ void CreatureMoodCreature::init(GameMap* gameMap)
     }
 }
 
-bool CreatureMoodCreature::isNaturalEnemy(const Creature* creature) const
-{
-    if(mMoodModifier >= 0)
-        return false;
-
-    return (creature->getDefinition() == mCreatureDefinition);
-}
-
 bool CreatureMoodCreature::importFromStream(std::istream& is)
 {
     if(!CreatureMood::importFromStream(is))

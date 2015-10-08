@@ -2808,34 +2808,6 @@ int32_t GameMap::computeCreatureMoodModifiers(const Creature* creature) const
     return moodValue;
 }
 
-std::vector<GameEntity*> GameMap::getNaturalEnemiesInList(const Creature* creature, const std::vector<GameEntity*>& reachableAlliedObjects) const
-{
-    std::vector<GameEntity*> ret;
-
-    const std::string& moodModifierName = creature->getDefinition()->getMoodModifierName();
-    if(mCreatureMoodModifiers.count(moodModifierName) <= 0)
-        return ret;
-
-    const std::vector<CreatureMood*>& moodModifiers = mCreatureMoodModifiers.at(moodModifierName);
-    for(GameEntity* entity : reachableAlliedObjects)
-    {
-        if(entity->getObjectType() != GameEntityType::creature)
-            continue;
-
-        Creature* alliedCreature = static_cast<Creature*>(entity);
-        for(const CreatureMood* mood : moodModifiers)
-        {
-            if(!mood->isNaturalEnemy(alliedCreature))
-                continue;
-
-            ret.push_back(entity);
-            break;
-        }
-    }
-
-    return ret;
-}
-
 void GameMap::addSpell(Spell *spell)
 {
     OD_LOG_INF(serverStr() + "Adding spell " + spell->getName()

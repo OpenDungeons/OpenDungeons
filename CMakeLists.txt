@@ -232,6 +232,13 @@ set(OD_SOURCEFILES
     ${SRC}/camera/CameraManager.cpp
     ${SRC}/camera/HermiteCatmullSpline.cpp
 
+    ${SRC}/creaturebehaviour/CreatureBehaviour.cpp
+    ${SRC}/creaturebehaviour/CreatureBehaviourAttackEnemy.cpp
+    ${SRC}/creaturebehaviour/CreatureBehaviourEngageNaturalEnemy.cpp
+    ${SRC}/creaturebehaviour/CreatureBehaviourFleeWhenWeak.cpp
+    ${SRC}/creaturebehaviour/CreatureBehaviourLeaveDungeonWhenFurious.cpp
+    ${SRC}/creaturebehaviour/CreatureBehaviourManager.cpp
+
     ${SRC}/creatureeffect/CreatureEffect.cpp
     ${SRC}/creatureeffect/CreatureEffectExplosion.cpp
     ${SRC}/creatureeffect/CreatureEffectHeal.cpp

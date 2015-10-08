@@ -183,6 +183,12 @@ public:
     inline const CreatureDefinition* getDefinition() const
     { return mDefinition; }
 
+    inline CreatureMoodLevel getMoodValue() const
+    { return mMoodValue; }
+
+    inline int32_t getNbTurnFurious() const
+    { return mNbTurnFurious; }
+
     void setPosition(const Ogre::Vector3& v) override;
 
     //! \brief Gets the move speed on the current tile.
@@ -418,6 +424,22 @@ public:
     inline const std::vector<Tile*>& getVisibleTiles() const
     { return mVisibleTiles; }
 
+    inline const std::vector<GameEntity*>& getVisibleEnemyObjects() const
+    { return mVisibleEnemyObjects; }
+
+    inline const std::vector<GameEntity*>& getVisibleAlliedObjects() const
+    { return mVisibleAlliedObjects; }
+
+    inline const std::vector<GameEntity*>& getReachableAlliedObjects() const
+    { return mReachableAlliedObjects; }
+
+    //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
+    //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
+    //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
+    //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
+    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
+    void popAction();
+
     inline double getAwakeness() const
     { return mAwakeness; }
 
@@ -487,6 +509,9 @@ public:
 
     virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const override;
     virtual void updateFromPacket(ODPacket& is) override;
+
+    //! \brief Called when an angry creature wants to attack a natural enemy
+    void engageAlliedNaturalEnemy(Creature& attacker);
 
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
@@ -615,9 +640,8 @@ private:
     //! should not be used to check mood. If the mood is to be tested, mMoodValue should be used
     int32_t                         mMoodPoints;
 
-    //! \brief Reminds the first turn the creature gets furious. If is stays like this for too long,
-    //! it will become rogue
-    int64_t                         mFirstTurnFurious;
+    //! \brief Counts turns the creature is furious. If it stays like this for too long, it will become rogue
+    int32_t                         mNbTurnFurious;
 
     //! \brief Represents the life value displayed on client side. We do not notify each HP change
     //! to avoid too many communication. But when mOverlayHealthValue changes, we will
@@ -661,13 +685,6 @@ private:
 
     //! \brief Skills the creature can use
     std::vector<CreatureSkillData> mSkillData;
-
-    //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
-    //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
-    //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
-    //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
-    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
-    void popAction();
 
     //! \brief Picks a destination far away in the visible tiles and goes there
     //! Returns true if a valid Tile was found. The creature will go there
@@ -782,9 +799,6 @@ private:
     void decreaseAwakeness(double value);
 
     void computeMood();
-
-    //! \brief Called when an angry creature wants to attack a natural enemy
-    void engageAlliedNaturalEnemy(Creature* attacker);
 
     void computeCreatureOverlayHealthValue();
 

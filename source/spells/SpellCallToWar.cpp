@@ -33,7 +33,6 @@
 
 static SpellManagerRegister<SpellCallToWar> reg(SpellType::callToWar, "callToWar", "Call to war", "CallToWarCooldown");
 
-// TODO : use the correct mesh when available
 SpellCallToWar::SpellCallToWar(GameMap* gameMap, bool isOnServerMap) :
     Spell(gameMap, isOnServerMap, SpellManager::getSpellNameFromSpellType(getSpellType()), "WarBanner", 0.0,
         ConfigManager::getSingleton().getSpellConfigInt32("CallToWarNbTurnsMax"))

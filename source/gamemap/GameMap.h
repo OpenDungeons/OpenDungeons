@@ -215,8 +215,6 @@ public:
         const std::vector<CreatureMood*>& moodModifiers);
     int32_t computeCreatureMoodModifiers(const Creature* creature) const;
 
-    std::vector<GameEntity*> getNaturalEnemiesInList(const Creature* creature, const std::vector<GameEntity*>& reachableAlliedObjects) const;
-
     //! \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
     void clearRooms();
 

@@ -15,27 +15,28 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "creaturemood/CreatureMood.h"
+#ifndef CREATUREBEHAVIOURATTACKENEMY_H
+#define CREATUREBEHAVIOURATTACKENEMY_H
 
-#include "utils/Helper.h"
-#include "utils/LogManager.h"
+#include "creaturebehaviour/CreatureBehaviour.h"
 
-std::string CreatureMood::toString(CreatureMoodLevel moodLevel)
+class CreatureBehaviourAttackEnemy : public CreatureBehaviour
 {
-    switch(moodLevel)
-    {
-        case CreatureMoodLevel::Happy:
-            return "Happy";
-        case CreatureMoodLevel::Neutral:
-            return "Neutral";
-        case CreatureMoodLevel::Upset:
-            return "Upset";
-        case CreatureMoodLevel::Angry:
-            return "Angry";
-        case CreatureMoodLevel::Furious:
-            return "Furious";
-        default:
-            OD_LOG_ERR("moodLevel=" + Helper::toString(static_cast<int>(moodLevel)));
-            return "";
-    }
-}
+public:
+    static const std::string mNameCreatureBehaviourAttackEnemy;
+
+    CreatureBehaviourAttackEnemy()
+    {}
+
+    virtual ~CreatureBehaviourAttackEnemy()
+    {}
+
+    virtual const std::string& getName() const override
+    { return mNameCreatureBehaviourAttackEnemy; }
+
+    virtual CreatureBehaviour* clone() const override;
+
+    virtual bool processBehaviour(Creature& creature) const override;
+};
+
+#endif // CREATUREBEHAVIOURATTACKENEMY_H

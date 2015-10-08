@@ -24,6 +24,7 @@
 #include <iosfwd>
 #include <cstdint>
 
+class CreatureBehaviour;
 class CreatureSkill;
 class ODPacket;
 
@@ -118,16 +119,6 @@ public:
             double                  elementDefense      = 1.5,
             double                  elementDefPerLevel  = 0.1,
             int32_t                 fightIdleDist       = 1,
-            double                  attackRange         = 1.0,
-            double                  atkRangePerLevel    = 0.0,
-            double                  phyAtkRan           = 0.0,
-            double                  phyAtkRanPerLvl     = 0.0,
-            double                  magAtkRan           = 0.0,
-            double                  magAtkRanPerLvl     = 0.0,
-            const std::string&      ranAtkMesh          = std::string(),
-            const std::string&      ranAtkPartScript    = std::string(),
-            double                  attackWarmupTime    = 1.0,
-            double                  weakCoef            = 0.3,
             int32_t                 feeBase             = 0,
             int32_t                 feePerLevel         = 0,
             int32_t                 sleepHeal           = 1.0,
@@ -201,8 +192,6 @@ public:
 
     inline int32_t              getFightIdleDist() const        { return mFightIdleDist; }
 
-    inline double               getWeakCoef () const            { return mWeakCoef; }
-
     inline const std::string&   getWeaponSpawnL () const        { return mWeaponSpawnL; }
     inline const std::string&   getWeaponSpawnR () const        { return mWeaponSpawnR; }
 
@@ -221,6 +210,9 @@ public:
 
     inline const std::vector<const CreatureSkill*>& getCreatureSkills() const
     { return mCreatureSkills; }
+
+    inline const std::vector<const CreatureBehaviour*>& getCreatureBehaviours() const
+    { return mCreatureBehaviours; }
 
     const CreatureRoomAffinity& getRoomAffinity(RoomType roomType) const;
 
@@ -323,10 +315,6 @@ private:
     //! \brief Distance from the nearest enemy creature that the creature will try to let when no skill can be used
     int32_t mFightIdleDist;
 
-    //! \brief The coefficient applied on hp to check if the creature is weak. It will be
-    //! if hp < hpMax * mWeakCoef. A weak creature will flee combat and will try to rest
-    double mWeakCoef;
-
     //! \brief The base fee for this creature.
     int32_t mFeeBase;
     int32_t mFeePerLevel;
@@ -348,6 +336,9 @@ private:
     //! \brief Skills the creature can use
     std::vector<const CreatureSkill*> mCreatureSkills;
 
+    //! \brief Creature specific behaviours
+    std::vector<const CreatureBehaviour*> mCreatureBehaviours;
+
     //! \brief The rooms the creature should choose according to availability
     std::vector<CreatureRoomAffinity> mRoomAffinity;
 
@@ -365,8 +356,11 @@ private:
     //! \brief Loads the creature XP values for the given definition.
     static void loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef);
 
-    //! \brief Loads the creature XP values for the given definition.
+    //! \brief Loads the creature skills for the given definition.
     static void loadCreatureSkills(std::stringstream& defFile, CreatureDefinition* creatureDef);
+
+    //! \brief Loads the creature specific behaviours for the given definition.
+    static void loadCreatureBehaviours(std::stringstream& defFile, CreatureDefinition* creatureDef);
 
     //! \brief Loads the creature room affinity for the given definition.
     static void loadRoomAffinity(std::stringstream& defFile, CreatureDefinition* creatureDef);
