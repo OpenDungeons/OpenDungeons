@@ -1524,6 +1524,7 @@ DwarfWorker	1
 1	Wizard2	Wizard.mesh	12	8	0	Wizard	1	0	max	100	0	0	RustyShield	none	0	none	0
 0	Troll2	Troll.mesh	26	5	0	Troll	1	0	max	100	0	0	none	none	0	none	0
 1	Skeleton1	skeleton.mesh	12	9	0	Skeleton	1	0	max	100	0	0	none	none	0	none	0
+1	Lich1	lich.mesh	13	10	0	Lich	1	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
 [Spells]

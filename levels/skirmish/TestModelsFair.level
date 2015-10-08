@@ -53,7 +53,7 @@ ProtectDungeonTemple	NULL
 [Tiles]
 # Map Size
 30 # MapSizeX
-30 # MapSizeY
+50 # MapSizeY
 # posX	posY	type	fullness	seatId(optional)
 0	0	1	100	1
 0	1	1	100	1
@@ -107,6 +107,12 @@ ProtectDungeonTemple	NULL
 1	27	5	0
 1	28	5	0
 1	29	5	0
+1	31	1	0	1
+1	32	1	0	1
+1	33	1	0	1
+1	35	1	0	1
+1	36	1	0	1
+1	37	1	0	1
 2	0	1	100	1
 2	1	1	0	1
 2	2	1	0	1
@@ -135,6 +141,12 @@ ProtectDungeonTemple	NULL
 2	27	5	0
 2	28	5	0
 2	29	5	0
+2	31	1	0	1
+2	32	1	0	1
+2	33	1	0	1
+2	35	1	0	1
+2	36	1	0	1
+2	37	1	0	1
 3	0	1	100	1
 3	1	1	0	1
 3	2	1	0	1
@@ -163,6 +175,12 @@ ProtectDungeonTemple	NULL
 3	27	5	0
 3	28	5	0
 3	29	5	0
+3	31	1	0	1
+3	32	1	0	1
+3	33	1	0	1
+3	35	1	0	1
+3	36	1	0	1
+3	37	1	0	1
 4	0	1	100	1
 4	1	1	0	1
 4	2	1	0	1
@@ -190,6 +208,12 @@ ProtectDungeonTemple	NULL
 4	24	3	100
 4	28	5	0
 4	29	5	0
+4	31	1	0	1
+4	32	1	0	1
+4	33	1	0	1
+4	35	1	0	1
+4	36	1	0	1
+4	37	1	0	1
 5	0	1	100	1
 5	1	1	0	1
 5	2	1	0	1
@@ -219,6 +243,12 @@ ProtectDungeonTemple	NULL
 5	27	2	100
 5	28	2	100
 5	29	2	100
+5	31	1	0	1
+5	32	1	0	1
+5	33	1	0	1
+5	35	1	0	1
+5	36	1	0	1
+5	37	1	0	1
 6	0	1	100	1
 6	1	1	100	1
 6	2	1	100	1
@@ -248,6 +278,12 @@ ProtectDungeonTemple	NULL
 6	27	2	100
 6	28	2	100
 6	29	2	100
+6	31	1	0	1
+6	32	1	0	1
+6	33	1	0	1
+6	35	1	0	1
+6	36	1	0	1
+6	37	1	0	1
 7	0	1	100	1
 7	1	1	0	1
 7	2	1	0	1
@@ -274,6 +310,12 @@ ProtectDungeonTemple	NULL
 7	23	3	0
 7	27	2	100
 7	28	2	100
+7	31	1	0	1
+7	32	1	0	1
+7	33	1	0	1
+7	35	1	0	1
+7	36	1	0	1
+7	37	1	0	1
 8	0	1	100	1
 8	1	1	0	1
 8	2	1	0	1
@@ -301,6 +343,12 @@ ProtectDungeonTemple	NULL
 8	26	2	100
 8	27	2	100
 8	28	2	100
+8	31	1	0	1
+8	32	1	0	1
+8	33	1	0	1
+8	35	1	0	1
+8	36	1	0	1
+8	37	1	0	1
 9	0	1	100	1
 9	1	1	0	1
 9	2	1	0	1
@@ -327,6 +375,12 @@ ProtectDungeonTemple	NULL
 9	25	2	100
 9	26	2	100
 9	28	2	100
+9	31	1	0	1
+9	32	1	0	1
+9	33	1	0	1
+9	35	1	0	1
+9	36	1	0	1
+9	37	1	0	1
 10	0	1	100	1
 10	1	1	0	1
 10	2	1	0	1
@@ -351,6 +405,12 @@ ProtectDungeonTemple	NULL
 10	21	2	0
 10	22	4	0
 10	23	4	0
+10	31	1	0	1
+10	32	1	0	1
+10	33	1	0	1
+10	35	1	0	1
+10	36	1	0	1
+10	37	1	0	1
 11	0	1	100	1
 11	1	1	0	1
 11	2	1	0	1
@@ -534,7 +594,7 @@ ProtectDungeonTemple	NULL
 18	0	1	100	1
 18	1	1	100	1
 18	2	1	100	1
-18	3	1	100	1
+18	3	1	0	1
 18	4	1	100	1
 18	5	1	100	1
 18	6	1	100	1
@@ -557,6 +617,17 @@ ProtectDungeonTemple	NULL
 18	25	1	0	1
 18	27	1	0	1
 18	28	1	0	1
+18	30	1	0	1
+18	31	1	0	1
+18	33	1	0	1
+18	34	1	0	1
+19	0	1	100	1
+19	1	1	0	1
+19	2	1	0	1
+19	3	1	0	1
+19	4	1	0	1
+19	5	1	0	1
+19	6	1	100	1
 19	7	1	25
 19	21	1	0	1
 19	22	1	0	1
@@ -564,22 +635,24 @@ ProtectDungeonTemple	NULL
 19	25	1	0	1
 19	27	1	0	1
 19	28	1	0	1
+19	30	1	0	1
+19	31	1	0	1
+19	33	1	0	1
+19	34	1	0	1
+20	0	1	100	1
 20	1	1	0	1
 20	2	1	0	1
 20	3	1	0	1
 20	4	1	0	1
 20	5	1	0	1
-20	6	1	0	1
-20	7	1	0	1
-20	8	1	0	1
+20	6	1	100	1
+21	0	1	100	1
 21	1	1	0	1
 21	2	1	0	1
 21	3	1	0	1
 21	4	1	0	1
 21	5	1	0	1
-21	6	1	0	1
-21	7	1	0	1
-21	8	1	0	1
+21	6	1	100	1
 21	12	1	0	1
 21	13	1	0	1
 21	15	1	0	1
@@ -592,14 +665,17 @@ ProtectDungeonTemple	NULL
 21	25	1	0	1
 21	27	1	0	1
 21	28	1	0	1
+21	30	1	0	1
+21	31	1	0	1
+21	33	1	0	1
+21	34	1	0	1
+22	0	1	100	1
 22	1	1	0	1
 22	2	1	0	1
 22	3	1	0	1
 22	4	1	0	1
 22	5	1	0	1
-22	6	1	0	1
-22	7	1	0	1
-22	8	1	0	1
+22	6	1	100	1
 22	12	1	0	1
 22	13	1	0	1
 22	15	1	0	1
@@ -612,14 +688,24 @@ ProtectDungeonTemple	NULL
 22	25	1	0	1
 22	27	1	0	1
 22	28	1	0	1
-23	0	1	25
-24	0	1	0	1
-24	1	1	0	1
-24	3	1	0	1
-24	4	1	0	1
-24	5	1	25
-24	6	1	0	1
-24	7	1	0	1
+22	30	1	0	1
+22	31	1	0	1
+22	33	1	0	1
+22	34	1	0	1
+23	0	1	100	1
+23	1	1	0	1
+23	2	1	0	1
+23	3	1	0	1
+23	4	1	0	1
+23	5	1	0	1
+23	6	1	100	1
+24	0	1	100	1
+24	1	1	100	1
+24	2	1	100	1
+24	3	1	100	1
+24	4	1	100	1
+24	5	1	100	1
+24	6	1	100	1
 24	9	1	0	1
 24	10	1	0	1
 24	12	1	0	1
@@ -634,13 +720,10 @@ ProtectDungeonTemple	NULL
 24	25	1	0	1
 24	27	1	0	1
 24	28	1	0	1
-25	0	1	0	1
-25	1	1	0	1
-25	3	1	0	1
-25	4	1	0	1
-25	5	1	25
-25	6	1	0	1
-25	7	1	0	1
+24	30	1	0	1
+24	31	1	0	1
+24	33	1	0	1
+24	34	1	0	1
 25	9	1	0	1
 25	10	1	0	1
 25	12	1	0	1
@@ -655,17 +738,10 @@ ProtectDungeonTemple	NULL
 25	25	1	0	1
 25	27	1	0	1
 25	28	1	0	1
-26	0	1	25
-26	1	1	25
-26	5	1	25
-26	6	1	25
-26	7	1	25
-27	0	1	0	1
-27	1	1	0	1
-27	3	1	0	1
-27	4	1	0	1
-27	6	1	0	1
-27	7	1	0	1
+25	30	1	0	1
+25	31	1	0	1
+25	33	1	0	1
+25	34	1	0	1
 27	9	1	0	1
 27	10	1	0	1
 27	12	1	0	1
@@ -680,12 +756,10 @@ ProtectDungeonTemple	NULL
 27	25	1	0	1
 27	27	1	0	1
 27	28	1	0	1
-28	0	1	0	1
-28	1	1	0	1
-28	3	1	0	1
-28	4	1	0	1
-28	6	1	0	1
-28	7	1	0	1
+27	30	1	0	1
+27	31	1	0	1
+27	33	1	0	1
+27	34	1	0	1
 28	9	1	0	1
 28	10	1	0	1
 28	12	1	0	1
@@ -700,6 +774,10 @@ ProtectDungeonTemple	NULL
 28	25	1	0	1
 28	27	1	0	1
 28	28	1	0	1
+28	30	1	0	1
+28	31	1	0	1
+28	33	1	0	1
+28	34	1	0	1
 29	0	1	25
 [/Tiles]
 
@@ -975,6 +1053,34 @@ Wizard26	11	4	0
 0
 [/Room]
 [Room]
+11	Prison_1	1	25
+19	1
+19	2
+19	3
+19	4
+19	5
+20	1
+20	2
+20	3
+20	4
+20	5
+21	1
+21	2
+21	3
+21	4
+21	5
+22	1
+22	2
+22	3
+22	4
+22	5
+23	1
+23	2
+23	3
+23	4
+23	5
+[/Room]
+[Room]
 12	WoodenBridge_10	1	5
 13	23
 13	24
@@ -995,40 +1101,40 @@ Wizard26	11	4	0
 [Traps]
 # typeTrap	name	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
 [Trap]
-1	Cannon_1	1	3
-20	1	0
-21	1	0
-22	1	0
+1	Cannon_3	1	3
+1	31	1
+1	32	1
+1	33	1
 [/Trap]
 [Trap]
-1	Cannon_2	1	3
-20	2	1
-21	2	1
-22	2	1
+1	Cannon_4	1	3
+2	31	0
+2	32	0
+2	33	0
 [/Trap]
 [Trap]
-2	Spike_3	1	3
-20	4	0
-21	4	0
-22	4	0
+2	Spike_5	1	3
+4	31	1
+4	32	1
+4	33	1
 [/Trap]
 [Trap]
-2	Spike_4	1	3
-20	5	1
-21	5	1
-22	5	1
+2	Spike_6	1	3
+5	31	0
+5	32	0
+5	33	0
 [/Trap]
 [Trap]
-3	Boulder_5	1	3
-20	7	0
-21	7	0
-22	7	0
+3	Boulder_7	1	3
+7	31	1
+7	32	1
+7	33	1
 [/Trap]
 [Trap]
-3	Boulder_6	1	3
-20	8	1
-21	8	1
-22	8	1
+3	Boulder_8	1	3
+8	31	0
+8	32	0
+8	33	0
 [/Trap]
 [Trap]
 4	DoorWooden_1	1	1
@@ -1085,12 +1191,14 @@ Wizard26	11	4	0
 1	Dwarf122	Dwarf1.mesh	21	13	0	Dwarf1	1	0	max	100	0	0	none	none	0	none	0
 1	Dwarf223	Dwarf2.mesh	24	13	0	Dwarf2	1	0	max	100	0	0	none	Sabre	0	none	0
 1	Knight24	Knight.mesh	27	13	0	Knight	1	0	max	100	0	0	RustyShield	RustySword	0	none	0
-1	Wizard26	Wizard.mesh	27	10	0	Wizard	1	0	max	100	0	0	none	Staff	0	none	0
-1	RunelordDwarf27	RunelordDwarf.mesh	27	7	0	RunelordDwarf	1	0	max	100	0	0	none	Roundshield	0	none	0
-1	BigKnight28	Knight.mesh	27	4	0	BigKnight	1	0	max	100	0	0	RustyShield	RustySword	0	none	0
-1	Defender29	Defender.mesh	27	1	0	Defender	1	0	max	100	0	0	none	none	0	none	0
-0	Adventurer1	Adventurer.mesh	24	10	0	Adventurer	1	0	max	100	0	0	none	none	0	none	0
-1	Roach1	Roach.mesh	24	7	0	Roach	1	0	max	100	0	0	none	none	0	none	0
+1	Wizard26	Wizard.mesh	24	33	0	Wizard	1	0	max	100	0	0	none	Staff	0	none	0
+1	RunelordDwarf27	RunelordDwarf.mesh	25	31	0	RunelordDwarf	1	0	max	100	0	0	none	Roundshield	0	none	0
+1	BigKnight28	Knight.mesh	22	31	0	BigKnight	1	0	max	100	0	0	RustyShield	RustySword	0	none	0
+1	Defender29	Defender.mesh	19	31	0	Defender	1	0	max	100	0	0	none	none	0	none	0
+0	Adventurer1	Adventurer.mesh	1	35	0	Adventurer	1	0	max	100	0	0	none	none	0	none	0
+1	Roach1	Roach.mesh	28	31	0	Roach	1	0	max	100	0	0	none	none	0	none	0
+1	Lich2	lich.mesh	21	33	0	Lich	1	0	max	100	0	0	none	none	0	none	0
+1	Skeleton3	skeleton.mesh	19	33	0	Skeleton	1	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
 [Spells]
