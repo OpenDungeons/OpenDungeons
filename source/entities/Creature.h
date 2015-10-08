@@ -784,6 +784,8 @@ private:
     //! \brief Restores the creature's stats according to its current level
     void buildStats();
 
+    void updateScale();
+
     void carryEntity(GameEntity* carriedEntity);
 
     void releaseCarriedEntity();

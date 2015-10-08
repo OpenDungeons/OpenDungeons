@@ -471,9 +471,7 @@ void Creature::buildStats()
     mMagicalDefense = mDefinition->getMagicalDefense();
     mElementDefense = mDefinition->getElementDefense();
 
-    mScale = getDefinition()->getScale();
-    Ogre::Real scaleFactor = static_cast<Ogre::Real>(1.0 + 0.02 * static_cast<double>(getLevel()));
-    mScale *= scaleFactor;
+    updateScale();
 
     // Improve the stats to the current level
     double multiplier = mLevel - 1;
@@ -490,6 +488,13 @@ void Creature::buildStats()
     mPhysicalDefense += mDefinition->getPhysicalDefPerLevel() * multiplier;
     mMagicalDefense += mDefinition->getMagicalDefPerLevel() * multiplier;
     mElementDefense += mDefinition->getElementDefPerLevel() * multiplier;
+}
+
+void Creature::updateScale()
+{
+    mScale = getDefinition()->getScale();
+    Ogre::Real scaleFactor = static_cast<Ogre::Real>(1.0 + 0.02 * static_cast<double>(getLevel()));
+    mScale *= scaleFactor;
 }
 
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
@@ -3406,6 +3411,7 @@ void Creature::updateFromPacket(ODPacket& is)
 
     // We do not scale the creature if it is picked up (because it is already not at its normal size). It will be
     // resized anyway when dropped
+    updateScale();
     if(getIsOnMap())
         RenderManager::getSingleton().rrScaleEntity(this);
 
