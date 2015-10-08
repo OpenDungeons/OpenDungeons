@@ -164,6 +164,7 @@ CreatureDefinition::CreatureDefinition(const CreatureDefinition& def) :
         mTurnsStunDropped(def.mTurnsStunDropped),
         mWeaponSpawnL(def.mWeaponSpawnL),
         mWeaponSpawnR(def.mWeaponSpawnR),
+        mMoodModifierName(def.mMoodModifierName),
         mSoundFamilyPickup(def.mSoundFamilyPickup),
         mSoundFamilyDrop(def.mSoundFamilyDrop),
         mSoundFamilyAttack(def.mSoundFamilyAttack),
