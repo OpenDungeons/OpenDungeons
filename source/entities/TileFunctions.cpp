@@ -608,6 +608,29 @@ void Tile::fillWithCraftedTraps(std::vector<GameEntity*>& entities)
     }
 }
 
+
+bool Tile::isEntityOnTile(GameEntity* entity) const
+{
+    if(entity == nullptr)
+        return false;
+
+    switch(entity->getObjectType())
+    {
+        case GameEntityType::room:
+            return (entity == getCoveringRoom());
+        case GameEntityType::trap:
+            return (entity == getCoveringTrap());
+        default:
+            break;
+    }
+    for(GameEntity* tmpEntity : mEntitiesInTile)
+    {
+        if(tmpEntity == entity)
+            return true;
+    }
+    return false;
+}
+
 uint32_t Tile::countEntitiesOnTile(GameEntityType entityType) const
 {
     uint32_t nbItems = 0;

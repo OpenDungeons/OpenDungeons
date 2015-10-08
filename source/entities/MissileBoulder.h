@@ -33,13 +33,13 @@ class MissileBoulder: public MissileObject
 {
 public:
     MissileBoulder(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double speed, double damage, Tile* tileBuildingTarget);
+        const Ogre::Vector3& direction, double speed, double damage, GameEntity* entityTarget);
     MissileBoulder(GameMap* gameMap, bool isOnServerMap);
 
     virtual MissileObjectType getMissileType() const override
     { return MissileObjectType::boulder; }
 
-    virtual bool hitCreature(GameEntity* entity) override;
+    virtual bool hitCreature(Tile* tile, GameEntity* entity) override;
     virtual bool wallHitNextDirection(const Ogre::Vector3& actDirection, Tile* tile, Ogre::Vector3& nextDirection) override;
 
     static MissileBoulder* getMissileBoulderFromStream(GameMap* gameMap, std::istream& is);

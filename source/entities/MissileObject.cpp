@@ -30,11 +30,11 @@
 #include <iostream>
 
 MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double speed, Tile* tileBuildingTarget, bool damageAllies) :
+        const Ogre::Vector3& direction, double speed, GameEntity* entityTarget, bool damageAllies) :
     RenderedMovableEntity(gameMap, isOnServerMap, senderName, meshName, 0.0f, false),
     mDirection(direction),
     mIsMissileAlive(true),
-    mTileBuildingTarget(tileBuildingTarget),
+    mEntityTarget(entityTarget),
     mDamageAllies(damageAllies),
     mSpeed(speed)
 {
@@ -45,7 +45,7 @@ MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap) :
     RenderedMovableEntity(gameMap, isOnServerMap),
     mDirection(Ogre::Vector3::ZERO),
     mIsMissileAlive(true),
-    mTileBuildingTarget(nullptr),
+    mEntityTarget(nullptr),
     mDamageAllies(false),
     mSpeed(1.0)
 {
@@ -131,18 +131,13 @@ void MissileObject::doUpkeep()
         }
         lastTile = tmpTile;
 
-        // If we are aiming a building, we check if we hit
-        if((mTileBuildingTarget != nullptr) &&
-           (mTileBuildingTarget == tmpTile))
+        // If we are aiming a specific entity, we check if we hit
+        if(mEntityTarget != nullptr)
         {
-            // We hit
-            Building* building = mTileBuildingTarget->getCoveringBuilding();
-            // Note that building may be null here is the building got destroyed before the missile gets there
-            if((building != nullptr) &&
-               (building->isAttackable(mTileBuildingTarget, mSeat)) &&
-               (!building->getSeat()->isAlliedSeat(mSeat)))
+            // Check if we hit
+            if(tmpTile->isEntityOnTile(mEntityTarget))
             {
-                hitTargetBuilding(mTileBuildingTarget, building);
+                hitTargetEntity(tmpTile, mEntityTarget);
                 mIsMissileAlive = false;
                 destination.x = static_cast<Ogre::Real>(tmpTile->getX());
                 destination.y = static_cast<Ogre::Real>(tmpTile->getY());
@@ -155,7 +150,7 @@ void MissileObject::doUpkeep()
         for(std::vector<GameEntity*>::iterator it = enemyCreatures.begin(); it != enemyCreatures.end(); ++it)
         {
             GameEntity* creature = *it;
-            if(!hitCreature(creature))
+            if(!hitCreature(tmpTile, creature))
             {
                 destination -= moveDist * mDirection;
                 mIsMissileAlive = false;
@@ -170,7 +165,7 @@ void MissileObject::doUpkeep()
         for(std::vector<GameEntity*>::iterator it = alliedCreatures.begin(); it != alliedCreatures.end(); ++it)
         {
             GameEntity* creature = *it;
-            if(!hitCreature(creature))
+            if(!hitCreature(tmpTile, creature))
             {
                 destination -= moveDist * mDirection;
                 mIsMissileAlive = false;
@@ -210,6 +205,44 @@ bool MissileObject::computeDestination(const Ogre::Vector3& position, double mov
             return false;
     }
 
+    return true;
+}
+
+bool MissileObject::notifyDead(GameEntity* entity)
+{
+    if(entity == mEntityTarget)
+    {
+        mEntityTarget = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool MissileObject::notifyRemovedFromGameMap(GameEntity* entity)
+{
+    if(entity == mEntityTarget)
+    {
+        mEntityTarget = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool MissileObject::notifyPickedUp(GameEntity* entity)
+{
+    if(entity == mEntityTarget)
+    {
+        mEntityTarget = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool MissileObject::notifyDropped(GameEntity* entity)
+{
+    // That should not happen. For now, we only require events for attacked creatures. And when they
+    // are picked up, we should have cleared mEntityTarget
+    OD_LOG_ERR("name=" + getName() + ", entity=" + entity->getName());
     return true;
 }
 

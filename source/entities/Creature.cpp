@@ -25,7 +25,6 @@
 #include "entities/ChickenEntity.h"
 #include "entities/CreatureAction.h"
 #include "entities/CreatureDefinition.h"
-#include "entities/MissileOneHit.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
 #include "entities/Weapon.h"

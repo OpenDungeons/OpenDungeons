@@ -80,22 +80,9 @@ bool CreatureSkillMissileLaunch::tryUseFight(GameMap& gameMap, Creature* creatur
         eleAtk +=creature->getWeaponR()->getElementDamage();
     }
 
-    // If we are attacking a building we set the tile
-    Tile* tileBuilding = nullptr;
-    switch(attackedObject->getObjectType())
-    {
-        case GameEntityType::room:
-        case GameEntityType::trap:
-        {
-            tileBuilding = attackedTile;
-            break;
-        }
-        default:
-            break;
-    }
     MissileOneHit* missile = new MissileOneHit(&gameMap, gameMap.isServerGameMap(), creature->getSeat(),
         creature->getName(), mMissileMesh, mMissilePartScript, missileDirection, mMissileSpeed, phyAtk, magAtk, eleAtk,
-        tileBuilding, false);
+        attackedObject, false);
     missile->addToGameMap();
     missile->createMesh();
     missile->setPosition(position);

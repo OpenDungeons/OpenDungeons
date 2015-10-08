@@ -317,6 +317,9 @@ public:
     void fillWithCraftedTraps(std::vector<GameEntity*>& entities);
     uint32_t countEntitiesOnTile(GameEntityType entityType) const;
 
+    //! \brief Returns true if the given entity is on the tile and false otherwise
+    bool isEntityOnTile(GameEntity* entity) const;
+
     //TODO: see if this function can replace the ones above (if not too much used)
     //! Fills the given vector with corresponding entities on this tile.
     void fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityWanted entityWanted, Player* player) const;

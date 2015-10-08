@@ -27,8 +27,8 @@
 
 MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const std::string& particleScript, const Ogre::Vector3& direction, double speed, double physicalDamage, double magicalDamage,
-        double elementDamage, Tile* tileBuildingTarget, bool damageAllies) :
-    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, tileBuildingTarget, damageAllies),
+        double elementDamage, GameEntity* entityTarget, bool damageAllies) :
+    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, entityTarget, damageAllies),
     mPhysicalDamage(physicalDamage),
     mMagicalDamage(magicalDamage),
     mElementDamage(elementDamage)
@@ -48,20 +48,15 @@ MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap) :
 {
 }
 
-bool MissileOneHit::hitCreature(GameEntity* entity)
+bool MissileOneHit::hitCreature(Tile* tile, GameEntity* entity)
 {
-    std::vector<Tile*> tiles = entity->getCoveredTiles();
-    if(tiles.empty())
-        return true;
-
-    Tile* hitTile = tiles[0];
-    entity->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, hitTile, false, false, false);
+    entity->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, false, false, false);
     return false;
 }
 
-void MissileOneHit::hitTargetBuilding(Tile* tile, Building* target)
+void MissileOneHit::hitTargetEntity(Tile* tile, GameEntity* entityTarget)
 {
-    target->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, false, false, false);
+    entityTarget->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, false, false, false);
 }
 
 MissileOneHit* MissileOneHit::getMissileOneHitFromStream(GameMap* gameMap, std::istream& is)
