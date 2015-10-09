@@ -17,8 +17,33 @@
 
 #include "creatureeffect/CreatureEffectExplosion.h"
 
+#include "creatureeffect/CreatureEffectManager.h"
 #include "entities/Creature.h"
 #include "utils/LogManager.h"
+
+static const std::string CreatureEffectExplosionName = "Explosion";
+
+namespace
+{
+class CreatureEffectExplosionFactory : public CreatureEffectFactory
+{
+    CreatureEffect* createCreatureEffect() const override
+    { return new CreatureEffectExplosion; }
+
+    const std::string& getCreatureEffectName() const override
+    {
+        return CreatureEffectExplosionName;
+    }
+};
+
+// Register the factory
+static CreatureEffectRegister reg(new CreatureEffectExplosionFactory);
+}
+
+const std::string& CreatureEffectExplosion::getEffectName() const
+{
+    return CreatureEffectExplosionName;
+}
 
 void CreatureEffectExplosion::applyEffect(Creature& creature)
 {
@@ -42,8 +67,12 @@ void CreatureEffectExplosion::exportToStream(std::ostream& os) const
     os << "\t" << mEffectValue;
 }
 
-void CreatureEffectExplosion::importFromStream(std::istream& is)
+bool CreatureEffectExplosion::importFromStream(std::istream& is)
 {
-    CreatureEffect::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mEffectValue);
+    if(!CreatureEffect::importFromStream(is))
+        return false;
+    if(!(is >> mEffectValue))
+        return false;
+
+    return true;
 }

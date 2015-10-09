@@ -99,6 +99,9 @@ public:
     inline double getSlapDamagePercent() const
     { return mSlapDamagePercent; }
 
+    inline uint32_t getSlapEffectDuration() const
+    { return mSlapEffectDuration; }
+
     inline int64_t getTimePayDay() const
     { return mTimePayDay; }
 
@@ -264,6 +267,7 @@ private:
     int32_t mCreatureMoodAngry;
     int32_t mCreatureMoodFurious;
     double mSlapDamagePercent;
+    uint32_t mSlapEffectDuration;
     int64_t mTimePayDay;
     int32_t mNbTurnsFuriousMax;
     double mMaxManaPerSeat;

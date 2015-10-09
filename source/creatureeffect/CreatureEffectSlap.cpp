@@ -17,8 +17,33 @@
 
 #include "creatureeffect/CreatureEffectSlap.h"
 
+#include "creatureeffect/CreatureEffectManager.h"
 #include "entities/Creature.h"
 #include "utils/LogManager.h"
+
+static const std::string CreatureEffectSlapName = "Slap";
+
+namespace
+{
+class CreatureEffectSlapFactory : public CreatureEffectFactory
+{
+    CreatureEffect* createCreatureEffect() const override
+    { return new CreatureEffectSlap; }
+
+    const std::string& getCreatureEffectName() const override
+    {
+        return CreatureEffectSlapName;
+    }
+};
+
+// Register the factory
+static CreatureEffectRegister reg(new CreatureEffectSlapFactory);
+}
+
+const std::string& CreatureEffectSlap::getEffectName() const
+{
+    return CreatureEffectSlapName;
+}
 
 void CreatureEffectSlap::applyEffect(Creature& creature)
 {

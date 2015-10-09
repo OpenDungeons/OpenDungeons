@@ -28,22 +28,26 @@ public:
         mEffectValue(effectValue)
     {}
 
+    CreatureEffectHeal() :
+        CreatureEffect(),
+        mEffectValue(0.0)
+    {}
+
     virtual ~CreatureEffectHeal()
     {}
 
     virtual CreatureEffectType getCreatureEffectType() const override
     { return CreatureEffectType::heal; }
 
+    virtual const std::string& getEffectName() const override;
+
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual bool importFromStream(std::istream& is) override;
+
     static CreatureEffectHeal* load(std::istream& is);
 
 protected:
     virtual void applyEffect(Creature& creature) override;
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-    CreatureEffectHeal() :
-        CreatureEffect(),
-        mEffectValue(0.0)
-    {}
 
 private:
     double mEffectValue;

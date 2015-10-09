@@ -51,6 +51,8 @@ public:
     virtual CreatureEffectType getCreatureEffectType() const
     {return CreatureEffectType::unknown; }
 
+    virtual const std::string& getEffectName() const = 0;
+
     inline uint32_t getNbTurnsEffect() const
     { return mNbTurnsEffect; }
 
@@ -72,11 +74,11 @@ public:
     //! write how many data there is and read them accordingly
     static CreatureEffect* load(std::istream& is);
 
-protected:
     //! Writes the CreatureEffect to the stream
     virtual void exportToStream(std::ostream& os) const;
-    virtual void importFromStream(std::istream& is);
+    virtual bool importFromStream(std::istream& is);
 
+protected:
     //! This function will be called during the creature upkeep and should apply
     //! the wanted effect
     virtual void applyEffect(Creature& creature) = 0;

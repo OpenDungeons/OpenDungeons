@@ -19,6 +19,7 @@
 
 #include "creaturebehaviour/CreatureBehaviour.h"
 #include "creatureeffect/CreatureEffect.h"
+#include "creatureeffect/CreatureEffectManager.h"
 #include "creatureeffect/CreatureEffectSlap.h"
 #include "creaturemood/CreatureMood.h"
 #include "creatureskill/CreatureSkill.h"
@@ -390,7 +391,7 @@ void Creature::exportToStream(std::ostream& os) const
     {
         CreatureParticuleEffect* creatureParticuleEffect = static_cast<CreatureParticuleEffect*>(effect);
         os << "\t";
-        CreatureEffect::write(*creatureParticuleEffect->mEffect, os);
+        CreatureEffectManager::write(*creatureParticuleEffect->mEffect, os);
     }
 }
 
@@ -447,10 +448,9 @@ void Creature::importFromStream(std::istream& is)
     while(nbEffects > 0)
     {
         --nbEffects;
-        CreatureEffect* effect = CreatureEffect::load(is);
+        CreatureEffect* effect = CreatureEffectManager::load(is);
         if(effect == nullptr)
             continue;
-
 
         addCreatureEffect(effect);
     }
@@ -4320,7 +4320,8 @@ void Creature::slap()
         return;
     }
 
-    CreatureEffectSlap* effect = new CreatureEffectSlap;
+    CreatureEffectSlap* effect = new CreatureEffectSlap(
+        ConfigManager::getSingleton().getSlapEffectDuration(), "");
     addCreatureEffect(effect);
     mHp -= mMaxHP * ConfigManager::getSingleton().getSlapDamagePercent() / 100.0;
     computeCreatureOverlayHealthValue();

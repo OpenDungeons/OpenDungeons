@@ -17,8 +17,33 @@
 
 #include "creatureeffect/CreatureEffectSpeedChange.h"
 
+#include "creatureeffect/CreatureEffectManager.h"
 #include "entities/Creature.h"
 #include "utils/LogManager.h"
+
+static const std::string CreatureEffectSpeedChangeName = "SpeedChange";
+
+namespace
+{
+class CreatureEffectSpeedChangeFactory : public CreatureEffectFactory
+{
+    CreatureEffect* createCreatureEffect() const override
+    { return new CreatureEffectSpeedChange; }
+
+    const std::string& getCreatureEffectName() const override
+    {
+        return CreatureEffectSpeedChangeName;
+    }
+};
+
+// Register the factory
+static CreatureEffectRegister reg(new CreatureEffectSpeedChangeFactory);
+}
+
+const std::string& CreatureEffectSpeedChange::getEffectName() const
+{
+    return CreatureEffectSpeedChangeName;
+}
 
 void CreatureEffectSpeedChange::applyEffect(Creature& creature)
 {
@@ -55,8 +80,12 @@ void CreatureEffectSpeedChange::exportToStream(std::ostream& os) const
     os << "\t" << mEffectValue;
 }
 
-void CreatureEffectSpeedChange::importFromStream(std::istream& is)
+bool CreatureEffectSpeedChange::importFromStream(std::istream& is)
 {
-    CreatureEffect::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mEffectValue);
+    if(!CreatureEffect::importFromStream(is))
+        return false;
+    if(!(is >> mEffectValue))
+        return false;
+
+    return true;
 }

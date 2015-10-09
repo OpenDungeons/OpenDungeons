@@ -242,6 +242,7 @@ set(OD_SOURCEFILES
     ${SRC}/creatureeffect/CreatureEffect.cpp
     ${SRC}/creatureeffect/CreatureEffectExplosion.cpp
     ${SRC}/creatureeffect/CreatureEffectHeal.cpp
+    ${SRC}/creatureeffect/CreatureEffectManager.cpp
     ${SRC}/creatureeffect/CreatureEffectSlap.cpp
     ${SRC}/creatureeffect/CreatureEffectSpeedChange.cpp
 

@@ -23,8 +23,12 @@
 class CreatureEffectSlap : public CreatureEffect
 {
 public:
+    CreatureEffectSlap(uint32_t nbTurnsEffect, const std::string& particleEffectScript) :
+        CreatureEffect(nbTurnsEffect, particleEffectScript)
+    {}
+
     CreatureEffectSlap() :
-        CreatureEffect(20, "")
+        CreatureEffect()
     {}
 
     virtual ~CreatureEffectSlap()
@@ -32,6 +36,8 @@ public:
 
     virtual CreatureEffectType getCreatureEffectType() const override
     { return CreatureEffectType::slap; }
+
+    virtual const std::string& getEffectName() const override;
 
     static CreatureEffectSlap* load(std::istream& is);
 

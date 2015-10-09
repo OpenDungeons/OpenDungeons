@@ -26,30 +26,6 @@
 
 #include <istream>
 
-void CreatureEffect::write(const CreatureEffect& effect, std::ostream& os)
-{
-    os << effect.getCreatureEffectType() << "\t";
-    effect.exportToStream(os);
-}
-
-CreatureEffect* CreatureEffect::load(std::istream& is)
-{
-    CreatureEffectType effectType;
-    OD_ASSERT_TRUE(is >> effectType);
-    switch(effectType)
-    {
-        case CreatureEffectType::heal:
-            return CreatureEffectHeal::load(is);
-        case CreatureEffectType::speedChange:
-            return CreatureEffectSpeedChange::load(is);
-        case CreatureEffectType::explosion:
-            return CreatureEffectExplosion::load(is);
-        default:
-            OD_LOG_ERR("Unallowed enum value=" + Helper::toString(static_cast<int32_t>(effectType)));
-            return nullptr;
-    }
-}
-
 bool CreatureEffect::upkeepEffect(Creature& creature)
 {
     if(mNbTurnsEffect <= 0)
@@ -66,13 +42,23 @@ bool CreatureEffect::upkeepEffect(Creature& creature)
 void CreatureEffect::exportToStream(std::ostream& os) const
 {
     os << mNbTurnsEffect << "\t";
-    os << mParticleEffectScript;
+    if(mParticleEffectScript.empty())
+        os << "none";
+    else
+        os << mParticleEffectScript;
 }
 
-void CreatureEffect::importFromStream(std::istream& is)
+bool CreatureEffect::importFromStream(std::istream& is)
 {
-    OD_ASSERT_TRUE(is >> mNbTurnsEffect);
-    OD_ASSERT_TRUE(is >> mParticleEffectScript);
+    if(!(is >> mNbTurnsEffect))
+        return false;
+    if(!(is >> mParticleEffectScript))
+        return false;
+
+    if(mParticleEffectScript == "none")
+        mParticleEffectScript.clear();
+
+    return true;
 }
 
 std::ostream& operator<<(std::ostream& os, const CreatureEffectType& type)

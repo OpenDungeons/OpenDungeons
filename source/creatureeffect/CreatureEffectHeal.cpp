@@ -17,8 +17,33 @@
 
 #include "creatureeffect/CreatureEffectHeal.h"
 
+#include "creatureeffect/CreatureEffectManager.h"
 #include "entities/Creature.h"
 #include "utils/LogManager.h"
+
+static const std::string CreatureEffectHealName = "Heal";
+
+namespace
+{
+class CreatureEffectHealFactory : public CreatureEffectFactory
+{
+    CreatureEffect* createCreatureEffect() const override
+    { return new CreatureEffectHeal; }
+
+    const std::string& getCreatureEffectName() const override
+    {
+        return CreatureEffectHealName;
+    }
+};
+
+// Register the factory
+static CreatureEffectRegister reg(new CreatureEffectHealFactory);
+}
+
+const std::string& CreatureEffectHeal::getEffectName() const
+{
+    return CreatureEffectHealName;
+}
 
 void CreatureEffectHeal::applyEffect(Creature& creature)
 {
@@ -44,8 +69,12 @@ void CreatureEffectHeal::exportToStream(std::ostream& os) const
     os << "\t" << mEffectValue;
 }
 
-void CreatureEffectHeal::importFromStream(std::istream& is)
+bool CreatureEffectHeal::importFromStream(std::istream& is)
 {
-    CreatureEffect::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mEffectValue);
+    if(!CreatureEffect::importFromStream(is))
+        return false;
+    if(!(is >> mEffectValue))
+        return false;
+
+    return true;
 }
