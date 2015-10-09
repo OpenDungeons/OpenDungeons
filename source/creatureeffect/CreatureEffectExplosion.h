@@ -36,9 +36,6 @@ public:
     virtual ~CreatureEffectExplosion()
     {}
 
-    virtual CreatureEffectType getCreatureEffectType() const override
-    { return CreatureEffectType::explosion; }
-
     virtual const std::string& getEffectName() const override;
 
     virtual void exportToStream(std::ostream& os) const override;

@@ -60,17 +60,3 @@ bool CreatureEffect::importFromStream(std::istream& is)
 
     return true;
 }
-
-std::ostream& operator<<(std::ostream& os, const CreatureEffectType& type)
-{
-    os << static_cast<int32_t>(type);
-    return os;
-}
-
-std::istream& operator>>(std::istream& is, CreatureEffectType& type)
-{
-    int32_t tmp;
-    OD_ASSERT_TRUE(is >> tmp);
-    type = static_cast<CreatureEffectType>(tmp);
-    return is;
-}

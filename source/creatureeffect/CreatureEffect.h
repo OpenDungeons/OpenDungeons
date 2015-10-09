@@ -23,18 +23,6 @@
 
 class Creature;
 
-enum class CreatureEffectType
-{
-    unknown,
-    heal,
-    explosion,
-    speedChange,
-    slap
-};
-
-std::ostream& operator<<(std::ostream& os, const CreatureEffectType& type);
-std::istream& operator>>(std::istream& is, CreatureEffectType& type);
-
 class CreatureEffect
 {
 public:
@@ -47,9 +35,6 @@ public:
 
     virtual ~CreatureEffect()
     {}
-
-    virtual CreatureEffectType getCreatureEffectType() const
-    {return CreatureEffectType::unknown; }
 
     virtual const std::string& getEffectName() const = 0;
 
@@ -66,6 +51,10 @@ public:
     //! the effect is released and deleted
     virtual void releaseEffect(Creature& creature)
     {}
+
+    //! \brief Returns true if the creature is forced to work and false otherwise
+    virtual bool isForcedToWork(const Creature& creature) const
+    { return false; }
 
     static void write(const CreatureEffect& effect, std::ostream& os);
     //! loads a CreatureEffect from the given stream. Note that the stream might contain

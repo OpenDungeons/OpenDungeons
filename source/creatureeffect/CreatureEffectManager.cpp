@@ -91,6 +91,6 @@ CreatureEffect* CreatureEffectManager::load(std::istream& defFile)
 
 void CreatureEffectManager::write(const CreatureEffect& effect, std::ostream& os)
 {
-    os << effect.getCreatureEffectType();
+    os << effect.getEffectName();
     effect.exportToStream(os);
 }

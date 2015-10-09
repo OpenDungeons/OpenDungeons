@@ -2164,8 +2164,8 @@ bool Creature::handleJobAction(const CreatureActionWrapper& actionItem)
     }
 
     // If we are tired, we go to bed unless we have been slapped
-    if (!hasCreatureEffect(CreatureEffectType::slap) &&
-        (Random::Double(20.0, 30.0) > mAwakeness))
+    bool workForced = isForcedToWork();
+    if (!workForced && (Random::Double(20.0, 30.0) > mAwakeness))
     {
         popAction();
         stopJob();
@@ -2174,8 +2174,7 @@ bool Creature::handleJobAction(const CreatureActionWrapper& actionItem)
     }
 
     // If we are hungry, we go to bed unless we have been slapped
-    if (!hasCreatureEffect(CreatureEffectType::slap) &&
-        (Random::Double(70.0, 80.0) < mHunger))
+    if (!workForced && (Random::Double(70.0, 80.0) < mHunger))
     {
         popAction();
         stopJob();
@@ -4662,7 +4661,7 @@ void Creature::addCreatureEffect(CreatureEffect* effect)
     mNeedFireRefresh = true;
 }
 
-bool Creature::hasCreatureEffect(CreatureEffectType type) const
+bool Creature::isForcedToWork() const
 {
     for(EntityParticleEffect* effect : mEntityParticleEffects)
     {
@@ -4678,8 +4677,10 @@ bool Creature::hasCreatureEffect(CreatureEffectType type) const
         }
 
         CreatureParticuleEffect* creatureEffect = static_cast<CreatureParticuleEffect*>(effect);
-        if(creatureEffect->mEffect->getCreatureEffectType() == type)
-            return true;
+        if(!creatureEffect->mEffect->isForcedToWork(*this))
+            continue;
+
+        return true;
     }
     return false;
 }
@@ -4768,7 +4769,7 @@ void Creature::checkWalkPathValid()
 void Creature::setJobCooldown(int val)
 {
     // If the creature has been slapped, its cooldown is decreased
-    if(hasCreatureEffect(CreatureEffectType::slap))
+    if(isForcedToWork())
         val = Helper::round(static_cast<float>(val) * 0.8f);
 
     mJobCooldown = val;

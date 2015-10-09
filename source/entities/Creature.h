@@ -43,7 +43,6 @@ class ODPacket;
 class Room;
 class Weapon;
 
-enum class CreatureEffectType;
 enum class CreatureMoodLevel;
 enum class ResearchType;
 
@@ -470,9 +469,8 @@ public:
     //! Called on server side to add an effect (spell, slap, ...) to this creature
     void addCreatureEffect(CreatureEffect* effect);
 
-    //!\brief Called on server side. Returns true if the given effect currently affects this creature
-    //! and false if not.
-    bool hasCreatureEffect(CreatureEffectType type) const;
+    //!\brief Returns true if the creature is forced to work for some reason (like an effect)
+    bool isForcedToWork() const;
 
     virtual void correctEntityMovePosition(Ogre::Vector3& position) override;
 

@@ -36,9 +36,6 @@ public:
     virtual ~CreatureEffectSpeedChange()
     {}
 
-    virtual CreatureEffectType getCreatureEffectType() const override
-    { return CreatureEffectType::speedChange; }
-
     virtual const std::string& getEffectName() const override;
 
     virtual void exportToStream(std::ostream& os) const override;
