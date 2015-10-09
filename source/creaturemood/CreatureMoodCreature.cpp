@@ -23,7 +23,7 @@
 #include "gamemap/GameMap.h"
 #include "utils/LogManager.h"
 
-class CreatureMoodFactoryCreature : public CreatureMoodFactory
+class CreatureMoodCreatureFactory : public CreatureMoodFactory
 {
     CreatureMood* createCreatureMood() const override
     { return new CreatureMoodCreature; }
@@ -36,7 +36,7 @@ class CreatureMoodFactoryCreature : public CreatureMoodFactory
 };
 
 //! \brief Register the mood type
-static CreatureMoodRegister reg(new CreatureMoodFactoryCreature);
+static CreatureMoodRegister reg(new CreatureMoodCreatureFactory);
 
 int32_t CreatureMoodCreature::computeMood(const Creature* creature) const
 {

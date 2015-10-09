@@ -20,7 +20,7 @@
 #include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
 
-class CreatureMoodFactoryAwakness : public CreatureMoodFactory
+class CreatureMoodAwaknessFactory : public CreatureMoodFactory
 {
     CreatureMood* createCreatureMood() const override
     { return new CreatureMoodAwakness; }
@@ -33,7 +33,7 @@ class CreatureMoodFactoryAwakness : public CreatureMoodFactory
 };
 
 //! \brief Register the mood type
-static CreatureMoodRegister reg(new CreatureMoodFactoryAwakness);
+static CreatureMoodRegister reg(new CreatureMoodAwaknessFactory);
 
 int32_t CreatureMoodAwakness::computeMood(const Creature* creature) const
 {
