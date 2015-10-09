@@ -34,199 +34,208 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-const std::string EMPTY_STRING;
+static const std::string EMPTY_STRING;
 
 namespace
 {
-    std::vector<TrapFunctions>& getTrapFunctions()
+    static std::vector<const TrapFactory*>& getFactories()
     {
-        static std::vector<TrapFunctions> trapList(static_cast<uint32_t>(TrapType::nbTraps));
-        return trapList;
+        static std::vector<const TrapFactory*> factory(static_cast<uint32_t>(TrapType::nbTraps), nullptr);
+        return factory;
     }
 }
 
-void TrapFunctions::checkBuildTrapFunc(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand) const
+void TrapManager::registerFactory(const TrapFactory* factory)
 {
-    if(mCheckBuildTrapFunc == nullptr)
+    std::vector<const TrapFactory*>& factories = getFactories();
+    uint32_t index = static_cast<uint32_t>(factory->getTrapType());
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("null mCheckBuildTrap function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return;
     }
 
-    mCheckBuildTrapFunc(gameMap, inputManager, inputCommand);
+    factories[index] = factory;
 }
 
-bool TrapFunctions::buildTrapFunc(GameMap* gameMap, TrapType type, Player* player, ODPacket& packet) const
+void TrapManager::unregisterFactory(const TrapFactory* factory)
 {
-    if(mBuildTrapFunc == nullptr)
+    std::vector<const TrapFactory*>& factories = getFactories();
+    auto it = std::find(factories.begin(), factories.end(), factory);
+    if(it == factories.end())
     {
-        OD_LOG_ERR("null mBuildTrapFunc function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
-        return false;
-    }
-
-    return mBuildTrapFunc(gameMap, player, packet);
-}
-
-void TrapFunctions::checkBuildTrapEditorFunc(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand) const
-{
-    if(mCheckBuildTrapEditorFunc == nullptr)
-    {
-        OD_LOG_ERR("null mCheckBuildTrapEditorFund function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("Trying to unregister unknown factory=" + factory->getName());
         return;
     }
-
-    mCheckBuildTrapEditorFunc(gameMap, inputManager, inputCommand);
+    factories.erase(it);
 }
 
-bool TrapFunctions::buildTrapEditorFunc(GameMap* gameMap, TrapType type, ODPacket& packet) const
+Trap* TrapManager::load(GameMap* gameMap, std::istream& is)
 {
-    if(mBuildTrapEditorFunc == nullptr)
+    if(!is.good())
+        return nullptr;
+
+    std::vector<const TrapFactory*>& factories = getFactories();
+    std::string nextParam;
+    OD_ASSERT_TRUE(is >> nextParam);
+    const TrapFactory* factoryToUse = nullptr;
+    for(const TrapFactory* factory : factories)
     {
-        OD_LOG_ERR("null mBuildTrapEditorFunc function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
-        return false;
+        if(factory == nullptr)
+            continue;
+
+        if(factory->getName().compare(nextParam) != 0)
+            continue;
+
+        factoryToUse = factory;
+        break;
     }
 
-    return mBuildTrapEditorFunc(gameMap, packet);
-}
-
-Trap* TrapFunctions::getTrapFromStreamFunc(GameMap* gameMap, TrapType type, std::istream& is) const
-{
-    if(mGetTrapFromStreamFunc == nullptr)
+    if(factoryToUse == nullptr)
     {
-        OD_LOG_ERR("null mGetTrapFromStreamFunc function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("Unknown Trap type=" + nextParam);
         return nullptr;
     }
 
-    return mGetTrapFromStreamFunc(gameMap, is);
+    Trap* trap = factoryToUse->getTrapFromStream(gameMap, is);
+    if(!trap->importFromStream(is))
+    {
+        OD_LOG_ERR("Couldn't load creature Trap type=" + nextParam);
+        delete trap;
+        return nullptr;
+    }
+
+    return trap;
+}
+
+void TrapManager::dispose(const Trap* trap)
+{
+    delete trap;
+}
+
+void TrapManager::write(const Trap& trap, std::ostream& os)
+{
+    os << trap.getName();
+    trap.exportToStream(os);
 }
 
 void TrapManager::checkBuildTrap(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand)
 {
+    std::vector<const TrapFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getTrapFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return;
     }
 
-    TrapFunctions& trapFuncs = getTrapFunctions()[index];
-    trapFuncs.checkBuildTrapFunc(gameMap, type, inputManager, inputCommand);
+    const TrapFactory& factory = *factories[index];
+    factory.checkBuildTrap(gameMap, inputManager, inputCommand);
 }
 
 bool TrapManager::buildTrap(GameMap* gameMap, TrapType type, Player* player, ODPacket& packet)
 {
+    std::vector<const TrapFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getTrapFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return false;
     }
 
-    TrapFunctions& trapFuncs = getTrapFunctions()[index];
-    return trapFuncs.buildTrapFunc(gameMap, type, player, packet);
+    const TrapFactory& factory = *factories[index];
+    return factory.buildTrap(gameMap, player, packet);
 }
 
 void TrapManager::checkBuildTrapEditor(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand)
 {
+    std::vector<const TrapFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getTrapFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return;
     }
 
-    TrapFunctions& trapFuncs = getTrapFunctions()[index];
-    trapFuncs.checkBuildTrapEditorFunc(gameMap, type, inputManager, inputCommand);
+    const TrapFactory& factory = *factories[index];
+    factory.checkBuildTrapEditor(gameMap, inputManager, inputCommand);
 }
 
 bool TrapManager::buildTrapEditor(GameMap* gameMap, TrapType type, ODPacket& packet)
 {
+    std::vector<const TrapFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getTrapFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return false;
     }
 
-    TrapFunctions& trapFuncs = getTrapFunctions()[index];
-    return trapFuncs.buildTrapEditorFunc(gameMap, type, packet);
+    const TrapFactory& factory = *factories[index];
+    return factory.buildTrapEditor(gameMap, packet);
 }
 
 Trap* TrapManager::getTrapFromStream(GameMap* gameMap, std::istream& is)
 {
     TrapType type;
-    OD_ASSERT_TRUE(is >> type);
+    if(!(is >> type))
+        return nullptr;
+
+    std::vector<const TrapFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getTrapFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return nullptr;
     }
 
-    TrapFunctions& trapFuncs = getTrapFunctions()[index];
-    return trapFuncs.getTrapFromStreamFunc(gameMap, type, is);
+    const TrapFactory& factory = *factories[index];
+    return factory.getTrapFromStream(gameMap, is);
 }
 
 const std::string& TrapManager::getTrapNameFromTrapType(TrapType type)
 {
+    std::vector<const TrapFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getTrapFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return EMPTY_STRING;
     }
-    TrapFunctions& trapFuncs = getTrapFunctions()[index];
-    return trapFuncs.mName;
+
+    const TrapFactory& factory = *factories[index];
+    return factory.getName();
 }
 
 const std::string& TrapManager::getTrapReadableName(TrapType type)
 {
+    std::vector<const TrapFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getTrapFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return EMPTY_STRING;
     }
-    TrapFunctions& trapFuncs = getTrapFunctions()[index];
-    return trapFuncs.mReadableName;
+
+    const TrapFactory& factory = *factories[index];
+    return factory.getNameReadable();
 }
 
 TrapType TrapManager::getTrapTypeFromTrapName(const std::string& name)
 {
-    uint32_t nbTraps = static_cast<uint32_t>(TrapType::nbTraps);
-    for(uint32_t i = 0; i < nbTraps; ++i)
+    std::vector<const TrapFactory*>& factories = getFactories();
+    for(const TrapFactory* factory : factories)
     {
-        TrapFunctions& trapFuncs = getTrapFunctions()[i];
-        if(name.compare(trapFuncs.mName) == 0)
-            return static_cast<TrapType>(i);
+        if(factory == nullptr)
+            continue;
+        if(factory->getName().compare(name) != 0)
+            continue;
+
+        return factory->getTrapType();
     }
 
     OD_LOG_ERR("Cannot find Trap name=" + name);
     return TrapType::nullTrapType;
-}
-
-void TrapManager::registerTrap(TrapType type, const std::string& name, const std::string& readableName,
-    TrapFunctions::CheckBuildTrapFunc checkBuildTrapFunc,
-    TrapFunctions::BuildTrapFunc buildTrapFunc,
-    TrapFunctions::CheckBuildTrapFunc checkBuildTrapEditorFunc,
-    TrapFunctions::BuildTrapEditorFunc buildTrapEditorFunc,
-    TrapFunctions::GetTrapFromStreamFunc getTrapFromStreamFunc)
-{
-    uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getTrapFunctions().size())
-    {
-        OD_LOG_ERR("type=" + Helper::toString(index));
-        return;
-    }
-
-    TrapFunctions& trapFuncs = getTrapFunctions()[index];
-    trapFuncs.mName = name;
-    trapFuncs.mReadableName = readableName;
-    trapFuncs.mCheckBuildTrapFunc = checkBuildTrapFunc;
-    trapFuncs.mBuildTrapFunc = buildTrapFunc;
-    trapFuncs.mCheckBuildTrapEditorFunc = checkBuildTrapEditorFunc;
-    trapFuncs.mBuildTrapEditorFunc = buildTrapEditorFunc;
-    trapFuncs.mGetTrapFromStreamFunc = getTrapFromStreamFunc;
 }
 
 void TrapManager::checkSellTrapTiles(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
@@ -481,6 +490,7 @@ void TrapManager::sellTrapTilesEditor(GameMap* gameMap, ODPacket& packet)
         trap->updateActiveSpots();
 }
 
+// TODO : merge that in the manager (the string parameter for getTrapConfigInt32)
 int TrapManager::costPerTile(TrapType t)
 {
     switch (t)

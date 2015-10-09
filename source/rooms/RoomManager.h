@@ -57,8 +57,8 @@ friend class RoomRegister;
 public:
     static Room* load(GameMap* gameMap, std::istream& is);
     //! \brief Handles the Room deletion
-    static void dispose(const Room* skill);
-    static void write(const Room& skill, std::ostream& os);
+    static void dispose(const Room* room);
+    static void write(const Room& room, std::ostream& os);
 
     //! \brief Called on client side. It should check if the room can be built according to the given inputManager
     //! for the given player. It should update the InputCommand to make sure it displays the correct

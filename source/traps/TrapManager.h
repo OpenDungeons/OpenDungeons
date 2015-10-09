@@ -34,53 +34,34 @@ class Trap;
 
 enum class TrapType;
 
-//! Class to gather functions used for traps. Each trap should define static functions allowing to handle them:
-//! - checkBuildTrap : called on client side to define the trap data in GameMode
-//! - buildTrap : called on server side to create the trap in GameMode
-//! - checkBuildTrapEditor : called on client side to define the trap data in EditorMode
-//! - buildTrapEditor : called on server side to create the trap in EditorMode
-//! - getTrapFromStream : called on server side when loading a level
-class TrapFunctions
+//! \brief Factory class to register a new trap
+class TrapFactory
 {
-    friend class TrapManager;
 public:
-    typedef void (*CheckBuildTrapFunc)(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    typedef bool (*BuildTrapFunc)(GameMap* gameMap, Player* player, ODPacket& packet);
-    typedef bool (*BuildTrapEditorFunc)(GameMap* gameMap, ODPacket& packet);
-    typedef Trap* (*GetTrapFromStreamFunc)(GameMap* gameMap, std::istream& is);
-
-    TrapFunctions() :
-        mCheckBuildTrapFunc(nullptr),
-        mBuildTrapFunc(nullptr),
-        mCheckBuildTrapEditorFunc(nullptr),
-        mBuildTrapEditorFunc(nullptr),
-        mGetTrapFromStreamFunc(nullptr)
+    virtual ~TrapFactory()
     {}
 
-    void checkBuildTrapFunc(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand) const;
+    virtual TrapType getTrapType() const = 0;
+    virtual const std::string& getName() const = 0;
+    virtual const std::string& getNameReadable() const = 0;
 
-    bool buildTrapFunc(GameMap* gameMap, TrapType type, Player* player, ODPacket& packet) const;
-
-    void checkBuildTrapEditorFunc(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand) const;
-
-    bool buildTrapEditorFunc(GameMap* gameMap, TrapType type, ODPacket& packet) const;
-
-    Trap* getTrapFromStreamFunc(GameMap* gameMap, TrapType type, std::istream& is) const;
-
-private:
-    std::string mName;
-    std::string mReadableName;
-    CheckBuildTrapFunc mCheckBuildTrapFunc;
-    BuildTrapFunc mBuildTrapFunc;
-    CheckBuildTrapFunc mCheckBuildTrapEditorFunc;
-    BuildTrapEditorFunc mBuildTrapEditorFunc;
-    GetTrapFromStreamFunc mGetTrapFromStreamFunc;
-
+    virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const = 0;
+    virtual bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const = 0;
+    virtual void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const = 0;
+    virtual bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const = 0;
+    virtual Trap* getTrapFromStream(GameMap* gameMap, std::istream& is) const = 0;
 };
 
 class TrapManager
 {
+friend class TrapRegister;
+
 public:
+    static Trap* load(GameMap* gameMap, std::istream& is);
+    //! \brief Handles the Trap deletion
+    static void dispose(const Trap* trap);
+    static void write(const Trap& trap, std::ostream& os);
+
     //! \brief Called on client side. It should check if the trap can be built according to the given inputManager
     //! for the given player. It should update the InputCommand to make sure it displays the correct
     //! information (price, selection icon, ...).
@@ -137,59 +118,26 @@ public:
     static int32_t getNeededWorkshopPointsPerTrap(TrapType trapType);
 
 private:
-    static void registerTrap(TrapType type, const std::string& name, const std::string& readableName,
-        TrapFunctions::CheckBuildTrapFunc checkBuildTrapFunc,
-        TrapFunctions::BuildTrapFunc buildTrapFunc,
-        TrapFunctions::CheckBuildTrapFunc checkBuildTrapEditorFunc,
-        TrapFunctions::BuildTrapEditorFunc buildTrapEditorFunc,
-        TrapFunctions::GetTrapFromStreamFunc getTrapFromStreamFunc);
-
-    template <typename D>
-    static void checkBuildTrapReg(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-    {
-        D::checkBuildTrap(gameMap, inputManager, inputCommand);
-    }
-
-    template <typename D>
-    static bool buildTrapReg(GameMap* gameMap, Player* player, ODPacket& packet)
-    {
-        return D::buildTrap(gameMap, player, packet);
-    }
-
-    template <typename D>
-    static void checkBuildTrapEditorReg(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-    {
-        D::checkBuildTrapEditor(gameMap, inputManager, inputCommand);
-    }
-
-    template <typename D>
-    static bool buildTrapEditorReg(GameMap* gameMap, ODPacket& packet)
-    {
-        return D::buildTrapEditor(gameMap, packet);
-    }
-
-    template <typename D>
-    static Trap* getTrapFromStreamReg(GameMap* gameMap, std::istream& is)
-    {
-        return D::getTrapFromStream(gameMap, is);
-    }
-
-    template <typename T> friend class TrapManagerRegister;
+    static void registerFactory(const TrapFactory* factory);
+    static void unregisterFactory(const TrapFactory* factory);
 };
 
-template <typename T>
-class TrapManagerRegister
+class TrapRegister
 {
 public:
-    TrapManagerRegister(TrapType type, const std::string& name, const std::string& readableName)
+    TrapRegister(const TrapFactory* factoryToRegister) :
+        mTrapFactory(factoryToRegister)
     {
-        TrapManager::registerTrap(type, name, readableName, &TrapManager::checkBuildTrapReg<T>,
-            &TrapManager::buildTrapReg<T>, &TrapManager::checkBuildTrapEditorReg<T>,
-            &TrapManager::buildTrapEditorReg<T>, &TrapManager::getTrapFromStreamReg<T>);
+        TrapManager::registerFactory(mTrapFactory);
+    }
+    ~TrapRegister()
+    {
+        TrapManager::unregisterFactory(mTrapFactory);
+        delete mTrapFactory;
     }
 
 private:
-    TrapManagerRegister(const std::string& name, const TrapManagerRegister&);
+    const TrapFactory* mTrapFactory;
 };
 
 

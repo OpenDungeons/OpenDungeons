@@ -34,7 +34,42 @@
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
-static TrapManagerRegister<TrapDoor> reg(TrapType::doorWooden, "DoorWooden", "Wooden door");
+const std::string TrapDoorName = "DoorWooden";
+const std::string TrapDoorNameDisplay = "Wooden door";
+const TrapType TrapDoor::mTrapType = TrapType::doorWooden;
+
+namespace
+{
+class TrapDoorFactory : public TrapFactory
+{
+    TrapType getTrapType() const override
+    { return TrapDoor::mTrapType; }
+
+    const std::string& getName() const override
+    { return TrapDoorName; }
+
+    const std::string& getNameReadable() const override
+    { return TrapDoorNameDisplay; }
+
+    virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { TrapDoor::checkBuildTrap(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return TrapDoor::buildTrap(gameMap, player, packet); }
+
+    virtual void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { TrapDoor::checkBuildTrapEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const
+    { return TrapDoor::buildTrapEditor(gameMap, packet); }
+
+    Trap* getTrapFromStream(GameMap* gameMap, std::istream& is) const override
+    { return TrapDoor::getTrapFromStream(gameMap, is); }
+};
+
+// Register the factory
+static TrapRegister reg(new TrapDoorFactory);
+}
 
 const std::string TrapDoor::MESH_DOOR = "WoodenDoor";
 const std::string TrapDoor::ANIMATION_OPEN = "Open";

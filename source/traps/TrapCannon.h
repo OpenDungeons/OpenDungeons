@@ -51,6 +51,8 @@ public:
     static bool buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream& is);
 
+    static const TrapType mTrapType;
+
 private:
     uint32_t mRange;
 };
