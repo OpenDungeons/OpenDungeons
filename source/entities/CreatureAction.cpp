@@ -30,13 +30,15 @@ CreatureAction::CreatureAction(Creature* creature, const CreatureActionType acti
     mNbTurnsActive(0)
 {
     OD_ASSERT_TRUE(mCreature != nullptr);
+    if(mAttackedEntity != nullptr)
+        mAttackedEntity->addGameEntityListener(this);
+
     // We check mandatory items according to action type
     switch(mActionType)
     {
         case CreatureActionType::attackObject:
             OD_ASSERT_TRUE(mAttackedEntity != nullptr);
             OD_ASSERT_TRUE(mTile != nullptr);
-            mAttackedEntity->addGameEntityListener(this);
             break;
 
         default:
