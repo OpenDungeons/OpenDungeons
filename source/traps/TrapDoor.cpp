@@ -409,11 +409,15 @@ void TrapDoor::exportToStream(std::ostream& os) const
     os << mIsLocked << "\n";
 }
 
-void TrapDoor::importFromStream(std::istream& is)
+bool TrapDoor::importFromStream(std::istream& is)
 {
-    Trap::importFromStream(is);
+    if(!Trap::importFromStream(is))
+        return false;
 
-    OD_ASSERT_TRUE(is >> mIsLocked);
+    if(!(is >> mIsLocked))
+        return false;
+
+    return true;
 }
 
 Trap* TrapDoor::getTrapFromStream(GameMap* gameMap, std::istream& is)

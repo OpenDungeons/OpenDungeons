@@ -61,7 +61,7 @@ public:
     static std::string getChickenEntityStreamFormat();
 protected:
     void exportToStream(std::ostream& os) const override;
-    void importFromStream(std::istream& is) override;
+    bool importFromStream(std::istream& is) override;
 
 private:
     enum ChickenState

@@ -33,7 +33,42 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-static RoomManagerRegister<RoomWorkshop> reg(RoomType::workshop, "Workshop", "Workshop room");
+const std::string RoomWorkshopName = "Workshop";
+const std::string RoomWorkshopNameDisplay = "Workshop room";
+const RoomType RoomWorkshop::mRoomType = RoomType::workshop;
+
+namespace
+{
+class RoomWorkshopFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomWorkshop::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomWorkshopName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomWorkshopNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomWorkshop::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomWorkshop::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomWorkshop::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomWorkshop::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomWorkshop::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomWorkshopFactory);
+}
 
 const Ogre::Real X_OFFSET_CREATURE = 0.7;
 const Ogre::Real Y_OFFSET_CREATURE = 0.0;
@@ -442,11 +477,16 @@ void RoomWorkshop::exportToStream(std::ostream& os) const
     os << mTrapType << "\n";
 }
 
-void RoomWorkshop::importFromStream(std::istream& is)
+bool RoomWorkshop::importFromStream(std::istream& is)
 {
-    Room::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mPoints);
-    OD_ASSERT_TRUE(is >> mTrapType);
+    if(!Room::importFromStream(is))
+        return false;
+    if(!(is >> mPoints))
+        return false;
+    if(!(is >> mTrapType))
+        return false;
+
+    return true;
 }
 
 RoomWorkshopTileData* RoomWorkshop::createTileData(Tile* tile)

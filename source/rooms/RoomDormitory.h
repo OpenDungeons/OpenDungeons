@@ -141,7 +141,7 @@ public:
     RoomDormitory(GameMap* gameMap);
 
     virtual RoomType getType() const override
-    { return RoomType::dormitory; }
+    { return mRoomType; }
 
     // Functions overriding virtual functions in the Room base class.
     void absorbRoom(Room *r) override;
@@ -167,9 +167,11 @@ public:
     static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
 
+    static const RoomType mRoomType;
+
 protected:
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
+    virtual bool importFromStream(std::istream& is) override;
 
     RoomDormitoryTileData* createTileData(Tile* tile);
     // Because dormitory do not use active spots, we don't want the default

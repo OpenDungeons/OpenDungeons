@@ -70,7 +70,7 @@ public:
 
 protected:
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
+    virtual bool importFromStream(std::istream& is) override;
 
 private:
     //! \brief Wanted state for the door (changes when the player slaps the door)

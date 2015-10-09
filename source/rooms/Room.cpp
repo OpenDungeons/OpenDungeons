@@ -497,7 +497,7 @@ void Room::exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileDa
         os << "\t" << seat->getId();
 }
 
-void Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
+bool Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
 {
     if(is.eof())
     {
@@ -505,11 +505,12 @@ void Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
         tileData->mHP = DEFAULT_TILE_HP;
         mCoveredTiles.push_back(tile);
         tile->setCoveringBuilding(this);
-        return;
+        return true;
     }
 
     // We read saved state
-    OD_ASSERT_TRUE(is >> tileData->mHP);
+    if(!(is >> tileData->mHP))
+        return false;
 
     if(tileData->mHP > 0.0)
     {
@@ -523,12 +524,15 @@ void Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
 
     GameMap* gameMap = getGameMap();
     uint32_t nbSeatsVision;
-    OD_ASSERT_TRUE(is >> nbSeatsVision);
+    if(!(is >> nbSeatsVision))
+        return false;
     while(nbSeatsVision > 0)
     {
         --nbSeatsVision;
         int seatId;
-        OD_ASSERT_TRUE(is >> seatId);
+        if(!(is >> seatId))
+            return false;
+
         Seat* seat = gameMap->getSeatById(seatId);
         if(seat == nullptr)
         {
@@ -537,6 +541,8 @@ void Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
         }
         tileData->mSeatsVision.push_back(seat);
     }
+
+    return true;
 }
 
 void Room::restoreInitialEntityState()

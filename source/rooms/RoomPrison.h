@@ -30,7 +30,7 @@ public:
     RoomPrison(GameMap* gameMap);
 
     virtual RoomType getType() const override
-    { return RoomType::prison; }
+    { return mRoomType; }
 
     void absorbRoom(Room *r) override;
 
@@ -51,6 +51,8 @@ public:
     static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
     static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
+
+    static const RoomType mRoomType;
 
 protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;

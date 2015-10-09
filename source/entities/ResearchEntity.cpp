@@ -91,11 +91,16 @@ void ResearchEntity::exportToStream(std::ostream& os) const
     os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
 }
 
-void ResearchEntity::importFromStream(std::istream& is)
+bool ResearchEntity::importFromStream(std::istream& is)
 {
-    RenderedMovableEntity::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mResearchPoints);
-    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
+    if(!RenderedMovableEntity::importFromStream(is))
+        return false;
+    if(!(is >> mResearchPoints))
+        return false;
+    if(!(is >> mPosition.x >> mPosition.y >> mPosition.z))
+        return false;
+
+    return true;
 }
 
 std::string ResearchEntity::getResearchEntityStreamFormat()

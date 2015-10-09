@@ -402,20 +402,23 @@ void Building::exportToStream(std::ostream& os) const
     }
 }
 
-void Building::importFromStream(std::istream& is)
+bool Building::importFromStream(std::istream& is)
 {
     std::string line;
     std::getline(is, line);
     std::stringstream ss(line);
 
     std::string name;
-    OD_ASSERT_TRUE(ss >> name);
+    if(!(ss >> name))
+        return false;
+
     setName(name);
 
     int seatId;
     uint32_t tilesToLoad;
 
-    OD_ASSERT_TRUE(ss >> seatId);
+    if(!(ss >> seatId))
+        return false;
     Seat* seat = getGameMap()->getSeatById(seatId);
     if(seat == nullptr)
     {
@@ -426,14 +429,16 @@ void Building::importFromStream(std::istream& is)
     // Allied seats can always see buildings
     std::vector<Seat*> alliedSeats = seat->getAlliedSeats();
     alliedSeats.push_back(seat);
-    OD_ASSERT_TRUE(ss >> tilesToLoad);
+    if(!(ss >> tilesToLoad))
+        return false;
     while(tilesToLoad > 0)
     {
         --tilesToLoad;
         std::getline(is, line);
         std::stringstream ss(line);
         int xxx, yyy;
-        OD_ASSERT_TRUE(ss >> xxx >> yyy);
+        if(!(ss >> xxx >> yyy))
+            return false;
         Tile* tile = getGameMap()->getTile(xxx, yyy);
         if (tile == nullptr)
         {
@@ -446,8 +451,14 @@ void Building::importFromStream(std::istream& is)
         TileData* tileData = createTileData(tile);
         mTileData[tile] = tileData;
         tileData->mSeatsVision = alliedSeats;
-        importTileDataFromStream(ss, tile, tileData);
+        if(!importTileDataFromStream(ss, tile, tileData))
+        {
+            OD_LOG_ERR("name=" + getName() + ", tile=" + Tile::displayAsString(tile));
+            return false;
+        }
     }
+
+    return true;
 }
 
 void Building::notifySeatVision(Tile* tile, Seat* seat)

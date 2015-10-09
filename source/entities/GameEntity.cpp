@@ -347,16 +347,23 @@ void GameEntity::exportToStream(std::ostream& os) const
     os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
 }
 
-void GameEntity::importFromStream(std::istream& is)
+bool GameEntity::importFromStream(std::istream& is)
 {
     int seatId;
-    OD_ASSERT_TRUE(is >> seatId);
+    if(!(is >> seatId))
+        return false;
+
     if(seatId != -1)
         mSeat = mGameMap->getSeatById(seatId);
 
-    OD_ASSERT_TRUE(is >> mName);
-    OD_ASSERT_TRUE(is >> mMeshName);
-    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
+    if(!(is >> mName))
+        return false;
+    if(!(is >> mMeshName))
+        return false;
+    if(!(is >> mPosition.x >> mPosition.y >> mPosition.z))
+        return false;
+
+    return true;
 }
 
 void GameEntity::destroyMeshLocal()

@@ -36,7 +36,42 @@
 
 #include <vector>
 
-static RoomManagerRegister<RoomPortalWave> reg(RoomType::portalWave, "PortalWave", "Wave portal room");
+const std::string RoomPortalWaveName = "PortalWave";
+const std::string RoomPortalWaveNameDisplay = "Wave portal room";
+const RoomType RoomPortalWave::mRoomType = RoomType::portalWave;
+
+namespace
+{
+class RoomPortalWaveFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomPortalWave::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomPortalWaveName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomPortalWaveNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomPortalWave::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomPortalWave::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomPortalWave::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomPortalWave::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomPortalWave::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomPortalWaveFactory);
+}
 
 class TileSearch
 {
@@ -474,16 +509,22 @@ void RoomPortalWave::exportToStream(std::ostream& os) const
     os << "[/Waves]" << "\n";
 }
 
-void RoomPortalWave::importFromStream(std::istream& is)
+bool RoomPortalWave::importFromStream(std::istream& is)
 {
-    Room::importFromStream(is);
+    if(!Room::importFromStream(is))
+        return false;
 
-    OD_ASSERT_TRUE(is >> mClaimedValue);
-    OD_ASSERT_TRUE(is >> mTurnsBetween2Waves);
-    OD_ASSERT_TRUE(is >> mStrategy);
-    OD_ASSERT_TRUE(is >> mRangeTilesAttack);
+    if(!(is >> mClaimedValue))
+        return false;
+    if(!(is >> mTurnsBetween2Waves))
+        return false;
+    if(!(is >> mStrategy))
+        return false;
+    if(!(is >> mRangeTilesAttack))
+        return false;
     std::string teamsStr;
-    OD_ASSERT_TRUE(is >> teamsStr);
+    if(!(is >> teamsStr))
+        return false;
     mTargetTeams.clear();
     if(teamsStr != "-")
     {
@@ -501,74 +542,86 @@ void RoomPortalWave::importFromStream(std::istream& is)
     }
 
     std::string str;
-    OD_ASSERT_TRUE(is >> str);
+    if(!(is >> str))
+        return false;
     if(str != "[Waves]")
     {
         OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
-        return;
+        return false;
     }
     while(true)
     {
-        OD_ASSERT_TRUE(is >> str);
+        if(!(is >> str))
+            return false;
         if(str == "[/Waves]")
             break;
 
         if(str != "[Wave]")
         {
             OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
-            return;
+            return false;
         }
 
         RoomPortalWaveData* roomPortalWaveData = new RoomPortalWaveData;
-        OD_ASSERT_TRUE(is >> str);
+        if(!(is >> str))
+            return false;
         if(str != "SpawnTurnMin")
         {
             OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
             delete roomPortalWaveData;
-            return;
+            return false;
         }
-        OD_ASSERT_TRUE(is >> roomPortalWaveData->mSpawnTurnMin);
+        if(!(is >> roomPortalWaveData->mSpawnTurnMin))
+            return false;
 
-        OD_ASSERT_TRUE(is >> str);
+        if(!(is >> str))
+            return false;
         if(str != "SpawnTurnMax")
         {
             OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
             delete roomPortalWaveData;
-            return;
+            return false;
         }
-        OD_ASSERT_TRUE(is >> roomPortalWaveData->mSpawnTurnMax);
+        if(!(is >> roomPortalWaveData->mSpawnTurnMax))
+            return false;
 
-        OD_ASSERT_TRUE(is >> str);
+        if(!(is >> str))
+            return false;
         if(str != "[Creatures]")
         {
             OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
             delete roomPortalWaveData;
-            return;
+            return false;
         }
 
         while(true)
         {
-            OD_ASSERT_TRUE(is >> str);
+            if(!(is >> str))
+                return false;
             if(str == "[/Creatures]")
                 break;
 
             std::pair<std::string, uint32_t> p;
             p.first = str;
-            OD_ASSERT_TRUE(is >> p.second);
+            if(!(is >> p.second))
+                return false;
 
             roomPortalWaveData->mSpawnCreatureClassName.push_back(p);
         }
 
-        OD_ASSERT_TRUE(is >> str);
+        if(!(is >> str))
+            return false;
         if(str != "[/Wave]")
         {
             OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
             delete roomPortalWaveData;
-            return;
+            return false;
         }
 
         addRoomPortalWaveData(roomPortalWaveData);
     }
+
+    return true;
 }
 
 void RoomPortalWave::restoreInitialEntityState()

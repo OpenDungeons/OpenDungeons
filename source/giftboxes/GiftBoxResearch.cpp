@@ -45,10 +45,14 @@ void GiftBoxResearch::exportToStream(std::ostream& os) const
     os << mResearchType << "\t";
 }
 
-void GiftBoxResearch::importFromStream(std::istream& is)
+bool GiftBoxResearch::importFromStream(std::istream& is)
 {
-    GiftBoxEntity::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mResearchType);
+    if(!GiftBoxEntity::importFromStream(is))
+        return false;
+    if(!(is >> mResearchType))
+        return false;
+
+    return true;
 }
 
 void GiftBoxResearch::applyEffect()

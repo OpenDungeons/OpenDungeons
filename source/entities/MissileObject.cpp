@@ -279,13 +279,20 @@ void MissileObject::exportToStream(std::ostream& os) const
     os << mSpeed << "\t";
 }
 
-void MissileObject::importFromStream(std::istream& is)
+bool MissileObject::importFromStream(std::istream& is)
 {
-    RenderedMovableEntity::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mDirection.x >> mDirection.y >> mDirection.z);
-    OD_ASSERT_TRUE(is >> mIsMissileAlive);
-    OD_ASSERT_TRUE(is >> mDamageAllies);
-    OD_ASSERT_TRUE(is >> mSpeed);
+    if(!RenderedMovableEntity::importFromStream(is))
+        return false;
+    if(!(is >> mDirection.x >> mDirection.y >> mDirection.z))
+        return false;
+    if(!(is >> mIsMissileAlive))
+        return false;
+    if(!(is >> mDamageAllies))
+        return false;
+    if(!(is >> mSpeed))
+        return false;
+
+    return true;
 }
 
 std::string MissileObject::getMissileObjectStreamFormat()

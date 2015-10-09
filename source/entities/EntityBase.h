@@ -153,7 +153,7 @@ protected:
     virtual void exportHeadersToPacket(ODPacket& os) const = 0;
     //! \brief Exports the data of the GameEntity
     virtual void exportToStream(std::ostream& os) const = 0;
-    virtual void importFromStream(std::istream& is) = 0;
+    virtual bool importFromStream(std::istream& is) = 0;
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const = 0;
     virtual void importFromPacket(ODPacket& is) = 0;
 

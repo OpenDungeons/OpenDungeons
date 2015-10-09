@@ -91,9 +91,14 @@ void MissileBoulder::exportToStream(std::ostream& os) const
     os << mNbHits << "\t";
 }
 
-void MissileBoulder::importFromStream(std::istream& is)
+bool MissileBoulder::importFromStream(std::istream& is)
 {
-    MissileObject::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mDamage);
-    OD_ASSERT_TRUE(is >> mNbHits);
+    if(!MissileObject::importFromStream(is))
+        return false;
+    if(!(is >> mDamage))
+        return false;
+    if(!(is >> mNbHits))
+        return false;
+
+    return true;
 }

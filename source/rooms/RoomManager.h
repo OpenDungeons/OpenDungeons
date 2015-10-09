@@ -29,57 +29,37 @@ class InputManager;
 class ODPacket;
 class Player;
 class Room;
-class Seat;
-class Tile;
 
 enum class RoomType;
 
-//! Class to gather functions used for rooms. Each room should define static functions allowing to handle them:
-//! - checkBuildRoom : called on client side to define the room data in GameMode
-//! - buildRoom : called on server side to create the room in GameMode
-//! - checkBuildRoomEditor : called on client side to define the room data in EditorMode
-//! - buildRoomEditor : called on server side to create the room in EditorMode
-//! - getRoomFromStream : called on server side when loading a level
-class RoomFunctions
+//! \brief Factory class to register a new room
+class RoomFactory
 {
-    friend class RoomManager;
 public:
-    typedef void (*CheckBuildRoomFunc)(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    typedef bool (*BuildRoomFunc)(GameMap* gameMap, Player* player, ODPacket& packet);
-    typedef bool (*BuildRoomEditorFunc)(GameMap* gameMap, ODPacket& packet);
-    typedef Room* (*GetRoomFromStreamFunc)(GameMap* gameMap, std::istream& is);
-
-    RoomFunctions() :
-        mCheckBuildRoomFunc(nullptr),
-        mBuildRoomFunc(nullptr),
-        mCheckBuildRoomEditorFunc(nullptr),
-        mBuildRoomEditorFunc(nullptr),
-        mGetRoomFromStreamFunc(nullptr)
+    virtual ~RoomFactory()
     {}
 
-    void checkBuildRoomFunc(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand) const;
+    virtual RoomType getRoomType() const = 0;
+    virtual const std::string& getName() const = 0;
+    virtual const std::string& getNameReadable() const = 0;
 
-    bool buildRoomFunc(GameMap* gameMap, RoomType type, Player* player, ODPacket& packet) const;
-
-    void checkBuildRoomEditorFunc(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand) const;
-
-    bool buildRoomEditorFunc(GameMap* gameMap, RoomType type, ODPacket& packet) const;
-
-    Room* getRoomFromStreamFunc(GameMap* gameMap, RoomType type, std::istream& is) const;
-
-private:
-    std::string mName;
-    std::string mReadableName;
-    CheckBuildRoomFunc mCheckBuildRoomFunc;
-    BuildRoomFunc mBuildRoomFunc;
-    CheckBuildRoomFunc mCheckBuildRoomEditorFunc;
-    BuildRoomEditorFunc mBuildRoomEditorFunc;
-    GetRoomFromStreamFunc mGetRoomFromStreamFunc;
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const = 0;
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const = 0;
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const = 0;
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const = 0;
+    virtual Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const = 0;
 };
 
 class RoomManager
 {
+friend class RoomRegister;
+
 public:
+    static Room* load(GameMap* gameMap, std::istream& is);
+    //! \brief Handles the Room deletion
+    static void dispose(const Room* skill);
+    static void write(const Room& skill, std::ostream& os);
+
     //! \brief Called on client side. It should check if the room can be built according to the given inputManager
     //! for the given player. It should update the InputCommand to make sure it displays the correct
     //! information (price, selection icon, ...).
@@ -132,60 +112,26 @@ public:
     static ClientNotification* createRoomClientNotificationEditor(RoomType type);
 
 private:
-    static void registerRoom(RoomType type, const std::string& name, const std::string& readableName,
-        RoomFunctions::CheckBuildRoomFunc checkBuildRoomFunc,
-        RoomFunctions::BuildRoomFunc buildRoomFunc,
-        RoomFunctions::CheckBuildRoomFunc checkBuildRoomEditorFunc,
-        RoomFunctions::BuildRoomEditorFunc buildRoomEditorFunc,
-        RoomFunctions::GetRoomFromStreamFunc getRoomFromStreamFunc);
-
-    template <typename D>
-    static void checkBuildRoomReg(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-    {
-        D::checkBuildRoom(gameMap, inputManager, inputCommand);
-    }
-
-    template <typename D>
-    static bool buildRoomReg(GameMap* gameMap, Player* player, ODPacket& packet)
-    {
-        return D::buildRoom(gameMap, player, packet);
-    }
-
-    template <typename D>
-    static void checkBuildRoomEditorReg(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-    {
-        D::checkBuildRoomEditor(gameMap, inputManager, inputCommand);
-    }
-
-    template <typename D>
-    static bool buildRoomEditorReg(GameMap* gameMap, ODPacket& packet)
-    {
-        return D::buildRoomEditor(gameMap, packet);
-    }
-
-    template <typename D>
-    static Room* getRoomFromStreamReg(GameMap* gameMap, std::istream& is)
-    {
-        return D::getRoomFromStream(gameMap, is);
-    }
-
-    template <typename T> friend class RoomManagerRegister;
+    static void registerFactory(const RoomFactory* factory);
+    static void unregisterFactory(const RoomFactory* factory);
 };
 
-template <typename T>
-class RoomManagerRegister
+class RoomRegister
 {
 public:
-    RoomManagerRegister(RoomType type, const std::string& name, const std::string& readableName)
+    RoomRegister(const RoomFactory* factoryToRegister) :
+        mRoomFactory(factoryToRegister)
     {
-        RoomManager::registerRoom(type, name, readableName, &RoomManager::checkBuildRoomReg<T>,
-            &RoomManager::buildRoomReg<T>, &RoomManager::checkBuildRoomEditorReg<T>,
-            &RoomManager::buildRoomEditorReg<T>, &RoomManager::getRoomFromStreamReg<T>);
+        RoomManager::registerFactory(mRoomFactory);
+    }
+    ~RoomRegister()
+    {
+        RoomManager::unregisterFactory(mRoomFactory);
+        delete mRoomFactory;
     }
 
 private:
-    RoomManagerRegister(const std::string& name, const RoomManagerRegister&);
+    const RoomFactory* mRoomFactory;
 };
-
 
 #endif // ROOMMANAGER_H

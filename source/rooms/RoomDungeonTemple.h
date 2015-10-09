@@ -27,7 +27,7 @@ public:
     RoomDungeonTemple(GameMap* gameMap);
 
     virtual RoomType getType() const
-    { return RoomType::dungeonTemple; }
+    { return mRoomType; }
 
     //! \brief Updates the temple position when in editor mode.
     void updateActiveSpots();
@@ -43,6 +43,8 @@ public:
     static void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
+
+    static const RoomType mRoomType;
 
 protected:
     virtual void destroyMeshLocal();

@@ -515,7 +515,7 @@ protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
+    virtual bool importFromStream(std::istream& is) override;
 
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();

@@ -60,7 +60,7 @@ public:
     virtual ~RoomPortalWave();
 
     virtual RoomType getType() const override
-    { return RoomType::portalWave; }
+    { return mRoomType; }
 
     void absorbRoom(Room *r) override;
     bool removeCoveredTile(Tile* t) override;
@@ -112,9 +112,11 @@ public:
     static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
 
+    static const RoomType mRoomType;
+
 protected:
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
+    virtual bool importFromStream(std::istream& is) override;
 
     void destroyMeshLocal() override;
 

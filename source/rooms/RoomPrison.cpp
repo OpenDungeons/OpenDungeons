@@ -28,7 +28,42 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-static RoomManagerRegister<RoomPrison> reg(RoomType::prison, "Prison", "Prison room");
+const std::string RoomPrisonName = "Prison";
+const std::string RoomPrisonNameDisplay = "Prison room";
+const RoomType RoomPrison::mRoomType = RoomType::prison;
+
+namespace
+{
+class RoomPrisonFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomPrison::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomPrisonName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomPrisonNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomPrison::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomPrison::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomPrison::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomPrison::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomPrison::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomPrisonFactory);
+}
 
 const int32_t OFFSET_TILE_X = 0;
 const int32_t OFFSET_TILE_Y = -1;

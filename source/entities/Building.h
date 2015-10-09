@@ -167,21 +167,24 @@ public:
     virtual bool permitsVision(Tile* tile)
     { return true; }
 
-protected:
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-    //! Allows to export/import specific data for child classes. Note that every tile
+    virtual bool importFromStream(std::istream& is) override;
+
+protected:
+    //! \brief Allows to export/import specific data for child classes. Note that every tile
     //! should be exported on 1 line (thus, no line ending should be added here). Moreover
     //! the building will only export the tile coords. Exporting other relevant data is
     //! up to the subclass
     virtual void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const
     {}
-    //! importTileDataFromStream should add the tile to covered or destroyed tiles vector and,
-    //! if added to covered tile vectors, set covering room
-    virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
-    {}
 
-    //! This will be called when tiles will be added to the building. By overriding it,
+    //! \brief importTileDataFromStream should add the tile to covered or destroyed tiles vector and,
+    //! if added to covered tile vectors, set covering room
+    //! Returns true if everything OK and false if there is a problem
+    virtual bool importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
+    { return true; }
+
+    //! \brief This will be called when tiles will be added to the building. By overriding it,
     //! child classes can expand TileData and add the data they need
     virtual TileData* createTileData(Tile* tile);
 
@@ -189,7 +192,7 @@ protected:
     void removeBuildingObject(Tile* tile);
     void removeBuildingObject(RenderedMovableEntity* obj);
     RenderedMovableEntity* getBuildingObjectFromTile(Tile* tile);
-    //! Buildings are handled by the tile, they don't fire add/remove events
+    //! \brief Buildings are handled by the tile, they don't fire add/remove events
     void fireAddEntity(Seat* seat, bool async)
     {}
     void fireRemoveEntity(Seat* seat)

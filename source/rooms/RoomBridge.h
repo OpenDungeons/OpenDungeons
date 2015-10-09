@@ -66,7 +66,7 @@ protected:
         const std::vector<TileVisual>& allowedTilesVisual, ODPacket& packet, bool isEditor);
 
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
+    virtual bool importFromStream(std::istream& is) override;
 
     virtual void updateFloodFillPathCreated(Seat* seat, const std::vector<Tile*>& tiles) = 0;
     virtual void updateFloodFillTileRemoved(Seat* seat, Tile* tile) = 0;

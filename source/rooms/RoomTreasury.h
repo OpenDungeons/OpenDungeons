@@ -52,7 +52,7 @@ public:
     RoomTreasury(GameMap* gameMap);
 
     virtual RoomType getType() const
-    { return RoomType::treasury; }
+    { return mRoomType; }
 
     // Functions overriding virtual functions in the Room base class.
     bool removeCoveredTile(Tile* t);
@@ -75,6 +75,8 @@ public:
     static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
     static int32_t getRoomCostForPlayer(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
+
+    static const RoomType mRoomType;
 
 protected:
     RoomTreasuryTileData* createTileData(Tile* tile) override;

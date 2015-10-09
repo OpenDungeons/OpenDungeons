@@ -395,29 +395,31 @@ void Creature::exportToStream(std::ostream& os) const
     }
 }
 
-void Creature::importFromStream(std::istream& is)
+bool Creature::importFromStream(std::istream& is)
 {
     // Beware: A generic class name might be used here so we shouldn't use mDefinition
     // here as it is not set yet (for example, default worker will be available only after
     // seat lobby configuration)
-    MovableGameEntity::importFromStream(is);
+    if(!MovableGameEntity::importFromStream(is))
+        return false;
     std::string tempString;
 
-    OD_ASSERT_TRUE(is >> mDefinitionString);
-
-    OD_ASSERT_TRUE(is >> mLevel);
-
-    OD_ASSERT_TRUE(is >> mExp);
-
-    OD_ASSERT_TRUE(is >> mHpString);
-
-    OD_ASSERT_TRUE(is >> mAwakeness);
-
-    OD_ASSERT_TRUE(is >> mHunger);
-
-    OD_ASSERT_TRUE(is >> mGoldCarried);
-
-    OD_ASSERT_TRUE(is >> tempString);
+    if(!(is >> mDefinitionString))
+        return false;
+    if(!(is >> mLevel))
+        return false;
+    if(!(is >> mExp))
+        return false;
+    if(!(is >> mHpString))
+        return false;
+    if(!(is >> mAwakeness))
+        return false;
+    if(!(is >> mHunger))
+        return false;
+    if(!(is >> mGoldCarried))
+        return false;
+    if(!(is >> tempString))
+        return false;
     if(tempString != "none")
     {
         mWeaponL = getGameMap()->getWeapon(tempString);
@@ -427,7 +429,8 @@ void Creature::importFromStream(std::istream& is)
         }
     }
 
-    OD_ASSERT_TRUE(is >> tempString);
+    if(!(is >> tempString))
+        return false;
     if(tempString != "none")
     {
         mWeaponR = getGameMap()->getWeapon(tempString);
@@ -437,14 +440,16 @@ void Creature::importFromStream(std::istream& is)
         }
     }
 
-    OD_ASSERT_TRUE(is >> mResearchTypeDropDeath);
-
-    OD_ASSERT_TRUE(is >> mWeaponDropDeath);
+    if(!(is >> mResearchTypeDropDeath))
+        return false;
+    if(!(is >> mWeaponDropDeath))
+        return false;
 
     mLevel = std::min(MAX_LEVEL, mLevel);
 
     uint32_t nbEffects;
-    OD_ASSERT_TRUE(is >> nbEffects);
+    if(!(is >> nbEffects))
+        return false;
     while(nbEffects > 0)
     {
         --nbEffects;
@@ -454,6 +459,8 @@ void Creature::importFromStream(std::istream& is)
 
         addCreatureEffect(effect);
     }
+
+    return true;
 }
 
 void Creature::buildStats()

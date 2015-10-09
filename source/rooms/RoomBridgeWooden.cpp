@@ -27,7 +27,42 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static RoomManagerRegister<RoomBridgeWooden> reg(RoomType::bridgeWooden, "WoodenBridge", "Wooden Bridge room");
+const std::string RoomBridgeWoodenName = "WoodenBridge";
+const std::string RoomBridgeWoodenNameDisplay = "Wooden Bridge room";
+const RoomType RoomBridgeWooden::mRoomType = RoomType::bridgeWooden;
+
+namespace
+{
+class RoomBridgeWoodenFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomBridgeWooden::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomBridgeWoodenName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomBridgeWoodenNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomBridgeWooden::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomBridgeWooden::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomBridgeWooden::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomBridgeWooden::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomBridgeWooden::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomBridgeWoodenFactory);
+}
 
 static const std::vector<TileVisual> allowedTilesVisual = {TileVisual::waterGround};
 

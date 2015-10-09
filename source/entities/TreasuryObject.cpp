@@ -264,10 +264,14 @@ void TreasuryObject::exportToStream(std::ostream& os) const
     os << mGoldValue << "\t";
 }
 
-void TreasuryObject::importFromStream(std::istream& is)
+bool TreasuryObject::importFromStream(std::istream& is)
 {
-    RenderedMovableEntity::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mGoldValue);
+    if(!RenderedMovableEntity::importFromStream(is))
+        return false;
+    if(!(is >> mGoldValue))
+        return false;
+
+    return true;
 }
 
 std::string TreasuryObject::getTreasuryObjectStreamFormat()

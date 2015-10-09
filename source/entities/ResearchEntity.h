@@ -54,7 +54,7 @@ public:
     static std::string getResearchEntityStreamFormat();
 protected:
     void exportToStream(std::ostream& os) const override;
-    void importFromStream(std::istream& is) override;
+    bool importFromStream(std::istream& is) override;
 
 private:
     int32_t mResearchPoints;

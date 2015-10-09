@@ -108,7 +108,7 @@ protected:
      */
     virtual void exportHeadersToStream(std::ostream& os) const override;
     void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const;
-    void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData);
+    bool importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData);
 
     enum ActiveSpotPlace
     {

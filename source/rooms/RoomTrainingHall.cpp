@@ -29,7 +29,42 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-static RoomManagerRegister<RoomTrainingHall> reg(RoomType::trainingHall, "TrainingHall", "Training hall room");
+const std::string RoomTrainingHallName = "TrainingHall";
+const std::string RoomTrainingHallNameDisplay = "Training hall room";
+const RoomType RoomTrainingHall::mRoomType = RoomType::trainingHall;
+
+namespace
+{
+class RoomTrainingHallFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomTrainingHall::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomTrainingHallName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomTrainingHallNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomTrainingHall::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomTrainingHall::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomTrainingHall::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomTrainingHall::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomTrainingHall::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomTrainingHallFactory);
+}
 
 const Ogre::Real RoomTrainingHall::OFFSET_CREATURE = 0.3;
 const Ogre::Real RoomTrainingHall::OFFSET_DUMMY = 0.3;

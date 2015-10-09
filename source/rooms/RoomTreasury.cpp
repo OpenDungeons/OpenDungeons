@@ -36,7 +36,42 @@
 
 #include <string>
 
-static RoomManagerRegister<RoomTreasury> reg(RoomType::treasury, "Treasury", "Treasury room");
+const std::string RoomTreasuryName = "Treasury";
+const std::string RoomTreasuryNameDisplay = "Treasury room";
+const RoomType RoomTreasury::mRoomType = RoomType::treasury;
+
+namespace
+{
+class RoomTreasuryFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomTreasury::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomTreasuryName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomTreasuryNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomTreasury::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomTreasury::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomTreasury::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomTreasury::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomTreasury::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomTreasuryFactory);
+}
 
 static const int maxGoldinTile = 1000;
 

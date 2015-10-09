@@ -68,11 +68,15 @@ void RoomBridge::exportToStream(std::ostream& os) const
     os << mClaimedValue << "\n";
 }
 
-void RoomBridge::importFromStream(std::istream& is)
+bool RoomBridge::importFromStream(std::istream& is)
 {
-    Room::importFromStream(is);
+    if(!Room::importFromStream(is))
+        return false;
 
-    OD_ASSERT_TRUE(is >> mClaimedValue);
+    if(!(is >> mClaimedValue))
+        return false;
+
+    return true;
 }
 
 void RoomBridge::absorbRoom(Room *r)

@@ -32,7 +32,42 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-static RoomManagerRegister<RoomLibrary> reg(RoomType::library, "Library", "Library room");
+const std::string RoomLibraryName = "Library";
+const std::string RoomLibraryNameDisplay = "Library room";
+const RoomType RoomLibrary::mRoomType = RoomType::library;
+
+namespace
+{
+class RoomLibraryFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomLibrary::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomLibraryName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomLibraryNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomLibrary::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomLibrary::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomLibrary::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomLibrary::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomLibrary::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomLibraryFactory);
+}
 
 const Ogre::Real OFFSET_CREATURE = 0.3;
 const Ogre::Real OFFSET_SPOT = 0.3;
@@ -408,10 +443,14 @@ void RoomLibrary::exportToStream(std::ostream& os) const
     os << mResearchPoints << "\n";
 }
 
-void RoomLibrary::importFromStream(std::istream& is)
+bool RoomLibrary::importFromStream(std::istream& is)
 {
-    Room::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mResearchPoints);
+    if(!Room::importFromStream(is))
+        return false;
+    if(!(is >> mResearchPoints))
+        return false;
+
+    return true;
 }
 
 Room* RoomLibrary::getRoomFromStream(GameMap* gameMap, std::istream& is)

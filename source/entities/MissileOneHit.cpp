@@ -88,22 +88,30 @@ void MissileOneHit::exportToStream(std::ostream& os) const
     }
 }
 
-void MissileOneHit::importFromStream(std::istream& is)
+bool MissileOneHit::importFromStream(std::istream& is)
 {
-    MissileObject::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mPhysicalDamage);
-    OD_ASSERT_TRUE(is >> mMagicalDamage);
-    OD_ASSERT_TRUE(is >> mElementDamage);
+    if(!MissileObject::importFromStream(is))
+        return false;
+    if(!(is >> mPhysicalDamage))
+        return false;
+    if(!(is >> mMagicalDamage))
+        return false;
+    if(!(is >> mElementDamage))
+        return false;
     uint32_t nbEffects;
-    OD_ASSERT_TRUE(is >> nbEffects);
+    if(!(is >> nbEffects))
+        return false;
     while(nbEffects > 0)
     {
         --nbEffects;
         std::string effectScript;
-        OD_ASSERT_TRUE(is >> effectScript);
+        if(!(is >> effectScript))
+            return false;
         MissileParticuleEffectClient* effect = new MissileParticuleEffectClient(nextParticleSystemsName(), effectScript, -1);
         mEntityParticleEffects.push_back(effect);
     }
+
+    return true;
 }
 
 void MissileOneHit::exportToPacket(ODPacket& os, const Seat* seat) const

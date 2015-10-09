@@ -408,8 +408,8 @@ protected:
     virtual void exportHeadersToPacket(ODPacket& os) const override
     {}
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override
-    {}
+    virtual bool importFromStream(std::istream& is) override
+    { return true; }
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override
     {}
     virtual void importFromPacket(ODPacket& is) override

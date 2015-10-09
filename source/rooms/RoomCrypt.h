@@ -30,7 +30,7 @@ public:
     RoomCrypt(GameMap* gameMap);
 
     virtual RoomType getType() const override
-    { return RoomType::crypt; }
+    { return mRoomType; }
 
     void absorbRoom(Room *r) override;
 
@@ -47,9 +47,11 @@ public:
     static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
 
+    static const RoomType mRoomType;
+
 protected:
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
+    virtual bool importFromStream(std::istream& is) override;
 
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;

@@ -253,9 +253,14 @@ void RenderedMovableEntity::exportToStream(std::ostream& os) const
     os << mRotationAngle << "\t";
 }
 
-void RenderedMovableEntity::importFromStream(std::istream& is)
+bool RenderedMovableEntity::importFromStream(std::istream& is)
 {
-    MovableGameEntity::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mOpacity);
-    OD_ASSERT_TRUE(is >> mRotationAngle);
+    if(!MovableGameEntity::importFromStream(is))
+        return false;
+    if(!(is >> mOpacity))
+        return false;
+    if(!(is >> mRotationAngle))
+        return false;
+
+    return true;
 }
