@@ -103,7 +103,6 @@ void CreatureBehaviourManager::write(const CreatureBehaviour& behaviour, std::os
 {
     os << behaviour.getName();
     behaviour.exportToStream(os);
-    os << std::endl;
 }
 
 void CreatureBehaviourManager::getFormatString(const CreatureBehaviour& behaviour, std::string& format)

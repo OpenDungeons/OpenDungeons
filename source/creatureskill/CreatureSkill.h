@@ -27,15 +27,6 @@ class GameEntity;
 class GameMap;
 class Tile;
 
-enum class CreatureSkillType
-{
-    Explosion,
-    HealSelf,
-    Melee,
-    MissileLaunch,
-    nb
-};
-
 //! \brief Defines the skills the creatures can use in game. Note that the CreatureSkill
 //! belongs to the creature definition. Thus, all its functions are shared and should be const
 class CreatureSkill
@@ -50,13 +41,13 @@ public:
     virtual ~CreatureSkill()
     {}
 
+    virtual const std::string& getSkillName() const = 0;
+
     inline uint32_t getCooldownNbTurns() const
     { return mCooldownNbTurns; }
 
     inline uint32_t getWarmupNbTurns() const
     { return mWarmupNbTurns; }
-
-    virtual CreatureSkillType getCreatureSkillType() const = 0;
 
     //! \brief returns true is the required needs (like level) are met for the given
     //! creature. false otherwise
@@ -89,11 +80,6 @@ public:
     //! \brief Returns the format string (including specific additional parameters)
     virtual void getFormatString(std::string& format) const;
 
-    static std::string toString(CreatureSkillType type);
-    static CreatureSkill* load(std::istream& defFile);
-    static void write(const CreatureSkill* skill, std::ostream& defFile);
-
-protected:
     //! \brief Write skill data to the given stream
     virtual void exportToStream(std::ostream& os) const;
     //! \brief Read skills data. Returns true if loading is OK and false otherwise

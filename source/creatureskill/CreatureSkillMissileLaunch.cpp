@@ -17,6 +17,7 @@
 
 #include "creatureskill/CreatureSkillMissileLaunch.h"
 
+#include "creatureskill/CreatureSkillManager.h"
 #include "entities/Creature.h"
 #include "entities/MissileOneHit.h"
 #include "entities/Tile.h"
@@ -29,6 +30,27 @@
 #include <istream>
 
 const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
+const std::string CreatureSkillMissileLaunchName = "MissileLaunch";
+
+namespace
+{
+class CreatureSkillMissileLaunchFactory : public CreatureSkillFactory
+{
+    CreatureSkill* createCreatureSkill() const override
+    { return new CreatureSkillMissileLaunch; }
+
+    const std::string& getCreatureSkillName() const override
+    { return CreatureSkillMissileLaunchName; }
+};
+
+// Register the factory
+static CreatureSkillRegister reg(new CreatureSkillMissileLaunchFactory);
+}
+
+const std::string& CreatureSkillMissileLaunch::getSkillName() const
+{
+    return CreatureSkillMissileLaunchName;
+}
 
 double CreatureSkillMissileLaunch::getRangeMax(const Creature* creature, GameEntity* entityAttack) const
 {

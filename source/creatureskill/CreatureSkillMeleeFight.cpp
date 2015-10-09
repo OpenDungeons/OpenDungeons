@@ -17,6 +17,7 @@
 
 #include "creatureskill/CreatureSkillMeleeFight.h"
 
+#include "creatureskill/CreatureSkillManager.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
@@ -26,6 +27,28 @@
 #include "utils/LogManager.h"
 
 #include <istream>
+
+const std::string CreatureSkillMeleeFightName = "Melee";
+
+namespace
+{
+class CreatureSkillMeleeFightFactory : public CreatureSkillFactory
+{
+    CreatureSkill* createCreatureSkill() const override
+    { return new CreatureSkillMeleeFight; }
+
+    const std::string& getCreatureSkillName() const override
+    { return CreatureSkillMeleeFightName; }
+};
+
+// Register the factory
+static CreatureSkillRegister reg(new CreatureSkillMeleeFightFactory);
+}
+
+const std::string& CreatureSkillMeleeFight::getSkillName() const
+{
+    return CreatureSkillMeleeFightName;
+}
 
 bool CreatureSkillMeleeFight::canBeUsedBy(const Creature* creature) const
 {

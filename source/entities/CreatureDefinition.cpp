@@ -20,6 +20,7 @@
 #include "creaturebehaviour/CreatureBehaviour.h"
 #include "creaturebehaviour/CreatureBehaviourManager.h"
 #include "creatureskill/CreatureSkill.h"
+#include "creatureskill/CreatureSkillManager.h"
 #include "network/ODPacket.h"
 #include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
@@ -181,7 +182,13 @@ CreatureDefinition::CreatureDefinition(const CreatureDefinition& def) :
     }
     for(const CreatureSkill* skill : def.mCreatureSkills)
     {
-        mCreatureSkills.push_back(skill->clone());
+        CreatureSkill* cloned = CreatureSkillManager::clone(skill);
+        if(cloned == nullptr)
+        {
+            OD_LOG_ERR("Error while cloning creature def=" + def.getClassName() + ", skill=" + skill->getSkillName());
+            continue;
+        }
+        mCreatureSkills.push_back(cloned);
     }
     for(const CreatureBehaviour* behaviour : def.mCreatureBehaviours)
     {
@@ -199,7 +206,7 @@ CreatureDefinition::~CreatureDefinition()
 {
     for(const CreatureSkill* skill : mCreatureSkills)
     {
-        delete skill;
+        CreatureSkillManager::dispose(skill);
     }
     mCreatureSkills.clear();
     for(const CreatureBehaviour* behaviour : mCreatureBehaviours)
@@ -930,7 +937,7 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
     {
         for(uint32_t i = 0; i < def1->mCreatureSkills.size(); ++i)
         {
-            if(!def1->mCreatureSkills[i]->isEqual(*(def2->mCreatureSkills[i])))
+            if(!CreatureSkillManager::areEqual(*def1->mCreatureSkills[i], *def2->mCreatureSkills[i]))
             {
                 isSame = false;
                 break;
@@ -943,10 +950,11 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
         for(const CreatureSkill* skill : def2->mCreatureSkills)
         {
             std::string format;
-            skill->getFormatString(format);
+            CreatureSkillManager::getFormatString(*skill, format);
             file << "    " << format << std::endl;
             file << "    ";
-            CreatureSkill::write(skill, file);
+            CreatureSkillManager::write(*skill, file);
+            file << "    " << std::endl;
         }
         file << "    [/CreatureSkills]" << std::endl;
     }
@@ -973,6 +981,7 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
             file << "    " << format << std::endl;
             file << "    ";
             CreatureBehaviourManager::write(*behaviour, file);
+            file << std::endl;
         }
         file << "    [/CreatureBehaviours]" << std::endl;
     }
@@ -1053,7 +1062,7 @@ void CreatureDefinition::loadCreatureSkills(std::stringstream& defFile, Creature
         }
 
         std::stringstream ss(nextParam);
-        CreatureSkill* skill = CreatureSkill::load(ss);
+        CreatureSkill* skill = CreatureSkillManager::load(ss);
         if (skill == nullptr)
         {
             OD_LOG_ERR("line=" + nextParam);
