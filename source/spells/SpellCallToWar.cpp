@@ -30,8 +30,43 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+const std::string SpellCallToWarName = "callToWar";
+const std::string SpellCallToWarNameDisplay = "Call to war";
+const std::string SpellCallToWarCooldownKey = "CallToWarCooldown";
+const SpellType SpellCallToWar::mSpellType = SpellType::callToWar;
 
-static SpellManagerRegister<SpellCallToWar> reg(SpellType::callToWar, "callToWar", "Call to war", "CallToWarCooldown");
+namespace
+{
+class SpellCallToWarFactory : public SpellFactory
+{
+    SpellType getSpellType() const override
+    { return SpellCallToWar::mSpellType; }
+
+    const std::string& getName() const override
+    { return SpellCallToWarName; }
+
+    const std::string& getCooldownKey() const override
+    { return SpellCallToWarCooldownKey; }
+
+    const std::string& getNameReadable() const override
+    { return SpellCallToWarNameDisplay; }
+
+    virtual void checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    { SpellCallToWar::checkSpellCast(gameMap, inputManager, inputCommand); }
+
+    virtual bool castSpell(GameMap* gameMap, Player* player, ODPacket& packet) const override
+    { return SpellCallToWar::castSpell(gameMap, player, packet); }
+
+    Spell* getSpellFromStream(GameMap* gameMap, std::istream &is) const override
+    { return SpellCallToWar::getSpellFromStream(gameMap, is); }
+
+    Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is) const override
+    { return SpellCallToWar::getSpellFromPacket(gameMap, is); }
+};
+
+// Register the factory
+static SpellRegister reg(new SpellCallToWarFactory);
+}
 
 SpellCallToWar::SpellCallToWar(GameMap* gameMap, bool isOnServerMap) :
     Spell(gameMap, isOnServerMap, SpellManager::getSpellNameFromSpellType(getSpellType()), "WarBanner", 0.0,

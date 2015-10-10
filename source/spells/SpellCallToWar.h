@@ -44,6 +44,7 @@ public:
     static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
     static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
 
+    static const SpellType mSpellType;
 };
 
 #endif // SPELLCALLTOWAR_H

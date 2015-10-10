@@ -140,5 +140,4 @@ private:
     const TrapFactory* mTrapFactory;
 };
 
-
 #endif // TRAPMANAGER_H

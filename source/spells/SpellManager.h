@@ -34,45 +34,34 @@ class Spell;
 
 enum class SpellType;
 
-//! Class to gather functions used for spells
-class SpellFunctions
+//! \brief Factory class to register a new spell
+class SpellFactory
 {
-    friend class SpellManager;
 public:
-    typedef void (*CheckSpellCastFunc)(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    typedef bool (*CastSpellFunc)(GameMap* gameMap, Player* player, ODPacket& packet);
-    typedef Spell* (*GetSpellFromStreamFunc)(GameMap* gameMap, std::istream& is);
-    typedef Spell* (*GetSpellFromPacketFunc)(GameMap* gameMap, ODPacket& is);
-
-    SpellFunctions() :
-        mCheckSpellCastFunc(nullptr),
-        mCastSpellFunc(nullptr),
-        mGetSpellFromStreamFunc(nullptr),
-        mGetSpellFromPacketFunc(nullptr)
+    virtual ~SpellFactory()
     {}
 
-    void checkSpellCastFunc(GameMap* gameMap, SpellType type, const InputManager& inputManager, InputCommand& inputCommand) const;
+    virtual SpellType getSpellType() const = 0;
+    virtual const std::string& getName() const = 0;
+    virtual const std::string& getNameReadable() const = 0;
+    virtual const std::string& getCooldownKey() const = 0;
 
-    bool castSpellFunc(GameMap* gameMap, SpellType type, Player* player, ODPacket& packet) const;
-
-    Spell* getSpellFromStreamFunc(GameMap* gameMap, SpellType type, std::istream& is) const;
-
-    Spell* getSpellFromPacketFunc(GameMap* gameMap, SpellType type, ODPacket& is) const;
-
-private:
-    std::string mName;
-    std::string mReadableName;
-    std::string mCooldownKey;
-    CheckSpellCastFunc mCheckSpellCastFunc;
-    CastSpellFunc mCastSpellFunc;
-    GetSpellFromStreamFunc mGetSpellFromStreamFunc;
-    GetSpellFromPacketFunc mGetSpellFromPacketFunc;
-
+    virtual void checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const = 0;
+    virtual bool castSpell(GameMap* gameMap, Player* player, ODPacket& packet) const = 0;
+    virtual Spell* getSpellFromStream(GameMap* gameMap, std::istream& is) const = 0;
+    virtual Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is) const = 0;
 };
 
 class SpellManager
 {
+friend class SpellRegister;
+
 public:
+    static Spell* load(GameMap* gameMap, std::istream& is);
+    //! \brief Handles the Spell deletion
+    static void dispose(const Spell* spell);
+    static void write(const Spell& spell, std::ostream& os);
+
     //! \brief Called on client side. It checks if the spell can be cast according to the given inputManager
     //! for the given player. It should update the InputCommand to make sure it displays the correct
     //! information (price, selection icon, ...).
@@ -110,56 +99,26 @@ public:
     static ClientNotification* createSpellClientNotification(SpellType type);
 
 private:
-    static void registerSpell(SpellType type, const std::string& name, const std::string& readableName,
-        const std::string& cooldownKey,
-        SpellFunctions::CheckSpellCastFunc checkSpellCastFunc,
-        SpellFunctions::CastSpellFunc castSpellFunc,
-        SpellFunctions::GetSpellFromStreamFunc getSpellFromStreamFunc,
-        SpellFunctions::GetSpellFromPacketFunc getSpellFromPacketFunc);
-
-    template <typename D>
-    static void checkSpellCastReg(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-    {
-        return D::checkSpellCast(gameMap, inputManager, inputCommand);
-    }
-
-    template <typename D>
-    static bool castSpellReg(GameMap* gameMap, Player* player, ODPacket& packet)
-    {
-        return D::castSpell(gameMap, player, packet);
-    }
-
-    template <typename D>
-    static Spell* getSpellFromStreamReg(GameMap* gameMap, std::istream& is)
-    {
-        return D::getSpellFromStream(gameMap, is);
-    }
-
-    template <typename D>
-    static Spell* getSpellFromPacketReg(GameMap* gameMap, ODPacket& is)
-    {
-        return D::getSpellFromPacket(gameMap, is);
-    }
-
-    template <typename T> friend class SpellManagerRegister;
+    static void registerFactory(const SpellFactory* factory);
+    static void unregisterFactory(const SpellFactory* factory);
 };
 
-template <typename T>
-class SpellManagerRegister
+class SpellRegister
 {
 public:
-    SpellManagerRegister(SpellType spellType, const std::string& name,
-        const std::string& readableName, const std::string& cooldownKey)
+    SpellRegister(const SpellFactory* factoryToRegister) :
+        mSpellFactory(factoryToRegister)
     {
-        SpellManager::registerSpell(spellType, name, readableName, cooldownKey,
-            &SpellManager::checkSpellCastReg<T>,
-            &SpellManager::castSpellReg<T>, &SpellManager::getSpellFromStreamReg<T>,
-            &SpellManager::getSpellFromPacketReg<T>);
+        SpellManager::registerFactory(mSpellFactory);
+    }
+    ~SpellRegister()
+    {
+        SpellManager::unregisterFactory(mSpellFactory);
+        delete mSpellFactory;
     }
 
 private:
-    SpellManagerRegister(const std::string& name, const SpellManagerRegister&);
+    const SpellFactory* mSpellFactory;
 };
-
 
 #endif // SPELLMANAGER_H
