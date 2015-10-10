@@ -50,7 +50,7 @@ CreatureDefinition::CreatureDefinition(
             double                  minHP,
             double                  hpPerLevel,
             double                  hpHealPerTurn,
-            double                  awakenessLostPerTurn,
+            double                  wakefulnessLostPerTurn,
             double                  hungerGrowthPerTurn,
             double                  moveSpeedGround,
             double                  moveSpeedWater,
@@ -93,7 +93,7 @@ CreatureDefinition::CreatureDefinition(
         mMinHP       (minHP),
         mHpPerLevel  (hpPerLevel),
         mHpHealPerTurn      (hpHealPerTurn),
-        mAwakenessLostPerTurn(awakenessLostPerTurn),
+        mWakefulnessLostPerTurn(wakefulnessLostPerTurn),
         mHungerGrowthPerTurn(hungerGrowthPerTurn),
         mMoveSpeedGround    (moveSpeedGround),
         mMoveSpeedWater     (moveSpeedWater),
@@ -144,7 +144,7 @@ CreatureDefinition::CreatureDefinition(const CreatureDefinition& def) :
         mMinHP(def.mMinHP),
         mHpPerLevel(def.mHpPerLevel),
         mHpHealPerTurn(def.mHpHealPerTurn),
-        mAwakenessLostPerTurn(def.mAwakenessLostPerTurn),
+        mWakefulnessLostPerTurn(def.mWakefulnessLostPerTurn),
         mHungerGrowthPerTurn(def.mHungerGrowthPerTurn),
         mMoveSpeedGround(def.mMoveSpeedGround),
         mMoveSpeedWater(def.mMoveSpeedWater),
@@ -267,7 +267,7 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mMinHP;
     os << c->mHpPerLevel;
     os << c->mHpHealPerTurn;
-    os << c->mAwakenessLostPerTurn;
+    os << c->mWakefulnessLostPerTurn;
     os << c->mHungerGrowthPerTurn;
     os << c->mSightRadius;
     os << c->mMaxGoldCarryable;
@@ -307,7 +307,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2 >>c->mBedPosX >> c->mBedPosY >> c->mBedOrientX >> c->mBedOrientY;
     is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
     is >> c->mMinHP >> c->mHpPerLevel >> c->mHpHealPerTurn;
-    is >> c->mAwakenessLostPerTurn >> c->mHungerGrowthPerTurn;
+    is >> c->mWakefulnessLostPerTurn >> c->mHungerGrowthPerTurn;
     is >> c->mSightRadius;
     is >> c->mMaxGoldCarryable;
     is >> c->mDigRate >> c->mDigRatePerLevel;
@@ -518,10 +518,10 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mHpHealPerTurn = Helper::toDouble(nextParam);
                 continue;
             }
-            else if (nextParam == "AwakenessLost/Turn")
+            else if (nextParam == "WakefulnessLost/Turn")
             {
                 defFile >> nextParam;
-                creatureDef->mAwakenessLostPerTurn = Helper::toDouble(nextParam);
+                creatureDef->mWakefulnessLostPerTurn = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "HungerGrowth/Turn")
@@ -777,8 +777,8 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
     if(def1 == nullptr || (def1->mHpHealPerTurn != def2->mHpHealPerTurn))
         file << "    Heal/Turn\t" << def2->mHpHealPerTurn << std::endl;
 
-    if(def1 == nullptr || (def1->mAwakenessLostPerTurn != def2->mAwakenessLostPerTurn))
-        file << "    AwakenessLost/Turn\t" << def2->mAwakenessLostPerTurn << std::endl;
+    if(def1 == nullptr || (def1->mWakefulnessLostPerTurn != def2->mWakefulnessLostPerTurn))
+        file << "    WakefulnessLost/Turn\t" << def2->mWakefulnessLostPerTurn << std::endl;
 
     if(def1 == nullptr || (def1->mHungerGrowthPerTurn != def2->mHungerGrowthPerTurn))
         file << "    HungerGrowth/Turn\t" << def2->mHungerGrowthPerTurn << std::endl;

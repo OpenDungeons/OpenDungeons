@@ -137,7 +137,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mHomeTile                (nullptr),
     mDefinition              (definition),
     mHasVisualDebuggingEntities (false),
-    mAwakeness               (100.0),
+    mWakefulness             (100.0),
     mHunger                  (0.0),
     mLevel                   (1),
     mHp                      (10.0),
@@ -218,7 +218,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mHomeTile                (nullptr),
     mDefinition              (nullptr),
     mHasVisualDebuggingEntities (false),
-    mAwakeness               (100.0),
+    mWakefulness             (100.0),
     mHunger                  (0.0),
     mLevel                   (1),
     mHp                      (10.0),
@@ -352,7 +352,7 @@ std::string Creature::getCreatureStreamFormat()
     if(!format.empty())
         format += "\t";
 
-    format += "ClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness"
+    format += "ClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentWakefulness"
             "\tCurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon\tCarriedResearch\tCarriedWeapon"
             "\tNbCreatureEffects\tN*CreatureEffects";
 
@@ -368,7 +368,7 @@ void Creature::exportToStream(std::ostream& os) const
         os << getHP();
     else
         os << "max";
-    os << "\t" << mAwakeness << "\t" << mHunger << "\t" << mGoldCarried;
+    os << "\t" << mWakefulness << "\t" << mHunger << "\t" << mGoldCarried;
 
     // Check creature weapons
     if(mWeaponL != nullptr)
@@ -412,7 +412,7 @@ bool Creature::importFromStream(std::istream& is)
         return false;
     if(!(is >> mHpString))
         return false;
-    if(!(is >> mAwakeness))
+    if(!(is >> mWakefulness))
         return false;
     if(!(is >> mHunger))
         return false;
@@ -531,7 +531,7 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
 
     os << mDigRate;
     os << mClaimRate;
-    os << mAwakeness;
+    os << mWakefulness;
     os << mHunger;
 
     os << mGroundSpeed;
@@ -593,7 +593,7 @@ void Creature::importFromPacket(ODPacket& is)
 
     OD_ASSERT_TRUE(is >> mDigRate);
     OD_ASSERT_TRUE(is >> mClaimRate);
-    OD_ASSERT_TRUE(is >> mAwakeness);
+    OD_ASSERT_TRUE(is >> mWakefulness);
     OD_ASSERT_TRUE(is >> mHunger);
 
     OD_ASSERT_TRUE(is >> mGroundSpeed);
@@ -897,10 +897,10 @@ void Creature::doUpkeep()
 
     computeCreatureOverlayHealthValue();
 
-    //Rogue creatures are not affected by awakness/hunger
+    // Rogue creatures are not affected by wakefulness/hunger
     if(!getSeat()->isRogueSeat())
     {
-        decreaseAwakeness(mDefinition->getAwakenessLostPerTurn());
+        decreaseWakefulness(mDefinition->getWakefulnessLostPerTurn());
 
         increaseHunger(mDefinition->getHungerGrowthPerTurn());
     }
@@ -954,7 +954,7 @@ void Creature::doUpkeep()
             setSeat(rogueSeat);
             mMoodValue = CreatureMoodLevel::Neutral;
             mMoodPoints = 0;
-            mAwakeness = 100;
+            mWakefulness = 100;
             mHunger = 0;
             clearDestinations(EntityAnimation::idle_anim, true);
             clearActionQueue();
@@ -1356,7 +1356,7 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
     // If we are sleepy, we go to sleep
     if (!mDefinition->isWorker() &&
         (mHomeTile != nullptr) &&
-        (Random::Double(20.0, 30.0) > mAwakeness))
+        (Random::Double(20.0, 30.0) > mWakefulness))
     {
         // Check to see if we can work
         if(pushAction(CreatureActionType::sleep, false, false))
@@ -2172,7 +2172,7 @@ bool Creature::handleJobAction(const CreatureActionWrapper& actionItem)
 
     // If we are tired, we go to bed unless we have been slapped
     bool workForced = isForcedToWork();
-    if (!workForced && (Random::Double(20.0, 30.0) > mAwakeness))
+    if (!workForced && (Random::Double(20.0, 30.0) > mWakefulness))
     {
         popAction();
         stopJob();
@@ -2542,7 +2542,7 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
     actionItem.mCreatureSkillData->mCooldown = actionItem.mCreatureSkillData->mSkill->getCooldownNbTurns();
 
     // Fighting is tiring
-    decreaseAwakeness(0.5);
+    decreaseWakefulness(0.5);
     // but gives experience
     receiveExp(1.5);
 
@@ -2898,10 +2898,10 @@ bool Creature::handleSleepAction(const CreatureActionWrapper& actionItem)
             setAnimationState(EntityAnimation::sleep_anim, false, dormitory->getSleepDirection(this));
         }
 
-        // Improve awakeness
-        mAwakeness += 1.5;
-        if (mAwakeness > 100.0)
-            mAwakeness = 100.0;
+        // Improve wakefulness
+        mWakefulness += 1.5;
+        if (mWakefulness > 100.0)
+            mWakefulness = 100.0;
 
         mHp += mDefinition->getSleepHeal();
         if (mHp > mMaxHP)
@@ -2909,7 +2909,7 @@ bool Creature::handleSleepAction(const CreatureActionWrapper& actionItem)
 
         computeCreatureOverlayHealthValue();
 
-        if (mAwakeness >= 100.0 && mHp >= mMaxHP)
+        if (mWakefulness >= 100.0 && mHp >= mMaxHP)
         {
             popAction();
             return false;
@@ -3812,7 +3812,7 @@ std::string Creature::getStatsText()
     tempSS << "HP: " << getHP() << " / " << mMaxHP << std::endl;
     if (!getDefinition()->isWorker())
     {
-        tempSS << "Awakeness: " << mAwakeness << std::endl;
+        tempSS << "Wakefulness: " << mWakefulness << std::endl;
         tempSS << "Hunger: " << mHunger << std::endl;
     }
     tempSS << "Move speed (Ground/Water/Lava): " << getMoveSpeedGround() << "/"
@@ -4533,12 +4533,12 @@ void Creature::increaseHunger(double value)
     mHunger = std::min(100.0, mHunger + value);
 }
 
-void Creature::decreaseAwakeness(double value)
+void Creature::decreaseWakefulness(double value)
 {
     if(getSeat()->isRogueSeat())
         return;
 
-    mAwakeness = std::max(0.0, mAwakeness - value);
+    mWakefulness = std::max(0.0, mWakefulness - value);
 }
 
 void Creature::computeMood()
@@ -4785,7 +4785,7 @@ void Creature::setJobCooldown(int val)
 bool Creature::isTired() const
 {
     if(getIsOnServerMap())
-        return mAwakeness <= 20.0;
+        return mWakefulness <= 20.0;
 
     return (mOverlayMoodValue & CreatureMoodEnum::Tired) != 0;
 }

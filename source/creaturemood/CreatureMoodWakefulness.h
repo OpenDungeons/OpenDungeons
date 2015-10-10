@@ -15,36 +15,36 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CREATUREMOODAWAKNESS_H
-#define CREATUREMOODAWAKNESS_H
+#ifndef CREATUREMOODWAKEFULNESS_H
+#define CREATUREMOODWAKEFULNESS_H
 
 #include "creaturemood/CreatureMood.h"
 
-class CreatureMoodAwakness : public CreatureMood
+class CreatureMoodWakefulness : public CreatureMood
 {
 public:
-    CreatureMoodAwakness() :
-        mStartAwakness(0),
+    CreatureMoodWakefulness() :
+        mStartWakefulness(0),
         mMoodModifier(0)
     {}
 
-    virtual ~CreatureMoodAwakness() {}
+    virtual ~CreatureMoodWakefulness() {}
 
     virtual int32_t computeMood(const Creature* creature) const override;
 
     inline CreatureMood* clone() const override
-    {  return new CreatureMoodAwakness(mStartAwakness, mMoodModifier); }
+    {  return new CreatureMoodWakefulness(mStartWakefulness, mMoodModifier); }
 
     virtual bool importFromStream(std::istream& is) override;
 
 private:
-    CreatureMoodAwakness(int32_t startAwakness, int32_t moodModifier) :
-        mStartAwakness(startAwakness),
+    CreatureMoodWakefulness(int32_t startWakefulness, int32_t moodModifier) :
+        mStartWakefulness(startWakefulness),
         mMoodModifier(moodModifier)
     {}
 
-    int32_t mStartAwakness;
+    int32_t mStartWakefulness;
     int32_t mMoodModifier;
 };
 
-#endif // CREATUREMOODAWAKNESS_H
+#endif // CREATUREMOODWAKEFULNESS_H

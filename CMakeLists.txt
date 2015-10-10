@@ -247,7 +247,7 @@ set(OD_SOURCEFILES
     ${SRC}/creatureeffect/CreatureEffectSpeedChange.cpp
 
     ${SRC}/creaturemood/CreatureMood.cpp
-    ${SRC}/creaturemood/CreatureMoodAwakness.cpp
+    ${SRC}/creaturemood/CreatureMoodWakefulness.cpp
     ${SRC}/creaturemood/CreatureMoodCreature.cpp
     ${SRC}/creaturemood/CreatureMoodFee.cpp
     ${SRC}/creaturemood/CreatureMoodHunger.cpp

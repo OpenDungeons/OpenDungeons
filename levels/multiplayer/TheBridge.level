@@ -4549,7 +4549,7 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 0	Spider1	Spider	17	67	0	Spider	2	0	max	100	0	0	none	none	0	none	0
 0	Spider2	Spider	16	67	0	Spider	2	0	max	100	0	0	none	none	0	none	0
 0	Spider3	Spider	15	67	0	Spider	2	0	max	100	0	0	none	none	0	none	0

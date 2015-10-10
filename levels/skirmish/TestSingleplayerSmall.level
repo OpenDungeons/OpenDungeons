@@ -1414,7 +1414,7 @@ DwarfWorker	1
     MinHP	50
     HP/Level	10
     Heal/Turn	0.5
-    AwakenessLost/Turn	0.15
+    WakefulnessLost/Turn	0.15
     HungerGrowth/Turn	0.15
     TileSightRadius	15
     MaxGoldCarryable	0
@@ -1500,7 +1500,7 @@ DwarfWorker	1
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 1	DefaultWorker1	Kobold.mesh	11	11	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 2	DefaultWorker2	Kobold.mesh	12	39	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 1	BigKnight1	BigKnight	7	7	0	BigKnight	1	0	10	100	0	0	Longsword	none	0	none	0

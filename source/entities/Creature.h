@@ -365,9 +365,9 @@ public:
 
     inline void jobDone(double val)
     {
-        mAwakeness -= val;
-        if(mAwakeness < 0.0)
-            mAwakeness = 0.0;
+        mWakefulness -= val;
+        if(mWakefulness < 0.0)
+            mWakefulness = 0.0;
     }
     inline bool decreaseJobCooldown()
     {
@@ -439,8 +439,8 @@ public:
     bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
     void popAction();
 
-    inline double getAwakeness() const
-    { return mAwakeness; }
+    inline double getWakefulness() const
+    { return mWakefulness; }
 
     inline double getHunger() const
     { return mHunger; }
@@ -560,7 +560,7 @@ private:
     const CreatureDefinition* mDefinition;
 
     bool            mHasVisualDebuggingEntities;
-    double          mAwakeness;
+    double          mWakefulness;
     double          mHunger;
 
     //! \brief The level of the creature
@@ -790,7 +790,7 @@ private:
 
     void increaseHunger(double value);
 
-    void decreaseAwakeness(double value);
+    void decreaseWakefulness(double value);
 
     void computeMood();
 

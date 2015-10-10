@@ -383,7 +383,7 @@ void RoomWorkshop::doUpkeep()
                     + ", creatureRoomAffinityType=" + Helper::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
 
                 mPoints += static_cast<int32_t>(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("WorkshopPointsPerWork"));
-                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("WorkshopAwaknessPerWork"));
+                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("WorkshopWakefulnessPerWork"));
                 creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("WorkshopCooldownWorkMin"),
                     ConfigManager::getSingleton().getRoomConfigUInt32("WorkshopCooldownWorkMax")));
             }

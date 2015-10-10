@@ -337,7 +337,7 @@ void RoomTrainingHall::doUpkeep()
                 expReceived *= coef;
 
                 creature->receiveExp(expReceived);
-                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("TrainHallAwaknessPerAttack"));
+                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("TrainHallWakefulnessPerAttack"));
                 creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMin"),
                     ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMax")));
             }

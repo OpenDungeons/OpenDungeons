@@ -1169,7 +1169,7 @@ Wizard26	11	4	0
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 1	DefaultWorker2	Kobold.mesh	18	28	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 1	DwarfWorker5	Dwarf1.mesh	21	28	0	DwarfWorker	1	0	max	100	0	0	none	none	0	none	0
 1	Wyvern6	Wyvern.mesh	24	28	0	Wyvern	1	0	max	100	0	0	none	none	0	none	0

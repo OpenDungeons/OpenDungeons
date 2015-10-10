@@ -98,7 +98,7 @@ public:
             double                  hpPerLevel  = 5.0,
             double                  hpHealPerTurn = 0.1,
 
-            double                  awakenessLostPerTurn = 0.1,
+            double                  wakefulnessLostPerTurn = 0.1,
             double                  hungerGrowthPerTurn = 0.1,
 
             double                  moveSpeedGround     = 1.0,
@@ -172,7 +172,7 @@ public:
     inline double               getHpPerLevel   () const    { return mHpPerLevel; }
     inline double               getHpHealPerTurn() const    { return mHpHealPerTurn; }
 
-    inline double               getAwakenessLostPerTurn() const{ return mAwakenessLostPerTurn; }
+    inline double               getWakefulnessLostPerTurn() const{ return mWakefulnessLostPerTurn; }
     inline double               getHungerGrowthPerTurn() const { return mHungerGrowthPerTurn; }
 
     inline double               getMoveSpeedGround  () const    { return mMoveSpeedGround; }
@@ -288,8 +288,8 @@ private:
     //! \brief How much HP are healed per turn.
     double mHpHealPerTurn;
 
-    //! \brief How much awakeness is lost per turn.
-    double mAwakenessLostPerTurn;
+    //! \brief How much wakefulness is lost per turn.
+    double mWakefulnessLostPerTurn;
 
     //! \brief How fast hunger grows per turn.
     double mHungerGrowthPerTurn;

@@ -307,7 +307,7 @@ void RoomLibrary::doUpkeep()
                     + ", creatureRoomAffinityType=" + Helper::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
 
                 int32_t pointsEarned = static_cast<int32_t>(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("LibraryPointsPerWork"));
-                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("LibraryAwaknessPerWork"));
+                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("LibraryWakefulnessPerWork"));
                 creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMin"),
                     ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMax")));
 
