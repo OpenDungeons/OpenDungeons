@@ -2381,7 +2381,7 @@ bool Creature::handleEatingAction(const CreatureActionWrapper& actionItem)
         std::list<Tile*> pathToChicken = getGameMap()->path(this, closestChickenTile);
         if(pathToChicken.empty())
         {
-            OD_LOG_ERR("creature=" + getName() + " empty path to chicken");
+            OD_LOG_ERR("creature=" + getName() + " posTile=" + Tile::displayAsString(myTile) + " empty path to chicken tile=" + Tile::displayAsString(closestChickenTile));
             popAction();
             stopEating();
             return true;
