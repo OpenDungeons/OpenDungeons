@@ -152,6 +152,9 @@ namespace Helper
     inline std::string toString(const Ogre::ColourValue& c)
     { return Ogre::StringConverter::toString(c); }
 
+    //! \brief Converts a pointer to displayable string. Useful for debug
+    std::string toString(void* p);
+
     //! \brief Converts an int value into a 2 digits-long Hex string value.
     //! \example 256 -> FF
     std::string intTo2Hex(int i);

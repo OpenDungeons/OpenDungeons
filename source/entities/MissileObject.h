@@ -62,6 +62,8 @@ public:
         const Ogre::Vector3& direction, double speed, GameEntity* entityTarget, bool damageAllies);
     MissileObject(GameMap* gameMap, bool isOnServerMap);
 
+    virtual ~MissileObject();
+
     virtual void doUpkeep();
 
     /*! brief Function called when the missile hits a wall. If it returns true, the missile direction

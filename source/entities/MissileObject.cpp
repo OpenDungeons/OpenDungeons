@@ -39,6 +39,9 @@ MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap, Seat* seat, c
     mSpeed(speed)
 {
     setSeat(seat);
+
+    if(mEntityTarget != nullptr)
+        mEntityTarget->addGameEntityListener(this);
 }
 
 MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap) :
@@ -49,6 +52,12 @@ MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap) :
     mDamageAllies(false),
     mSpeed(1.0)
 {
+}
+
+MissileObject::~MissileObject()
+{
+    if(mEntityTarget != nullptr)
+        mEntityTarget->removeGameEntityListener(this);
 }
 
 void MissileObject::doUpkeep()
@@ -132,12 +141,15 @@ void MissileObject::doUpkeep()
         lastTile = tmpTile;
 
         // If we are aiming a specific entity, we check if we hit
-        if(mEntityTarget != nullptr)
+        GameEntity* target = mEntityTarget;
+        if(target != nullptr)
         {
             // Check if we hit
-            if(tmpTile->isEntityOnTile(mEntityTarget))
+            if(tmpTile->isEntityOnTile(target))
             {
-                hitTargetEntity(tmpTile, mEntityTarget);
+                // hitTargetEntity might kill the target so we should take care to not use mEntityTarget after calling it
+                // as it may be null
+                hitTargetEntity(tmpTile, target);
                 mIsMissileAlive = false;
                 destination.x = static_cast<Ogre::Real>(tmpTile->getX());
                 destination.y = static_cast<Ogre::Real>(tmpTile->getY());
