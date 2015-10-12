@@ -89,6 +89,34 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions("-DOD_DEBUG")
 endif()
 
+## We check for dependencies
+set(OD_DEPENDENCIES_DIR "$ENV{OD_DEPS}" CACHE PATH "Path to prebuilt OD dependencies")
+if(OD_DEPENDENCIES_DIR)
+    if(WIN32 AND MINGW)
+        set(OD_ARCH_SUFIX "/mingw")
+    elseif(WIN32 AND MSVC)
+        set(OD_ARCH_SUFIX "/msvc")
+    elseif()
+        set(OD_ARCH_SUFIX "")
+    endif()
+    set(OD_DEP_SEARCH_PATH
+    # Boost binaries contains compiler name. They can be put in the same directory
+        ${OD_DEPENDENCIES_DIR}/boost
+        ${OD_DEPENDENCIES_DIR}/stage/lib
+        ${OD_DEPENDENCIES_DIR}/cegui/include/cegui-0
+        ${OD_DEPENDENCIES_DIR}/cegui/lib${OD_ARCH_SUFIX}
+        ${OD_DEPENDENCIES_DIR}/ogresdk/include
+        ${OD_DEPENDENCIES_DIR}/ogresdk/lib${OD_ARCH_SUFIX}
+        ${OD_DEPENDENCIES_DIR}/sfml/include
+        ${OD_DEPENDENCIES_DIR}/sfml/lib${OD_ARCH_SUFIX}
+        )
+
+    message(STATUS "Search path dependencies: ${OD_DEP_SEARCH_PATH}")
+endif()
+
+# hints to the find_package calls
+set(CMAKE_PREFIX_PATH ${OD_DEP_SEARCH_PATH} ${CMAKE_PREFIX_PATH})
+
 ##################################
 #### ExplicitCompilerFlags #######
 ##################################
