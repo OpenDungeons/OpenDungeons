@@ -52,7 +52,7 @@ CullingManager::CullingManager(CameraManager* cameraManager):
 
 void CullingManager::cullTiles()
 {
-    oldWalk = mWalk;
+    mOldWalk = mWalk;
     mWalk.myArray[0] =  Vector3i(mOgreVectorsArray[0]);
     mWalk.myArray[1] =  Vector3i(mOgreVectorsArray[1]);
     mWalk.myArray[2] =  Vector3i(mOgreVectorsArray[2]);
@@ -64,13 +64,13 @@ void CullingManager::cullTiles()
 
     if(mDebug)
     {
-        LogManager::getSingleton().logMessage(oldWalk.debug(),LogMessageLevel::NORMAL);
+        LogManager::getSingleton().logMessage(mOldWalk.debug(),LogMessageLevel::NORMAL);
         LogManager::getSingleton().logMessage(mWalk.debug(),LogMessageLevel::NORMAL);
         
     }
 
     // reset index pointers to the begging of collections
-    oldWalk.prepareWalk();
+    mOldWalk.prepareWalk();
     mWalk.prepareWalk();
 
     newBashAndSplashTiles(SHOW | HIDE);
@@ -91,8 +91,8 @@ void CullingManager::startTileCulling()
     mWalk.myArray[2] =  Vector3i(mOgreVectorsArray[2]);
     mWalk.myArray[3] =  Vector3i(mOgreVectorsArray[3]);
     mWalk.buildSlopes();
-    oldWalk = mWalk;
-    oldWalk.prepareWalk();
+    mOldWalk = mWalk;
+    mOldWalk.prepareWalk();
     mWalk.prepareWalk();
     hideAllTiles();
     newBashAndSplashTiles(SHOW);
@@ -117,7 +117,7 @@ void CullingManager::stopTileCulling()
     // mOldMiddleLeft = mMiddleLeft;
     // mOldMiddleRight = mMiddleRight;
 
-    oldWalk = mWalk;
+    mOldWalk = mWalk;
     newBashAndSplashTiles(HIDE);
     showAllTiles();
     mCullTilesFlag = false;
@@ -154,25 +154,25 @@ void CullingManager::showAllTiles(void)
 }
 
 void CullingManager::newBashAndSplashTiles(int64_t mode){
-    int64_t xxLeftOld = oldWalk.getTopLeftVertex().x;
-    int64_t xxRightOld= oldWalk.getTopRightVertex().x;
+    int64_t xxLeftOld = mOldWalk.getTopLeftVertex().x;
+    int64_t xxRightOld= mOldWalk.getTopRightVertex().x;
     int64_t xxLeft = mWalk.getTopLeftVertex().x;
     int64_t xxRight= mWalk.getTopRightVertex().x;
     int64_t DxRight, DxLeft;
     int64_t xxp, yyp;
     std::stringstream ss;
-    int64_t bb = (( std::min(mWalk.getBottomLeftVertex().y , oldWalk.getBottomRightVertex().y) >> mPrecisionDigits) - 2) << mPrecisionDigits;
+    int64_t bb = (( std::min(mWalk.getBottomLeftVertex().y , mOldWalk.getBottomRightVertex().y) >> mPrecisionDigits) - 2) << mPrecisionDigits;
 
-    for (int64_t yy = ((std::max(mWalk.getTopLeftVertex().y , oldWalk.getTopRightVertex().y  ) >> mPrecisionDigits) + 2) << mPrecisionDigits;  yy >= bb; yy -= Unit)
+    for (int64_t yy = ((std::max(mWalk.getTopLeftVertex().y , mOldWalk.getTopRightVertex().y  ) >> mPrecisionDigits) + 2) << mPrecisionDigits;  yy >= bb; yy -= Unit)
     {
-        oldWalk.notifyOnMoveDown(yy);
+        mOldWalk.notifyOnMoveDown(yy);
         mWalk.notifyOnMoveDown(yy);
         DxLeft = mWalk.getCurrentXLeft(yy);
         xxLeft = DxLeft;
-        xxLeftOld = oldWalk.getCurrentXLeft(yy);
+        xxLeftOld = mOldWalk.getCurrentXLeft(yy);
         DxRight = mWalk.getCurrentXRight(yy);
         xxRight = DxRight;
-        xxRightOld = oldWalk.getCurrentXRight(yy);
+        xxRightOld = mOldWalk.getCurrentXRight(yy);
    
         if(mDebug)
         {
@@ -190,7 +190,7 @@ void CullingManager::newBashAndSplashTiles(int64_t mode){
         {
             for (int64_t xx = mm ; xx <= std::max(xxRight,xxRightOld) ; xx+= Unit)
             {
-                bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= oldWalk.getBottomLeftVertex().y) && yy <= oldWalk.getTopLeftVertex().y);
+                bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= mOldWalk.getBottomLeftVertex().y) && yy <= mOldWalk.getTopLeftVertex().y);
                 bool splash = (xx >= xxLeft && xx <= xxRight && (yy >= mWalk.getBottomLeftVertex().y) && yy <= mWalk.getTopLeftVertex().y);
 
                 if (mDebug)

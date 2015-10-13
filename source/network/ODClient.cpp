@@ -384,7 +384,7 @@ bool ODClient::processOneClientSocketMessage()
                 startY = 0.0;
 
             frameListener->resetCamera(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
-            frameListener->mCameraManager.mCullingManager->startTileCulling();
+            frameListener->getCameraManager()->startTileCulling();
             // If we are watching a replay, we force stopping the processing loop to
             // allow changing mode (because there is no synchronization as there is no server)
             if(getSource() == ODSource::file)

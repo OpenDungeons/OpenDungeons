@@ -11,7 +11,6 @@
 #include "rooms/Room.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
-#include "camera/CullingManager.h"
 
 #include <OgreSceneManager.h>
 
@@ -570,7 +569,7 @@ Command::Result cTriggerCompositor(const Command::ArgumentList_t& args, ConsoleI
 
 Command::Result cStartTileCulling(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
 {
-    ODFrameListener::getSingleton().getCameraManager()->mCullingManager->startTileCulling();
+    ODFrameListener::getSingleton().getCameraManager()->startTileCulling();
     return Command::Result::SUCCESS;
 }
 

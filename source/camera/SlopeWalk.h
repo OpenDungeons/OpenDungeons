@@ -32,9 +32,7 @@
 #include <array>
 #include <string>
 
-using std::deque;
-using std::array;
-using std::string;
+
 
 /*! \brief The Class SlopeWalk keeps data required to rasterize
  *   one polygon made of game tiles. To do that it remembers two
@@ -95,7 +93,7 @@ public:
     Vector3i& getBottomRightVertex();
     void findMinMaxLeft(std::array<Vector3i,4>& );
     void findMinMaxRight(std::array<Vector3i,4>& );
-    string debug();
+    std::string debug();
     void buildSlopes();
 
 };

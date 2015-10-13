@@ -30,8 +30,12 @@ SlopeWalk::SlopeWalk():
 void SlopeWalk::buildSlopes()
 {
     int ii;
+    //A value of how much we are to enlarge our polygon
+    //choosen experimentally too large values slows down
+    //the culling and may provide some glitches
+    const double zoomFactorValue = 1.244364;
     myArray.sort();
-    myArray.zoom(1.2532);
+    myArray.zoom(zoomFactorValue);
     rightSlopes.clear();
     leftSlopes.clear();
     rightVertices.clear();
@@ -234,7 +238,7 @@ void SlopeWalk::findMinMaxRight(std::array<Vector3i,4> &aa)
 }
 
 
-string SlopeWalk::debug()
+std::string SlopeWalk::debug()
 {
 
     std::stringstream ss;

@@ -573,6 +573,18 @@ void CameraManager::move(const Direction direction, double aux)
     }
 }
 
+void CameraManager::startCreatureCulling()
+{
+
+    mCullingManager->startCreatureCulling();
+}
+void CameraManager::startTileCulling()
+{
+
+    mCullingManager->startTileCulling();
+}
+
+
 bool CameraManager::onFrameEnded()
 {
      mCullingManager->onFrameEnded();

@@ -51,10 +51,7 @@ enum class ViewModes : uint16_t
 
 class CameraManager
 {
-    friend class Console;
     friend class CullingManager;
-    friend class ODFrameListener;
-    
 public:
     enum Direction
     {
@@ -102,6 +99,9 @@ public:
     * constraints placed on its movement
     */
     void updateCameraFrameTime(const Ogre::Real frameTime);
+
+    void startCreatureCulling();
+    void startTileCulling();
 
     /*! \brief Computes a vector whose z-component is 0 and whose x-y coordinates
     * are the position on the floor that the camera is pointed at.

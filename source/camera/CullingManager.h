@@ -72,7 +72,6 @@ public:
     bool onFrameEnded();
 
     // set the new tiles
-    int64_t bashAndSplashTiles(int64_t);
     void newBashAndSplashTiles(int64_t);
 
     void sort(Vector3i& p1, Vector3i& p2, bool sortByX);
@@ -81,13 +80,15 @@ public:
     bool mDebug;
 
 private:
-    SlopeWalk mWalk, oldWalk;
 
-    
+    // Objects representing past and present walk around the polygon
+    SlopeWalk mWalk;
+    SlopeWalk mOldWalk;
+
+    // Array of Vector3's for keeping the intersection points of camera viewfrustrum 
+    // and the XY plane
     Ogre::Vector3 mOgreVectorsArray[4];
-    Vector3i mTop, mBottom, mMiddleLeft, mMiddleRight;
-    Vector3i mOldTop, mOldBottom, mOldMiddleLeft, mOldMiddleRight;
-
+ 
     bool mFirstIter;
     CameraManager* mCm;
 
