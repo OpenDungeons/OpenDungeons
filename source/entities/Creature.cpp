@@ -481,7 +481,7 @@ void Creature::buildStats()
 
     // Improve the stats to the current level
     double multiplier = mLevel - 1;
-    if (multiplier == 0.0)
+    if (multiplier <= 0.0)
         return;
 
     mMaxHP += mDefinition->getHpPerLevel() * multiplier;
@@ -4853,4 +4853,36 @@ void Creature::setMoveSpeedModifier(double modifier)
     mWaterSpeed *= mSpeedModifier;
     mLavaSpeed *= mSpeedModifier;
     mNeedFireRefresh = true;
+}
+
+void Creature::clearMoveSpeedModifier()
+{
+    setMoveSpeedModifier(1.0);
+}
+
+void Creature::setDefenseModifier(double phy, double mag, double ele)
+{
+    mPhysicalDefense = mDefinition->getPhysicalDefense();
+    mMagicalDefense = mDefinition->getMagicalDefense();
+    mElementDefense = mDefinition->getElementDefense();
+
+    mPhysicalDefense += phy;
+    mMagicalDefense += mag;
+    mElementDefense += ele;
+
+    // Improve the stats to the current level
+    double multiplier = mLevel - 1;
+    if (multiplier <= 0.0)
+        return;
+
+    mPhysicalDefense += mDefinition->getPhysicalDefPerLevel() * multiplier;
+    mMagicalDefense += mDefinition->getMagicalDefPerLevel() * multiplier;
+    mElementDefense += mDefinition->getElementDefPerLevel() * multiplier;
+
+    mNeedFireRefresh = true;
+}
+
+void Creature::clearDefenseModifier()
+{
+    setDefenseModifier(0.0, 0.0, 0.0);
 }

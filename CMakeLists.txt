@@ -268,6 +268,7 @@ set(OD_SOURCEFILES
     ${SRC}/creaturebehaviour/CreatureBehaviourManager.cpp
 
     ${SRC}/creatureeffect/CreatureEffect.cpp
+    ${SRC}/creatureeffect/CreatureEffectDefense.cpp
     ${SRC}/creatureeffect/CreatureEffectExplosion.cpp
     ${SRC}/creatureeffect/CreatureEffectHeal.cpp
     ${SRC}/creatureeffect/CreatureEffectManager.cpp
@@ -407,6 +408,7 @@ set(OD_SOURCEFILES
 
     ${SRC}/spells/Spell.cpp
     ${SRC}/spells/SpellCallToWar.cpp
+    ${SRC}/spells/SpellCreatureDefense.cpp
     ${SRC}/spells/SpellCreatureExplosion.cpp
     ${SRC}/spells/SpellCreatureHaste.cpp
     ${SRC}/spells/SpellCreatureHeal.cpp

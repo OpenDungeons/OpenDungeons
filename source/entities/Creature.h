@@ -357,8 +357,13 @@ public:
     bool tryDrop(Seat* seat, Tile* tile) override;
     void drop(const Ogre::Vector3& v) override;
 
-    //! \brief sets the speed modifier. If 1.0, resets to default speed
+    //! \brief sets the speed modifier (coef)
     void setMoveSpeedModifier(double modifier);
+    void clearMoveSpeedModifier();
+
+    //! \brief sets the defense modifier
+    void setDefenseModifier(double phy, double mag, double ele);
+    void clearDefenseModifier();
 
     virtual double getAnimationSpeedFactor() const override
     { return mSpeedModifier; }

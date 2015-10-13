@@ -15,76 +15,79 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "creatureeffect/CreatureEffectSpeedChange.h"
+#include "creatureeffect/CreatureEffectDefense.h"
 
 #include "creatureeffect/CreatureEffectManager.h"
 #include "entities/Creature.h"
 #include "utils/LogManager.h"
 
-static const std::string CreatureEffectSpeedChangeName = "SpeedChange";
+static const std::string CreatureEffectDefenseName = "Defense";
 
 namespace
 {
-class CreatureEffectSpeedChangeFactory : public CreatureEffectFactory
+class CreatureEffectDefenseFactory : public CreatureEffectFactory
 {
     CreatureEffect* createCreatureEffect() const override
-    { return new CreatureEffectSpeedChange; }
+    { return new CreatureEffectDefense; }
 
     const std::string& getCreatureEffectName() const override
     {
-        return CreatureEffectSpeedChangeName;
+        return CreatureEffectDefenseName;
     }
 };
 
 // Register the factory
-static CreatureEffectRegister reg(new CreatureEffectSpeedChangeFactory);
+static CreatureEffectRegister reg(new CreatureEffectDefenseFactory);
 }
 
-const std::string& CreatureEffectSpeedChange::getEffectName() const
+const std::string& CreatureEffectDefense::getEffectName() const
 {
-    return CreatureEffectSpeedChangeName;
+    return CreatureEffectDefenseName;
 }
 
-void CreatureEffectSpeedChange::applyEffect(Creature& creature)
-{
-    if(!creature.isAlive())
-        return;
-
-    if(mEffectValue == 1.0)
-        return;
-
-    creature.setMoveSpeedModifier(mEffectValue);
-    mEffectValue = 1.0;
-}
-
-void CreatureEffectSpeedChange::releaseEffect(Creature& creature)
+void CreatureEffectDefense::applyEffect(Creature& creature)
 {
     if(!creature.isAlive())
         return;
 
-    creature.clearMoveSpeedModifier();
-    mEffectValue = 1.0;
-
+    creature.setDefenseModifier(mPhy, mMag, mEle);
 }
 
-CreatureEffectSpeedChange* CreatureEffectSpeedChange::load(std::istream& is)
+void CreatureEffectDefense::releaseEffect(Creature& creature)
 {
-    CreatureEffectSpeedChange* effect = new CreatureEffectSpeedChange;
+    if(!creature.isAlive())
+        return;
+
+    creature.clearDefenseModifier();
+    mPhy = 0.0;
+    mMag = 0.0;
+    mEle = 0.0;
+}
+
+CreatureEffectDefense* CreatureEffectDefense::load(std::istream& is)
+{
+    CreatureEffectDefense* effect = new CreatureEffectDefense;
     effect->importFromStream(is);
     return effect;
 }
 
-void CreatureEffectSpeedChange::exportToStream(std::ostream& os) const
+void CreatureEffectDefense::exportToStream(std::ostream& os) const
 {
     CreatureEffect::exportToStream(os);
-    os << "\t" << mEffectValue;
+    os << "\t" << mPhy;
+    os << "\t" << mMag;
+    os << "\t" << mEle;
 }
 
-bool CreatureEffectSpeedChange::importFromStream(std::istream& is)
+bool CreatureEffectDefense::importFromStream(std::istream& is)
 {
     if(!CreatureEffect::importFromStream(is))
         return false;
-    if(!(is >> mEffectValue))
+    if(!(is >> mPhy))
+        return false;
+    if(!(is >> mMag))
+        return false;
+    if(!(is >> mEle))
         return false;
 
     return true;

@@ -449,6 +449,15 @@ ResearchManager::ResearchManager() :
     def->mapResearch(mResearchesFamily);
     mResearches[index] = def;
     lvl3depends.push_back(research);
+
+    resType = ResearchType::spellCreatureDefense;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl2depends);
+    def = new ResearchDefSpell("MagicSkills/", "CreatureDefenseButton", research, SpellType::creatureDefense);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl3depends.push_back(research);
 }
 
 ResearchManager::~ResearchManager()

@@ -1,0 +1,26 @@
+// Defense Spell material
+
+material SpellCreatureDefense
+{
+    technique
+    {
+        pass
+        {
+            lighting off
+            scene_blend add
+            depth_write off
+            diffuse vertexcolour
+
+            // Disabled because not working with intel graphic drivers
+            //point_sprites on
+            //point_size 1
+            //point_size_attenuation on
+
+            texture_unit
+            {
+                texture Shieldflare.png
+            }
+        }
+    }
+}
+
