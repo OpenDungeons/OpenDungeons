@@ -89,8 +89,13 @@ void RoomBridgeWooden::updateFloodFillPathCreated(Seat* seat, const std::vector<
                 if(colors[i] != Tile::NO_FLOODFILL)
                     continue;
 
-                isFloodfilled = false;
-                colors[i] = neigh->getFloodFillValue(seat, type);
+                uint32_t floodfill = neigh->getFloodFillValue(seat, type);
+                if(floodfill == Tile::NO_FLOODFILL)
+                {
+                    isFloodfilled = false;
+                    continue;
+                }
+                colors[i] = floodfill;
             }
 
             if(isFloodfilled)
