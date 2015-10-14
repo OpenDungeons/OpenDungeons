@@ -59,7 +59,7 @@ public:
     //! If the missile is sent against a building, tileBuildingTarget should contain it. If the tile is reached,
     //! the building will be damaged. If the target is not a building, tileBuildingTarget should be nullptr
     MissileObject(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double speed, GameEntity* entityTarget, bool damageAllies);
+        const Ogre::Vector3& direction, double speed, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature);
     MissileObject(GameMap* gameMap, bool isOnServerMap);
 
     virtual ~MissileObject();
@@ -100,6 +100,8 @@ public:
     virtual bool notifyPickedUp(GameEntity* entity) override;
     virtual bool notifyDropped(GameEntity* entity) override;
 
+    virtual bool shouldKoAttackedCreature(const Creature& creature) const override;
+
     static std::string getMissileObjectStreamFormat();
 
     static MissileObject* getMissileObjectFromStream(GameMap* gameMap, std::istream& is);
@@ -119,6 +121,7 @@ private:
     bool mIsMissileAlive;
     GameEntity* mEntityTarget;
     bool mDamageAllies;
+    bool mKoEnemyCreature;
     double mSpeed;
 };
 

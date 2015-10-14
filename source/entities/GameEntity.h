@@ -231,6 +231,10 @@ class GameEntity : public EntityBase
     virtual bool isDangerous(const Creature* creature, int distance) const
     { return false; }
 
+    //! \brief Returns true if the entity should KO he given creature instead of killing and false otherwise
+    virtual bool shouldKoAttackedCreature(const Creature& creature) const
+    { return false; }
+
     //! This function should be called on client side just after the entity is added to the gamemap.
     //! It should restore the entity state (if it was dead before the client got vision, it should
     //! be dead on the ground for example).

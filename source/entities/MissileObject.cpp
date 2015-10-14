@@ -30,12 +30,13 @@
 #include <iostream>
 
 MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double speed, GameEntity* entityTarget, bool damageAllies) :
+        const Ogre::Vector3& direction, double speed, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature) :
     RenderedMovableEntity(gameMap, isOnServerMap, senderName, meshName, 0.0f, false),
     mDirection(direction),
     mIsMissileAlive(true),
     mEntityTarget(entityTarget),
     mDamageAllies(damageAllies),
+    mKoEnemyCreature(koEnemyCreature),
     mSpeed(speed)
 {
     setSeat(seat);
@@ -50,6 +51,7 @@ MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap) :
     mIsMissileAlive(true),
     mEntityTarget(nullptr),
     mDamageAllies(false),
+    mKoEnemyCreature(false),
     mSpeed(1.0)
 {
 }
@@ -220,6 +222,11 @@ bool MissileObject::computeDestination(const Ogre::Vector3& position, double mov
     return true;
 }
 
+bool MissileObject::shouldKoAttackedCreature(const Creature& creature) const
+{
+    return mKoEnemyCreature;
+}
+
 bool MissileObject::notifyDead(GameEntity* entity)
 {
     if(entity == mEntityTarget)
@@ -288,6 +295,7 @@ void MissileObject::exportToStream(std::ostream& os) const
     os << mDirection.x << "\t" << mDirection.y << "\t" << mDirection.z << "\t";
     os << mIsMissileAlive << "\t";
     os << mDamageAllies << "\t";
+    os << mKoEnemyCreature << "\t";
     os << mSpeed << "\t";
 }
 
@@ -300,6 +308,8 @@ bool MissileObject::importFromStream(std::istream& is)
     if(!(is >> mIsMissileAlive))
         return false;
     if(!(is >> mDamageAllies))
+        return false;
+    if(!(is >> mKoEnemyCreature))
         return false;
     if(!(is >> mSpeed))
         return false;

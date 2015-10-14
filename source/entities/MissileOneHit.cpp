@@ -27,8 +27,8 @@
 
 MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const std::string& particleScript, const Ogre::Vector3& direction, double speed, double physicalDamage, double magicalDamage,
-        double elementDamage, GameEntity* entityTarget, bool damageAllies) :
-    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, entityTarget, damageAllies),
+        double elementDamage, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature) :
+    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, entityTarget, damageAllies, koEnemyCreature),
     mPhysicalDamage(physicalDamage),
     mMagicalDamage(magicalDamage),
     mElementDamage(elementDamage)

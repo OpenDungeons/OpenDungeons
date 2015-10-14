@@ -365,6 +365,8 @@ public:
     void setDefenseModifier(double phy, double mag, double ele);
     void clearDefenseModifier();
 
+    virtual bool shouldKoAttackedCreature(const Creature& creature) const override;
+
     virtual double getAnimationSpeedFactor() const override
     { return mSpeedModifier; }
 

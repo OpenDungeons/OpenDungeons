@@ -3869,8 +3869,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
         // If the attacking entity is a creature and its seat is configured to KO creatures
         // instead of killing, we KO
         if((attacker != nullptr) &&
-           (attacker->getObjectType() == GameEntityType::creature) &&
-           (attacker->getSeat()->getKoCreatures()))
+           (attacker->shouldKoAttackedCreature(*this)))
         {
             mHp = 1.0;
             mKoTurnCounter = -ConfigManager::getSingleton().getNbTurnsKoCreatureAttacked();
@@ -4885,4 +4884,9 @@ void Creature::setDefenseModifier(double phy, double mag, double ele)
 void Creature::clearDefenseModifier()
 {
     setDefenseModifier(0.0, 0.0, 0.0);
+}
+
+bool Creature::shouldKoAttackedCreature(const Creature& creature) const
+{
+    return getSeat()->getKoCreatures();
 }
