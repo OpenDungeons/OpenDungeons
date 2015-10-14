@@ -27,27 +27,30 @@ class CreatureDefinition;
 class CreatureMoodCreature : public CreatureMood
 {
 public:
+    CreatureMoodCreature() :
+        mCreatureDefinition(nullptr),
+        mMoodModifier(0)
+    {}
+
+    virtual ~CreatureMoodCreature() {}
+
+    virtual int32_t computeMood(const Creature* creature) const override;
+    virtual void init(GameMap* gameMap);
+
+    inline CreatureMood* clone() const override
+    {  return new CreatureMoodCreature(mCreatureClass, mMoodModifier); }
+
+    virtual bool importFromStream(std::istream& is) override;
+
+    virtual bool isNaturalEnemy(const Creature* creature) const override;
+
+private:
     CreatureMoodCreature(const std::string& creatureClass, int32_t moodModifier) :
         mCreatureDefinition(nullptr),
         mCreatureClass(creatureClass),
         mMoodModifier(moodModifier)
     {}
 
-    virtual ~CreatureMoodCreature() {}
-
-    virtual CreatureMoodType getCreatureMoodType() const
-    { return CreatureMoodType::creature; }
-
-    virtual int32_t computeMood(const Creature* creature) const;
-    virtual void init(GameMap* gameMap);
-
-    inline CreatureMood* clone() const
-    {  return new CreatureMoodCreature(mCreatureClass, mMoodModifier); }
-
-    inline const CreatureDefinition* getCreatureDefinition() const
-    { return mCreatureDefinition; }
-
-private:
     const CreatureDefinition* mCreatureDefinition;
     std::string mCreatureClass;
     int32_t mMoodModifier;

@@ -25,7 +25,6 @@
 #include "gamemap/GameMap.h"
 
 #include "creaturemood/CreatureMood.h"
-#include "creaturemood/CreatureMoodCreature.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
@@ -1115,15 +1114,23 @@ void GameMap::doTurn(double timeSinceLastTurn)
         if (!creature->isAlive())
             continue;
 
-        // We only count fighters
-        if (creature->getDefinition()->isWorker())
-            continue;
-
         Seat *tempSeat = creature->getSeat();
         if(tempSeat == nullptr)
             continue;
 
-        ++(tempSeat->mNumCreaturesFighters);
+        // We only count fighters
+        if (creature->getDefinition()->isWorker())
+            ++(tempSeat->mNumCreaturesWorkers);
+        else
+            ++(tempSeat->mNumCreaturesFighters);
+    }
+
+    for (Seat* seat : mSeats)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+
+        seat->getPlayer()->upkeepPlayer(timeSinceLastTurn);
     }
 
     OD_LOG_INF("During this turn there were " + Helper::toString(mNumCallsTo_path - numCallsTo_path_atStart)
@@ -1188,8 +1195,6 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
         if(seat->getPlayer() == nullptr)
             continue;
 
-        seat->getPlayer()->upkeepPlayer(timeSinceLastTurn);
-
         // Check the previously completed goals to make sure they are still met.
         seat->checkAllCompletedGoals();
 
@@ -1202,6 +1207,7 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
 
         // Set the creatures count to 0. It will be reset by the next count in doTurn()
         seat->mNumCreaturesFighters = 0;
+        seat->mNumCreaturesWorkers = 0;
     }
 
     // At each upkeep, we re-compute tiles with vision
@@ -1305,46 +1311,6 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
 
     timeTaken = stopwatch.getMicroseconds();
     return timeTaken;
-}
-
-int GameMap::getNbWorkersForSeat(Seat* seat) const
-{
-    int ret = 0;
-    for (Creature* creature : mCreatures)
-    {
-        if(creature->getSeat() != seat)
-            continue;
-
-        if(!creature->isAlive())
-            continue;
-
-        if(!creature->getDefinition()->isWorker())
-            continue;
-
-        ++ret;
-    }
-
-    return ret;
-}
-
-int GameMap::getNbFightersForSeat(Seat* seat) const
-{
-    int ret = 0;
-    for (Creature* creature : mCreatures)
-    {
-        if (creature->getSeat() != seat)
-            continue;
-
-        if(!creature->isAlive())
-            continue;
-
-        if (creature->getDefinition()->isWorker())
-            continue;
-
-        ++ret;
-    }
-
-    return ret;
 }
 
 void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
@@ -2859,15 +2825,11 @@ std::vector<GameEntity*> GameMap::getNaturalEnemiesInList(const Creature* creatu
         Creature* alliedCreature = static_cast<Creature*>(entity);
         for(const CreatureMood* mood : moodModifiers)
         {
-            if(mood->getCreatureMoodType() != CreatureMoodType::creature)
+            if(!mood->isNaturalEnemy(alliedCreature))
                 continue;
 
-            const CreatureMoodCreature* moodCreature = static_cast<const CreatureMoodCreature*>(mood);
-            if(alliedCreature->getDefinition() == moodCreature->getCreatureDefinition())
-            {
-                ret.push_back(entity);
-                break;
-            }
+            ret.push_back(entity);
+            break;
         }
     }
 

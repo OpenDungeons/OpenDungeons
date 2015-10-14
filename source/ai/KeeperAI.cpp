@@ -743,7 +743,7 @@ bool KeeperAI::handleWorkers()
 
 
     // If we have less than 4 workers or we have the chance, we summon
-    int nbWorkers = mGameMap.getNbWorkersForSeat(mPlayer.getSeat());
+    int nbWorkers = mPlayer.getSeat()->getNumCreaturesWorkers();
     if((nbWorkers < 4) ||
        (Random::Int(0, nbWorkers * 3) == 0))
     {

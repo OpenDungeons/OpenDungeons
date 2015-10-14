@@ -128,8 +128,14 @@ void CreatureSkillMissileLaunch::exportToStream(std::ostream& os) const
     os << "\t" << mRangeMax;
     os << "\t" << mRangePerLvl;
     os << "\t" << mCreatureLevelMin;
-    os << "\t" << mMissileMesh;
-    os << "\t" << mMissilePartScript;
+    if(mMissileMesh.empty())
+        os << "\tnone";
+    else
+        os << "\t" << mMissileMesh;
+    if(mMissilePartScript.empty())
+        os << "\tnone";
+    else
+        os << "\t" << mMissilePartScript;
     os << "\t" << mMissileSpeed;
     os << "\t" << mPhyAtk;
     os << "\t" << mPhyAtkPerLvl;
@@ -152,8 +158,12 @@ bool CreatureSkillMissileLaunch::importFromStream(std::istream& is)
         return false;
     if(!(is >> mMissileMesh))
         return false;
+    if(mMissileMesh == "none")
+        mMissileMesh.clear();
     if(!(is >> mMissilePartScript))
         return false;
+    if(mMissilePartScript == "none")
+        mMissilePartScript.clear();
     if(!(is >> mMissileSpeed))
         return false;
     if(!(is >> mPhyAtk))

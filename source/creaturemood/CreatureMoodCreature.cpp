@@ -17,12 +17,26 @@
 
 #include "creaturemood/CreatureMoodCreature.h"
 
+#include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
 #include "entities/GameEntity.h"
-
 #include "gamemap/GameMap.h"
-
 #include "utils/LogManager.h"
+
+class CreatureMoodFactoryCreature : public CreatureMoodFactory
+{
+    CreatureMood* createCreatureMood() const override
+    { return new CreatureMoodCreature; }
+
+    const std::string& getCreatureMoodName() const override
+    {
+        static const std::string name = "Creature";
+        return name;
+    }
+};
+
+//! \brief Register the mood type
+static CreatureMoodRegister reg(new CreatureMoodFactoryCreature);
 
 int32_t CreatureMoodCreature::computeMood(const Creature* creature) const
 {
@@ -50,4 +64,25 @@ void CreatureMoodCreature::init(GameMap* gameMap)
     {
         OD_LOG_ERR("Unknown creature class=" + mCreatureClass);
     }
+}
+
+bool CreatureMoodCreature::isNaturalEnemy(const Creature* creature) const
+{
+    if(mMoodModifier >= 0)
+        return false;
+
+    return (creature->getDefinition() == mCreatureDefinition);
+}
+
+bool CreatureMoodCreature::importFromStream(std::istream& is)
+{
+    if(!CreatureMood::importFromStream(is))
+        return false;
+
+    if(!(is >> mCreatureClass))
+        return false;
+    if(!(is >> mMoodModifier))
+        return false;
+
+    return true;
 }

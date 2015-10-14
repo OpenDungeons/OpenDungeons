@@ -23,7 +23,6 @@
 #include "creaturemood/CreatureMoodHpLoss.h"
 #include "creaturemood/CreatureMoodHunger.h"
 #include "creaturemood/CreatureMoodTurnsWithoutFight.h"
-
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -48,97 +47,4 @@ std::string CreatureMood::toString(CreatureMoodLevel moodLevel)
             OD_LOG_ERR("moodLevel=" + Helper::toString(static_cast<int>(moodLevel)));
             return "";
     }
-}
-
-CreatureMood* CreatureMood::load(std::istream& defFile)
-{
-    std::string nextParam;
-    CreatureMood* def = nullptr;
-    while (defFile.good())
-    {
-        if(!(defFile >> nextParam))
-            break;
-
-        if (nextParam == "[/MoodModifiers]" || nextParam == "[/MoodModifier]")
-            return def;
-
-        if(def != nullptr)
-        {
-            // The previous line was a valid def so we should have had an ending tag
-            OD_LOG_ERR("nextParam=" + nextParam);
-            return def;
-        }
-
-        if (nextParam == "Awakness")
-        {
-            if(!(defFile >> nextParam))
-                break;
-            int32_t startAwakness = Helper::toInt(nextParam);
-            if(!(defFile >> nextParam))
-                break;
-            int32_t moodModifier = Helper::toInt(nextParam);
-
-            def = new CreatureMoodAwakness(startAwakness, moodModifier);
-        }
-
-        if (nextParam == "Creature")
-        {
-            std::string creatureClass;
-            if(!(defFile >> creatureClass))
-                break;
-            if(!(defFile >> nextParam))
-                break;
-            int32_t moodModifier = Helper::toInt(nextParam);
-
-            def = new CreatureMoodCreature(creatureClass, moodModifier);
-        }
-
-        if (nextParam == "Fee")
-        {
-            if(!(defFile >> nextParam))
-                break;
-            int32_t moodModifier = Helper::toInt(nextParam);
-
-            def = new CreatureMoodFee(moodModifier);
-        }
-
-        if (nextParam == "HpLoss")
-        {
-            if(!(defFile >> nextParam))
-                break;
-            int32_t moodModifier = Helper::toInt(nextParam);
-
-            def = new CreatureMoodHpLoss(moodModifier);
-        }
-
-        if (nextParam == "Hunger")
-        {
-            if(!(defFile >> nextParam))
-                break;
-            int32_t startHunger = Helper::toInt(nextParam);
-            if(!(defFile >> nextParam))
-                break;
-            int32_t moodModifier = Helper::toInt(nextParam);
-
-            def = new CreatureMoodHunger(startHunger, moodModifier);
-        }
-
-        if (nextParam == "TurnsWithoutFight")
-        {
-            if(!(defFile >> nextParam))
-                break;
-            int32_t nbTurnsWithoutFightMin = Helper::toInt(nextParam);
-            if(!(defFile >> nextParam))
-                break;
-            int32_t nbTurnsWithoutFightMax = Helper::toInt(nextParam);
-            if(!(defFile >> nextParam))
-                break;
-            int32_t moodModifier = Helper::toInt(nextParam);
-
-            def = new CreatureMoodTurnsWithoutFight(nbTurnsWithoutFightMin,
-                nbTurnsWithoutFightMax, moodModifier);
-        }
-    }
-    OD_ASSERT_TRUE(false);
-    return nullptr;
 }

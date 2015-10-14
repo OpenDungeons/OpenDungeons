@@ -168,7 +168,7 @@ void RoomPortal::doUpkeep()
     // Randomly choose to spawn a creature.
     const double maxCreatures = getSeat()->getNumCreaturesFightersMax();
     // Count how many creatures are controlled by this seat
-    double numCreatures = getGameMap()->getNbFightersForSeat(getSeat());
+    double numCreatures = getSeat()->getNumCreaturesFighters();
     if(numCreatures >= maxCreatures)
         return;
 

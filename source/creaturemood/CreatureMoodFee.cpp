@@ -17,10 +17,25 @@
 
 #include "creaturemood/CreatureMoodFee.h"
 
+#include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
-
 #include "utils/Helper.h"
+
+class CreatureMoodFactoryFee : public CreatureMoodFactory
+{
+    CreatureMood* createCreatureMood() const override
+    { return new CreatureMoodFee; }
+
+    const std::string& getCreatureMoodName() const override
+    {
+        static const std::string name = "Fee";
+        return name;
+    }
+};
+
+//! \brief Register the mood type
+static CreatureMoodRegister reg(new CreatureMoodFactoryFee);
 
 int32_t CreatureMoodFee::computeMood(const Creature* creature) const
 {
@@ -30,4 +45,15 @@ int32_t CreatureMoodFee::computeMood(const Creature* creature) const
 
     owedGold = Helper::round(static_cast<double>(owedGold) * 0.01);
     return owedGold * mMoodModifier;
+}
+
+bool CreatureMoodFee::importFromStream(std::istream& is)
+{
+    if(!CreatureMood::importFromStream(is))
+        return false;
+
+    if(!(is >> mMoodModifier))
+        return false;
+
+    return true;
 }

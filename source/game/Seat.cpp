@@ -56,6 +56,7 @@ Seat::Seat(GameMap* gameMap) :
     mGoldMined(0),
     mNumCreaturesFighters(0),
     mNumCreaturesFightersMax(0),
+    mNumCreaturesWorkers(0),
     mDefaultWorkerClass(nullptr),
     mNumClaimedTiles(0),
     mHasGoalsChanged(true),
@@ -338,6 +339,7 @@ void Seat::refreshFromSeat(Seat* s)
     mNumClaimedTiles = s->mNumClaimedTiles;
     mNumCreaturesFighters = s->mNumCreaturesFighters;
     mNumCreaturesFightersMax = s->mNumCreaturesFightersMax;
+    mNumCreaturesWorkers = s->mNumCreaturesWorkers;
     mHasGoalsChanged = s->mHasGoalsChanged;
     mNbRooms = s->mNbRooms;
     mCurrentResearchType = s->mCurrentResearchType;

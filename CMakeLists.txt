@@ -244,6 +244,7 @@ set(OD_SOURCEFILES
     ${SRC}/creaturemood/CreatureMoodFee.cpp
     ${SRC}/creaturemood/CreatureMoodHunger.cpp
     ${SRC}/creaturemood/CreatureMoodHpLoss.cpp
+    ${SRC}/creaturemood/CreatureMoodManager.cpp
     ${SRC}/creaturemood/CreatureMoodTurnsWithoutFight.cpp
 
     ${SRC}/creatureskill/CreatureSkill.cpp

@@ -17,9 +17,24 @@
 
 #include "creaturemood/CreatureMoodHpLoss.h"
 
+#include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
-
 #include "utils/Helper.h"
+
+class CreatureMoodFactoryHpLoss : public CreatureMoodFactory
+{
+    CreatureMood* createCreatureMood() const override
+    { return new CreatureMoodHpLoss; }
+
+    const std::string& getCreatureMoodName() const override
+    {
+        static const std::string name = "HpLoss";
+        return name;
+    }
+};
+
+//! \brief Register the mood type
+static CreatureMoodRegister reg(new CreatureMoodFactoryHpLoss);
 
 int32_t CreatureMoodHpLoss::computeMood(const Creature* creature) const
 {
@@ -29,4 +44,15 @@ int32_t CreatureMoodHpLoss::computeMood(const Creature* creature) const
 
     hpLost = Helper::round(static_cast<float>(hpLost));
     return hpLost * mMoodModifier;
+}
+
+bool CreatureMoodHpLoss::importFromStream(std::istream& is)
+{
+    if(!CreatureMood::importFromStream(is))
+        return false;
+
+    if(!(is >> mMoodModifier))
+        return false;
+
+    return true;
 }

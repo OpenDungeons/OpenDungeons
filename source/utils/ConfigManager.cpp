@@ -20,15 +20,11 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
-
 #include "creaturemood/CreatureMood.h"
-
+#include "creaturemood/CreatureMoodManager.h"
 #include "game/Research.h"
-
 #include "gamemap/TileSet.h"
-
 #include "spawnconditions/SpawnCondition.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -1045,22 +1041,34 @@ bool ConfigManager::loadCreaturesMood(const std::string& fileName)
         defFile >> moodModifierName;
         std::vector<const CreatureMood*>& moodModifiers = mCreatureMoodModifiers[moodModifierName];
 
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/CreatureMood]")
+            continue;
+
+        if (nextParam != "[MoodModifiers]")
+        {
+            OD_LOG_ERR("Invalid CreatureMood MoodModifier format. nextParam=" + nextParam);
+            return false;
+        }
+
         while(defFile.good())
         {
-            if(!(defFile >> nextParam))
-                break;
-
-            if (nextParam == "[/CreatureMood]")
-                break;
-
-            if (nextParam != "[MoodModifier]")
-            {
-                OD_LOG_ERR("Invalid CreatureMood MoodModifier format. nextParam=" + nextParam);
-                return false;
-            }
-
             // Load the definition
-            CreatureMood* def = CreatureMood::load(defFile);
+            std::getline(defFile, nextParam);
+            if(!defFile.good())
+                break;
+
+            Helper::trim(nextParam);
+            if(nextParam.empty())
+                continue;
+
+            if (nextParam == "[/MoodModifiers]")
+                break;
+
+            std::stringstream ss(nextParam);
+            CreatureMood* def = CreatureMoodManager::load(ss);
             if (def == nullptr)
             {
                 OD_LOG_ERR("Invalid CreatureMood MoodModifier definition");

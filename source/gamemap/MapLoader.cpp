@@ -17,7 +17,7 @@
 
 #include "gamemap/MapLoader.h"
 
-#include "creaturemood/CreatureMood.h"
+#include "creaturemood/CreatureMoodManager.h"
 
 #include "gamemap/GameMap.h"
 #include "game/Seat.h"
@@ -414,7 +414,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
                 }
 
                 // Load the definition
-                CreatureMood* def = CreatureMood::load(levelFile);
+                CreatureMood* def = CreatureMoodManager::load(levelFile);
                 if (def == nullptr)
                 {
                     OD_LOG_ERR("Invalid CreatureMood MoodModifier definition");

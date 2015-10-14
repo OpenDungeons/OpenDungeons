@@ -17,10 +17,25 @@
 
 #include "creaturemood/CreatureMoodTurnsWithoutFight.h"
 
+#include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
-
 #include "utils/Helper.h"
+
+class CreatureMoodFactoryTurnsWithoutFight : public CreatureMoodFactory
+{
+    CreatureMood* createCreatureMood() const override
+    { return new CreatureMoodTurnsWithoutFight; }
+
+    const std::string& getCreatureMoodName() const override
+    {
+        static const std::string name = "TurnsWithoutFight";
+        return name;
+    }
+};
+
+//! \brief Register the mood type
+static CreatureMoodRegister reg(new CreatureMoodFactoryTurnsWithoutFight);
 
 int32_t CreatureMoodTurnsWithoutFight::computeMood(const Creature* creature) const
 {
@@ -30,4 +45,19 @@ int32_t CreatureMoodTurnsWithoutFight::computeMood(const Creature* creature) con
 
     turns = std::min(turns - mTurnsWithoutFightMin, mTurnsWithoutFightMax);
     return turns * mMoodModifier;
+}
+
+bool CreatureMoodTurnsWithoutFight::importFromStream(std::istream& is)
+{
+    if(!CreatureMood::importFromStream(is))
+        return false;
+
+    if(!(is >> mTurnsWithoutFightMin))
+        return false;
+    if(!(is >> mTurnsWithoutFightMax))
+        return false;
+    if(!(is >> mMoodModifier))
+        return false;
+
+    return true;
 }
