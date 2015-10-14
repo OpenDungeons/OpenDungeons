@@ -21,7 +21,10 @@
 #include "entities/SmallSpiderEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -139,7 +142,7 @@ void RoomPrison::doUpkeep()
             if(creature->getSeatPrison() != getSeat())
                 continue;
 
-            Tile* creatureTile = getPositionTile();
+            Tile* creatureTile = creature->getPositionTile();
             if(creatureTile == nullptr)
             {
                 OD_LOG_ERR("creatureName=" + creature->getName() + ", position=" + Helper::toString(creature->getPosition()));
@@ -163,10 +166,36 @@ void RoomPrison::doUpkeep()
             else
             {
                 // The creature is dead. We can release it
-                creature->setSeatPrison(nullptr);
-
                 OD_LOG_INF("creature=" + creature->getName() + " died in prison=" + getName());
-                // TODO : spawn a skeleton or something
+
+                if((getSeat()->getPlayer() != nullptr) &&
+                   (getSeat()->getPlayer()->getIsHuman()))
+                {
+                    ServerNotification *serverNotification = new ServerNotification(
+                        ServerNotificationType::chatServer, getSeat()->getPlayer());
+                    std::string msg = "A creature died starving in your prison";
+                    serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+                    ODServer::getSingleton().queueServerNotification(serverNotification);
+                }
+
+                creature->setSeatPrison(nullptr);
+                creature->removeFromGameMap();
+                creature->deleteYourself();
+
+                const std::string& className = ConfigManager::getSingleton().getRoomConfigString("PrisonSpawnClass");
+                const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(className);
+                if(classToSpawn == nullptr)
+                {
+                    OD_LOG_ERR("className=" + className);
+                    continue;
+                }
+                // Create a new creature and copy over the class-based creature parameters.
+                Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat());
+
+                // Add the creature to the gameMap and create meshes so it is visible.
+                newCreature->addToGameMap();
+                newCreature->setPosition(Ogre::Vector3(creatureTile->getX(), creatureTile->getY(), 0.0f));
+                newCreature->createMesh();
             }
         }
     }

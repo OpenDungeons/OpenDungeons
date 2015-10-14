@@ -120,12 +120,14 @@ std::string Research::researchTypeToString(ResearchType type)
             return "spellCallToWar";
         case ResearchType::spellSummonWorker:
             return "spellSummonWorker";
-        case ResearchType::spellCreatureHeal:
-            return "spellCreatureHeal";
+        case ResearchType::spellCreatureDefense:
+            return "spellCreatureDefense";
         case ResearchType::spellCreatureExplosion:
             return "spellCreatureExplosion";
         case ResearchType::spellCreatureHaste:
             return "spellCreatureHaste";
+        case ResearchType::spellCreatureHeal:
+            return "spellCreatureHeal";
         case ResearchType::trapBoulder:
             return "trapBoulder";
         case ResearchType::trapCannon:
