@@ -1,0 +1,26 @@
+os:
+  - Windows Server 2012 R2
+configuration: Release
+environment:
+  matrix:
+    - generator: "msvc12"
+branches:
+  only:
+  - development
+clone_depth: 10
+install:
+# download dependencies
+  - ps: |
+      $file = "C:\od-deps-win32.7z"
+      $urlDeps = "http://download.tuxfamily.org/opendungeons/dependency/od-deps-win32.7z"
+      Write-Host "Downloading deps"
+      appveyor DownloadFile $urlDeps -FileName $file
+      Write-Host "Unzip deps"
+      7z x -oC:\ $file > $null
+  - set OD_DEPS=C:\od-deps-win32
+  - echo %PATH%
+build_script:
+  - if [%generator%]==[msvc12] cmake -G "Visual Studio 12" && msbuild ALL_BUILD.vcxproj /verbosity:normal
+artifacts:
+  - path: OpenDungeons.exe
+    name: OpenDungeons
