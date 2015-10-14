@@ -1460,6 +1460,8 @@ DwarfWorker	1
     [CreatureSkills]
     # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	EffectValue
     HealSelf	30	5	1	5	1
+    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	PhyDef	MagDef	EleDef
+    DefenseSelf	35	1	1	25	2	1	0
     # SkillName	CooldownNbTurns	WarmupNbTurns	RangeMax	LevelMin	EffectDuration	EffectValue
     Explosion	40	6	10	1	3	5
     # SkillName	CooldownNbTurns	WarmupNbTurns	RangeMax	RangePerLvl	LevelMin	MissileMesh	MissilePartScript	MissileSpeed	PhyAtk	PhyAtkPerLvl	MagAtk	MagAtkPerLvl	EleAtk	EleAtkPerLvl

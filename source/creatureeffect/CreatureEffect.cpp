@@ -41,7 +41,7 @@ bool CreatureEffect::upkeepEffect(Creature& creature)
 
 void CreatureEffect::exportToStream(std::ostream& os) const
 {
-    os << mNbTurnsEffect << "\t";
+    os << "\t" << mNbTurnsEffect << "\t";
     if(mParticleEffectScript.empty())
         os << "none";
     else

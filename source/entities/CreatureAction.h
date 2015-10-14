@@ -46,7 +46,6 @@ enum class CreatureActionType
     carryEntityForced, // (worker only) Carry an entity to a suitable building
     getFee, // (fighter only) Gets the creature fee
     leaveDungeon, // (fighter only) Try to go to the portal to leave the dungeon
-    fightNaturalEnemy, // (fighter only) Attacks an allied natural enemy
     idle // Stand around doing nothing.
 };
 

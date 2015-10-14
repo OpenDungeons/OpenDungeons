@@ -27,6 +27,7 @@
 #include "modes/InputCommand.h"
 #include "modes/InputManager.h"
 #include "network/ODClient.h"
+#include "sound/SoundEffectsManager.h"
 #include "spells/SpellType.h"
 #include "spells/SpellManager.h"
 #include "utils/ConfigManager.h"
@@ -201,6 +202,8 @@ bool SpellCreatureDefense::castSpell(GameMap* gameMap, Player* player, ODPacket&
     double value = ConfigManager::getSingleton().getSpellConfigDouble("CreatureDefenseValue");
     CreatureEffectDefense* effect = new CreatureEffectDefense(duration, value, 0.0, 0.0, "SpellCreatureDefense");
     creature->addCreatureEffect(effect);
+
+    gameMap->fireSpatialSound(pos->getSeatsWithVision(), SpatialSoundType::Spells, "Defense", pos);
 
     return true;
 }

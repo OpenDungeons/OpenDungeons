@@ -954,7 +954,7 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
             file << "    " << format << std::endl;
             file << "    ";
             CreatureSkillManager::write(*skill, file);
-            file << "    " << std::endl;
+            file << std::endl;
         }
         file << "    [/CreatureSkills]" << std::endl;
     }
