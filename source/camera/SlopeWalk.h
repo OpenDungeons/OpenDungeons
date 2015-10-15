@@ -15,17 +15,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
-
-
-
 #ifndef SLOPEWALK_H_
 #define SLOPEWALK_H_
 
 #include "camera/DummyArrayClass.h"
-
 #include "utils/Vector3i.h"
 
 #include <deque>
