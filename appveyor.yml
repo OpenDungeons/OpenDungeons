@@ -3,6 +3,7 @@ os:
 configuration: Release
 environment:
   matrix:
+    - generator: "mingw32"
     - generator: "msvc12"
 branches:
   only:
@@ -18,9 +19,14 @@ install:
       Write-Host "Unzip deps"
       7z x -oC:\ $file > $null
   - set OD_DEPS=C:\od-deps-win32
+# For MinGW, we need to overwrite PATH or cmake will complain about sh.exe being present on the PATH
+  - if "%generator%" == "mingw32" (set "PATH=c:\mingw\bin;C:\od-deps-win32\bin\mingw32;")
   - echo %PATH%
 build_script:
-  - if [%generator%]==[msvc12] cmake -G "Visual Studio 12" && msbuild ALL_BUILD.vcxproj /verbosity:normal
+  - if [%generator%]==[msvc12] "C:\Program Files (x86)\CMake\bin\cmake" -G "Visual Studio 12" && msbuild ALL_BUILD.vcxproj /verbosity:normal  /p:Configuration=Release
+  - if [%generator%]==[mingw32] "C:\Program Files (x86)\CMake\bin\cmake" -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release && mingw32-make install
 artifacts:
   - path: OpenDungeons.exe
-    name: OpenDungeons
+    name: OpenDungeons exe
+  - path: Release/OpenDungeons.exe
+    name: OpenDungeons exe

@@ -89,14 +89,23 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions("-DOD_DEBUG")
 endif()
 
+# From Boost cmake file
+
+# We want to differentiate MinGW64 and MinGW32
+if(WIN32 AND MINGW)
+    exec_program(${CMAKE_CXX_COMPILER} ARGS ${CMAKE_CXX_COMPILER_ARG1} -dumpversion OUTPUT_VARIABLE OD_MINGW_COMPILER_VERSION)
+    string(REGEX REPLACE "([0-9])\\.([0-9])(\\.[0-9])?" "\\1\\2" OD_MINGW_COMPILER_VERSION ${OD_MINGW_COMPILER_VERSION})
+    message(STATUS "OD_MINGW_COMPILER_VERSION: ${OD_MINGW_COMPILER_VERSION}")
+endif()
+
 ## We check for dependencies
 set(OD_DEPENDENCIES_DIR "$ENV{OD_DEPS}" CACHE PATH "Path to prebuilt OD dependencies")
 if(OD_DEPENDENCIES_DIR)
     if(WIN32 AND MINGW)
-        set(OD_ARCH_SUFIX "/mingw")
+        set(OD_ARCH_SUFIX "/mingw${OD_MINGW_COMPILER_VERSION}")
     elseif(WIN32 AND MSVC)
         set(OD_ARCH_SUFIX "/msvc")
-    elseif()
+    else()
         set(OD_ARCH_SUFIX "")
     endif()
     set(OD_DEP_SEARCH_PATH
@@ -111,11 +120,11 @@ if(OD_DEPENDENCIES_DIR)
         ${OD_DEPENDENCIES_DIR}/sfml/lib${OD_ARCH_SUFIX}
         )
 
+    # hints to the find_package calls
+    set(CMAKE_PREFIX_PATH ${OD_DEP_SEARCH_PATH} ${CMAKE_PREFIX_PATH})
+
     message(STATUS "Search path dependencies: ${OD_DEP_SEARCH_PATH}")
 endif()
-
-# hints to the find_package calls
-set(CMAKE_PREFIX_PATH ${OD_DEP_SEARCH_PATH} ${CMAKE_PREFIX_PATH})
 
 ##################################
 #### ExplicitCompilerFlags #######
@@ -596,7 +605,7 @@ target_link_libraries(${PROJECT_BINARY_NAME} ${OGRE_Overlay_LIBRARY})
 # We link needed libraries to display stacktrace on uncatched exception
 if(MINGW)
 # MinGW32 needs intl while not MinGW64. To differentiate them, we test the compiler version as it does not change very often for MinGW32
-    if(${CMAKE_CXX_COMPILER_VERSION} STREQUAL "4.8.1")
+    if(${OD_MINGW_COMPILER_VERSION} STREQUAL "4.8.1")
         message(STATUS "MINGW32 COMPILER VERSION: " ${CMAKE_CXX_COMPILER_VERSION})
         target_link_libraries(${PROJECT_BINARY_NAME} imagehlp bfd intl iberty z)
     else()
