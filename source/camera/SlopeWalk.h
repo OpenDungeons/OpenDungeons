@@ -57,10 +57,17 @@ private:
     std::deque<long long>::iterator leftSlopeIndex;
 
 
-
+    // index numbers in myArray of Vertices 
+    // belonging to the right path
     std::deque<int> rightVertices;
+    // index numbers in myArray of Vertices
+    // belonging to the left path
     std::deque<int> leftVertices;
+    // point the Vertex currently processed 
+    // on the right path
     std::deque<int>::iterator rightVerticesIndex;
+    // pint the Vertex currenly processed
+    // on the left path
     std::deque<int>::iterator leftVerticesIndex;
     bool passLeftVertex();
     bool passRightVertex();
@@ -76,6 +83,10 @@ public:
     SlopeWalk();
     void printState();
     // A place for raw points
+    // The values of them will be used heavily 
+    // in this class
+    // DummyArrayClass keeps clockwise order 
+    // of those points
     DummyArrayClass myArray;
     bool notifyOnMoveDown(long long);
     void prepareWalk();
