@@ -291,6 +291,10 @@ void Trap::setupTrap(const std::string& name, Seat* seat, const std::vector<Tile
         // Allied seats with the creator do see the trap from the start
         trapTileData->seatsSawTriggering(alliedSeats);
         tile->setCoveringBuilding(this);
+
+        // In the editor, activate each trap tile by default
+        if(getGameMap()->isInEditorMode())
+            activate(tile);
     }
 }
 
