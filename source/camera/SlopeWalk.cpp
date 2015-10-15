@@ -22,8 +22,8 @@
 #include <sstream>
 
 SlopeWalk::SlopeWalk():
-    leftVertexPassed(false),
-    rightVertexPassed(false)
+    mLeftVertexPassed(false),
+    mRightVertexPassed(false)
 {
 }
 
@@ -34,48 +34,48 @@ void SlopeWalk::buildSlopes()
     //choosen experimentally too large values slows down
     //the culling and may provide some glitches
     const double zoomFactorValue = 1.244364;
-    myArray.sort();
-    myArray.zoom(zoomFactorValue);
-    rightSlopes.clear();
-    leftSlopes.clear();
+    mVertices.sort();
+    mVertices.zoom(zoomFactorValue);
+    mRightSlopes.clear();
+    mLeftSlopes.clear();
     rightVertices.clear();
     leftVertices.clear();
 
     // find minimal and maximal values of y coordinate at left and right path
-    findMinMaxLeft(myArray.mMyArray);
-    findMinMaxRight(myArray.mMyArray);
+    findMinMaxLeft(mVertices.mMyArray);
+    findMinMaxRight(mVertices.mMyArray);
 
     // for each pair of consecutive vertexes on right path create a slope value , which is equal to 'a' as in equation ax + b = 0
     // also put slopes of value 0 at the begging and the end of path
 
-    rightSlopes.push_back(0);
-    for(ii = top_right_index; ii != down_right_index ; ++ii,ii%=4  )
+    mRightSlopes.push_back(0);
+    for(ii = mTop_right_index; ii != mDown_right_index ; ++ii,ii%=4  )
     {
-        rightSlopes.push_back((myArray[ii].x - myArray[ii+1].x) * Unit / (myArray[ii].y - myArray[ii+1].y ));
+        mRightSlopes.push_back((mVertices[ii].x - mVertices[ii+1].x) * Unit / (mVertices[ii].y - mVertices[ii+1].y ));
         rightVertices.push_back(ii);
 
     }
-    rightSlopes.push_back(0);
+    mRightSlopes.push_back(0);
     rightVertices.push_back(ii);
 
     // for each pair of consecutive vertexes on left path create a slope value , which is equal to 'a' as in equation ax + b = 0
     // also put slopes of value 0 at the begging and the end of path
 
-    leftSlopes.push_back(0);
-    for(ii = top_left_index; ii != down_left_index ; ii+=3, ii%=4  )
+    mLeftSlopes.push_back(0);
+    for(ii =  mTop_left_index; ii != mDown_left_index ; ii+=3, ii%=4  )
     {
-        leftSlopes.push_back((myArray[ii].x - myArray[ii-1].x) * Unit / (myArray[ii].y - myArray[ii-1].y ));
+        mLeftSlopes.push_back((mVertices[ii].x - mVertices[ii-1].x) * Unit / (mVertices[ii].y - mVertices[ii-1].y ));
         leftVertices.push_back(ii);
     }
-    leftSlopes.push_back(0);
+    mLeftSlopes.push_back(0);
     leftVertices.push_back(ii);
 }
 
 // reset indexes to the begginging of containers 
 void SlopeWalk::prepareWalk()
 {
-    leftSlopeIndex =  leftSlopes.begin();
-    rightSlopeIndex = rightSlopes.begin();
+    mLeftSlopeIndex =  mLeftSlopes.begin();
+    mRightSlopeIndex = mRightSlopes.begin();
     leftVerticesIndex = leftVertices.begin();
     rightVerticesIndex = rightVertices.begin();
 
@@ -85,7 +85,7 @@ void SlopeWalk::prepareWalk()
 bool SlopeWalk::passLeftVertex()
 {
     leftVerticesIndex++;
-    leftSlopeIndex++;
+    mLeftSlopeIndex++;
     return leftVerticesIndex == leftVertices.end();
 }
 
@@ -93,7 +93,7 @@ bool SlopeWalk::passLeftVertex()
 bool SlopeWalk::passRightVertex()
 {
     rightVerticesIndex++;
-    rightSlopeIndex++;
+    mRightSlopeIndex++;
     return rightVerticesIndex == rightVertices.end();
 
 }
@@ -105,14 +105,14 @@ bool SlopeWalk::notifyOnMoveDown(long long newy_index)
     bool bb = true;
     while(leftVerticesIndex != leftVertices.end() && newy_index < getCurrentLeftVertex().y)
     {
-        leftVertexPassed = true;
+        mLeftVertexPassed = true;
         bb = passLeftVertex();
     }
     bool kk = true;
     while(rightVerticesIndex != rightVertices.end() && newy_index < getCurrentRightVertex().y)
     {
         kk=  passRightVertex();
-        rightVertexPassed = true;
+        mRightVertexPassed = true;
     }
     return bb || kk ;
 }
@@ -121,37 +121,37 @@ bool SlopeWalk::notifyOnMoveDown(long long newy_index)
 Vector3i SlopeWalk::getCurrentLeftVertex()
 {
     int ii = *leftVerticesIndex;
-    return myArray[ii];
+    return mVertices[ii];
 }
 
 // Get vertex pointed currently  by index on the Right path
 Vector3i SlopeWalk::getCurrentRightVertex()
 {
     int ii = *rightVerticesIndex;
-    return myArray[ii];
+    return mVertices[ii];
 }
 
 // Get vertex pointed previously  by index on the Left  path
 Vector3i SlopeWalk::getPreviousLeftVertex()
 {
     int ii = *(leftVerticesIndex - 1);
-    return myArray[ii];
+    return mVertices[ii];
 }
 
 // Get vertex pointed previously  by index on the Right path
 Vector3i SlopeWalk::getPreviousRightVertex()
 {
     int ii = *(rightVerticesIndex -1);
-    return myArray[ii];
+    return mVertices[ii];
 }
 
 
 // get the value of slope currently pointed by index on the left path
 long long SlopeWalk::getCurrentXLeft(int64_t yy)
 {
-    if(leftSlopeIndex != leftSlopes.begin())
+    if(mLeftSlopeIndex != mLeftSlopes.begin())
     {
-        return getPreviousLeftVertex().x + ((*leftSlopeIndex) * (yy - getPreviousLeftVertex().y))/Unit ;
+        return getPreviousLeftVertex().x + ((*mLeftSlopeIndex) * (yy - getPreviousLeftVertex().y))/Unit ;
     }
     else
         return getCurrentLeftVertex().x;
@@ -159,9 +159,9 @@ long long SlopeWalk::getCurrentXLeft(int64_t yy)
 }
 // get the value of slope currently pointed by index on the right path
 long long SlopeWalk::getCurrentXRight(int64_t yy){
-    if(rightSlopeIndex != rightSlopes.begin())
+    if(mRightSlopeIndex != mRightSlopes.begin())
     {
-        return getPreviousRightVertex().x + ((*rightSlopeIndex) * (yy - getPreviousRightVertex().y))/Unit ;
+        return getPreviousRightVertex().x + ((*mRightSlopeIndex) * (yy - getPreviousRightVertex().y))/Unit ;
     }
     else
         return getCurrentRightVertex().x;
@@ -171,22 +171,22 @@ long long SlopeWalk::getCurrentXRight(int64_t yy){
 
 Vector3i& SlopeWalk::getTopLeftVertex()
 {
-    return myArray[top_left_index];
+    return mVertices[ mTop_left_index];
 }
 
 Vector3i& SlopeWalk::getBottomLeftVertex()
 {
-    return myArray[down_left_index];
+    return mVertices[mDown_left_index];
 }
 
 Vector3i& SlopeWalk::getTopRightVertex()
 {
-    return myArray[top_right_index];
+    return mVertices[mTop_right_index];
 }
 
 Vector3i& SlopeWalk::getBottomRightVertex()
 {
-    return myArray[down_right_index];
+    return mVertices[mDown_right_index];
 }
 
 
@@ -195,10 +195,10 @@ void SlopeWalk::printState()
 {
     std::cerr << "leftVertices" << std::endl;
     for(auto ii = leftVertices.begin(); ii != leftVertices.end(); ii++)
-        std::cerr << myArray[*ii] << std::endl;
+        std::cerr << mVertices[*ii] << std::endl;
     std::cerr << "rightVertices" << std::endl;
     for(auto ii = rightVertices.begin(); ii != rightVertices.end(); ii++)
-        std::cerr << myArray[*ii] << std::endl;
+        std::cerr << mVertices[*ii] << std::endl;
 }
 
 void SlopeWalk::findMinMaxLeft(std::array<Vector3i,4> &aa)
@@ -214,8 +214,8 @@ void SlopeWalk::findMinMaxLeft(std::array<Vector3i,4> &aa)
             max = ii;
 
     }
-    top_left_index = max - aa.begin();
-    down_left_index = min - aa.begin();
+     mTop_left_index = max - aa.begin();
+    mDown_left_index = min - aa.begin();
 
 }
 
@@ -232,8 +232,8 @@ void SlopeWalk::findMinMaxRight(std::array<Vector3i,4> &aa)
             max = ii;
 
     }
-    top_right_index = max - aa.begin();
-    down_right_index = min - aa.begin();
+    mTop_right_index = max - aa.begin();
+    mDown_right_index = min - aa.begin();
 
 }
 
@@ -242,11 +242,11 @@ std::string SlopeWalk::debug()
 {
 
     std::stringstream ss;
-    ss << "top_left_index " << top_left_index << " top_right_index " << top_right_index << " down_left_index " << down_left_index << " down_right_index" << down_right_index << std::endl;
+    ss << " mTop_left_index " <<  mTop_left_index << " mTop_right_index " << mTop_right_index << " mDown_left_index " << mDown_left_index << " mDown_right_index" << mDown_right_index << std::endl;
     
     for (int ii = 0 ; ii < 4 ; ii++ )
     {
-        Vector3i foobar = myArray[ii];
+        Vector3i foobar = mVertices[ii];
         ss<< ii << " " <<double(foobar.x)/Unit << " " << double(foobar.y)/Unit <<  std::endl;
     }
  
@@ -261,13 +261,13 @@ std::string SlopeWalk::debug()
         ss << ii << " " ;    
     ss << std::endl ; 
 
-    ss<< "rightSlopes " << std::endl;
-    for(auto ii : rightSlopes)
+    ss<< "mRightSlopes " << std::endl;
+    for(auto ii : mRightSlopes)
         ss << double(ii)/Unit << std::endl;
     ss << std::endl; 
 
-    ss<< "leftSlopes " << std::endl;    
-    for(auto ii : leftSlopes)
+    ss<< "mLeftSlopes " << std::endl;    
+    for(auto ii : mLeftSlopes)
         ss << double(ii)/Unit << std::endl;
 
     return ss.str();

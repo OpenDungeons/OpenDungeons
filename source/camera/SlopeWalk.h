@@ -51,10 +51,10 @@ class SlopeWalk
 
 private:
 
-    std::deque<long long> rightSlopes;
-    std::deque<long long> leftSlopes;
-    std::deque<long long>::iterator rightSlopeIndex;
-    std::deque<long long>::iterator leftSlopeIndex;
+    std::deque<long long> mRightSlopes;
+    std::deque<long long> mLeftSlopes;
+    std::deque<long long>::iterator mRightSlopeIndex;
+    std::deque<long long>::iterator mLeftSlopeIndex;
 
 
     // index numbers in myArray of Vertices 
@@ -71,12 +71,12 @@ private:
     std::deque<int>::iterator leftVerticesIndex;
     bool passLeftVertex();
     bool passRightVertex();
-    int down_right_index;
-    int top_right_index;
-    int down_left_index;
-    int top_left_index;
-    bool leftVertexPassed;
-    bool rightVertexPassed;
+    int mDown_right_index;
+    int mTop_right_index;
+    int mDown_left_index;
+    int mTop_left_index;
+    bool mLeftVertexPassed;
+    bool mRightVertexPassed;
 
 
 public:
@@ -87,7 +87,7 @@ public:
     // in this class
     // DummyArrayClass keeps clockwise order 
     // of those points
-    DummyArrayClass myArray;
+    DummyArrayClass mVertices;
     bool notifyOnMoveDown(long long);
     void prepareWalk();
 

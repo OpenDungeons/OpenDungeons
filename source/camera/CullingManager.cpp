@@ -53,10 +53,10 @@ CullingManager::CullingManager(CameraManager* cameraManager):
 void CullingManager::cullTiles()
 {
     mOldWalk = mWalk;
-    mWalk.myArray[0] =  Vector3i(mOgreVectorsArray[0]);
-    mWalk.myArray[1] =  Vector3i(mOgreVectorsArray[1]);
-    mWalk.myArray[2] =  Vector3i(mOgreVectorsArray[2]);
-    mWalk.myArray[3] =  Vector3i(mOgreVectorsArray[3]);
+    mWalk.mVertices[0] =  Vector3i(mOgreVectorsArray[0]);
+    mWalk.mVertices[1] =  Vector3i(mOgreVectorsArray[1]);
+    mWalk.mVertices[2] =  Vector3i(mOgreVectorsArray[2]);
+    mWalk.mVertices[3] =  Vector3i(mOgreVectorsArray[3]);
 
     
     // create a slope -- a set of left and rigth path
@@ -86,10 +86,10 @@ void CullingManager::startTileCulling()
 {
     getIntersectionPoints();
 
-    mWalk.myArray[0] =  Vector3i(mOgreVectorsArray[0]);
-    mWalk.myArray[1] =  Vector3i(mOgreVectorsArray[1]);
-    mWalk.myArray[2] =  Vector3i(mOgreVectorsArray[2]);
-    mWalk.myArray[3] =  Vector3i(mOgreVectorsArray[3]);
+    mWalk.mVertices[0] =  Vector3i(mOgreVectorsArray[0]);
+    mWalk.mVertices[1] =  Vector3i(mOgreVectorsArray[1]);
+    mWalk.mVertices[2] =  Vector3i(mOgreVectorsArray[2]);
+    mWalk.mVertices[3] =  Vector3i(mOgreVectorsArray[3]);
     mWalk.buildSlopes();
     mOldWalk = mWalk;
     mOldWalk.prepareWalk();
