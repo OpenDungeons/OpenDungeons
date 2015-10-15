@@ -24,8 +24,7 @@
 #define CAMERAMANAGER_H_
 
 #include "camera/HermiteCatmullSpline.h"
-#include "gamemap/GameMap.h"
-#include "entities/Tile.h"
+
 
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
@@ -36,6 +35,9 @@
 
 class TileContainer;
 class CullingManager;
+class GameMap;
+class TileContainer;
+
 
 // The min/max camera height in tile size
 const Ogre::Real MIN_CAMERA_Z = 3.0;

@@ -25,6 +25,7 @@
 #include "sound/SoundEffectsManager.h"
 #include "camera/CullingManager.h"
 #include "utils/LogManager.h"
+#include "gamemap/GameMap.h"
 #include <OgreCamera.h>
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
