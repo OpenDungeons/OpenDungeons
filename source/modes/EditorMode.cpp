@@ -144,7 +144,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
 
     //Tile selection
     connectTileSelect(Gui::EDITOR_CLAIMED_BUTTON,TileVisual::claimedGround);
-    connectTileSelect(Gui::EDITOR_GEM_BUTTON,TileVisual::gemFull);
+    connectTileSelect(Gui::EDITOR_GEM_BUTTON,TileVisual::gemGround);
     connectTileSelect(Gui::EDITOR_DIRT_BUTTON,TileVisual::dirtGround);
     connectTileSelect(Gui::EDITOR_GOLD_BUTTON,TileVisual::goldGround);
     connectTileSelect(Gui::EDITOR_LAVA_BUTTON,TileVisual::lavaGround);
@@ -1097,9 +1097,8 @@ void EditorMode::handlePlayerActionChangeTile()
             tileType = TileType::lava;
             fullness = 0.0;
             break;
-        case TileVisual::gemFull:
+        case TileVisual::gemGround:
             tileType = TileType::gem;
-            fullness = 100.0;
             break;
         default:
             return;

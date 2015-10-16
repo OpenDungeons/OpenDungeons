@@ -87,6 +87,7 @@ enum class TileVisual
     lavaGround,
     claimedGround,
     claimedFull,
+    gemGround,
     gemFull,
     countTileVisual
 };

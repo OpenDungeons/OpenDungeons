@@ -1230,6 +1230,8 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
             return false;
         if(!loadTilesetValues(defFile, TileVisual::claimedFull, tileSet->configureTileValues(TileVisual::claimedFull)))
             return false;
+        if(!loadTilesetValues(defFile, TileVisual::gemGround, tileSet->configureTileValues(TileVisual::gemGround)))
+            return false;
         if(!loadTilesetValues(defFile, TileVisual::gemFull, tileSet->configureTileValues(TileVisual::gemFull)))
             return false;
     }
