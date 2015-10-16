@@ -605,7 +605,7 @@ target_link_libraries(${PROJECT_BINARY_NAME} ${OGRE_Overlay_LIBRARY})
 # We link needed libraries to display stacktrace on uncatched exception
 if(MINGW)
 # MinGW32 needs intl while not MinGW64. To differentiate them, we test the compiler version as it does not change very often for MinGW32
-    if(${OD_MINGW_COMPILER_VERSION} STREQUAL "4.8.1")
+    if(${OD_MINGW_COMPILER_VERSION} EQUAL 48)
         message(STATUS "MINGW32 COMPILER VERSION: " ${CMAKE_CXX_COMPILER_VERSION})
         target_link_libraries(${PROJECT_BINARY_NAME} imagehlp bfd intl iberty z)
     else()
