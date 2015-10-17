@@ -17,7 +17,6 @@ addons:
     - make
     - cmake
     - binutils-dev
-    - libgtk2.0-dev
     - libois-dev
     - libogre-1.9-dev
     - libexpat-dev
@@ -26,7 +25,8 @@ addons:
     - libopenal-dev
 
 before_install:
-  - wget http://prdownloads.sourceforge.net/crayzedsgui/cegui-0.8.4.tar.bz2?download -O - | tar xz
+# CEGUI is not packaged. We need to compile it ourself. Note that we could also compile it and download binaries if need be
+  - wget http://download.tuxfamily.org/opendungeons/dependency/cegui-0.8.4.tar.bz2 -O - | tar xj
   - (cd cegui-0.8.4 && cmake . && sudo make install)
 script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release && make; fi
