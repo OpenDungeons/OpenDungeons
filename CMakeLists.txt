@@ -389,8 +389,13 @@ set(OD_SOURCEFILES
     ${SRC}/utils/FrameRateLimiter.cpp
     ${SRC}/utils/Helper.cpp
     ${SRC}/utils/LogManager.cpp
-    ${SRC}/utils/LogManagerFile.cpp
-    ${SRC}/utils/LogManagerOgre.cpp
+    ${SRC}/utils/LogManager.h
+    ${SRC}/utils/LogMessageLevel.h
+    ${SRC}/utils/LogSink.h
+    ${SRC}/utils/LogSinkFile.cpp
+    ${SRC}/utils/LogSinkFile.h
+    ${SRC}/utils/LogSinkOgre.cpp
+    ${SRC}/utils/LogSinkOgre.h
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
 

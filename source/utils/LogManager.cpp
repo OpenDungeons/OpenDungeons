@@ -21,3 +21,60 @@ template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = nullptr;
 
 //! \brief Log filename used when OD Application throws errors without using Ogre default logger.
 const std::string LogManager::GAMELOG_NAME = "gameLog";
+
+LogManager::LogManager()
+{
+
+}
+
+LogManager::~LogManager()
+{
+
+}
+
+void LogManager::addSink(const std::shared_ptr<LogSink>& sink)
+{
+    mSinks.push_back(sink);
+}
+
+void LogManager::logMessage(LogMessageLevel level, const char* module, const char* filepath, int line, const char* format, ...)
+{
+    std::unique_lock<std::mutex>(mLock);
+
+    // timestamp
+
+    time_t current_time = ::time(0);
+    struct tm* now = ::localtime(&current_time);
+
+    char timestamp[32] = { 0 };
+    snprintf(
+        timestamp,
+        31,
+        "%02d:%02d:%02d",
+        now->tm_hour,
+        now->tm_min,
+        now->tm_sec);
+
+    // filename
+
+#if WIN32 || _WINDOWS
+    const char* path_last_slash = strrchr(filepath, '\\');
+#else
+    const char* path_last_slash = strrchr(filepath, '/');
+#endif
+    const char* filename = (path_last_slash != nullptr) ? (path_last_slash + 1) : filepath;
+
+    // message
+
+    char message_formatted[1024] = { 0 };
+
+    va_list arguments;
+    va_start(arguments, format);
+    vsprintf(message_formatted, format, arguments);
+    va_end(arguments);
+
+    for (const auto& sink : mSinks)
+    {
+        sink->write(level, module, timestamp, filename, line, message_formatted);
+    }
+}

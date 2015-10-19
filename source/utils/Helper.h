@@ -30,6 +30,10 @@
 #include <vector>
 #include <cstdint>
 
+#ifdef _MSC_VER
+    #define snprintf _snprintf
+#endif
+
 //! \brief Math constant pi. Always use this one, never M_PI from <cmath> (it's not portable)
 const double PI = 3.141592653589793238462643;
 

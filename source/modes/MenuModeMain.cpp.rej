@@ -1,0 +1,39 @@
+diff a/source/modes/MenuModeMain.cpp b/source/modes/MenuModeMain.cpp	(rejected hunks)
+@@ -30,23 +30,6 @@
+ 
+ #include <CEGUI/widgets/PushButton.h>
+ 
+-namespace
+-{
+-//! \brief Helper functor to change modes
+-class ModeChanger
+-{
+-public:
+-    bool operator()(const CEGUI::EventArgs& e)
+-    {
+-        mMode->changeModeEvent(mNewMode, e);
+-        return true;
+-    }
+-
+-    MenuModeMain* mMode;
+-    AbstractModeManager::ModeType mNewMode;
+-};
+-} // namespace
+-
+ MenuModeMain::MenuModeMain(ModeManager *modeManager):
+     AbstractApplicationMode(modeManager, ModeManager::MENU_MAIN),
+     mRoot(getModeManager().getGui().getGuiSheet(Gui::mainMenu)),
+@@ -96,8 +79,11 @@ void MenuModeMain::connectModeChangeEvent(CEGUI::Window* parent, const std::stri
+ 
+     addEventConnection(
+         childButton->subscribeEvent(
+-          CEGUI::PushButton::EventClicked,
+-          CEGUI::Event::Subscriber(ModeChanger{this, mode})
++            CEGUI::PushButton::EventClicked,
++            CEGUI::Event::Subscriber([this, mode] (const CEGUI::EventArgs& e) {
++                changeModeEvent(mode, e);
++                return true;
++            })
+         )
+     );
+ }
