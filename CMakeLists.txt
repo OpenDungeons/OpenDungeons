@@ -392,6 +392,8 @@ set(OD_SOURCEFILES
     ${SRC}/utils/LogManager.h
     ${SRC}/utils/LogMessageLevel.h
     ${SRC}/utils/LogSink.h
+    ${SRC}/utils/LogSinkConsole.cpp
+    ${SRC}/utils/LogSinkConsole.h
     ${SRC}/utils/LogSinkFile.cpp
     ${SRC}/utils/LogSinkFile.h
     ${SRC}/utils/LogSinkOgre.cpp

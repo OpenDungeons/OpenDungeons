@@ -28,6 +28,7 @@
 #include "render/Gui.h"
 #include "utils/ResourceManager.h"
 #include "utils/LogManager.h"
+#include "utils/LogSinkConsole.h"
 #include "utils/LogSinkFile.h"
 #include "utils/LogSinkOgre.h"
 #include "utils/Random.h"
@@ -52,6 +53,7 @@ void ODApplication::startGame(boost::program_options::variables_map& options)
     ResourceManager resMgr(options);
 
     LogManager logMgr;
+    logMgr.addSink(std::shared_ptr<LogSink>(new LogSinkConsole()));
     logMgr.addSink(std::shared_ptr<LogSink>(new LogSinkFile(resMgr.getLogFile())));
 
     if(resMgr.isServerMode())
