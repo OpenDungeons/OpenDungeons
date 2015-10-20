@@ -29,7 +29,7 @@ public:
     RoomBridgeStone(GameMap* gameMap);
 
     virtual RoomType getType() const override
-    { return RoomType::bridgeStone; }
+    { return mRoomType; }
 
     static bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet);
     static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
@@ -38,6 +38,8 @@ public:
 
     static void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
     static void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
+
+    static const RoomType mRoomType;
 
 protected:
     void updateFloodFillPathCreated(Seat* seat, const std::vector<Tile*>& tiles) override;

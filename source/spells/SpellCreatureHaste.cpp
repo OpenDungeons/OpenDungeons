@@ -33,7 +33,43 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellCreatureHaste> reg(SpellType::creatureHaste, "creatureHaste", "Creature haste", "CreatureHasteCooldown");
+const std::string SpellCreatureHasteName = "creatureHaste";
+const std::string SpellCreatureHasteNameDisplay = "Creature haste";
+const std::string SpellCreatureHasteCooldownKey = "CreatureHasteCooldown";
+const SpellType SpellCreatureHaste::mSpellType = SpellType::creatureHaste;
+
+namespace
+{
+class SpellCreatureHasteFactory : public SpellFactory
+{
+    SpellType getSpellType() const override
+    { return SpellCreatureHaste::mSpellType; }
+
+    const std::string& getName() const override
+    { return SpellCreatureHasteName; }
+
+    const std::string& getCooldownKey() const override
+    { return SpellCreatureHasteCooldownKey; }
+
+    const std::string& getNameReadable() const override
+    { return SpellCreatureHasteNameDisplay; }
+
+    virtual void checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    { SpellCreatureHaste::checkSpellCast(gameMap, inputManager, inputCommand); }
+
+    virtual bool castSpell(GameMap* gameMap, Player* player, ODPacket& packet) const override
+    { return SpellCreatureHaste::castSpell(gameMap, player, packet); }
+
+    Spell* getSpellFromStream(GameMap* gameMap, std::istream &is) const override
+    { return SpellCreatureHaste::getSpellFromStream(gameMap, is); }
+
+    Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is) const override
+    { return SpellCreatureHaste::getSpellFromPacket(gameMap, is); }
+};
+
+// Register the factory
+static SpellRegister reg(new SpellCreatureHasteFactory);
+}
 
 void SpellCreatureHaste::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {

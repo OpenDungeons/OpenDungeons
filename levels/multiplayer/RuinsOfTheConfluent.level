@@ -2084,7 +2084,7 @@ BigKnight	5
     MinHP	50
     HP/Level	6
     Heal/Turn	0.03
-    AwakenessLost/Turn	0.1
+    WakefulnessLost/Turn	0.1
     HungerGrowth/Turn	0.1
     TileSightRadius	18
     MaxGoldCarryable	0
@@ -2132,6 +2132,14 @@ BigKnight	5
     # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	PhyAtk	PhyAtkPerLvl	MagAtk	MagAtkPerLvl	EleAtk	EleAtkPerLvl
     Melee	5	2	1	16	0.8	0	0	0	0
     [/CreatureSkills]
+    [CreatureBehaviours]
+    # BehaviourName	WeakCoef
+    FleeWhenWeak	0.3
+    # BehaviourName
+    AttackEnemy
+    # BehaviourName
+    LeaveDungeonWhenFurious
+    [/CreatureBehaviours]
 [/Creature]
 [/CreatureDefinitions]
 
@@ -2139,7 +2147,7 @@ BigKnight	5
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 0	Goblin2	Goblin.mesh	11	27	0	Goblin	3	0	max	100	0	0	none	none	0	none	0
 0	Goblin3	Goblin.mesh	49	29	0	Goblin	3	0	max	100	0	0	none	none	0	none	0
 0	LizardMan4	Lizardman.mesh	47	30	0	LizardMan	3	0	max	100	0	0	none	none	0	none	0

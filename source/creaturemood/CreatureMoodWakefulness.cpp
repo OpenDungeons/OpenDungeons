@@ -15,41 +15,41 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "creaturemood/CreatureMoodAwakness.h"
+#include "creaturemood/CreatureMoodWakefulness.h"
 
 #include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
 
-class CreatureMoodFactoryAwakness : public CreatureMoodFactory
+class CreatureMoodWakefulnessFactory : public CreatureMoodFactory
 {
     CreatureMood* createCreatureMood() const override
-    { return new CreatureMoodAwakness; }
+    { return new CreatureMoodWakefulness; }
 
     const std::string& getCreatureMoodName() const override
     {
-        static const std::string name = "Awakness";
+        static const std::string name = "Wakefulness";
         return name;
     }
 };
 
 //! \brief Register the mood type
-static CreatureMoodRegister reg(new CreatureMoodFactoryAwakness);
+static CreatureMoodRegister reg(new CreatureMoodWakefulnessFactory);
 
-int32_t CreatureMoodAwakness::computeMood(const Creature* creature) const
+int32_t CreatureMoodWakefulness::computeMood(const Creature* creature) const
 {
-    int32_t awakness = static_cast<int32_t>(creature->getAwakeness());
-    if(awakness > mStartAwakness)
+    int32_t wakefulness = static_cast<int32_t>(creature->getWakefulness());
+    if(wakefulness > mStartWakefulness)
         return 0;
 
-    return (mStartAwakness - awakness) * mMoodModifier;
+    return (mStartWakefulness - wakefulness) * mMoodModifier;
 }
 
-bool CreatureMoodAwakness::importFromStream(std::istream& is)
+bool CreatureMoodWakefulness::importFromStream(std::istream& is)
 {
     if(!CreatureMood::importFromStream(is))
         return false;
 
-    if(!(is >> mStartAwakness))
+    if(!(is >> mStartWakefulness))
         return false;
     if(!(is >> mMoodModifier))
         return false;

@@ -28,7 +28,42 @@
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
-static TrapManagerRegister<TrapBoulder> reg(TrapType::boulder, "Boulder", "Boulder trap");
+const std::string TrapBoulderName = "Boulder";
+const std::string TrapBoulderNameDisplay = "Boulder trap";
+const TrapType TrapBoulder::mTrapType = TrapType::boulder;
+
+namespace
+{
+class TrapBoulderFactory : public TrapFactory
+{
+    TrapType getTrapType() const override
+    { return TrapBoulder::mTrapType; }
+
+    const std::string& getName() const override
+    { return TrapBoulderName; }
+
+    const std::string& getNameReadable() const override
+    { return TrapBoulderNameDisplay; }
+
+    virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { TrapBoulder::checkBuildTrap(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return TrapBoulder::buildTrap(gameMap, player, packet); }
+
+    virtual void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { TrapBoulder::checkBuildTrapEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const
+    { return TrapBoulder::buildTrapEditor(gameMap, packet); }
+
+    Trap* getTrapFromStream(GameMap* gameMap, std::istream& is) const override
+    { return TrapBoulder::getTrapFromStream(gameMap, is); }
+};
+
+// Register the factory
+static TrapRegister reg(new TrapBoulderFactory);
+}
 
 const std::string TrapBoulder::MESH_BOULDER = "Boulder";
 

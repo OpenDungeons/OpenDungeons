@@ -284,13 +284,20 @@ void MapLight::exportToStream(std::ostream& os) const
     os << "\t" << mAttenuationLinear << "\t" << mAttenuationQuadratic;
 }
 
-void MapLight::importFromStream(std::istream& is)
+bool MapLight::importFromStream(std::istream& is)
 {
-    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
-    OD_ASSERT_TRUE(is >> mDiffuseColor.r >> mDiffuseColor.g >> mDiffuseColor.b);
-    OD_ASSERT_TRUE(is >> mSpecularColor.r >> mSpecularColor.g >> mSpecularColor.b);
-    OD_ASSERT_TRUE(is >> mAttenuationRange >> mAttenuationConstant);
-    OD_ASSERT_TRUE(is >> mAttenuationLinear >> mAttenuationQuadratic);
+    if(!(is >> mPosition.x >> mPosition.y >> mPosition.z))
+        return false;
+    if(!(is >> mDiffuseColor.r >> mDiffuseColor.g >> mDiffuseColor.b))
+        return false;
+    if(!(is >> mSpecularColor.r >> mSpecularColor.g >> mSpecularColor.b))
+        return false;
+    if(!(is >> mAttenuationRange >> mAttenuationConstant))
+        return false;
+    if(!(is >> mAttenuationLinear >> mAttenuationQuadratic))
+        return false;
+
+    return true;
 }
 
 void MapLight::exportToPacket(ODPacket& os, const Seat* seat) const

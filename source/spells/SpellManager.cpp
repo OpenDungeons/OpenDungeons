@@ -17,6 +17,7 @@
 
 #include "spells/SpellManager.h"
 
+#include "spells/Spell.h"
 #include "ODApplication.h"
 #include "game/Player.h"
 #include "game/Research.h"
@@ -32,66 +33,91 @@
 
 const std::string EMPTY_STRING;
 
-void SpellFunctions::checkSpellCastFunc(GameMap* gameMap, SpellType type, const InputManager& inputManager, InputCommand& inputCommand) const
+namespace
 {
-    if(mCheckSpellCastFunc == nullptr)
+    static std::vector<const SpellFactory*>& getFactories()
     {
-        OD_LOG_ERR("null mCheckSpellCastFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
+        static std::vector<const SpellFactory*> factory(static_cast<uint32_t>(SpellType::nbSpells), nullptr);
+        return factory;
+    }
+}
+
+void SpellManager::registerFactory(const SpellFactory* factory)
+{
+    std::vector<const SpellFactory*>& factories = getFactories();
+    uint32_t index = static_cast<uint32_t>(factory->getSpellType());
+    if(index >= factories.size())
+    {
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return;
     }
 
-    mCheckSpellCastFunc(gameMap, inputManager, inputCommand);
+    factories[index] = factory;
 }
 
-bool SpellFunctions::castSpellFunc(GameMap* gameMap, SpellType type, Player* player, ODPacket& packet) const
+void SpellManager::unregisterFactory(const SpellFactory* factory)
 {
-    if(mCastSpellFunc == nullptr)
+    std::vector<const SpellFactory*>& factories = getFactories();
+    auto it = std::find(factories.begin(), factories.end(), factory);
+    if(it == factories.end())
     {
-        OD_LOG_ERR("null mCastSpellFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
-        return false;
+        OD_LOG_ERR("Trying to unregister unknown factory=" + factory->getName());
+        return;
+    }
+    factories.erase(it);
+}
+
+Spell* SpellManager::load(GameMap* gameMap, std::istream& is)
+{
+    if(!is.good())
+        return nullptr;
+
+    std::vector<const SpellFactory*>& factories = getFactories();
+    std::string nextParam;
+    OD_ASSERT_TRUE(is >> nextParam);
+    const SpellFactory* factoryToUse = nullptr;
+    for(const SpellFactory* factory : factories)
+    {
+        if(factory == nullptr)
+            continue;
+
+        if(factory->getName().compare(nextParam) != 0)
+            continue;
+
+        factoryToUse = factory;
+        break;
     }
 
-    return mCastSpellFunc(gameMap, player, packet);
-}
-
-Spell* SpellFunctions::getSpellFromStreamFunc(GameMap* gameMap, SpellType type, std::istream& is) const
-{
-    if(mGetSpellFromStreamFunc == nullptr)
+    if(factoryToUse == nullptr)
     {
-        OD_LOG_ERR("null mGetSpellFromStreamFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("Unknown Spell type=" + nextParam);
         return nullptr;
     }
 
-    return mGetSpellFromStreamFunc(gameMap, is);
-}
-
-Spell* SpellFunctions::getSpellFromPacketFunc(GameMap* gameMap, SpellType type, ODPacket& is) const
-{
-    if(mGetSpellFromPacketFunc == nullptr)
+    Spell* spell = factoryToUse->getSpellFromStream(gameMap, is);
+    if(!spell->importFromStream(is))
     {
-        OD_LOG_ERR("null mGetSpellFromPacketFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("Couldn't load creature Spell type=" + nextParam);
+        delete spell;
         return nullptr;
     }
 
-    return mGetSpellFromPacketFunc(gameMap, is);
+    return spell;
 }
 
-
-std::vector<SpellFunctions>& getSpellFunctions()
+void SpellManager::dispose(const Spell* spell)
 {
-    static std::vector<SpellFunctions> spellList(static_cast<uint32_t>(SpellType::nbSpells));
-    return spellList;
+    delete spell;
+}
+
+void SpellManager::write(const Spell& spell, std::ostream& os)
+{
+    os << spell.getName();
+    spell.exportToStream(os);
 }
 
 void SpellManager::checkSpellCast(GameMap* gameMap, SpellType type, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getSpellFunctions().size())
-    {
-        OD_LOG_ERR("type=" + Helper::toString(index));
-        return;
-    }
-
     Player* player = gameMap->getLocalPlayer();
     uint32_t cooldown = player->getSpellCooldownTurns(type);
     if(cooldown > 0)
@@ -103,113 +129,113 @@ void SpellManager::checkSpellCast(GameMap* gameMap, SpellType type, const InputM
         inputCommand.displayText(Ogre::ColourValue::Red, errorStr);
         return;
     }
-    SpellFunctions& spellFuncs = getSpellFunctions()[index];
-    spellFuncs.checkSpellCastFunc(gameMap, type, inputManager, inputCommand);
+
+    std::vector<const SpellFactory*>& factories = getFactories();
+    uint32_t index = static_cast<uint32_t>(type);
+    if(index >= factories.size())
+    {
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
+        return;
+    }
+
+    const SpellFactory& factory = *factories[index];
+    factory.checkSpellCast(gameMap, inputManager, inputCommand);
 }
 
 bool SpellManager::castSpell(GameMap* gameMap, SpellType type, Player* player, ODPacket& packet)
 {
+    std::vector<const SpellFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getSpellFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return false;
     }
 
-    SpellFunctions& spellFuncs = getSpellFunctions()[index];
-    return spellFuncs.castSpellFunc(gameMap, type, player, packet);
+    const SpellFactory& factory = *factories[index];
+    return factory.castSpell(gameMap, player, packet);
 }
 
 Spell* SpellManager::getSpellFromStream(GameMap* gameMap, std::istream& is)
 {
     SpellType type;
-    OD_ASSERT_TRUE(is >> type);
+    if(!(is >> type))
+        return nullptr;
+
+    std::vector<const SpellFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getSpellFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return nullptr;
     }
 
-    SpellFunctions& spellFuncs = getSpellFunctions()[index];
-    return spellFuncs.getSpellFromStreamFunc(gameMap, type, is);
+    const SpellFactory& factory = *factories[index];
+    return factory.getSpellFromStream(gameMap, is);
 }
 
 Spell* SpellManager::getSpellFromPacket(GameMap* gameMap, ODPacket& is)
 {
     SpellType type;
-    OD_ASSERT_TRUE(is >> type);
+    if(!(is >> type))
+        return nullptr;
+
+    std::vector<const SpellFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getSpellFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return nullptr;
     }
 
-    SpellFunctions& spellFuncs = getSpellFunctions()[index];
-    return spellFuncs.getSpellFromPacketFunc(gameMap, type, is);
+    const SpellFactory& factory = *factories[index];
+    return factory.getSpellFromPacket(gameMap, is);
 }
 
 const std::string& SpellManager::getSpellNameFromSpellType(SpellType type)
 {
+    std::vector<const SpellFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getSpellFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return EMPTY_STRING;
     }
-    SpellFunctions& spellFuncs = getSpellFunctions()[index];
-    return spellFuncs.mName;
+
+    const SpellFactory& factory = *factories[index];
+    return factory.getName();
 }
 
 const std::string& SpellManager::getSpellReadableName(SpellType type)
 {
+    std::vector<const SpellFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getSpellFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return EMPTY_STRING;
     }
-    SpellFunctions& spellFuncs = getSpellFunctions()[index];
-    return spellFuncs.mReadableName;
+
+    const SpellFactory& factory = *factories[index];
+    return factory.getNameReadable();
 }
 
 SpellType SpellManager::getSpellTypeFromSpellName(const std::string& name)
 {
-    uint32_t nbSpells = static_cast<uint32_t>(SpellType::nbSpells);
-    for(uint32_t i = 0; i < nbSpells; ++i)
+    std::vector<const SpellFactory*>& factories = getFactories();
+    for(const SpellFactory* factory : factories)
     {
-        SpellFunctions& spellFuncs = getSpellFunctions()[i];
-        if(name.compare(spellFuncs.mName) == 0)
-            return static_cast<SpellType>(i);
+        if(factory == nullptr)
+            continue;
+
+        if(factory->getName().compare(name) != 0)
+            continue;
+
+        return factory->getSpellType();
     }
 
     OD_LOG_ERR("Cannot find spell name=" + name);
     return SpellType::nullSpellType;
-}
-
-void SpellManager::registerSpell(SpellType type, const std::string& name, const std::string& readableName,
-    const std::string& cooldownKey,
-    SpellFunctions::CheckSpellCastFunc checkSpellCastFunc,
-    SpellFunctions::CastSpellFunc castSpellFunc,
-    SpellFunctions::GetSpellFromStreamFunc getSpellFromStreamFunc,
-    SpellFunctions::GetSpellFromPacketFunc getSpellFromPacketFunc)
-{
-    uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getSpellFunctions().size())
-    {
-        OD_LOG_ERR("type=" + Helper::toString(index));
-        return;
-    }
-
-    SpellFunctions& spellFuncs = getSpellFunctions()[index];
-    spellFuncs.mName = name;
-    spellFuncs.mReadableName = readableName;
-    spellFuncs.mCooldownKey = cooldownKey;
-    spellFuncs.mCheckSpellCastFunc = checkSpellCastFunc;
-    spellFuncs.mCastSpellFunc = castSpellFunc;
-    spellFuncs.mGetSpellFromStreamFunc = getSpellFromStreamFunc;
-    spellFuncs.mGetSpellFromPacketFunc = getSpellFromPacketFunc;
 }
 
 ClientNotification* SpellManager::createSpellClientNotification(SpellType type)
@@ -221,12 +247,14 @@ ClientNotification* SpellManager::createSpellClientNotification(SpellType type)
 
 uint32_t SpellManager::getSpellCooldown(SpellType type)
 {
+    std::vector<const SpellFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getSpellFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return 0;
     }
-    SpellFunctions& spellFuncs = getSpellFunctions()[index];
-    return ConfigManager::getSingleton().getSpellConfigUInt32(spellFuncs.mCooldownKey);
+
+    const SpellFactory& factory = *factories[index];
+    return ConfigManager::getSingleton().getSpellConfigUInt32(factory.getCooldownKey());
 }

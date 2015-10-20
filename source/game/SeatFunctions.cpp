@@ -1499,6 +1499,7 @@ bool Seat::isTileDiggableForClient(Tile* tile) const
         case TileVisual::lavaGround:
         case TileVisual::waterGround:
         case TileVisual::rockGround:
+        case TileVisual::gemGround:
         case TileVisual::rockFull:
             return false;
         case TileVisual::goldFull:

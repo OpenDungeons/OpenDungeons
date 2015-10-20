@@ -23,18 +23,6 @@
 
 class Creature;
 
-enum class CreatureEffectType
-{
-    unknown,
-    heal,
-    explosion,
-    speedChange,
-    slap
-};
-
-std::ostream& operator<<(std::ostream& os, const CreatureEffectType& type);
-std::istream& operator>>(std::istream& is, CreatureEffectType& type);
-
 class CreatureEffect
 {
 public:
@@ -48,8 +36,7 @@ public:
     virtual ~CreatureEffect()
     {}
 
-    virtual CreatureEffectType getCreatureEffectType() const
-    {return CreatureEffectType::unknown; }
+    virtual const std::string& getEffectName() const = 0;
 
     inline uint32_t getNbTurnsEffect() const
     { return mNbTurnsEffect; }
@@ -65,6 +52,10 @@ public:
     virtual void releaseEffect(Creature& creature)
     {}
 
+    //! \brief Returns true if the creature is forced to work and false otherwise
+    virtual bool isForcedToWork(const Creature& creature) const
+    { return false; }
+
     static void write(const CreatureEffect& effect, std::ostream& os);
     //! loads a CreatureEffect from the given stream. Note that the stream might contain
     //! more data than just the CreatureEffect. Thus, we should not use optional data
@@ -72,11 +63,11 @@ public:
     //! write how many data there is and read them accordingly
     static CreatureEffect* load(std::istream& is);
 
-protected:
     //! Writes the CreatureEffect to the stream
     virtual void exportToStream(std::ostream& os) const;
-    virtual void importFromStream(std::istream& is);
+    virtual bool importFromStream(std::istream& is);
 
+protected:
     //! This function will be called during the creature upkeep and should apply
     //! the wanted effect
     virtual void applyEffect(Creature& creature) = 0;

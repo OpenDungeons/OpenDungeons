@@ -21,13 +21,51 @@
 #include "entities/SmallSpiderEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-static RoomManagerRegister<RoomCrypt> reg(RoomType::crypt, "Crypt", "Crypt room");
+const std::string RoomCryptName = "Crypt";
+const std::string RoomCryptNameDisplay = "Crypt room";
+const RoomType RoomCrypt::mRoomType = RoomType::crypt;
+
+namespace
+{
+class RoomCryptFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomCrypt::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomCryptName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomCryptNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomCrypt::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomCrypt::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomCrypt::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomCrypt::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomCrypt::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomCryptFactory);
+}
 
 const int32_t OFFSET_TILE_X = 0;
 const int32_t OFFSET_TILE_Y = -1;
@@ -167,6 +205,17 @@ void RoomCrypt::doUpkeep()
                 OD_LOG_ERR("className=" + className);
                 continue;
             }
+
+            if((getSeat()->getPlayer() != nullptr) &&
+               (getSeat()->getPlayer()->getIsHuman()))
+            {
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotificationType::chatServer, getSeat()->getPlayer());
+                std::string msg = "A creature has raised in your crypt thanks to the blood of the creatures rotting there";
+                serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+
             // Create a new creature and copy over the class-based creature parameters.
             Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat());
 
@@ -279,11 +328,14 @@ void RoomCrypt::exportToStream(std::ostream& os) const
     // We do not save rotten creatures. They will automatically be carried again by workers
 }
 
-void RoomCrypt::importFromStream(std::istream& is)
+bool RoomCrypt::importFromStream(std::istream& is)
 {
-    Room::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mRottenPoints);
-    // We do not save rotten creatures. They will automatically be carried again by workers
+    if(!Room::importFromStream(is))
+        return false;
+    if(!(is >> mRottenPoints))
+        return false;
+
+    return true;
 }
 
 void RoomCrypt::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)

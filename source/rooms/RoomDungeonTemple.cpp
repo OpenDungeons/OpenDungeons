@@ -27,7 +27,42 @@
 #include "rooms/RoomManager.h"
 #include "utils/LogManager.h"
 
-static RoomManagerRegister<RoomDungeonTemple> reg(RoomType::dungeonTemple, "DungeonTemple", "Dungeon temple room");
+const std::string RoomDungeonTempleName = "DungeonTemple";
+const std::string RoomDungeonTempleNameDisplay = "Dungeon temple room";
+const RoomType RoomDungeonTemple::mRoomType = RoomType::dungeonTemple;
+
+namespace
+{
+class RoomDungeonTempleFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomDungeonTemple::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomDungeonTempleName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomDungeonTempleNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomDungeonTemple::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomDungeonTemple::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomDungeonTemple::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomDungeonTemple::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomDungeonTemple::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomDungeonTempleFactory);
+}
 
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),

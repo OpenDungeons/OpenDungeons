@@ -173,6 +173,7 @@ textures/
 -> Roundshield.png
 -> RunelordDwarf*.png
 -> Scarab*.png
+-> Shieldflare.png                     OD Team                 CC-BY 3.0               Used http://game-icons.net/lorc/originals/barbute.html
 -> Skull_Monster_512.png               Atmostatic              CC-BY 3.0               http://opengameart.org/content/skull-1
 -> Slime.png                           Grefuntor               CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 -> SmallSpider.png                     Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60887#p60851
@@ -261,6 +262,7 @@ Kreatur.*                              Skorpio                 CC-BY-SA 3.0, GPL
 Lamp.mesh                              Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
 Lava*.mesh                             Skorpio                 CC-BY-SA 3.0, GPLv3+
 Library.mesh                           Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
+Lich.*                                 SummoningWars           CC-BY-SA 3.0            http://sumwars.org
 Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
 LizardmanBed.mesh                      Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 Longsword.mesh                         Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
@@ -279,6 +281,7 @@ RunelordDwarf.*                        thecubber (OGA), MrBeast (OGA), Skorpio
  ->                                                            CC-BY-SA 3.0, GPLv3+    http://opengameart.org/content/dwarf-fixed
 Sabre.mesh                             Andrew Buck             CC-BY-SA 3.0
 Scarab.*                               killyoverdrive (OGA)    CC-BY-SA 3.0            http://opengameart.org/content/beetle-golem-animated
+Skeleton.*                             SummoningWars           CC-BY-SA 3.0            http://sumwars.org
 Skull.mesh                             Atmostatic              CC-BY-SA 3.0            http://opengameart.org/content/skull-1
 Slime.*                                Grefuntor, D3dm         CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 SmallSpider.*                          Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60887#p60851

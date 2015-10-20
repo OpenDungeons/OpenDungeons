@@ -17,14 +17,15 @@
 
 #include "entities/Creature.h"
 
+#include "creaturebehaviour/CreatureBehaviour.h"
 #include "creatureeffect/CreatureEffect.h"
+#include "creatureeffect/CreatureEffectManager.h"
 #include "creatureeffect/CreatureEffectSlap.h"
 #include "creaturemood/CreatureMood.h"
 #include "creatureskill/CreatureSkill.h"
 #include "entities/ChickenEntity.h"
 #include "entities/CreatureAction.h"
 #include "entities/CreatureDefinition.h"
-#include "entities/MissileOneHit.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
 #include "entities/Weapon.h"
@@ -136,7 +137,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mHomeTile                (nullptr),
     mDefinition              (definition),
     mHasVisualDebuggingEntities (false),
-    mAwakeness               (100.0),
+    mWakefulness             (100.0),
     mHunger                  (0.0),
     mLevel                   (1),
     mHp                      (10.0),
@@ -164,7 +165,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mMoodCooldownTurns       (0),
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
-    mFirstTurnFurious        (-1),
+    mNbTurnFurious           (-1),
     mOverlayHealthValue      (0),
     mOverlayMoodValue        (0),
     mOverlayStatus           (nullptr),
@@ -217,7 +218,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mHomeTile                (nullptr),
     mDefinition              (nullptr),
     mHasVisualDebuggingEntities (false),
-    mAwakeness               (100.0),
+    mWakefulness             (100.0),
     mHunger                  (0.0),
     mLevel                   (1),
     mHp                      (10.0),
@@ -245,7 +246,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mMoodCooldownTurns       (0),
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
-    mFirstTurnFurious        (-1),
+    mNbTurnFurious           (-1),
     mOverlayHealthValue      (0),
     mOverlayMoodValue        (0),
     mOverlayStatus           (nullptr),
@@ -351,7 +352,7 @@ std::string Creature::getCreatureStreamFormat()
     if(!format.empty())
         format += "\t";
 
-    format += "ClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness"
+    format += "ClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentWakefulness"
             "\tCurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon\tCarriedResearch\tCarriedWeapon"
             "\tNbCreatureEffects\tN*CreatureEffects";
 
@@ -367,7 +368,7 @@ void Creature::exportToStream(std::ostream& os) const
         os << getHP();
     else
         os << "max";
-    os << "\t" << mAwakeness << "\t" << mHunger << "\t" << mGoldCarried;
+    os << "\t" << mWakefulness << "\t" << mHunger << "\t" << mGoldCarried;
 
     // Check creature weapons
     if(mWeaponL != nullptr)
@@ -390,33 +391,35 @@ void Creature::exportToStream(std::ostream& os) const
     {
         CreatureParticuleEffect* creatureParticuleEffect = static_cast<CreatureParticuleEffect*>(effect);
         os << "\t";
-        CreatureEffect::write(*creatureParticuleEffect->mEffect, os);
+        CreatureEffectManager::write(*creatureParticuleEffect->mEffect, os);
     }
 }
 
-void Creature::importFromStream(std::istream& is)
+bool Creature::importFromStream(std::istream& is)
 {
     // Beware: A generic class name might be used here so we shouldn't use mDefinition
     // here as it is not set yet (for example, default worker will be available only after
     // seat lobby configuration)
-    MovableGameEntity::importFromStream(is);
+    if(!MovableGameEntity::importFromStream(is))
+        return false;
     std::string tempString;
 
-    OD_ASSERT_TRUE(is >> mDefinitionString);
-
-    OD_ASSERT_TRUE(is >> mLevel);
-
-    OD_ASSERT_TRUE(is >> mExp);
-
-    OD_ASSERT_TRUE(is >> mHpString);
-
-    OD_ASSERT_TRUE(is >> mAwakeness);
-
-    OD_ASSERT_TRUE(is >> mHunger);
-
-    OD_ASSERT_TRUE(is >> mGoldCarried);
-
-    OD_ASSERT_TRUE(is >> tempString);
+    if(!(is >> mDefinitionString))
+        return false;
+    if(!(is >> mLevel))
+        return false;
+    if(!(is >> mExp))
+        return false;
+    if(!(is >> mHpString))
+        return false;
+    if(!(is >> mWakefulness))
+        return false;
+    if(!(is >> mHunger))
+        return false;
+    if(!(is >> mGoldCarried))
+        return false;
+    if(!(is >> tempString))
+        return false;
     if(tempString != "none")
     {
         mWeaponL = getGameMap()->getWeapon(tempString);
@@ -426,7 +429,8 @@ void Creature::importFromStream(std::istream& is)
         }
     }
 
-    OD_ASSERT_TRUE(is >> tempString);
+    if(!(is >> tempString))
+        return false;
     if(tempString != "none")
     {
         mWeaponR = getGameMap()->getWeapon(tempString);
@@ -436,24 +440,27 @@ void Creature::importFromStream(std::istream& is)
         }
     }
 
-    OD_ASSERT_TRUE(is >> mResearchTypeDropDeath);
-
-    OD_ASSERT_TRUE(is >> mWeaponDropDeath);
+    if(!(is >> mResearchTypeDropDeath))
+        return false;
+    if(!(is >> mWeaponDropDeath))
+        return false;
 
     mLevel = std::min(MAX_LEVEL, mLevel);
 
     uint32_t nbEffects;
-    OD_ASSERT_TRUE(is >> nbEffects);
+    if(!(is >> nbEffects))
+        return false;
     while(nbEffects > 0)
     {
         --nbEffects;
-        CreatureEffect* effect = CreatureEffect::load(is);
+        CreatureEffect* effect = CreatureEffectManager::load(is);
         if(effect == nullptr)
             continue;
 
-
         addCreatureEffect(effect);
     }
+
+    return true;
 }
 
 void Creature::buildStats()
@@ -470,13 +477,11 @@ void Creature::buildStats()
     mMagicalDefense = mDefinition->getMagicalDefense();
     mElementDefense = mDefinition->getElementDefense();
 
-    mScale = getDefinition()->getScale();
-    Ogre::Real scaleFactor = static_cast<Ogre::Real>(1.0 + 0.02 * static_cast<double>(getLevel()));
-    mScale *= scaleFactor;
+    updateScale();
 
     // Improve the stats to the current level
     double multiplier = mLevel - 1;
-    if (multiplier == 0.0)
+    if (multiplier <= 0.0)
         return;
 
     mMaxHP += mDefinition->getHpPerLevel() * multiplier;
@@ -489,6 +494,13 @@ void Creature::buildStats()
     mPhysicalDefense += mDefinition->getPhysicalDefPerLevel() * multiplier;
     mMagicalDefense += mDefinition->getMagicalDefPerLevel() * multiplier;
     mElementDefense += mDefinition->getElementDefPerLevel() * multiplier;
+}
+
+void Creature::updateScale()
+{
+    mScale = getDefinition()->getScale();
+    Ogre::Real scaleFactor = static_cast<Ogre::Real>(1.0 + 0.02 * static_cast<double>(getLevel()));
+    mScale *= scaleFactor;
 }
 
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
@@ -519,7 +531,7 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
 
     os << mDigRate;
     os << mClaimRate;
-    os << mAwakeness;
+    os << mWakefulness;
     os << mHunger;
 
     os << mGroundSpeed;
@@ -581,7 +593,7 @@ void Creature::importFromPacket(ODPacket& is)
 
     OD_ASSERT_TRUE(is >> mDigRate);
     OD_ASSERT_TRUE(is >> mClaimRate);
-    OD_ASSERT_TRUE(is >> mAwakeness);
+    OD_ASSERT_TRUE(is >> mWakefulness);
     OD_ASSERT_TRUE(is >> mHunger);
 
     OD_ASSERT_TRUE(is >> mGroundSpeed);
@@ -885,10 +897,10 @@ void Creature::doUpkeep()
 
     computeCreatureOverlayHealthValue();
 
-    //Rogue creatures are not affected by awakness/hunger
+    // Rogue creatures are not affected by wakefulness/hunger
     if(!getSeat()->isRogueSeat())
     {
-        decreaseAwakeness(mDefinition->getAwakenessLostPerTurn());
+        decreaseWakefulness(mDefinition->getWakefulnessLostPerTurn());
 
         increaseHunger(mDefinition->getHungerGrowthPerTurn());
     }
@@ -911,6 +923,50 @@ void Creature::doUpkeep()
         computeMood();
         computeCreatureOverlayMoodValue();
         mMoodCooldownTurns = Random::Int(0, 5);
+    }
+
+    if(mMoodValue < CreatureMoodLevel::Furious)
+    {
+        mNbTurnFurious = -1;
+    }
+    else
+    {
+        // If the creature is furious for too long, it will become rogue
+        if(mNbTurnFurious < 0)
+            mNbTurnFurious = 0;
+        else
+            ++mNbTurnFurious;
+
+        if(mNbTurnFurious >= ConfigManager::getSingleton().getNbTurnsFuriousMax())
+        {
+            // We couldn't leave the dungeon in time, we become rogue
+            if((getSeat()->getPlayer() != nullptr) &&
+               (getSeat()->getPlayer()->getIsHuman()))
+            {
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotificationType::chatServer, getSeat()->getPlayer());
+                std::string msg = getName() + " is not under your control anymore !";
+                serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+
+            Seat* rogueSeat = getGameMap()->getSeatRogue();
+            setSeat(rogueSeat);
+            mMoodValue = CreatureMoodLevel::Neutral;
+            mMoodPoints = 0;
+            mWakefulness = 100;
+            mHunger = 0;
+            clearDestinations(EntityAnimation::idle_anim, true);
+            clearActionQueue();
+            stopJob();
+            stopEating();
+            mNeedFireRefresh = true;
+            if (getHomeTile() != nullptr)
+            {
+                RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
+                home->releaseTileForSleeping(getHomeTile(), this);
+            }
+        }
     }
 
     ++mNbTurnsWithoutBattle;
@@ -1035,10 +1091,6 @@ void Creature::doUpkeep()
                     loopBack = handleLeaveDungeon(topActionItem);
                     break;
 
-                case CreatureActionType::fightNaturalEnemy:
-                    loopBack = handleFightAlliedNaturalEnemyAction(topActionItem);
-                    break;
-
                 default:
                     OD_LOG_ERR("Unhandled action type in Creature::doUpkeep():" + mActionQueue.front().toString()
                         + ", action=" + Helper::toString(static_cast<int>(topActionItem.mType)));
@@ -1066,93 +1118,10 @@ void Creature::doUpkeep()
 
 void Creature::decidePrioritaryAction()
 {
-    // Here, we should decide prioritary actions only (like fighting when an enemy is
-    // visible). And if we decide to do something, we should clear the action queue.
-
-    // If a creature is weak and there are foes, it shall flee
-    bool isWeak = (mHp < mMaxHP * mDefinition->getWeakCoef());
-    if (!mVisibleEnemyObjects.empty() && isWeak)
+    for(const CreatureBehaviour* behaviour : getDefinition()->getCreatureBehaviours())
     {
-        if(isActionInList(CreatureActionType::flee))
+        if(!behaviour->processBehaviour(*this))
             return;
-
-        clearDestinations(EntityAnimation::idle_anim, true);
-        clearActionQueue();
-        pushAction(CreatureActionType::flee, false, true);
-        return;
-    }
-
-    // If we are weak we do not attack
-    if (isWeak)
-        return;
-
-    // If a creature can see enemies, it may attack
-    if (!mVisibleEnemyObjects.empty())
-    {
-        // Check if we are already fighting
-        if(isActionInList(CreatureActionType::fight) || isActionInList(CreatureActionType::flee))
-            return;
-
-        // Unhappy creatures might flee instead of engaging enemies
-        switch(mMoodValue)
-        {
-            case CreatureMoodLevel::Angry:
-            case CreatureMoodLevel::Furious:
-            {
-                if(Random::Int(0,100) > 80)
-                {
-                    clearDestinations(EntityAnimation::idle_anim, true);
-                    clearActionQueue();
-                    pushAction(CreatureActionType::flee, false, true);
-                    return;
-                }
-                break;
-            }
-            default:
-                break;
-        }
-
-        // If we are not already fighting with a creature then start doing so.
-        clearDestinations(EntityAnimation::idle_anim, true);
-        clearActionQueue();
-        pushAction(CreatureActionType::fight, false, true);
-        return;
-    }
-
-    // Unhappy creatures might engage allied natural enemies
-    switch(mMoodValue)
-    {
-        case CreatureMoodLevel::Upset:
-        case CreatureMoodLevel::Angry:
-        case CreatureMoodLevel::Furious:
-        {
-            // We are fighting an allied enemy. We don't consider leaving yet
-            if(isActionInList(CreatureActionType::fightNaturalEnemy))
-                return;
-
-            // We check if we can attack a natural enemy
-            if(Random::Int(0, 100) > 80)
-            {
-                pushAction(CreatureActionType::fightNaturalEnemy, false, true);
-                return;
-            }
-
-            // If we are furious, we consider leaving the dungeon
-            if((mMoodValue != CreatureMoodLevel::Furious) ||
-               (isActionInList(CreatureActionType::leaveDungeon)))
-            {
-                return;
-            }
-
-            clearDestinations(EntityAnimation::idle_anim, true);
-            clearActionQueue();
-            stopJob();
-            stopEating();
-            pushAction(CreatureActionType::leaveDungeon, false, true);
-            break;
-        }
-        default:
-            break;
     }
 }
 
@@ -1295,41 +1264,6 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
             return true;
     }
 
-    // Fighters
-    bool isWeak = (mHp < mMaxHP * mDefinition->getWeakCoef());
-    // If a fighter is weak, he should try to sleep
-    if (isWeak && !mDefinition->isWorker())
-    {
-        // If a fighter is weak, it should not care about forced action
-        mForceAction = forcedActionNone;
-        if((mHomeTile != nullptr) && (getGameMap()->pathExists(this, getPositionTile(), mHomeTile)))
-        {
-            if(pushAction(CreatureActionType::sleep, false, false))
-                return true;
-        }
-
-        // If we have no home tile, we try to find one
-        if(mHomeTile == nullptr)
-        {
-            std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::dormitory, getSeat());
-            tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
-            if (!tempRooms.empty())
-            {
-                clearDestinations(EntityAnimation::idle_anim, true);
-                clearActionQueue();
-                if(pushAction(CreatureActionType::sleep, false, false) &&
-                   pushAction(CreatureActionType::findHome, false, false))
-                {
-                    return true;
-                }
-            }
-        }
-
-        // If the home tile is not accessible, we wander
-        wanderRandomly(EntityAnimation::flee_anim);
-        return false;
-    }
-
     if(!mDefinition->isWorker() && mForceAction == forcedActionSearchAction)
     {
         mForceAction = forcedActionNone;
@@ -1422,7 +1356,7 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
     // If we are sleepy, we go to sleep
     if (!mDefinition->isWorker() &&
         (mHomeTile != nullptr) &&
-        (Random::Double(20.0, 30.0) > mAwakeness))
+        (Random::Double(20.0, 30.0) > mWakefulness))
     {
         // Check to see if we can work
         if(pushAction(CreatureActionType::sleep, false, false))
@@ -1465,7 +1399,6 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
 
         // Check to see if we want to try to follow a worker around or if we want to try to explore.
         double r = Random::Double(0.0, 1.0);
-        //if(creatureJob == weakFighter) r -= 0.2;
         if (r < 0.7)
         {
             bool workerFound = false;
@@ -1543,15 +1476,6 @@ bool Creature::handleWalkToTileAction(const CreatureActionWrapper& actionItem)
 {
     if (mWalkQueue.empty())
     {
-        popAction();
-        return true;
-    }
-
-    // If we are moving during a fight, we do not wait to reach destination to force to compute again what to do
-    // Because enemies may have moved, closest creatures could be near...
-    if(isActionInList(CreatureActionType::fight) && actionItem.mNbTurns > 1)
-    {
-        clearDestinations(EntityAnimation::idle_anim, true);
         popAction();
         return true;
     }
@@ -2247,8 +2171,8 @@ bool Creature::handleJobAction(const CreatureActionWrapper& actionItem)
     }
 
     // If we are tired, we go to bed unless we have been slapped
-    if (!hasCreatureEffect(CreatureEffectType::slap) &&
-        (Random::Double(20.0, 30.0) > mAwakeness))
+    bool workForced = isForcedToWork();
+    if (!workForced && (Random::Double(20.0, 30.0) > mWakefulness))
     {
         popAction();
         stopJob();
@@ -2257,8 +2181,7 @@ bool Creature::handleJobAction(const CreatureActionWrapper& actionItem)
     }
 
     // If we are hungry, we go to bed unless we have been slapped
-    if (!hasCreatureEffect(CreatureEffectType::slap) &&
-        (Random::Double(70.0, 80.0) < mHunger))
+    if (!workForced && (Random::Double(70.0, 80.0) < mHunger))
     {
         popAction();
         stopJob();
@@ -2458,7 +2381,7 @@ bool Creature::handleEatingAction(const CreatureActionWrapper& actionItem)
         std::list<Tile*> pathToChicken = getGameMap()->path(this, closestChickenTile);
         if(pathToChicken.empty())
         {
-            OD_LOG_ERR("creature=" + getName() + " empty path to chicken");
+            OD_LOG_ERR("creature=" + getName() + " posTile=" + Tile::displayAsString(myTile) + " empty path to chicken tile=" + Tile::displayAsString(closestChickenTile));
             popAction();
             stopEating();
             return true;
@@ -2619,7 +2542,7 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
     actionItem.mCreatureSkillData->mCooldown = actionItem.mCreatureSkillData->mSkill->getCooldownNbTurns();
 
     // Fighting is tiring
-    decreaseAwakeness(0.5);
+    decreaseWakefulness(0.5);
     // but gives experience
     receiveExp(1.5);
 
@@ -2628,13 +2551,6 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
 
 bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
 {
-    // If there are no more enemies, stop fighting.
-    if (mVisibleEnemyObjects.empty())
-    {
-        popAction();
-        return true;
-    }
-
     Tile* myTile = getPositionTile();
     if(myTile == nullptr)
     {
@@ -2643,33 +2559,49 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
         return false;
     }
 
-    // We try to attack creatures first
     std::vector<GameEntity*> enemyPrioritaryTargets;
     std::vector<GameEntity*> enemySecondaryTargets;
-    for(GameEntity* entity : mVisibleEnemyObjects)
+    // If we have a particular target, we attack it. Otherwise, we search for one
+    if((actionItem.mAttackedEntity != nullptr) &&
+       (actionItem.mAttackedEntity->getHP(nullptr) > 0))
     {
-        switch(entity->getObjectType())
+        enemyPrioritaryTargets.push_back(actionItem.mAttackedEntity);
+    }
+    else
+    {
+        // If there are no more enemies, stop fighting.
+        if (mVisibleEnemyObjects.empty())
         {
-            case GameEntityType::creature:
+            popAction();
+            return true;
+        }
+
+        // We try to attack creatures first
+        for(GameEntity* entity : mVisibleEnemyObjects)
+        {
+            switch(entity->getObjectType())
             {
-                Creature* creature = static_cast<Creature*>(entity);
-                if(!creature->isAlive())
-                    continue;
+                case GameEntityType::creature:
+                {
+                    Creature* creature = static_cast<Creature*>(entity);
+                    if(!creature->isAlive())
+                        continue;
 
-                // Workers should attack workers only
-                if(getDefinition()->isWorker() && !creature->getDefinition()->isWorker())
-                    continue;
+                    // Workers should attack workers only
+                    if(getDefinition()->isWorker() && !creature->getDefinition()->isWorker())
+                        continue;
 
-                enemyPrioritaryTargets.push_back(creature);
-                break;
-            }
-            default:
-            {
-                // Workers can attack workers only
-                if(getDefinition()->isWorker())
-                    continue;
+                    enemyPrioritaryTargets.push_back(creature);
+                    break;
+                }
+                default:
+                {
+                    // Workers can attack workers only
+                    if(getDefinition()->isWorker())
+                        continue;
 
-                enemySecondaryTargets.push_back(entity);
+                    enemySecondaryTargets.push_back(entity);
+                }
             }
         }
     }
@@ -2966,10 +2898,10 @@ bool Creature::handleSleepAction(const CreatureActionWrapper& actionItem)
             setAnimationState(EntityAnimation::sleep_anim, false, dormitory->getSleepDirection(this));
         }
 
-        // Improve awakeness
-        mAwakeness += 1.5;
-        if (mAwakeness > 100.0)
-            mAwakeness = 100.0;
+        // Improve wakefulness
+        mWakefulness += 1.5;
+        if (mWakefulness > 100.0)
+            mWakefulness = 100.0;
 
         mHp += mDefinition->getSleepHeal();
         if (mHp > mMaxHP)
@@ -2977,7 +2909,7 @@ bool Creature::handleSleepAction(const CreatureActionWrapper& actionItem)
 
         computeCreatureOverlayHealthValue();
 
-        if (mAwakeness >= 100.0 && mHp >= mMaxHP)
+        if (mWakefulness >= 100.0 && mHp >= mMaxHP)
         {
             popAction();
             return false;
@@ -3271,6 +3203,16 @@ bool Creature::handleLeaveDungeon(const CreatureActionWrapper& actionItem)
     {
         if(myTile == myTile->getCoveringRoom()->getCentralTile())
         {
+            if((getSeat()->getPlayer() != nullptr) &&
+               (getSeat()->getPlayer()->getIsHuman()))
+            {
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotificationType::chatServer, getSeat()->getPlayer());
+                std::string msg = getName() + " left your dungeon";
+                serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+
             // We are on the central tile. We can leave the dungeon
             // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
             stopJob();
@@ -3294,6 +3236,16 @@ bool Creature::handleLeaveDungeon(const CreatureActionWrapper& actionItem)
         return true;
     }
 
+    if((getSeat()->getPlayer() != nullptr) &&
+       (getSeat()->getPlayer()->getIsHuman()))
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::chatServer, getSeat()->getPlayer());
+        std::string msg = getName() + " is leaving your dungeon";
+        serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+
     int index = Random::Int(0, tempRooms.size() - 1);
     Room* room = tempRooms[index];
     Tile* tile = room->getCentralTile();
@@ -3305,79 +3257,7 @@ bool Creature::handleLeaveDungeon(const CreatureActionWrapper& actionItem)
     return false;
 }
 
-bool Creature::handleFightAlliedNaturalEnemyAction(const CreatureActionWrapper& actionItem)
-{
-    Tile* myTile = getPositionTile();
-    if(myTile == nullptr)
-    {
-        popAction();
-        return true;
-    }
-
-    // We look for a reachable allied natural enemy
-    GameEntity* entityAttack = nullptr;
-    Tile* tileAttack = nullptr;
-    Tile* tilePosition = nullptr;
-    CreatureSkillData* skillData = nullptr;
-    // If we are being attacked by a natural enemy, we attack it. Otherwise, we start looking
-    // for a natural enemy to attack
-    std::vector<GameEntity*> alliedNaturalEnemies;
-    if(actionItem.mAttackedEntity != nullptr)
-        alliedNaturalEnemies.push_back(actionItem.mAttackedEntity);
-    else
-        alliedNaturalEnemies = getGameMap()->getNaturalEnemiesInList(this, mReachableAlliedObjects);
-
-    if(!alliedNaturalEnemies.empty() && searchBestTargetInList(alliedNaturalEnemies, entityAttack, tileAttack, tilePosition, skillData))
-    {
-        // We found a natural enemy. We stop what we were doing
-        clearDestinations(EntityAnimation::idle_anim, true);
-        clearActionQueue();
-        stopJob();
-        stopEating();
-
-        // And we attack
-        if(entityAttack->getObjectType() != GameEntityType::creature)
-        {
-            OD_LOG_ERR("attacker=" + getName() + ", attacked=" + entityAttack->getName() + ", type=" + Helper::toString(static_cast<uint32_t>(entityAttack->getObjectType())));
-            return false;
-        }
-        Creature* attackedCreature = static_cast<Creature*>(entityAttack);
-        attackedCreature->engageAlliedNaturalEnemy(this);
-
-        if((myTile == tilePosition) &&
-           (entityAttack != nullptr) &&
-           (tileAttack != nullptr) &&
-           (skillData != nullptr))
-        {
-            // We can attack
-            pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack, skillData);
-            return true;
-        }
-
-        // We need to move to the entity
-        std::list<Tile*> result = getGameMap()->path(this, tilePosition);
-        if(result.empty())
-        {
-            OD_LOG_ERR("name" + getName() + ", myTile=" + Tile::displayAsString(myTile) + ", dest=" + Tile::displayAsString(tilePosition));
-            return false;
-        }
-
-        if(result.size() > 2)
-            result.resize(2);
-
-        std::vector<Ogre::Vector3> path;
-        tileToVector3(result, path, true, 0.0);
-        setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-        pushAction(CreatureActionType::walkToTile, false, true);
-        return false;
-    }
-
-    // No reachable allied natural enemy. We pop action
-    popAction();
-    return true;
-}
-
-void Creature::engageAlliedNaturalEnemy(Creature* attackerCreature)
+void Creature::engageAlliedNaturalEnemy(Creature& attackerCreature)
 {
     Tile* myTile = getPositionTile();
     if(myTile == nullptr)
@@ -3387,14 +3267,14 @@ void Creature::engageAlliedNaturalEnemy(Creature* attackerCreature)
     }
 
     // If we are already fighting a natural enemy, do nothing
-    if(isActionInList(CreatureActionType::fightNaturalEnemy))
+    if(isActionInList(CreatureActionType::fight))
         return;
 
     clearActionQueue();
     clearDestinations(EntityAnimation::idle_anim, true);
     stopJob();
     stopEating();
-    pushAction(CreatureActionType::fightNaturalEnemy, false, true, attackerCreature);
+    pushAction(CreatureActionType::fight, false, true, &attackerCreature);
 }
 
 double Creature::getMoveSpeed() const
@@ -3536,6 +3416,7 @@ void Creature::updateFromPacket(ODPacket& is)
 
     // We do not scale the creature if it is picked up (because it is already not at its normal size). It will be
     // resized anyway when dropped
+    updateScale();
     if(getIsOnMap())
         RenderManager::getSingleton().rrScaleEntity(this);
 
@@ -3931,7 +3812,7 @@ std::string Creature::getStatsText()
     tempSS << "HP: " << getHP() << " / " << mMaxHP << std::endl;
     if (!getDefinition()->isWorker())
     {
-        tempSS << "Awakeness: " << mAwakeness << std::endl;
+        tempSS << "Wakefulness: " << mWakefulness << std::endl;
         tempSS << "Hunger: " << mHunger << std::endl;
     }
     tempSS << "Move speed (Ground/Water/Lava): " << getMoveSpeedGround() << "/"
@@ -3988,8 +3869,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
         // If the attacking entity is a creature and its seat is configured to KO creatures
         // instead of killing, we KO
         if((attacker != nullptr) &&
-           (attacker->getObjectType() == GameEntityType::creature) &&
-           (attacker->getSeat()->getKoCreatures()))
+           (attacker->shouldKoAttackedCreature(*this)))
         {
             mHp = 1.0;
             mKoTurnCounter = -ConfigManager::getSingleton().getNbTurnsKoCreatureAttacked();
@@ -4445,7 +4325,8 @@ void Creature::slap()
         return;
     }
 
-    CreatureEffectSlap* effect = new CreatureEffectSlap;
+    CreatureEffectSlap* effect = new CreatureEffectSlap(
+        ConfigManager::getSingleton().getSlapEffectDuration(), "");
     addCreatureEffect(effect);
     mHp -= mMaxHP * ConfigManager::getSingleton().getSlapDamagePercent() / 100.0;
     computeCreatureOverlayHealthValue();
@@ -4651,21 +4532,25 @@ void Creature::increaseHunger(double value)
     mHunger = std::min(100.0, mHunger + value);
 }
 
-void Creature::decreaseAwakeness(double value)
+void Creature::decreaseWakefulness(double value)
 {
     if(getSeat()->isRogueSeat())
         return;
 
-    mAwakeness = std::max(0.0, mAwakeness - value);
+    mWakefulness = std::max(0.0, mWakefulness - value);
 }
 
 void Creature::computeMood()
 {
     mMoodPoints = getGameMap()->computeCreatureMoodModifiers(this);
 
-    CreatureMoodLevel newMoodValue = ConfigManager::getSingleton().getCreatureMoodLevel(mMoodPoints);
-    if((newMoodValue > CreatureMoodLevel::Neutral) &&
-       (mMoodValue <= CreatureMoodLevel::Neutral))
+    CreatureMoodLevel oldMoodValue = mMoodValue;
+    mMoodValue = ConfigManager::getSingleton().getCreatureMoodLevel(mMoodPoints);
+    if(mMoodValue == oldMoodValue)
+        return;
+
+    if((mMoodValue >= CreatureMoodLevel::Furious) &&
+       (oldMoodValue < CreatureMoodLevel::Furious))
     {
         // We became unhappy
         if((getSeat()->getPlayer() != nullptr) &&
@@ -4673,61 +4558,23 @@ void Creature::computeMood()
         {
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, getSeat()->getPlayer());
-            std::string msg = getName() + " is unhappy";
+            std::string msg = getName() + " is furious !";
             serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }
-    if(newMoodValue != CreatureMoodLevel::Furious)
+    else if((mMoodValue > CreatureMoodLevel::Neutral) &&
+       (oldMoodValue <= CreatureMoodLevel::Neutral))
     {
-        mMoodValue = newMoodValue;
-        mFirstTurnFurious = -1;
-        return;
-    }
-
-    if(mMoodValue != CreatureMoodLevel::Furious)
-    {
-        mMoodValue = newMoodValue;
-        mFirstTurnFurious = getGameMap()->getTurnNumber();
-
+        // We became unhappy
         if((getSeat()->getPlayer() != nullptr) &&
            (getSeat()->getPlayer()->getIsHuman()))
         {
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, getSeat()->getPlayer());
-            std::string msg = getName() + " wants to leave your dungeon";
+            std::string msg = getName() + " is unhappy !";
             serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
             ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-    }
-    else if(getGameMap()->getTurnNumber() > (mFirstTurnFurious + ConfigManager::getSingleton().getNbTurnsFuriousMax()))
-    {
-        // We couldn't leave the dungeon in time, we become rogue
-        if((getSeat()->getPlayer() != nullptr) &&
-           (getSeat()->getPlayer()->getIsHuman()))
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotificationType::chatServer, getSeat()->getPlayer());
-            std::string msg = getName() + " is not under your control anymore !";
-            serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-
-        Seat* rogueSeat = getGameMap()->getSeatRogue();
-        setSeat(rogueSeat);
-        mMoodValue = CreatureMoodLevel::Neutral;
-        mMoodPoints = 0;
-        mAwakeness = 100;
-        mHunger = 0;
-        clearDestinations(EntityAnimation::idle_anim, true);
-        clearActionQueue();
-        stopJob();
-        stopEating();
-        mNeedFireRefresh = true;
-        if (getHomeTile() != nullptr)
-        {
-            RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
-            home->releaseTileForSleeping(getHomeTile(), this);
         }
     }
 }
@@ -4820,7 +4667,7 @@ void Creature::addCreatureEffect(CreatureEffect* effect)
     mNeedFireRefresh = true;
 }
 
-bool Creature::hasCreatureEffect(CreatureEffectType type) const
+bool Creature::isForcedToWork() const
 {
     for(EntityParticleEffect* effect : mEntityParticleEffects)
     {
@@ -4836,8 +4683,10 @@ bool Creature::hasCreatureEffect(CreatureEffectType type) const
         }
 
         CreatureParticuleEffect* creatureEffect = static_cast<CreatureParticuleEffect*>(effect);
-        if(creatureEffect->mEffect->getCreatureEffectType() == type)
-            return true;
+        if(!creatureEffect->mEffect->isForcedToWork(*this))
+            continue;
+
+        return true;
     }
     return false;
 }
@@ -4926,7 +4775,7 @@ void Creature::checkWalkPathValid()
 void Creature::setJobCooldown(int val)
 {
     // If the creature has been slapped, its cooldown is decreased
-    if(hasCreatureEffect(CreatureEffectType::slap))
+    if(isForcedToWork())
         val = Helper::round(static_cast<float>(val) * 0.8f);
 
     mJobCooldown = val;
@@ -4935,7 +4784,7 @@ void Creature::setJobCooldown(int val)
 bool Creature::isTired() const
 {
     if(getIsOnServerMap())
-        return mAwakeness <= 20.0;
+        return mWakefulness <= 20.0;
 
     return (mOverlayMoodValue & CreatureMoodEnum::Tired) != 0;
 }
@@ -5003,4 +4852,41 @@ void Creature::setMoveSpeedModifier(double modifier)
     mWaterSpeed *= mSpeedModifier;
     mLavaSpeed *= mSpeedModifier;
     mNeedFireRefresh = true;
+}
+
+void Creature::clearMoveSpeedModifier()
+{
+    setMoveSpeedModifier(1.0);
+}
+
+void Creature::setDefenseModifier(double phy, double mag, double ele)
+{
+    mPhysicalDefense = mDefinition->getPhysicalDefense();
+    mMagicalDefense = mDefinition->getMagicalDefense();
+    mElementDefense = mDefinition->getElementDefense();
+
+    mPhysicalDefense += phy;
+    mMagicalDefense += mag;
+    mElementDefense += ele;
+
+    // Improve the stats to the current level
+    double multiplier = mLevel - 1;
+    if (multiplier <= 0.0)
+        return;
+
+    mPhysicalDefense += mDefinition->getPhysicalDefPerLevel() * multiplier;
+    mMagicalDefense += mDefinition->getMagicalDefPerLevel() * multiplier;
+    mElementDefense += mDefinition->getElementDefPerLevel() * multiplier;
+
+    mNeedFireRefresh = true;
+}
+
+void Creature::clearDefenseModifier()
+{
+    setDefenseModifier(0.0, 0.0, 0.0);
+}
+
+bool Creature::shouldKoAttackedCreature(const Creature& creature) const
+{
+    return getSeat()->getKoCreatures();
 }

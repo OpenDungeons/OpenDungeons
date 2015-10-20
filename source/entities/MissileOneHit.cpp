@@ -27,8 +27,8 @@
 
 MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const std::string& particleScript, const Ogre::Vector3& direction, double speed, double physicalDamage, double magicalDamage,
-        double elementDamage, Tile* tileBuildingTarget, bool damageAllies) :
-    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, tileBuildingTarget, damageAllies),
+        double elementDamage, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature) :
+    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, entityTarget, damageAllies, koEnemyCreature),
     mPhysicalDamage(physicalDamage),
     mMagicalDamage(magicalDamage),
     mElementDamage(elementDamage)
@@ -48,20 +48,15 @@ MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap) :
 {
 }
 
-bool MissileOneHit::hitCreature(GameEntity* entity)
+bool MissileOneHit::hitCreature(Tile* tile, GameEntity* entity)
 {
-    std::vector<Tile*> tiles = entity->getCoveredTiles();
-    if(tiles.empty())
-        return true;
-
-    Tile* hitTile = tiles[0];
-    entity->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, hitTile, false, false, false);
+    entity->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, false, false, false);
     return false;
 }
 
-void MissileOneHit::hitTargetBuilding(Tile* tile, Building* target)
+void MissileOneHit::hitTargetEntity(Tile* tile, GameEntity* entityTarget)
 {
-    target->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, false, false, false);
+    entityTarget->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, false, false, false);
 }
 
 MissileOneHit* MissileOneHit::getMissileOneHitFromStream(GameMap* gameMap, std::istream& is)
@@ -93,22 +88,30 @@ void MissileOneHit::exportToStream(std::ostream& os) const
     }
 }
 
-void MissileOneHit::importFromStream(std::istream& is)
+bool MissileOneHit::importFromStream(std::istream& is)
 {
-    MissileObject::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mPhysicalDamage);
-    OD_ASSERT_TRUE(is >> mMagicalDamage);
-    OD_ASSERT_TRUE(is >> mElementDamage);
+    if(!MissileObject::importFromStream(is))
+        return false;
+    if(!(is >> mPhysicalDamage))
+        return false;
+    if(!(is >> mMagicalDamage))
+        return false;
+    if(!(is >> mElementDamage))
+        return false;
     uint32_t nbEffects;
-    OD_ASSERT_TRUE(is >> nbEffects);
+    if(!(is >> nbEffects))
+        return false;
     while(nbEffects > 0)
     {
         --nbEffects;
         std::string effectScript;
-        OD_ASSERT_TRUE(is >> effectScript);
+        if(!(is >> effectScript))
+            return false;
         MissileParticuleEffectClient* effect = new MissileParticuleEffectClient(nextParticleSystemsName(), effectScript, -1);
         mEntityParticleEffects.push_back(effect);
     }
+
+    return true;
 }
 
 void MissileOneHit::exportToPacket(ODPacket& os, const Seat* seat) const

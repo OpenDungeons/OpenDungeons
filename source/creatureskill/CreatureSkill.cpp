@@ -27,106 +27,16 @@
 
 #include <istream>
 
-std::string CreatureSkill::toString(CreatureSkillType type)
-{
-    switch(type)
-    {
-        case CreatureSkillType::Explosion:
-            return "Explosion";
-        case CreatureSkillType::HealSelf:
-            return "HealSelf";
-        case CreatureSkillType::Melee:
-            return "Melee";
-        case CreatureSkillType::MissileLaunch:
-            return "MissileLaunch";
-        default:
-            OD_LOG_ERR("type=" + Helper::toString(static_cast<int>(type)));
-            return "";
-    }
-}
-
-CreatureSkill* CreatureSkill::load(std::istream& defFile)
-{
-    if(!defFile.good())
-        return nullptr;
-
-    std::string nextParam;
-    if(!(defFile >> nextParam))
-        return nullptr;
-
-    CreatureSkillType typeCreat = CreatureSkillType::nb;
-    for(uint32_t i = 0; i < static_cast<uint32_t>(CreatureSkillType::nb); ++i)
-    {
-        CreatureSkillType type = static_cast<CreatureSkillType>(i);
-        if(nextParam != toString(type))
-            continue;
-
-        typeCreat = type;
-        break;
-    }
-
-    CreatureSkill* skill = nullptr;
-    switch(typeCreat)
-    {
-        case CreatureSkillType::HealSelf:
-        {
-            skill = new CreatureSkillHealSelf;
-            break;
-        }
-        case CreatureSkillType::Explosion:
-        {
-            skill = new CreatureSkillExplosion;
-            break;
-        }
-        case CreatureSkillType::Melee:
-        {
-            skill = new CreatureSkillMeleeFight;
-            break;
-        }
-        case CreatureSkillType::MissileLaunch:
-        {
-            skill = new CreatureSkillMissileLaunch;
-            break;
-        }
-        case CreatureSkillType::nb:
-        default:
-        {
-            break;
-        }
-    }
-
-    if(skill == nullptr)
-    {
-        OD_LOG_ERR("Couldn't find creature skill=" + nextParam);
-        return nullptr;
-    }
-
-    if(!skill->importFromStream(defFile))
-    {
-        delete skill;
-        return nullptr;
-    }
-
-    return skill;
-}
-
-void CreatureSkill::write(const CreatureSkill* skill, std::ostream& defFile)
-{
-    skill->exportToStream(defFile);
-    defFile << std::endl;
-}
-
 void CreatureSkill::getFormatString(std::string& format) const
 {
     if(!format.empty())
         format += "\t";
 
-    format += "# SkillName\tCooldownNbTurns\tWarmupNbTurns";
+    format += "CooldownNbTurns\tWarmupNbTurns";
 }
 
 void CreatureSkill::exportToStream(std::ostream& os) const
 {
-    os << toString(getCreatureSkillType());
     os << "\t" << mCooldownNbTurns;
     os << "\t" << mWarmupNbTurns;
 }

@@ -27,7 +27,42 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static RoomManagerRegister<RoomDormitory> reg(RoomType::dormitory, "Dormitory", "Dormitory room");
+const std::string RoomDormitoryName = "Dormitory";
+const std::string RoomDormitoryNameDisplay = "Dormitory room";
+const RoomType RoomDormitory::mRoomType = RoomType::dormitory;
+
+namespace
+{
+class RoomDormitoryFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomDormitory::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomDormitoryName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomDormitoryNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomDormitory::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomDormitory::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomDormitory::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomDormitory::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomDormitory::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomDormitoryFactory);
+}
 
 RoomDormitory::RoomDormitory(GameMap* gameMap) :
     Room(gameMap)
@@ -333,23 +368,31 @@ void RoomDormitory::exportToStream(std::ostream& os) const
     }
 }
 
-void RoomDormitory::importFromStream(std::istream& is)
+bool RoomDormitory::importFromStream(std::istream& is)
 {
-    Room::importFromStream(is);
+    if(!Room::importFromStream(is))
+        return false;
     uint32_t nbBeds;
-    OD_ASSERT_TRUE(is >> nbBeds);
+    if(!(is >> nbBeds))
+        return false;
     while(nbBeds > 0)
     {
         std::string creatureName;
         int x, y;
         double rotation;
-        OD_ASSERT_TRUE(is >> creatureName);
-        OD_ASSERT_TRUE(is >> x);
-        OD_ASSERT_TRUE(is >> y);
-        OD_ASSERT_TRUE(is >> rotation);
+        if(!(is >> creatureName))
+            return false;
+        if(!(is >> x))
+            return false;
+        if(!(is >> y))
+            return false;
+        if(!(is >> rotation))
+            return false;
         mBedCreatureLoad.push_back(BedCreatureLoad(creatureName, x,y, rotation));
         nbBeds--;
     }
+
+    return true;
 }
 
 void RoomDormitory::restoreInitialEntityState()

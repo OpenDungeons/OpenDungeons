@@ -18,12 +18,35 @@
 #include "creatureskill/CreatureSkillHealSelf.h"
 
 #include "creatureeffect/CreatureEffectHeal.h"
+#include "creatureskill/CreatureSkillManager.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
 #include "sound/SoundEffectsManager.h"
 
 #include <istream>
+
+const std::string CreatureSkillHealSelfName = "HealSelf";
+
+namespace
+{
+class CreatureSkillHealSelfFactory : public CreatureSkillFactory
+{
+    CreatureSkill* createCreatureSkill() const override
+    { return new CreatureSkillHealSelf; }
+
+    const std::string& getCreatureSkillName() const override
+    { return CreatureSkillHealSelfName; }
+};
+
+// Register the factory
+static CreatureSkillRegister reg(new CreatureSkillHealSelfFactory);
+}
+
+const std::string& CreatureSkillHealSelf::getSkillName() const
+{
+    return CreatureSkillHealSelfName;
+}
 
 bool CreatureSkillHealSelf::canBeUsedBy(const Creature* creature) const
 {
@@ -64,7 +87,6 @@ void CreatureSkillHealSelf::getFormatString(std::string& format) const
         format += "\t";
 
     format += "LevelMin\tEffectDuration\tEffectValue";
-
 }
 
 void CreatureSkillHealSelf::exportToStream(std::ostream& os) const

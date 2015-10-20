@@ -33,7 +33,42 @@
 
 #include <cmath>
 
-static RoomManagerRegister<RoomPortal> reg(RoomType::portal, "Portal", "Portal room");
+const std::string RoomPortalName = "Portal";
+const std::string RoomPortalNameDisplay = "Portal room";
+const RoomType RoomPortal::mRoomType = RoomType::portal;
+
+namespace
+{
+class RoomPortalFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomPortal::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomPortalName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomPortalNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomPortal::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomPortal::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomPortal::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomPortal::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomPortal::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomPortalFactory);
+}
 
 const double CLAIMED_VALUE_PER_TILE = 1.0;
 
@@ -223,12 +258,17 @@ void RoomPortal::exportToStream(std::ostream& os) const
     os << mClaimedValue << "\t" << mNbCreatureMaxIncrease << "\n";
 }
 
-void RoomPortal::importFromStream(std::istream& is)
+bool RoomPortal::importFromStream(std::istream& is)
 {
-    Room::importFromStream(is);
+    if(!Room::importFromStream(is))
+        return false;
 
-    OD_ASSERT_TRUE(is >> mClaimedValue);
-    OD_ASSERT_TRUE(is >> mNbCreatureMaxIncrease);
+    if(!(is >> mClaimedValue))
+        return false;
+    if(!(is >> mNbCreatureMaxIncrease))
+        return false;
+
+    return true;
 }
 
 void RoomPortal::restoreInitialEntityState()

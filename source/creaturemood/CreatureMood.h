@@ -58,9 +58,6 @@ public:
     virtual void init(GameMap* gameMap)
     {}
 
-    virtual bool isNaturalEnemy(const Creature* creature) const
-    { return false; }
-
     static std::string toString(CreatureMoodLevel moodLevel);
 };
 

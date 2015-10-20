@@ -25,7 +25,42 @@
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
-static RoomManagerRegister<RoomHatchery> reg(RoomType::hatchery, "Hatchery", "Hatchery room");
+const std::string RoomHatcheryName = "Hatchery";
+const std::string RoomHatcheryNameDisplay = "Hatchery room";
+const RoomType RoomHatchery::mRoomType = RoomType::hatchery;
+
+namespace
+{
+class RoomHatcheryFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomHatchery::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomHatcheryName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomHatcheryNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomHatchery::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomHatchery::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomHatchery::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomHatchery::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomHatchery::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomHatcheryFactory);
+}
 
 RoomHatchery::RoomHatchery(GameMap* gameMap) :
     Room(gameMap),

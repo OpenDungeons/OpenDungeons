@@ -52,6 +52,7 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
     mCreatureMoodAngry(-1000),
     mCreatureMoodFurious(-2000),
     mSlapDamagePercent(15),
+    mSlapEffectDuration(15),
     mTimePayDay(300),
     mNbTurnsFuriousMax(120),
     mMaxManaPerSeat(250000.0),
@@ -488,6 +489,13 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mSlapDamagePercent = Helper::toDouble(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "SlapEffectDuration")
+        {
+            configFile >> nextParam;
+            mSlapEffectDuration = Helper::toDouble(nextParam);
             // Not mandatory
         }
 
@@ -1221,6 +1229,8 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
         if(!loadTilesetValues(defFile, TileVisual::claimedGround, tileSet->configureTileValues(TileVisual::claimedGround)))
             return false;
         if(!loadTilesetValues(defFile, TileVisual::claimedFull, tileSet->configureTileValues(TileVisual::claimedFull)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::gemGround, tileSet->configureTileValues(TileVisual::gemGround)))
             return false;
         if(!loadTilesetValues(defFile, TileVisual::gemFull, tileSet->configureTileValues(TileVisual::gemFull)))
             return false;

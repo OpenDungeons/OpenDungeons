@@ -52,6 +52,8 @@ public:
     static bool buildTrapEditor(GameMap* gameMap, ODPacket& packet);
     static bool buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream& is);
+
+    static const TrapType mTrapType;
 };
 
 #endif // TRAPBOULDER_H

@@ -25,8 +25,8 @@
 #include <iostream>
 
 MissileBoulder::MissileBoulder(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double speed, double damage, Tile* tileBuildingTarget) :
-    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, tileBuildingTarget, true),
+        const Ogre::Vector3& direction, double speed, double damage, GameEntity* entityTarget) :
+    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, entityTarget, true, false),
     mDamage(damage),
     mNbHits(0)
 {
@@ -39,14 +39,9 @@ MissileBoulder::MissileBoulder(GameMap* gameMap, bool isOnServerMap) :
 {
 }
 
-bool MissileBoulder::hitCreature(GameEntity* entity)
+bool MissileBoulder::hitCreature(Tile* tile, GameEntity* entity)
 {
-    std::vector<Tile*> tiles = entity->getCoveredTiles();
-    if(tiles.empty())
-        return true;
-
-    Tile* hitTile = tiles[0];
-    entity->takeDamage(this, mDamage, 0.0, 0.0, hitTile, false, false, false);
+    entity->takeDamage(this, mDamage, 0.0, 0.0, tile, false, false, false);
     ++mNbHits;
     if(Random::Uint(0, 10 - mNbHits) <= 0)
         return false;
@@ -96,9 +91,14 @@ void MissileBoulder::exportToStream(std::ostream& os) const
     os << mNbHits << "\t";
 }
 
-void MissileBoulder::importFromStream(std::istream& is)
+bool MissileBoulder::importFromStream(std::istream& is)
 {
-    MissileObject::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mDamage);
-    OD_ASSERT_TRUE(is >> mNbHits);
+    if(!MissileObject::importFromStream(is))
+        return false;
+    if(!(is >> mDamage))
+        return false;
+    if(!(is >> mNbHits))
+        return false;
+
+    return true;
 }

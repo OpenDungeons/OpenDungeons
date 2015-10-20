@@ -87,6 +87,7 @@ enum class TileVisual
     lavaGround,
     claimedGround,
     claimedFull,
+    gemGround,
     gemFull,
     countTileVisual
 };
@@ -317,6 +318,9 @@ public:
     void fillWithCraftedTraps(std::vector<GameEntity*>& entities);
     uint32_t countEntitiesOnTile(GameEntityType entityType) const;
 
+    //! \brief Returns true if the given entity is on the tile and false otherwise
+    bool isEntityOnTile(GameEntity* entity) const;
+
     //TODO: see if this function can replace the ones above (if not too much used)
     //! Fills the given vector with corresponding entities on this tile.
     void fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityWanted entityWanted, Player* player) const;
@@ -405,8 +409,8 @@ protected:
     virtual void exportHeadersToPacket(ODPacket& os) const override
     {}
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override
-    {}
+    virtual bool importFromStream(std::istream& is) override
+    { return true; }
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override
     {}
     virtual void importFromPacket(ODPacket& is) override

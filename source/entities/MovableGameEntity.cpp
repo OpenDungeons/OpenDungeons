@@ -322,9 +322,9 @@ void MovableGameEntity::exportToStream(std::ostream& os) const
     // about animation (like exportToPacket does)
 }
 
-void MovableGameEntity::importFromStream(std::istream& is)
+bool MovableGameEntity::importFromStream(std::istream& is)
 {
-    GameEntity::importFromStream(is);
+    return GameEntity::importFromStream(is);
     // Note : When we will implement game save, we should consider saving informations
     // about animation (like importFromPacket does)
 }

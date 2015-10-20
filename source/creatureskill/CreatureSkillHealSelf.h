@@ -40,8 +40,7 @@ public:
     virtual ~CreatureSkillHealSelf()
     {}
 
-    virtual CreatureSkillType getCreatureSkillType() const override
-    { return CreatureSkillType::HealSelf; }
+    virtual const std::string& getSkillName() const override;
 
     virtual bool canBeUsedBy(const Creature* creature) const override;
 
@@ -55,7 +54,6 @@ public:
 
     virtual bool isEqual(const CreatureSkill& creatureSkill) const override;
 
-protected:
     virtual void getFormatString(std::string& format) const;
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;

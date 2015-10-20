@@ -99,6 +99,9 @@ public:
     inline double getSlapDamagePercent() const
     { return mSlapDamagePercent; }
 
+    inline uint32_t getSlapEffectDuration() const
+    { return mSlapEffectDuration; }
+
     inline int64_t getTimePayDay() const
     { return mTimePayDay; }
 
@@ -114,7 +117,7 @@ public:
     inline const std::map<const std::string, std::vector<const CreatureMood*> >& getCreatureMoodModifiers() const
     { return mCreatureMoodModifiers; }
     CreatureMoodLevel getCreatureMoodLevel(int32_t moodModifiersPoints) const;
-    inline int64_t getNbTurnsFuriousMax() const
+    inline int32_t getNbTurnsFuriousMax() const
     { return mNbTurnsFuriousMax; }
 
     inline double getMaxManaPerSeat() const
@@ -264,8 +267,9 @@ private:
     int32_t mCreatureMoodAngry;
     int32_t mCreatureMoodFurious;
     double mSlapDamagePercent;
+    uint32_t mSlapEffectDuration;
     int64_t mTimePayDay;
-    int64_t mNbTurnsFuriousMax;
+    int32_t mNbTurnsFuriousMax;
     double mMaxManaPerSeat;
     double mClaimingWallPenalty;
     double mDigCoefGold;

@@ -17,7 +17,10 @@
 
 #include "entities/CreatureDefinition.h"
 
+#include "creaturebehaviour/CreatureBehaviour.h"
+#include "creaturebehaviour/CreatureBehaviourManager.h"
 #include "creatureskill/CreatureSkill.h"
+#include "creatureskill/CreatureSkillManager.h"
 #include "network/ODPacket.h"
 #include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
@@ -47,7 +50,7 @@ CreatureDefinition::CreatureDefinition(
             double                  minHP,
             double                  hpPerLevel,
             double                  hpHealPerTurn,
-            double                  awakenessLostPerTurn,
+            double                  wakefulnessLostPerTurn,
             double                  hungerGrowthPerTurn,
             double                  moveSpeedGround,
             double                  moveSpeedWater,
@@ -66,16 +69,6 @@ CreatureDefinition::CreatureDefinition(
             double                  elementDefense,
             double                  elementDefPerLevel,
             int32_t                 fightIdleDist,
-            double                  attackRange,
-            double                  atkRangePerLevel,
-            double                  phyAtkRan,
-            double                  phyAtkRanPerLvl,
-            double                  magAtkRan,
-            double                  magAtkRanPerLvl,
-            const std::string&      ranAtkMesh,
-            const std::string&      ranAtkPartScript,
-            double                  attackWarmupTime,
-            double                  weakCoef,
             int32_t                 feeBase,
             int32_t                 feePerLevel,
             int32_t                 sleepHeal,
@@ -100,7 +93,7 @@ CreatureDefinition::CreatureDefinition(
         mMinHP       (minHP),
         mHpPerLevel  (hpPerLevel),
         mHpHealPerTurn      (hpHealPerTurn),
-        mAwakenessLostPerTurn(awakenessLostPerTurn),
+        mWakefulnessLostPerTurn(wakefulnessLostPerTurn),
         mHungerGrowthPerTurn(hungerGrowthPerTurn),
         mMoveSpeedGround    (moveSpeedGround),
         mMoveSpeedWater     (moveSpeedWater),
@@ -115,7 +108,6 @@ CreatureDefinition::CreatureDefinition(
         mElementDefense     (elementDefense),
         mElementDefPerLevel (elementDefPerLevel),
         mFightIdleDist      (fightIdleDist),
-        mWeakCoef           (weakCoef),
         mFeeBase            (feeBase),
         mFeePerLevel        (feePerLevel),
         mSleepHeal          (sleepHeal),
@@ -152,7 +144,7 @@ CreatureDefinition::CreatureDefinition(const CreatureDefinition& def) :
         mMinHP(def.mMinHP),
         mHpPerLevel(def.mHpPerLevel),
         mHpHealPerTurn(def.mHpHealPerTurn),
-        mAwakenessLostPerTurn(def.mAwakenessLostPerTurn),
+        mWakefulnessLostPerTurn(def.mWakefulnessLostPerTurn),
         mHungerGrowthPerTurn(def.mHungerGrowthPerTurn),
         mMoveSpeedGround(def.mMoveSpeedGround),
         mMoveSpeedWater(def.mMoveSpeedWater),
@@ -167,13 +159,13 @@ CreatureDefinition::CreatureDefinition(const CreatureDefinition& def) :
         mElementDefense(def.mElementDefense),
         mElementDefPerLevel(def.mElementDefPerLevel),
         mFightIdleDist(def.mFightIdleDist),
-        mWeakCoef(def.mWeakCoef),
         mFeeBase(def.mFeeBase),
         mFeePerLevel(def.mFeePerLevel),
         mSleepHeal(def.mSleepHeal),
         mTurnsStunDropped(def.mTurnsStunDropped),
         mWeaponSpawnL(def.mWeaponSpawnL),
         mWeaponSpawnR(def.mWeaponSpawnR),
+        mMoodModifierName(def.mMoodModifierName),
         mSoundFamilyPickup(def.mSoundFamilyPickup),
         mSoundFamilyDrop(def.mSoundFamilyDrop),
         mSoundFamilyAttack(def.mSoundFamilyAttack),
@@ -190,7 +182,23 @@ CreatureDefinition::CreatureDefinition(const CreatureDefinition& def) :
     }
     for(const CreatureSkill* skill : def.mCreatureSkills)
     {
-        mCreatureSkills.push_back(skill->clone());
+        CreatureSkill* cloned = CreatureSkillManager::clone(skill);
+        if(cloned == nullptr)
+        {
+            OD_LOG_ERR("Error while cloning creature def=" + def.getClassName() + ", skill=" + skill->getSkillName());
+            continue;
+        }
+        mCreatureSkills.push_back(cloned);
+    }
+    for(const CreatureBehaviour* behaviour : def.mCreatureBehaviours)
+    {
+        CreatureBehaviour* cloned = CreatureBehaviourManager::clone(behaviour);
+        if(cloned == nullptr)
+        {
+            OD_LOG_ERR("Error while cloning creature def=" + def.getClassName() + ", behaviour=" + behaviour->getName());
+            continue;
+        }
+        mCreatureBehaviours.push_back(cloned);
     }
 }
 
@@ -198,9 +206,14 @@ CreatureDefinition::~CreatureDefinition()
 {
     for(const CreatureSkill* skill : mCreatureSkills)
     {
-        delete skill;
+        CreatureSkillManager::dispose(skill);
     }
     mCreatureSkills.clear();
+    for(const CreatureBehaviour* behaviour : mCreatureBehaviours)
+    {
+        CreatureBehaviourManager::dispose(behaviour);
+    }
+    mCreatureBehaviours.clear();
 }
 
 double CreatureDefinition::getXPNeededWhenLevel(unsigned int level) const
@@ -254,7 +267,7 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mMinHP;
     os << c->mHpPerLevel;
     os << c->mHpHealPerTurn;
-    os << c->mAwakenessLostPerTurn;
+    os << c->mWakefulnessLostPerTurn;
     os << c->mHungerGrowthPerTurn;
     os << c->mSightRadius;
     os << c->mMaxGoldCarryable;
@@ -266,7 +279,6 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
     os << c->mElementDefense << c->mElementDefPerLevel;
     os << c->mFightIdleDist;
-    os << c->mWeakCoef;
     os << c->mFeeBase;
     os << c->mFeePerLevel;
     os << c->mSleepHeal;
@@ -295,7 +307,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2 >>c->mBedPosX >> c->mBedPosY >> c->mBedOrientX >> c->mBedOrientY;
     is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
     is >> c->mMinHP >> c->mHpPerLevel >> c->mHpHealPerTurn;
-    is >> c->mAwakenessLostPerTurn >> c->mHungerGrowthPerTurn;
+    is >> c->mWakefulnessLostPerTurn >> c->mHungerGrowthPerTurn;
     is >> c->mSightRadius;
     is >> c->mMaxGoldCarryable;
     is >> c->mDigRate >> c->mDigRatePerLevel;
@@ -306,7 +318,6 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
     is >> c->mElementDefense >> c->mElementDefPerLevel;
     is >> c->mFightIdleDist;
-    is >> c->mWeakCoef;
     is >> c->mFeeBase;
     is >> c->mFeePerLevel;
     is >> c->mSleepHeal;
@@ -383,6 +394,7 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 OD_LOG_ERR("Couldn't find base class " + baseDefinition);
                 return false;
             }
+            // TODO : this seems weird. Operator "=" is not defined
             *creatureDef = *(it->second);
             continue;
         }
@@ -396,6 +408,12 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
         if (nextParam == "[CreatureSkills]")
         {
             loadCreatureSkills(defFile, creatureDef);
+            continue;
+        }
+
+        if (nextParam == "[CreatureBehaviours]")
+        {
+            loadCreatureBehaviours(defFile, creatureDef);
             continue;
         }
 
@@ -500,10 +518,10 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mHpHealPerTurn = Helper::toDouble(nextParam);
                 continue;
             }
-            else if (nextParam == "AwakenessLost/Turn")
+            else if (nextParam == "WakefulnessLost/Turn")
             {
                 defFile >> nextParam;
-                creatureDef->mAwakenessLostPerTurn = Helper::toDouble(nextParam);
+                creatureDef->mWakefulnessLostPerTurn = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "HungerGrowth/Turn")
@@ -625,13 +643,6 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
             {
                 defFile >> nextParam;
                 creatureDef->mFightIdleDist = Helper::toInt(nextParam);
-                continue;
-            }
-            else if (nextParam == "WeakCoef")
-            {
-                defFile >> nextParam;
-                creatureDef->mWeakCoef = Helper::toDouble(nextParam);
-                OD_ASSERT_TRUE_MSG(creatureDef->mWeakCoef >= 0.0 && creatureDef->mWeakCoef <= 1.0, "mWeakCoef=" + Helper::toString(creatureDef->mWeakCoef));
                 continue;
             }
             else if (nextParam == "FeeBase")
@@ -766,8 +777,8 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
     if(def1 == nullptr || (def1->mHpHealPerTurn != def2->mHpHealPerTurn))
         file << "    Heal/Turn\t" << def2->mHpHealPerTurn << std::endl;
 
-    if(def1 == nullptr || (def1->mAwakenessLostPerTurn != def2->mAwakenessLostPerTurn))
-        file << "    AwakenessLost/Turn\t" << def2->mAwakenessLostPerTurn << std::endl;
+    if(def1 == nullptr || (def1->mWakefulnessLostPerTurn != def2->mWakefulnessLostPerTurn))
+        file << "    WakefulnessLost/Turn\t" << def2->mWakefulnessLostPerTurn << std::endl;
 
     if(def1 == nullptr || (def1->mHungerGrowthPerTurn != def2->mHungerGrowthPerTurn))
         file << "    HungerGrowth/Turn\t" << def2->mHungerGrowthPerTurn << std::endl;
@@ -828,9 +839,6 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
 
     if(def1 == nullptr || (def1->mFightIdleDist != def2->mFightIdleDist))
         file << "    FightIdleDist\t" << def2->mFightIdleDist << std::endl;
-
-    if(def1 == nullptr || (def1->mWeakCoef != def2->mWeakCoef))
-        file << "    WeakCoef\t" << def2->mWeakCoef << std::endl;
 
     if(def1 == nullptr || (def1->mFeeBase != def2->mFeeBase))
         file << "    FeeBase\t" << def2->mFeeBase << std::endl;
@@ -929,7 +937,7 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
     {
         for(uint32_t i = 0; i < def1->mCreatureSkills.size(); ++i)
         {
-            if(!def1->mCreatureSkills[i]->isEqual(*(def2->mCreatureSkills[i])))
+            if(!CreatureSkillManager::areEqual(*def1->mCreatureSkills[i], *def2->mCreatureSkills[i]))
             {
                 isSame = false;
                 break;
@@ -942,12 +950,40 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
         for(const CreatureSkill* skill : def2->mCreatureSkills)
         {
             std::string format;
-            skill->getFormatString(format);
+            CreatureSkillManager::getFormatString(*skill, format);
             file << "    " << format << std::endl;
             file << "    ";
-            CreatureSkill::write(skill, file);
+            CreatureSkillManager::write(*skill, file);
+            file << std::endl;
         }
         file << "    [/CreatureSkills]" << std::endl;
+    }
+
+    isSame = (def1 != nullptr && (def1->mCreatureBehaviours.size() == def2->mCreatureBehaviours.size()));
+    if(isSame)
+    {
+        for(uint32_t i = 0; i < def1->mCreatureBehaviours.size(); ++i)
+        {
+            if(!CreatureBehaviourManager::areEqual(*def1->mCreatureBehaviours[i], *def2->mCreatureBehaviours[i]))
+            {
+                isSame = false;
+                break;
+            }
+        }
+    }
+    if(!isSame && !def2->mCreatureBehaviours.empty())
+    {
+        file << "    [CreatureBehaviours]" << std::endl;
+        for(const CreatureBehaviour* behaviour : def2->mCreatureBehaviours)
+        {
+            std::string format;
+            CreatureBehaviourManager::getFormatString(*behaviour, format);
+            file << "    " << format << std::endl;
+            file << "    ";
+            CreatureBehaviourManager::write(*behaviour, file);
+            file << std::endl;
+        }
+        file << "    [/CreatureBehaviours]" << std::endl;
     }
     file << "[/Creature]" << std::endl;
 }
@@ -1019,15 +1055,14 @@ void CreatureDefinition::loadCreatureSkills(std::stringstream& defFile, Creature
         if(nextParam.empty())
             continue;
 
-        if (nextParam == "[/CreatureSkills]" || nextParam == "[/Stats]" ||
+        if (nextParam == "[/CreatureSkills]"||
             nextParam == "[/Creature]" || nextParam == "[/Creatures]")
         {
             break;
         }
 
-        // Ignore values after the max level
         std::stringstream ss(nextParam);
-        CreatureSkill* skill = CreatureSkill::load(ss);
+        CreatureSkill* skill = CreatureSkillManager::load(ss);
         if (skill == nullptr)
         {
             OD_LOG_ERR("line=" + nextParam);
@@ -1038,12 +1073,57 @@ void CreatureDefinition::loadCreatureSkills(std::stringstream& defFile, Creature
     }
 }
 
+void CreatureDefinition::loadCreatureBehaviours(std::stringstream& defFile, CreatureDefinition* creatureDef)
+{
+    if (creatureDef == nullptr)
+    {
+        OD_LOG_ERR("Cannot load null creature def");
+        return;
+    }
+
+    if(!defFile.good())
+    {
+        OD_LOG_ERR("input file invalid");
+        return;
+    }
+
+    std::string nextParam;
+    // We want to start on the next line
+    std::getline(defFile, nextParam);
+    while (defFile.good())
+    {
+        std::getline(defFile, nextParam);
+        if(!defFile.good())
+            break;
+
+        Helper::trim(nextParam);
+        if(nextParam.empty())
+            continue;
+
+        if (nextParam == "[/CreatureBehaviours]" ||
+            nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        {
+            break;
+        }
+
+        std::stringstream ss(nextParam);
+        CreatureBehaviour* behaviour = CreatureBehaviourManager::load(ss);
+        if (behaviour == nullptr)
+        {
+            OD_LOG_ERR("line=" + nextParam);
+            continue;
+        }
+
+        creatureDef->mCreatureBehaviours.push_back(behaviour);
+    }
+}
+
 void CreatureDefinition::loadRoomAffinity(std::stringstream& defFile, CreatureDefinition* creatureDef)
 {
     OD_ASSERT_TRUE(creatureDef != nullptr);
     if (creatureDef == nullptr)
     {
-        OD_LOG_ERR("Cannot load room afinity for null creatureDef");
+        OD_LOG_ERR("Cannot load room affinity for null creatureDef");
         return;
     }
 

@@ -1,0 +1,35 @@
+os:
+  - linux
+# would be nice to check build with osx
+#  - osx
+
+language:
+  - cpp
+
+compiler:
+  - gcc
+
+addons:
+  apt:
+    packages:
+    - g++-5
+    - gcc-5
+    - make
+    - cmake
+    - binutils-dev
+
+before_install:
+# we need a repository that has ogre
+  - export HOME_DIR=`pwd`
+  - echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libois-dev libfreetype6-dev libsfml-dev libopenal-dev libexpat1-dev libsilly-dev
+  - sudo apt-get install -qq libogre-1.9-dev
+# CEGUI is not packaged. We need to compile it ourself. Note that we could also compile it and download binaries if need be
+  - wget http://download.tuxfamily.org/opendungeons/dependency/cegui-0.8.4.tar.bz2 -O - | tar xj
+  - (cd cegui-0.8.4 && cmake . -DCEGUI_HAS_FREETYPE=ON -DCEGUI_BUILD_IMAGECODEC_SILLY=ON -DCEGUI_BUILD_XMLPARSER_EXPAT=ON -DCEGUI_BUILD_RENDERER_OGRE=ON && sudo make install)
+  - cd $HOME_DIR
+script:
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release . && make; fi
+
+cache: apt

@@ -17,6 +17,7 @@
 
 #include "creatureskill/CreatureSkillMissileLaunch.h"
 
+#include "creatureskill/CreatureSkillManager.h"
 #include "entities/Creature.h"
 #include "entities/MissileOneHit.h"
 #include "entities/Tile.h"
@@ -29,6 +30,27 @@
 #include <istream>
 
 const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
+const std::string CreatureSkillMissileLaunchName = "MissileLaunch";
+
+namespace
+{
+class CreatureSkillMissileLaunchFactory : public CreatureSkillFactory
+{
+    CreatureSkill* createCreatureSkill() const override
+    { return new CreatureSkillMissileLaunch; }
+
+    const std::string& getCreatureSkillName() const override
+    { return CreatureSkillMissileLaunchName; }
+};
+
+// Register the factory
+static CreatureSkillRegister reg(new CreatureSkillMissileLaunchFactory);
+}
+
+const std::string& CreatureSkillMissileLaunch::getSkillName() const
+{
+    return CreatureSkillMissileLaunchName;
+}
 
 double CreatureSkillMissileLaunch::getRangeMax(const Creature* creature, GameEntity* entityAttack) const
 {
@@ -80,22 +102,16 @@ bool CreatureSkillMissileLaunch::tryUseFight(GameMap& gameMap, Creature* creatur
         eleAtk +=creature->getWeaponR()->getElementDamage();
     }
 
-    // If we are attacking a building we set the tile
-    Tile* tileBuilding = nullptr;
-    switch(attackedObject->getObjectType())
+    bool shouldKoTarget = false;
+    if((attackedObject != nullptr) &&
+       (attackedObject->getObjectType() == GameEntityType::creature))
     {
-        case GameEntityType::room:
-        case GameEntityType::trap:
-        {
-            tileBuilding = attackedTile;
-            break;
-        }
-        default:
-            break;
+        Creature* c = static_cast<Creature*>(attackedObject);
+        shouldKoTarget = creature->shouldKoAttackedCreature(*c);
     }
     MissileOneHit* missile = new MissileOneHit(&gameMap, gameMap.isServerGameMap(), creature->getSeat(),
         creature->getName(), mMissileMesh, mMissilePartScript, missileDirection, mMissileSpeed, phyAtk, magAtk, eleAtk,
-        tileBuilding, false);
+        attackedObject, false, shouldKoTarget);
     missile->addToGameMap();
     missile->createMesh();
     missile->setPosition(position);

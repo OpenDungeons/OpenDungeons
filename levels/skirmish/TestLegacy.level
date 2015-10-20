@@ -6794,7 +6794,7 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 1	Adventurer_001	Adventurer	196	200	0	Adventurer	1	0	max	100	0	0	none	none	0	none	0
 2	Gnome2	Gnome	192	229	0	Gnome	1	0	max	100	0	0	none	none	0	none	0
 1	Goblin3	Goblin	183	229	0	Goblin	1	0	max	100	0	0	none	none	0	none	0

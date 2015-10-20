@@ -27,7 +27,42 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static RoomManagerRegister<RoomBridgeStone> reg(RoomType::bridgeStone, "StoneBridge", "Stone Bridge room");
+const std::string RoomBridgeStoneName = "StoneBridge";
+const std::string RoomBridgeStoneNameDisplay = "Stone Bridge room";
+const RoomType RoomBridgeStone::mRoomType = RoomType::bridgeStone;
+
+namespace
+{
+class RoomBridgeStoneFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomBridgeStone::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomBridgeStoneName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomBridgeStoneNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomBridgeStone::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomBridgeStone::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomBridgeStone::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomBridgeStone::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomBridgeStone::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomBridgeStoneFactory);
+}
 
 static const std::vector<TileVisual> allowedTilesVisual = {TileVisual::waterGround, TileVisual::lavaGround};
 
@@ -54,8 +89,13 @@ void RoomBridgeStone::updateFloodFillPathCreated(Seat* seat, const std::vector<T
                 if(colors[i] != Tile::NO_FLOODFILL)
                     continue;
 
-                isFloodfilled = false;
-                colors[i] = neigh->getFloodFillValue(seat, type);
+                uint32_t floodfill = neigh->getFloodFillValue(seat, type);
+                if(floodfill == Tile::NO_FLOODFILL)
+                {
+                    isFloodfilled = false;
+                    continue;
+                }
+                colors[i] = floodfill;
             }
 
             if(isFloodfilled)

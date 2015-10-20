@@ -89,6 +89,43 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions("-DOD_DEBUG")
 endif()
 
+# From Boost cmake file
+
+# We want to differentiate MinGW64 and MinGW32
+if(WIN32 AND MINGW)
+    exec_program(${CMAKE_CXX_COMPILER} ARGS ${CMAKE_CXX_COMPILER_ARG1} -dumpversion OUTPUT_VARIABLE OD_MINGW_COMPILER_VERSION)
+    string(REGEX REPLACE "([0-9])\\.([0-9])(\\.[0-9])?" "\\1\\2" OD_MINGW_COMPILER_VERSION ${OD_MINGW_COMPILER_VERSION})
+    message(STATUS "OD_MINGW_COMPILER_VERSION: ${OD_MINGW_COMPILER_VERSION}")
+endif()
+
+## We check for dependencies
+set(OD_DEPENDENCIES_DIR "$ENV{OD_DEPS}" CACHE PATH "Path to prebuilt OD dependencies")
+if(OD_DEPENDENCIES_DIR)
+    if(WIN32 AND MINGW)
+        set(OD_ARCH_SUFIX "/mingw${OD_MINGW_COMPILER_VERSION}")
+    elseif(WIN32 AND MSVC)
+        set(OD_ARCH_SUFIX "/msvc")
+    else()
+        set(OD_ARCH_SUFIX "")
+    endif()
+    set(OD_DEP_SEARCH_PATH
+    # Boost binaries contains compiler name. They can be put in the same directory
+        ${OD_DEPENDENCIES_DIR}/boost
+        ${OD_DEPENDENCIES_DIR}/stage/lib
+        ${OD_DEPENDENCIES_DIR}/cegui/include/cegui-0
+        ${OD_DEPENDENCIES_DIR}/cegui/lib${OD_ARCH_SUFIX}
+        ${OD_DEPENDENCIES_DIR}/ogresdk/include
+        ${OD_DEPENDENCIES_DIR}/ogresdk/lib${OD_ARCH_SUFIX}
+        ${OD_DEPENDENCIES_DIR}/sfml/include
+        ${OD_DEPENDENCIES_DIR}/sfml/lib${OD_ARCH_SUFIX}
+        )
+
+    # hints to the find_package calls
+    set(CMAKE_PREFIX_PATH ${OD_DEP_SEARCH_PATH} ${CMAKE_PREFIX_PATH})
+
+    message(STATUS "Search path dependencies: ${OD_DEP_SEARCH_PATH}")
+endif()
+
 ##################################
 #### ExplicitCompilerFlags #######
 ##################################
@@ -232,14 +269,23 @@ set(OD_SOURCEFILES
     ${SRC}/camera/CameraManager.cpp
     ${SRC}/camera/HermiteCatmullSpline.cpp
 
+    ${SRC}/creaturebehaviour/CreatureBehaviour.cpp
+    ${SRC}/creaturebehaviour/CreatureBehaviourAttackEnemy.cpp
+    ${SRC}/creaturebehaviour/CreatureBehaviourEngageNaturalEnemy.cpp
+    ${SRC}/creaturebehaviour/CreatureBehaviourFleeWhenWeak.cpp
+    ${SRC}/creaturebehaviour/CreatureBehaviourLeaveDungeonWhenFurious.cpp
+    ${SRC}/creaturebehaviour/CreatureBehaviourManager.cpp
+
     ${SRC}/creatureeffect/CreatureEffect.cpp
+    ${SRC}/creatureeffect/CreatureEffectDefense.cpp
     ${SRC}/creatureeffect/CreatureEffectExplosion.cpp
     ${SRC}/creatureeffect/CreatureEffectHeal.cpp
+    ${SRC}/creatureeffect/CreatureEffectManager.cpp
     ${SRC}/creatureeffect/CreatureEffectSlap.cpp
     ${SRC}/creatureeffect/CreatureEffectSpeedChange.cpp
 
     ${SRC}/creaturemood/CreatureMood.cpp
-    ${SRC}/creaturemood/CreatureMoodAwakness.cpp
+    ${SRC}/creaturemood/CreatureMoodWakefulness.cpp
     ${SRC}/creaturemood/CreatureMoodCreature.cpp
     ${SRC}/creaturemood/CreatureMoodFee.cpp
     ${SRC}/creaturemood/CreatureMoodHunger.cpp
@@ -248,8 +294,10 @@ set(OD_SOURCEFILES
     ${SRC}/creaturemood/CreatureMoodTurnsWithoutFight.cpp
 
     ${SRC}/creatureskill/CreatureSkill.cpp
+    ${SRC}/creatureskill/CreatureSkillDefenseSelf.cpp
     ${SRC}/creatureskill/CreatureSkillExplosion.cpp
     ${SRC}/creatureskill/CreatureSkillHealSelf.cpp
+    ${SRC}/creatureskill/CreatureSkillManager.cpp
     ${SRC}/creatureskill/CreatureSkillMeleeFight.cpp
     ${SRC}/creatureskill/CreatureSkillMissileLaunch.cpp
 
@@ -370,6 +418,7 @@ set(OD_SOURCEFILES
 
     ${SRC}/spells/Spell.cpp
     ${SRC}/spells/SpellCallToWar.cpp
+    ${SRC}/spells/SpellCreatureDefense.cpp
     ${SRC}/spells/SpellCreatureExplosion.cpp
     ${SRC}/spells/SpellCreatureHaste.cpp
     ${SRC}/spells/SpellCreatureHeal.cpp
@@ -556,7 +605,7 @@ target_link_libraries(${PROJECT_BINARY_NAME} ${OGRE_Overlay_LIBRARY})
 # We link needed libraries to display stacktrace on uncatched exception
 if(MINGW)
 # MinGW32 needs intl while not MinGW64. To differentiate them, we test the compiler version as it does not change very often for MinGW32
-    if(${CMAKE_CXX_COMPILER_VERSION} STREQUAL "4.8.1")
+    if(${OD_MINGW_COMPILER_VERSION} EQUAL 48)
         message(STATUS "MINGW32 COMPILER VERSION: " ${CMAKE_CXX_COMPILER_VERSION})
         target_link_libraries(${PROJECT_BINARY_NAME} imagehlp bfd intl iberty z)
     else()
@@ -704,7 +753,7 @@ elseif(WIN32)
     if(Boost_FILESYSTEM_LIBRARY_RELEASE)
         get_filename_component(BOOST_FILESYSTEM_NAME ${Boost_FILESYSTEM_LIBRARY_RELEASE} NAME_WE)
         find_file(DEPS_BOOST_FILESYSTEM_BIN_REL NAMES "${BOOST_FILESYSTEM_NAME}.dll" PATH_SUFFIXES "${Boost_LIBRARY_DIR}" "")
-        set(BOOST_BIN_REL ${BOOST_BIN_REL} ${BOOST_FILESYSTEM_NAME})
+        set(BOOST_BIN_REL ${BOOST_BIN_REL} ${DEPS_BOOST_FILESYSTEM_BIN_REL})
     endif()
     if(Boost_LOCALE_LIBRARY_RELEASE)
         get_filename_component(BOOST_LOCALE_NAME ${Boost_LOCALE_LIBRARY_RELEASE} NAME_WE)
@@ -726,6 +775,7 @@ elseif(WIN32)
         find_file(DEPS_BOOST_THREAD_BIN_REL NAMES "${BOOST_THREAD_NAME}.dll" PATH_SUFFIXES "${Boost_LIBRARY_DIR}" "")
         set(BOOST_BIN_REL ${BOOST_BIN_REL} ${DEPS_BOOST_THREAD_BIN_REL})
     endif()
+    message(STATUS "BOOST_BIN_REL: ${BOOST_BIN_REL}")
 
     #CEGUI
     find_file(DEPS_CEGUI_MAIN_BIN_REL NAMES "CEGUIBase-0.dll" "libCEGUIBase-0.dll" PATH_SUFFIXES "")

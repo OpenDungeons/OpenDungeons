@@ -27,7 +27,42 @@
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
-static TrapManagerRegister<TrapSpike> reg(TrapType::spike, "Spike", "Spike trap");
+const std::string TrapSpikeName = "Spike";
+const std::string TrapSpikeNameDisplay = "Spike trap";
+const TrapType TrapSpike::mTrapType = TrapType::spike;
+
+namespace
+{
+class TrapSpikeFactory : public TrapFactory
+{
+    TrapType getTrapType() const override
+    { return TrapSpike::mTrapType; }
+
+    const std::string& getName() const override
+    { return TrapSpikeName; }
+
+    const std::string& getNameReadable() const override
+    { return TrapSpikeNameDisplay; }
+
+    virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { TrapSpike::checkBuildTrap(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return TrapSpike::buildTrap(gameMap, player, packet); }
+
+    virtual void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { TrapSpike::checkBuildTrapEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const
+    { return TrapSpike::buildTrapEditor(gameMap, packet); }
+
+    Trap* getTrapFromStream(GameMap* gameMap, std::istream& is) const override
+    { return TrapSpike::getTrapFromStream(gameMap, is); }
+};
+
+// Register the factory
+static TrapRegister reg(new TrapSpikeFactory);
+}
 
 const std::string TrapSpike::MESH_SPIKE = "Spiketrap";
 

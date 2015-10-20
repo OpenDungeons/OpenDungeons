@@ -32,7 +32,7 @@ public:
     {}
 
     virtual RoomType getType() const
-    { return RoomType::trainingHall; }
+    { return mRoomType; }
 
     virtual void doUpkeep();
     virtual bool hasOpenCreatureSpot(Creature* c);
@@ -46,6 +46,8 @@ public:
     static void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
+
+    static const RoomType mRoomType;
 
 protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);

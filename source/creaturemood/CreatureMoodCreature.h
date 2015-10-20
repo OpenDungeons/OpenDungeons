@@ -42,8 +42,6 @@ public:
 
     virtual bool importFromStream(std::istream& is) override;
 
-    virtual bool isNaturalEnemy(const Creature* creature) const override;
-
 private:
     CreatureMoodCreature(const std::string& creatureClass, int32_t moodModifier) :
         mCreatureDefinition(nullptr),

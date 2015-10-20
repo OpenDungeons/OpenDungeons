@@ -50,9 +50,10 @@ enum class ResearchType
     // Spells
     spellSummonWorker,
     spellCallToWar,
-    spellCreatureHeal,
+    spellCreatureDefense,
     spellCreatureExplosion,
     spellCreatureHaste,
+    spellCreatureHeal,
 
     // This should be the last
     countResearch

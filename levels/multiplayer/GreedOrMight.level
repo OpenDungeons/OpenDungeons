@@ -2317,7 +2317,7 @@ MineNGold	50
     MinHP	35
     HP/Level	10
     Heal/Turn	0.5
-    AwakenessLost/Turn	0
+    WakefulnessLost/Turn	0
     HungerGrowth/Turn	0
     TileSightRadius	15
     MaxGoldCarryable	0
@@ -2361,6 +2361,10 @@ MineNGold	50
     # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	PhyAtk	PhyAtkPerLvl	MagAtk	MagAtkPerLvl	EleAtk	EleAtkPerLvl
     Melee	5	2	1	13	1	7	0	0	0
     [/CreatureSkills]
+    [CreatureBehaviours]
+    # BehaviourName
+    AttackEnemy
+    [/CreatureBehaviours]
 [/Creature]
 [/CreatureDefinitions]
 
@@ -2368,7 +2372,7 @@ MineNGold	50
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 0	BossDragon1	BossDragon	62	14	0	BossDragon	4	0	max	100	0	0	none	none	0	none	0
 0	BossDragon2	BossDragon	40	68	0	BossDragon	3	0	max	100	0	0	none	none	0	none	0
 0	BossDragon3	BossDragon	33	65	0	BossDragon	3	0	max	100	0	0	none	none	0	none	0

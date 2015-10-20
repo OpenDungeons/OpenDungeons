@@ -53,14 +53,16 @@ public:
     { return EntityParticleEffectType::missile; }
 };
 
-class MissileObject: public RenderedMovableEntity
+class MissileObject: public RenderedMovableEntity, public GameEntityListener
 {
 public:
     //! If the missile is sent against a building, tileBuildingTarget should contain it. If the tile is reached,
     //! the building will be damaged. If the target is not a building, tileBuildingTarget should be nullptr
     MissileObject(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double speed, Tile* tileBuildingTarget, bool damageAllies);
+        const Ogre::Vector3& direction, double speed, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature);
     MissileObject(GameMap* gameMap, bool isOnServerMap);
+
+    virtual ~MissileObject();
 
     virtual void doUpkeep();
 
@@ -74,12 +76,12 @@ public:
     /*! brief Function called when the missile hits a creature. If it returns true, the missile continues
      * If it returns false, the missile will be destroyed
      */
-    virtual bool hitCreature(GameEntity* entity)
+    virtual bool hitCreature(Tile* tile, GameEntity* entity)
     { return false; }
 
-    /*! brief Function called when the missile hits the target building. After returning, the missile will be destroyed
+    /*! brief Function called when the missile hits the target entity. After returning, the missile will be destroyed
      */
-    virtual void hitTargetBuilding(Tile* tile, Building* target)
+    virtual void hitTargetEntity(Tile* tile, GameEntity* entityTarget)
     {}
 
     virtual GameEntityType getObjectType() const override
@@ -90,6 +92,16 @@ public:
 
     virtual MissileObjectType getMissileType() const = 0;
 
+    virtual std::string getListenerName() const override
+    { return getName(); }
+
+    virtual bool notifyDead(GameEntity* entity) override;
+    virtual bool notifyRemovedFromGameMap(GameEntity* entity) override;
+    virtual bool notifyPickedUp(GameEntity* entity) override;
+    virtual bool notifyDropped(GameEntity* entity) override;
+
+    virtual bool shouldKoAttackedCreature(const Creature& creature) const override;
+
     static std::string getMissileObjectStreamFormat();
 
     static MissileObject* getMissileObjectFromStream(GameMap* gameMap, std::istream& is);
@@ -98,7 +110,7 @@ protected:
     virtual void exportHeadersToStream(std::ostream& os) const override;
     virtual void exportHeadersToPacket(ODPacket& os) const override;
     void exportToStream(std::ostream& os) const override;
-    void importFromStream(std::istream& is) override;
+    bool importFromStream(std::istream& is) override;
     void exportToPacket(ODPacket& os, const Seat* seat) const override;
     void importFromPacket(ODPacket& is) override;
 
@@ -107,8 +119,9 @@ private:
         Ogre::Vector3& destination, std::list<Tile*>& tiles);
     Ogre::Vector3 mDirection;
     bool mIsMissileAlive;
-    Tile* mTileBuildingTarget;
+    GameEntity* mEntityTarget;
     bool mDamageAllies;
+    bool mKoEnemyCreature;
     double mSpeed;
 };
 

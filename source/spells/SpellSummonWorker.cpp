@@ -32,7 +32,43 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker, "summonWorker", "Summon worker", "SummonWorkerCooldown");
+const std::string SpellSummonWorkerName = "summonWorker";
+const std::string SpellSummonWorkerNameDisplay = "Summon worker";
+const std::string SpellSummonWorkerCooldownKey = "SummonWorkerCooldown";
+const SpellType SpellSummonWorker::mSpellType = SpellType::summonWorker;
+
+namespace
+{
+class SpellSummonWorkerFactory : public SpellFactory
+{
+    SpellType getSpellType() const override
+    { return SpellSummonWorker::mSpellType; }
+
+    const std::string& getName() const override
+    { return SpellSummonWorkerName; }
+
+    const std::string& getCooldownKey() const override
+    { return SpellSummonWorkerCooldownKey; }
+
+    const std::string& getNameReadable() const override
+    { return SpellSummonWorkerNameDisplay; }
+
+    virtual void checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    { SpellSummonWorker::checkSpellCast(gameMap, inputManager, inputCommand); }
+
+    virtual bool castSpell(GameMap* gameMap, Player* player, ODPacket& packet) const override
+    { return SpellSummonWorker::castSpell(gameMap, player, packet); }
+
+    Spell* getSpellFromStream(GameMap* gameMap, std::istream &is) const override
+    { return SpellSummonWorker::getSpellFromStream(gameMap, is); }
+
+    Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is) const override
+    { return SpellSummonWorker::getSpellFromPacket(gameMap, is); }
+};
+
+// Register the factory
+static SpellRegister reg(new SpellSummonWorkerFactory);
+}
 
 void SpellSummonWorker::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {

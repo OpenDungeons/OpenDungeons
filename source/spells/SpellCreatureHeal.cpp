@@ -33,7 +33,43 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellCreatureHeal> reg(SpellType::creatureHeal, "creatureHeal", "Creature heal", "CreatureHealCooldown");
+const std::string SpellCreatureHealName = "creatureHeal";
+const std::string SpellCreatureHealNameDisplay = "Creature heal";
+const std::string SpellCreatureHealCooldownKey = "CreatureHealCooldown";
+const SpellType SpellCreatureHeal::mSpellType = SpellType::creatureHeal;
+
+namespace
+{
+class SpellCreatureHealFactory : public SpellFactory
+{
+    SpellType getSpellType() const override
+    { return SpellCreatureHeal::mSpellType; }
+
+    const std::string& getName() const override
+    { return SpellCreatureHealName; }
+
+    const std::string& getCooldownKey() const override
+    { return SpellCreatureHealCooldownKey; }
+
+    const std::string& getNameReadable() const override
+    { return SpellCreatureHealNameDisplay; }
+
+    virtual void checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    { SpellCreatureHeal::checkSpellCast(gameMap, inputManager, inputCommand); }
+
+    virtual bool castSpell(GameMap* gameMap, Player* player, ODPacket& packet) const override
+    { return SpellCreatureHeal::castSpell(gameMap, player, packet); }
+
+    Spell* getSpellFromStream(GameMap* gameMap, std::istream &is) const override
+    { return SpellCreatureHeal::getSpellFromStream(gameMap, is); }
+
+    Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is) const override
+    { return SpellCreatureHeal::getSpellFromPacket(gameMap, is); }
+};
+
+// Register the factory
+static SpellRegister reg(new SpellCreatureHealFactory);
+}
 
 void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {

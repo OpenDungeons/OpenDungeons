@@ -86,6 +86,7 @@ bool Tile::isDiggable(const Seat* seat) const
         case TileVisual::lavaGround:
         case TileVisual::waterGround:
         case TileVisual::rockGround:
+        case TileVisual::gemGround:
         case TileVisual::rockFull:
             return false;
         case TileVisual::goldFull:
@@ -326,6 +327,9 @@ std::string Tile::tileVisualToString(TileVisual tileVisual)
 
         case TileVisual::claimedGround:
             return "claimedGround";
+
+        case TileVisual::gemGround:
+            return "gemGround";
 
         case TileVisual::gemFull:
             return "gemFull";
@@ -781,7 +785,10 @@ void Tile::computeTileVisual()
             return;
 
         case TileType::gem:
-            mTileVisual = TileVisual::gemFull;
+            if(mFullness > 0.0)
+                mTileVisual = TileVisual::gemFull;
+            else
+                mTileVisual = TileVisual::gemGround;
             return;
 
         default:

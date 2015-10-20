@@ -84,13 +84,13 @@ public:
 
     static std::string getRenderedMovableEntityStreamFormat();
 
-protected:
     //! \brief Exports the data of the RenderedMovableEntity
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
+    virtual bool importFromStream(std::istream& is) override;
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
 
+protected:
     virtual void createMeshLocal() override;
     virtual void destroyMeshLocal() override;
     virtual void fireAddEntity(Seat* seat, bool async) override;

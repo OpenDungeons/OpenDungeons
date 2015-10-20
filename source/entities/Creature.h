@@ -43,7 +43,6 @@ class ODPacket;
 class Room;
 class Weapon;
 
-enum class CreatureEffectType;
 enum class CreatureMoodLevel;
 enum class ResearchType;
 
@@ -182,6 +181,12 @@ public:
     //! \brief Pointer to the creature type specification
     inline const CreatureDefinition* getDefinition() const
     { return mDefinition; }
+
+    inline CreatureMoodLevel getMoodValue() const
+    { return mMoodValue; }
+
+    inline int32_t getNbTurnFurious() const
+    { return mNbTurnFurious; }
 
     void setPosition(const Ogre::Vector3& v) override;
 
@@ -352,17 +357,24 @@ public:
     bool tryDrop(Seat* seat, Tile* tile) override;
     void drop(const Ogre::Vector3& v) override;
 
-    //! \brief sets the speed modifier. If 1.0, resets to default speed
+    //! \brief sets the speed modifier (coef)
     void setMoveSpeedModifier(double modifier);
+    void clearMoveSpeedModifier();
+
+    //! \brief sets the defense modifier
+    void setDefenseModifier(double phy, double mag, double ele);
+    void clearDefenseModifier();
+
+    virtual bool shouldKoAttackedCreature(const Creature& creature) const override;
 
     virtual double getAnimationSpeedFactor() const override
     { return mSpeedModifier; }
 
     inline void jobDone(double val)
     {
-        mAwakeness -= val;
-        if(mAwakeness < 0.0)
-            mAwakeness = 0.0;
+        mWakefulness -= val;
+        if(mWakefulness < 0.0)
+            mWakefulness = 0.0;
     }
     inline bool decreaseJobCooldown()
     {
@@ -418,8 +430,24 @@ public:
     inline const std::vector<Tile*>& getVisibleTiles() const
     { return mVisibleTiles; }
 
-    inline double getAwakeness() const
-    { return mAwakeness; }
+    inline const std::vector<GameEntity*>& getVisibleEnemyObjects() const
+    { return mVisibleEnemyObjects; }
+
+    inline const std::vector<GameEntity*>& getVisibleAlliedObjects() const
+    { return mVisibleAlliedObjects; }
+
+    inline const std::vector<GameEntity*>& getReachableAlliedObjects() const
+    { return mReachableAlliedObjects; }
+
+    //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
+    //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
+    //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
+    //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
+    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
+    void popAction();
+
+    inline double getWakefulness() const
+    { return mWakefulness; }
 
     inline double getHunger() const
     { return mHunger; }
@@ -448,9 +476,8 @@ public:
     //! Called on server side to add an effect (spell, slap, ...) to this creature
     void addCreatureEffect(CreatureEffect* effect);
 
-    //!\brief Called on server side. Returns true if the given effect currently affects this creature
-    //! and false if not.
-    bool hasCreatureEffect(CreatureEffectType type) const;
+    //!\brief Returns true if the creature is forced to work for some reason (like an effect)
+    bool isForcedToWork() const;
 
     virtual void correctEntityMovePosition(Ogre::Vector3& position) override;
 
@@ -488,11 +515,14 @@ public:
     virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const override;
     virtual void updateFromPacket(ODPacket& is) override;
 
+    //! \brief Called when an angry creature wants to attack a natural enemy
+    void engageAlliedNaturalEnemy(Creature& attacker);
+
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
+    virtual bool importFromStream(std::istream& is) override;
 
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -537,7 +567,7 @@ private:
     const CreatureDefinition* mDefinition;
 
     bool            mHasVisualDebuggingEntities;
-    double          mAwakeness;
+    double          mWakefulness;
     double          mHunger;
 
     //! \brief The level of the creature
@@ -615,9 +645,8 @@ private:
     //! should not be used to check mood. If the mood is to be tested, mMoodValue should be used
     int32_t                         mMoodPoints;
 
-    //! \brief Reminds the first turn the creature gets furious. If is stays like this for too long,
-    //! it will become rogue
-    int64_t                         mFirstTurnFurious;
+    //! \brief Counts turns the creature is furious. If it stays like this for too long, it will become rogue
+    int32_t                         mNbTurnFurious;
 
     //! \brief Represents the life value displayed on client side. We do not notify each HP change
     //! to avoid too many communication. But when mOverlayHealthValue changes, we will
@@ -661,13 +690,6 @@ private:
 
     //! \brief Skills the creature can use
     std::vector<CreatureSkillData> mSkillData;
-
-    //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
-    //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
-    //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
-    //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
-    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
-    void popAction();
 
     //! \brief Picks a destination far away in the visible tiles and goes there
     //! Returns true if a valid Tile was found. The creature will go there
@@ -764,14 +786,10 @@ private:
     //! \return true when another action should handled after that one.
     bool handleLeaveDungeon(const CreatureActionWrapper& actionItem);
 
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature fighting action logic when
-    //! fighting an allied natural enemy (when in bad mood)
-    //! \return true when another action should handled after that one.
-    bool handleFightAlliedNaturalEnemyAction(const CreatureActionWrapper& actionItem);
-
     //! \brief Restores the creature's stats according to its current level
     void buildStats();
+
+    void updateScale();
 
     void carryEntity(GameEntity* carriedEntity);
 
@@ -779,12 +797,9 @@ private:
 
     void increaseHunger(double value);
 
-    void decreaseAwakeness(double value);
+    void decreaseWakefulness(double value);
 
     void computeMood();
-
-    //! \brief Called when an angry creature wants to attack a natural enemy
-    void engageAlliedNaturalEnemy(Creature* attacker);
 
     void computeCreatureOverlayHealthValue();
 

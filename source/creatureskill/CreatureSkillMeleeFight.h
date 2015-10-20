@@ -44,8 +44,7 @@ public:
     virtual ~CreatureSkillMeleeFight()
     {}
 
-    virtual CreatureSkillType getCreatureSkillType() const override
-    { return CreatureSkillType::Melee; }
+    virtual const std::string& getSkillName() const override;
 
     virtual double getRangeMax(const Creature* creature, GameEntity* entityAttack) const override
     { return 1.0; }
@@ -62,7 +61,6 @@ public:
 
     virtual bool isEqual(const CreatureSkill& creatureSkill) const override;
 
-protected:
     virtual void getFormatString(std::string& format) const;
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;

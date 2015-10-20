@@ -17,17 +17,8 @@
 
 #include "creaturemood/CreatureMood.h"
 
-#include "creaturemood/CreatureMoodAwakness.h"
-#include "creaturemood/CreatureMoodCreature.h"
-#include "creaturemood/CreatureMoodFee.h"
-#include "creaturemood/CreatureMoodHpLoss.h"
-#include "creaturemood/CreatureMoodHunger.h"
-#include "creaturemood/CreatureMoodTurnsWithoutFight.h"
-#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
-
-#include <istream>
 
 std::string CreatureMood::toString(CreatureMoodLevel moodLevel)
 {

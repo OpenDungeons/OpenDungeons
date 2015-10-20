@@ -34,199 +34,210 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-const std::string EMPTY_STRING;
+static const std::string EMPTY_STRING;
+
 
 namespace
 {
-    std::vector<RoomFunctions>& getRoomFunctions()
+    static std::vector<const RoomFactory*>& getFactories()
     {
-        static std::vector<RoomFunctions> roomList(static_cast<uint32_t>(RoomType::nbRooms));
-        return roomList;
+        static std::vector<const RoomFactory*> factory(static_cast<uint32_t>(RoomType::nbRooms), nullptr);
+        return factory;
     }
 }
 
-void RoomFunctions::checkBuildRoomFunc(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand) const
+void RoomManager::registerFactory(const RoomFactory* factory)
 {
-    if(mCheckBuildRoomFunc == nullptr)
+    std::vector<const RoomFactory*>& factories = getFactories();
+    uint32_t index = static_cast<uint32_t>(factory->getRoomType());
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("null mCheckBuildRoom function Room=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return;
     }
 
-    mCheckBuildRoomFunc(gameMap, inputManager, inputCommand);
+    factories[index] = factory;
 }
 
-bool RoomFunctions::buildRoomFunc(GameMap* gameMap, RoomType type, Player* player, ODPacket& packet) const
+void RoomManager::unregisterFactory(const RoomFactory* factory)
 {
-    if(mBuildRoomFunc == nullptr)
+    std::vector<const RoomFactory*>& factories = getFactories();
+    auto it = std::find(factories.begin(), factories.end(), factory);
+    if(it == factories.end())
     {
-        OD_LOG_ERR("null mBuildRoomFunc function Room=" + Helper::toString(static_cast<uint32_t>(type)));
-        return false;
-    }
-
-    return mBuildRoomFunc(gameMap, player, packet);
-}
-
-void RoomFunctions::checkBuildRoomEditorFunc(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand) const
-{
-    if(mCheckBuildRoomEditorFunc == nullptr)
-    {
-        OD_LOG_ERR("null mCheckBuildRoomEditorFund function Room=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("Trying to unregister unknown factory=" + factory->getName());
         return;
     }
-
-    mCheckBuildRoomEditorFunc(gameMap, inputManager, inputCommand);
+    factories.erase(it);
 }
 
-bool RoomFunctions::buildRoomEditorFunc(GameMap* gameMap, RoomType type, ODPacket& packet) const
+Room* RoomManager::load(GameMap* gameMap, std::istream& is)
 {
-    if(mBuildRoomEditorFunc == nullptr)
+    if(!is.good())
+        return nullptr;
+
+    std::vector<const RoomFactory*>& factories = getFactories();
+    std::string nextParam;
+    OD_ASSERT_TRUE(is >> nextParam);
+    const RoomFactory* factoryToUse = nullptr;
+    for(const RoomFactory* factory : factories)
     {
-        OD_LOG_ERR("null mBuildRoomEditorFunc function Room=" + Helper::toString(static_cast<uint32_t>(type)));
-        return false;
+        if(factory == nullptr)
+            continue;
+
+        if(factory->getName().compare(nextParam) != 0)
+            continue;
+
+        factoryToUse = factory;
+        break;
     }
 
-    return mBuildRoomEditorFunc(gameMap, packet);
-}
-
-Room* RoomFunctions::getRoomFromStreamFunc(GameMap* gameMap, RoomType type, std::istream& is) const
-{
-    if(mGetRoomFromStreamFunc == nullptr)
+    if(factoryToUse == nullptr)
     {
-        OD_LOG_ERR("null mGetRoomFromStreamFunc function Room=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("Unknown room type=" + nextParam);
         return nullptr;
     }
 
-    return mGetRoomFromStreamFunc(gameMap, is);
+    Room* room = factoryToUse->getRoomFromStream(gameMap, is);
+    if(!room->importFromStream(is))
+    {
+        OD_LOG_ERR("Couldn't load creature room type=" + nextParam);
+        delete room;
+        return nullptr;
+    }
+
+    return room;
+}
+
+void RoomManager::dispose(const Room* room)
+{
+    delete room;
+}
+
+void RoomManager::write(const Room& room, std::ostream& os)
+{
+    os << room.getName();
+    room.exportToStream(os);
 }
 
 void RoomManager::checkBuildRoom(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand)
 {
+    std::vector<const RoomFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getRoomFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return;
     }
 
-    RoomFunctions& roomFuncs = getRoomFunctions()[index];
-    roomFuncs.checkBuildRoomFunc(gameMap, type, inputManager, inputCommand);
+    const RoomFactory& factory = *factories[index];
+    factory.checkBuildRoom(gameMap, inputManager, inputCommand);
 }
 
 bool RoomManager::buildRoom(GameMap* gameMap, RoomType type, Player* player, ODPacket& packet)
 {
+    std::vector<const RoomFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getRoomFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return false;
     }
 
-    RoomFunctions& roomFuncs = getRoomFunctions()[index];
-    return roomFuncs.buildRoomFunc(gameMap, type, player, packet);
+    const RoomFactory& factory = *factories[index];
+    return factory.buildRoom(gameMap, player, packet);
 }
 
 void RoomManager::checkBuildRoomEditor(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand)
 {
+    std::vector<const RoomFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getRoomFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return;
     }
 
-    RoomFunctions& roomFuncs = getRoomFunctions()[index];
-    roomFuncs.checkBuildRoomEditorFunc(gameMap, type, inputManager, inputCommand);
+    const RoomFactory& factory = *factories[index];
+    factory.checkBuildRoomEditor(gameMap, inputManager, inputCommand);
 }
 
 bool RoomManager::buildRoomEditor(GameMap* gameMap, RoomType type, ODPacket& packet)
 {
+    std::vector<const RoomFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getRoomFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return false;
     }
 
-    RoomFunctions& roomFuncs = getRoomFunctions()[index];
-    return roomFuncs.buildRoomEditorFunc(gameMap, type, packet);
+    const RoomFactory& factory = *factories[index];
+    return factory.buildRoomEditor(gameMap, packet);
 }
 
 Room* RoomManager::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
     RoomType type;
-    OD_ASSERT_TRUE(is >> type);
+    if(!(is >> type))
+        return nullptr;
+
+    std::vector<const RoomFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getRoomFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return nullptr;
     }
 
-    RoomFunctions& roomFuncs = getRoomFunctions()[index];
-    return roomFuncs.getRoomFromStreamFunc(gameMap, type, is);
+    const RoomFactory& factory = *factories[index];
+    return factory.getRoomFromStream(gameMap, is);
 }
 
 const std::string& RoomManager::getRoomNameFromRoomType(RoomType type)
 {
+    std::vector<const RoomFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getRoomFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return EMPTY_STRING;
     }
-    RoomFunctions& roomFuncs = getRoomFunctions()[index];
-    return roomFuncs.mName;
+
+    const RoomFactory& factory = *factories[index];
+    return factory.getName();
 }
 
 const std::string& RoomManager::getRoomReadableName(RoomType type)
 {
+    std::vector<const RoomFactory*>& factories = getFactories();
     uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getRoomFunctions().size())
+    if(index >= factories.size())
     {
-        OD_LOG_ERR("type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
         return EMPTY_STRING;
     }
-    RoomFunctions& roomFuncs = getRoomFunctions()[index];
-    return roomFuncs.mReadableName;
+
+    const RoomFactory& factory = *factories[index];
+    return factory.getNameReadable();
 }
 
 RoomType RoomManager::getRoomTypeFromRoomName(const std::string& name)
 {
-    uint32_t nbRooms = static_cast<uint32_t>(RoomType::nbRooms);
-    for(uint32_t i = 0; i < nbRooms; ++i)
+    std::vector<const RoomFactory*>& factories = getFactories();
+    for(const RoomFactory* factory : factories)
     {
-        RoomFunctions& roomFuncs = getRoomFunctions()[i];
-        if(name.compare(roomFuncs.mName) == 0)
-            return static_cast<RoomType>(i);
+        if(factory == nullptr)
+            continue;
+
+        if(factory->getName().compare(name) != 0)
+            continue;
+
+        return factory->getRoomType();
     }
 
     OD_LOG_ERR("Cannot find Room name=" + name);
     return RoomType::nullRoomType;
-}
-
-void RoomManager::registerRoom(RoomType type, const std::string& name, const std::string& readableName,
-    RoomFunctions::CheckBuildRoomFunc checkBuildRoomFunc,
-    RoomFunctions::BuildRoomFunc buildRoomFunc,
-    RoomFunctions::CheckBuildRoomFunc checkBuildRoomEditorFunc,
-    RoomFunctions::BuildRoomEditorFunc buildRoomEditorFunc,
-    RoomFunctions::GetRoomFromStreamFunc getRoomFromStreamFunc)
-{
-    uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getRoomFunctions().size())
-    {
-        OD_LOG_ERR("type=" + Helper::toString(index));
-        return;
-    }
-
-    RoomFunctions& roomFuncs = getRoomFunctions()[index];
-    roomFuncs.mName = name;
-    roomFuncs.mReadableName = readableName;
-    roomFuncs.mCheckBuildRoomFunc = checkBuildRoomFunc;
-    roomFuncs.mBuildRoomFunc = buildRoomFunc;
-    roomFuncs.mCheckBuildRoomEditorFunc = checkBuildRoomEditorFunc;
-    roomFuncs.mBuildRoomEditorFunc = buildRoomEditorFunc;
-    roomFuncs.mGetRoomFromStreamFunc = getRoomFromStreamFunc;
 }
 
 void RoomManager::checkSellRoomTiles(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
@@ -493,6 +504,7 @@ void RoomManager::sellRoomTilesEditor(GameMap* gameMap, ODPacket& packet)
         room->updateActiveSpots();
 }
 
+// TODO : merge that in the manager (the string parameter for getRoomConfigInt32)
 int RoomManager::costPerTile(RoomType t)
 {
     switch (t)

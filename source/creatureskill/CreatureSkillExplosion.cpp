@@ -18,6 +18,7 @@
 #include "creatureskill/CreatureSkillExplosion.h"
 
 #include "creatureeffect/CreatureEffectExplosion.h"
+#include "creatureskill/CreatureSkillManager.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
@@ -25,6 +26,28 @@
 #include "utils/LogManager.h"
 
 #include <istream>
+
+const std::string CreatureSkillExplosionName = "Explosion";
+
+namespace
+{
+class CreatureSkillExplosionFactory : public CreatureSkillFactory
+{
+    CreatureSkill* createCreatureSkill() const override
+    { return new CreatureSkillExplosion; }
+
+    const std::string& getCreatureSkillName() const override
+    { return CreatureSkillExplosionName; }
+};
+
+// Register the factory
+static CreatureSkillRegister reg(new CreatureSkillExplosionFactory);
+}
+
+const std::string& CreatureSkillExplosion::getSkillName() const
+{
+    return CreatureSkillExplosionName;
+}
 
 double CreatureSkillExplosion::getRangeMax(const Creature* creature, GameEntity* entityAttack) const
 {

@@ -225,7 +225,7 @@ public:
 protected:
     virtual void exportHeadersToStream(std::ostream& os) const override;
     virtual void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const override;
-    virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData) override;
+    virtual bool importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData) override;
 
     virtual TrapTileData* createTileData(Tile* tile) override;
 

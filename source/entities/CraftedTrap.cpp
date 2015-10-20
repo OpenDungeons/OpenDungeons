@@ -111,10 +111,14 @@ void CraftedTrap::exportToStream(std::ostream& os) const
     os << mTrapType << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
 }
 
-void CraftedTrap::importFromStream(std::istream& is)
+bool CraftedTrap::importFromStream(std::istream& is)
 {
-    RenderedMovableEntity::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mTrapType >> mPosition.x >> mPosition.y >> mPosition.z);
+    if(!RenderedMovableEntity::importFromStream(is))
+        return false;
+    if(!(is >> mTrapType >> mPosition.x >> mPosition.y >> mPosition.z))
+        return false;
+
+    return true;
 }
 
 std::string CraftedTrap::getCraftedTrapStreamFormat()

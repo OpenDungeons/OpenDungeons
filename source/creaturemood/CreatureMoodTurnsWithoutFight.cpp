@@ -22,7 +22,7 @@
 #include "entities/CreatureDefinition.h"
 #include "utils/Helper.h"
 
-class CreatureMoodFactoryTurnsWithoutFight : public CreatureMoodFactory
+class CreatureMoodTurnsWithoutFightFactory : public CreatureMoodFactory
 {
     CreatureMood* createCreatureMood() const override
     { return new CreatureMoodTurnsWithoutFight; }
@@ -35,7 +35,7 @@ class CreatureMoodFactoryTurnsWithoutFight : public CreatureMoodFactory
 };
 
 //! \brief Register the mood type
-static CreatureMoodRegister reg(new CreatureMoodFactoryTurnsWithoutFight);
+static CreatureMoodRegister reg(new CreatureMoodTurnsWithoutFightFactory);
 
 int32_t CreatureMoodTurnsWithoutFight::computeMood(const Creature* creature) const
 {

@@ -183,6 +183,13 @@ namespace Helper
         return true;
     }
 
+    std::string toString(void* p)
+    {
+        std::stringstream stream;
+        stream << p;
+        return stream.str();
+    }
+
     std::string intTo2Hex(int i)
     {
         std::stringstream stream;

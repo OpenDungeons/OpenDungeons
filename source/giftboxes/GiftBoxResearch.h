@@ -35,7 +35,7 @@ public:
 
 protected:
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
+    virtual bool importFromStream(std::istream& is) override;
 
 private:
     ResearchType mResearchType;

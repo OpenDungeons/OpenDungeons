@@ -50,7 +50,7 @@ public:
     RoomWorkshop(GameMap* gameMap);
 
     virtual RoomType getType() const override
-    { return RoomType::workshop; }
+    { return mRoomType; }
 
     virtual void doUpkeep() override;
     virtual bool hasOpenCreatureSpot(Creature* c) override;
@@ -65,9 +65,11 @@ public:
     static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
 
+    static const RoomType mRoomType;
+
 protected:
     virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
+    virtual bool importFromStream(std::istream& is) override;
 
     RoomWorkshopTileData* createTileData(Tile* tile) override;
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;

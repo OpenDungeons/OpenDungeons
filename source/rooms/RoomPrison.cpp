@@ -21,14 +21,52 @@
 #include "entities/SmallSpiderEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-static RoomManagerRegister<RoomPrison> reg(RoomType::prison, "Prison", "Prison room");
+const std::string RoomPrisonName = "Prison";
+const std::string RoomPrisonNameDisplay = "Prison room";
+const RoomType RoomPrison::mRoomType = RoomType::prison;
+
+namespace
+{
+class RoomPrisonFactory : public RoomFactory
+{
+    RoomType getRoomType() const override
+    { return RoomPrison::mRoomType; }
+
+    const std::string& getName() const override
+    { return RoomPrisonName; }
+
+    const std::string& getNameReadable() const override
+    { return RoomPrisonNameDisplay; }
+
+    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomPrison::checkBuildRoom(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    { return RoomPrison::buildRoom(gameMap, player, packet); }
+
+    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    { RoomPrison::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+
+    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    { return RoomPrison::buildRoomEditor(gameMap, packet); }
+
+    Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
+    { return RoomPrison::getRoomFromStream(gameMap, is); }
+};
+
+// Register the factory
+static RoomRegister reg(new RoomPrisonFactory);
+}
 
 const int32_t OFFSET_TILE_X = 0;
 const int32_t OFFSET_TILE_Y = -1;
@@ -104,7 +142,7 @@ void RoomPrison::doUpkeep()
             if(creature->getSeatPrison() != getSeat())
                 continue;
 
-            Tile* creatureTile = getPositionTile();
+            Tile* creatureTile = creature->getPositionTile();
             if(creatureTile == nullptr)
             {
                 OD_LOG_ERR("creatureName=" + creature->getName() + ", position=" + Helper::toString(creature->getPosition()));
@@ -128,10 +166,36 @@ void RoomPrison::doUpkeep()
             else
             {
                 // The creature is dead. We can release it
-                creature->setSeatPrison(nullptr);
-
                 OD_LOG_INF("creature=" + creature->getName() + " died in prison=" + getName());
-                // TODO : spawn a skeleton or something
+
+                if((getSeat()->getPlayer() != nullptr) &&
+                   (getSeat()->getPlayer()->getIsHuman()))
+                {
+                    ServerNotification *serverNotification = new ServerNotification(
+                        ServerNotificationType::chatServer, getSeat()->getPlayer());
+                    std::string msg = "A creature died starving in your prison";
+                    serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+                    ODServer::getSingleton().queueServerNotification(serverNotification);
+                }
+
+                creature->setSeatPrison(nullptr);
+                creature->removeFromGameMap();
+                creature->deleteYourself();
+
+                const std::string& className = ConfigManager::getSingleton().getRoomConfigString("PrisonSpawnClass");
+                const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(className);
+                if(classToSpawn == nullptr)
+                {
+                    OD_LOG_ERR("className=" + className);
+                    continue;
+                }
+                // Create a new creature and copy over the class-based creature parameters.
+                Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat());
+
+                // Add the creature to the gameMap and create meshes so it is visible.
+                newCreature->addToGameMap();
+                newCreature->setPosition(Ogre::Vector3(creatureTile->getX(), creatureTile->getY(), 0.0f));
+                newCreature->createMesh();
             }
         }
     }

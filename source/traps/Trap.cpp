@@ -475,11 +475,13 @@ void Trap::exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileDa
         os << "\t" << seat->getId();
 }
 
-void Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
+bool Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
 {
     TrapTileData* trapTileData = static_cast<TrapTileData*>(tileData);
     int isTrapActiv;
-    OD_ASSERT_TRUE(is >> isTrapActiv);
+    if(!(is >> isTrapActiv))
+        return false;
+
     if(is.eof())
     {
         // Default initialization
@@ -489,7 +491,7 @@ void Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
         if(isTrapActiv != 0)
             activate(tile);
 
-        return;
+        return true;
     }
 
     // We read saved trap state
@@ -497,11 +499,16 @@ void Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
     uint32_t reloadTime;
     int32_t nbShootsBeforeDeactivation;
     int32_t nbSeatsVision;
-    OD_ASSERT_TRUE(is >> tileHealth);
-    OD_ASSERT_TRUE(is >> reloadTime);
-    OD_ASSERT_TRUE(is >> nbShootsBeforeDeactivation);
-    OD_ASSERT_TRUE(is >> trapTileData->mClaimedValue);
-    OD_ASSERT_TRUE(is >> nbSeatsVision);
+    if(!(is >> tileHealth))
+        return false;
+    if(!(is >> reloadTime))
+        return false;
+    if(!(is >> nbShootsBeforeDeactivation))
+        return false;
+    if(!(is >> trapTileData->mClaimedValue))
+        return false;
+    if(!(is >> nbSeatsVision))
+        return false;
 
     if(isTrapActiv != 0)
         activate(tile);
@@ -525,7 +532,9 @@ void Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
     {
         --nbSeatsVision;
         int seatId;
-        OD_ASSERT_TRUE(is >> seatId);
+        if(!(is >> seatId))
+            return false;
+
         Seat* seat = gameMap->getSeatById(seatId);
         if(seat == nullptr)
         {
@@ -534,6 +543,8 @@ void Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
         }
         trapTileData->seatSawTriggering(seat);
     }
+
+    return true;
 }
 
 TrapTileData* Trap::createTileData(Tile* tile)
