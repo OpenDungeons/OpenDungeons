@@ -543,6 +543,7 @@ Seat* Seat::createRogueSeat(GameMap* gameMap)
     seat->mStartingX = 0;
     seat->mStartingY = 0;
     seat->mGold = 0;
+    seat->mGoldMax = 0;
     seat->mGoldMined = 0;
     seat->mColorId = "0";
     seat->mMana = 0;
@@ -1587,7 +1588,8 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
     os << s->mId << s->mTeamId << s->mPlayerType << s->mFaction << s->mStartingX
        << s->mStartingY;
     os << s->mColorId;
-    os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
+    os << s->mGold << s->mGoldMax;
+    os << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
     os << s->mNumCreaturesFighters << s->mNumCreaturesFightersMax;
     os << s->mNumCreaturesWorkers;
     os << s->mHasGoalsChanged;
@@ -1616,7 +1618,8 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     is >> s->mId >> s->mTeamId >> s->mPlayerType;
     is >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorId;
-    is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
+    is >> s->mGold >> s->mGoldMax;
+    is >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mNumCreaturesFighters >> s->mNumCreaturesFightersMax;
     is >> s->mNumCreaturesWorkers;
     is >> s->mHasGoalsChanged;

@@ -107,28 +107,25 @@ bool KeeperAI::checkTreasury()
     }
     mCooldownCheckTreasury = Random::Int(10,30);
 
-    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(RoomType::treasury,
-        mPlayer.getSeat());
+    int totalGold = 0;
+    int totalStorage = 0;
+    for(Room* room : mGameMap.getRooms())
+    {
+        if(room->getSeat() != mPlayer.getSeat())
+            continue;
 
-    int nbTilesTreasuries = 0;
-    for(Room* treasury : treasuriesOwned)
-        nbTilesTreasuries += treasury->numCoveredTiles();
+        totalGold += room->getTotalGoldStored();
+        totalStorage += room->getTotalGoldStorage();
+    }
 
-    // We want at least 3 tiles for a treasury
-    if(nbTilesTreasuries >= 3)
+    // We want at least to be allowed to store 3000 gold
+    if(totalStorage >= 3000)
         return false;
 
     // The treasury is too small, we try to increase it
-    int totalGold = 0;
-    for(Room* treasury : treasuriesOwned)
-    {
-        RoomTreasury* rt = static_cast<RoomTreasury*>(treasury);
-        totalGold += rt->getTotalGold();
-    }
-
     // A treasury can be built if we have none (in this case, it is free). Otherwise,
     // we check if we have enough gold
-    if(nbTilesTreasuries > 0 && totalGold < RoomManager::costPerTile(RoomType::treasury))
+    if((totalStorage > 0) && (totalGold < RoomManager::costPerTile(RoomType::treasury)))
         return false;
 
     Tile* central = getDungeonTemple()->getCentralTile();
@@ -138,6 +135,7 @@ bool KeeperAI::checkTreasury()
         return false;
 
     // We try in priority to gold next to an existing treasury
+    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(RoomType::treasury, mPlayer.getSeat());
     for(Room* treasury : treasuriesOwned)
     {
         for(Tile* tile : treasury->getCoveredTiles())
@@ -355,12 +353,12 @@ bool KeeperAI::lookForGold()
 
     // Do we need gold ?
     int emptyStorage = 0;
-    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(RoomType::treasury,
-        mPlayer.getSeat());
-    for(Room* room : treasuriesOwned)
+    for(Room* room : mGameMap.getRooms())
     {
-        RoomTreasury* rt = static_cast<RoomTreasury*>(room);
-        emptyStorage += rt->emptyStorageSpace();
+        if(room->getSeat() != mPlayer.getSeat())
+            continue;
+
+        emptyStorage += (room->getTotalGoldStorage() - room->getTotalGoldStored());
     }
 
     // No need to search for gold
@@ -520,17 +518,18 @@ bool KeeperAI::buildMostNeededRoom()
 
     if(ResearchManager::isRoomAvailable(RoomType::treasury, mPlayer.getSeat()))
     {
-        std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(RoomType::treasury,
-            mPlayer.getSeat());
-        int emptyStorage = 0;
+        int totalStorage = 0;
         int totalGold = 0;
-        for(Room* room : treasuriesOwned)
+        for(Room* room : mGameMap.getRooms())
         {
-            RoomTreasury* rt = static_cast<RoomTreasury*>(room);
-            emptyStorage += rt->emptyStorageSpace();
-            totalGold += rt->getTotalGold();
+            if(room->getSeat() != mPlayer.getSeat())
+                continue;
+
+            totalStorage += room->getTotalGoldStorage();
+            totalGold += room->getTotalGoldStored();
         }
 
+        int emptyStorage = totalStorage - totalGold;
         if((emptyStorage < 100) && (totalGold < 20000))
         {
             std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,

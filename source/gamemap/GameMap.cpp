@@ -1285,7 +1285,16 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
         }
 
         // Update the count on how much gold is available in all of the treasuries claimed by the given seat.
-        seat->mGold = getTotalGoldForSeat(seat);
+        seat->mGold = 0;
+        seat->mGoldMax = 0;
+        for (Room* room : getRooms())
+        {
+            if(room->getSeat() != seat)
+                continue;
+
+            seat->mGold += room->getTotalGoldStored();
+            seat->mGoldMax += room->getTotalGoldStorage();
+        }
     }
 
     // Determine the number of tiles claimed by each seat.
@@ -1951,18 +1960,6 @@ void GameMap::removeTrap(Trap *t)
     mTraps.erase(it);
 }
 
-int GameMap::getTotalGoldForSeat(Seat* seat)
-{
-    int tempInt = 0;
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(RoomType::treasury, seat);
-    for (unsigned int i = 0; i < treasuriesOwned.size(); ++i)
-    {
-        tempInt += static_cast<RoomTreasury*>(treasuriesOwned[i])->getTotalGold();
-    }
-
-    return tempInt;
-}
-
 bool GameMap::withdrawFromTreasuries(int gold, Seat* seat)
 {
     // Check to see if there is enough gold available in all of the treasuries owned by the given seat.
@@ -1971,10 +1968,15 @@ bool GameMap::withdrawFromTreasuries(int gold, Seat* seat)
 
     // Loop over the treasuries withdrawing gold until the full amount has been withdrawn.
     int goldStillNeeded = gold;
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(RoomType::treasury, seat);
-    for (unsigned int i = 0; i < treasuriesOwned.size() && goldStillNeeded > 0; ++i)
+    for (Room* room : getRooms())
     {
-        goldStillNeeded -= static_cast<RoomTreasury*>(treasuriesOwned[i])->withdrawGold(goldStillNeeded);
+        if(room->getSeat() != seat)
+            continue;
+
+        int goldTaken = room->withdrawGold(goldStillNeeded);
+        goldStillNeeded -= goldTaken;
+        if(goldTaken <= 0)
+            break;
     }
 
     return true;
@@ -2522,14 +2524,16 @@ int GameMap::addGoldToSeat(int gold, int seatId)
     if(seat == nullptr)
         return gold;
 
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(RoomType::treasury, seat);
-    for (std::vector<Room*>::iterator it = treasuriesOwned.begin(); it != treasuriesOwned.end(); ++it)
+    for (Room* room : getRooms())
     {
-        RoomTreasury* treasury = static_cast<RoomTreasury*>(*it);
-        if(treasury->numCoveredTiles() == 0)
+        if(room->getSeat() != seat)
             continue;
 
-        gold -= treasury->depositGold(gold, treasury->getCoveredTile(0));
+        if(room->numCoveredTiles() == 0)
+            continue;
+
+        Tile* tile = room->getCoveredTile(0);
+        gold -= room->depositGold(gold, tile);
         if(gold <= 0)
             break;
     }

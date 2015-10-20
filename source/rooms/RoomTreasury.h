@@ -58,15 +58,16 @@ public:
     bool removeCoveredTile(Tile* t);
 
     // Functions specific to this class.
-    int getTotalGold();
-    int emptyStorageSpace();
-    int depositGold(int gold, Tile *tile);
-    int withdrawGold(int gold);
     virtual void doUpkeep();
 
     bool hasCarryEntitySpot(GameEntity* carriedEntity);
     Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
+
+    virtual int getTotalGoldStorage() const override;
+    virtual int getTotalGoldStored() const override;
+    virtual int depositGold(int gold, Tile *tile) override;
+    virtual int withdrawGold(int gold) override;
 
     static void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet);

@@ -63,7 +63,7 @@ public:
     //! \brief Conform: GameEntity functions handling covered tiles
     std::vector<Tile*> getCoveredTiles() override;
     Tile* getCoveredTile(int index) override;
-    uint32_t numCoveredTiles() override;
+    virtual uint32_t numCoveredTiles() const override;
 
     Ogre::Real getRotationAngle() const
     { return mRotationAngle; }

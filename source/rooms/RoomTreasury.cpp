@@ -130,22 +130,22 @@ bool RoomTreasury::removeCoveredTile(Tile* t)
     return Room::removeCoveredTile(t);
 }
 
-int RoomTreasury::getTotalGold()
+int RoomTreasury::getTotalGoldStorage() const
+{
+    return numCoveredTiles() * maxGoldinTile;
+}
+
+int RoomTreasury::getTotalGoldStored() const
 {
     int totalGold = 0;
 
-    for (std::pair<Tile* const, TileData*>& p : mTileData)
+    for (const std::pair<Tile* const, TileData*>& p : mTileData)
     {
         RoomTreasuryTileData* roomTreasuryTileData = static_cast<RoomTreasuryTileData*>(p.second);
         totalGold += roomTreasuryTileData->mGoldInTile;
     }
 
     return totalGold;
-}
-
-int RoomTreasury::emptyStorageSpace()
-{
-    return numCoveredTiles() * maxGoldinTile - getTotalGold();
 }
 
 int RoomTreasury::depositGold(int gold, Tile *tile)
@@ -269,7 +269,7 @@ bool RoomTreasury::hasCarryEntitySpot(GameEntity* carriedEntity)
     if(carriedEntity->getObjectType() != GameEntityType::treasuryObject)
         return false;
 
-    if(emptyStorageSpace() <= 0)
+    if(getTotalGoldStored() >= getTotalGoldStorage())
         return false;
 
     return true;

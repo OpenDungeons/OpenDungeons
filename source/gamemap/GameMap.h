@@ -306,7 +306,6 @@ public:
     { return mGoalsForAllSeats; }
     void clearGoalsForAllSeats();
 
-    int getTotalGoldForSeat(Seat* seat);
     bool withdrawFromTreasuries(int gold, Seat* seat);
 
     inline const std::string& getLevelFileName() const

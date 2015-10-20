@@ -21,7 +21,7 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
-#include "rooms/RoomTreasury.h"
+#include "rooms/Room.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -73,20 +73,21 @@ void TreasuryObject::doUpkeep()
     }
 
     if((mGoldValue > 0) &&
-       (tile->getCoveringRoom() != nullptr) &&
-       (tile->getCoveringRoom()->getType() == RoomType::treasury))
+       (tile->getCoveringRoom() != nullptr))
     {
-        RoomTreasury* roomTreasury = static_cast<RoomTreasury*>(tile->getCoveringRoom());
-        int goldDeposited = roomTreasury->depositGold(mGoldValue, tile);
-        // We withdraw the amount we could deposit
-        mGoldValue -= goldDeposited;
-        if(mGoldValue == 0)
+        int goldDeposited = tile->getCoveringRoom()->depositGold(mGoldValue, tile);
+        if(goldDeposited > 0)
         {
-            removeFromGameMap();
-            deleteYourself();
-            return;
+            // We withdraw the amount we could deposit
+            mGoldValue -= goldDeposited;
+            if(mGoldValue == 0)
+            {
+                removeFromGameMap();
+                deleteYourself();
+                return;
+            }
+            mHasGoldValueChanged = true;
         }
-        mHasGoldValueChanged = true;
     }
 
     // If we are empty, we can remove safely
@@ -191,11 +192,12 @@ EntityCarryType TreasuryObject::getEntityCarryType(Creature* carrier)
     if(myTile->getCoveringRoom() == nullptr)
         return EntityCarryType::gold;
 
-    if(myTile->getCoveringRoom()->getType() != RoomType::treasury)
+    if(myTile->getCoveringRoom()->getTotalGoldStorage() <= 0)
         return EntityCarryType::gold;
 
-    RoomTreasury* treasury = static_cast<RoomTreasury*>(myTile->getCoveringRoom());
-    if(treasury->emptyStorageSpace() == 0)
+    // If the treasury is on a room where it can be absorbed, it should not
+    // be carried
+    if(myTile->getCoveringRoom()->getTotalGoldStored() >= myTile->getCoveringRoom()->getTotalGoldStorage())
         return EntityCarryType::gold;
 
     return EntityCarryType::notCarryable;
