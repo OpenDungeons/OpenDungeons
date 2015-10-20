@@ -25,6 +25,7 @@ template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = nullptr;
 const std::string LogManager::GAMELOG_NAME = "gameLog";
 
 LogManager::LogManager()
+    : mLevel(LogMessageLevel::NORMAL)
 {
 
 }
@@ -37,6 +38,11 @@ LogManager::~LogManager()
 void LogManager::addSink(const std::shared_ptr<LogSink>& sink)
 {
     mSinks.push_back(sink);
+}
+
+void LogManager::setLevel(LogMessageLevel level)
+{
+    mLevel = level;
 }
 
 void LogManager::setModuleLevel(const char* module, LogMessageLevel level)
@@ -53,11 +59,23 @@ void LogManager::logMessage(LogMessageLevel level, const char* filepath, int lin
     const boost::filesystem::path strippedPath(filepath);
     std::string module = strippedPath.stem().string();
 
-    auto found = mModuleLevel.find(module);
-    if (found != mModuleLevel.end() &&
-        found->second > level)
+    // Check if the message fails the global threshold.
+
+    if (mLevel > level)
     {
-        return;
+        // Allow per-module overrides of the global logging level.
+
+        if (mModuleLevel.empty())
+        {
+            return;
+        }
+
+        auto found = mModuleLevel.find(module);
+        if (found == mModuleLevel.end() ||
+            found->second > level)
+        {
+            return;
+        }
     }
 
     // filename

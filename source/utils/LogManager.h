@@ -66,6 +66,9 @@ public:
     //! \brief Add a sink for log messages.
     void addSink(const std::shared_ptr<LogSink>& sink);
 
+    //! \brief Set the global minimum logging level.
+    void setLevel(LogMessageLevel level);
+
     //! \brief Set the minimum logging level per module.
     void setModuleLevel(const char* module, LogMessageLevel level);
 
@@ -77,6 +80,7 @@ private:
     LogManager(const LogManager&) = delete;
     LogManager& operator=(const LogManager&) = delete;
 
+    LogMessageLevel mLevel;
     std::map<std::string, LogMessageLevel> mModuleLevel;
     std::mutex mLock;
     std::vector<std::shared_ptr<LogSink>> mSinks;
