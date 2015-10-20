@@ -20,23 +20,22 @@
 #include "utils/Helper.h"
 
 LogSinkFile::LogSinkFile(const std::string& filepath)
-    : mFilePath(filepath)
 {
-    mFile.open(mFilePath.c_str(), std::ios::out | std::ios::trunc);
+    // Clear previous log
+
+    mFile.open(filepath.c_str(), std::ios::out | std::ios::trunc);
+}
+
+LogSinkFile::~LogSinkFile()
+{
     if (mFile.is_open())
     {
         mFile.close();
     }
 }
 
-LogSinkFile::~LogSinkFile()
-{
-
-}
-
 void LogSinkFile::write(LogMessageLevel level, const char* module, const char* timestamp, const char* filename, int line, const char* message)
 {
-    mFile.open(mFilePath.c_str(), std::ios::out | std::ios::app);
     if (!mFile.is_open())
     {
         return;
@@ -55,6 +54,4 @@ void LogSinkFile::write(LogMessageLevel level, const char* module, const char* t
         << std::endl;
 
     mFile.flush();
-
-    mFile.close();
 }

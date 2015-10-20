@@ -34,27 +34,27 @@
 
 #if OD_LOG_ALLOW_DEPRECATED
     // DEPRECATED: Use OD_TRACE_ERR instead.
-    #define OD_LOG_ERR(message)                      LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, "", __FILE__, __LINE__, (std::string("") + message).c_str(), 0)
+    #define OD_LOG_ERR(message)                      LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, __FILE__, __LINE__, (std::string("") + message).c_str(), 0)
     // DEPRECATED: Use OD_TRACE_WRN instead.
-    #define OD_LOG_WRN(message)                      LogManager::getSingleton().logMessage(LogMessageLevel::WARNING, "", __FILE__, __LINE__, (std::string("") + message).c_str(), 0)
+    #define OD_LOG_WRN(message)                      LogManager::getSingleton().logMessage(LogMessageLevel::WARNING, __FILE__, __LINE__, (std::string("") + message).c_str(), 0)
     // DEPRECATED: Use OD_TRACE_INF instead.
-    #define OD_LOG_INF(message)                      LogManager::getSingleton().logMessage(LogMessageLevel::NORMAL, "", __FILE__, __LINE__, (std::string("") + message).c_str(), 0)
+    #define OD_LOG_INF(message)                      LogManager::getSingleton().logMessage(LogMessageLevel::NORMAL, __FILE__, __LINE__, (std::string("") + message).c_str(), 0)
     // DEPRECATED: Use OD_TRACE_DBG instead.
-    #define OD_LOG_DBG(message)                      LogManager::getSingleton().logMessage(LogMessageLevel::TRIVIAL, "", __FILE__, __LINE__, (std::string("") + message).c_str(), 0)
+    #define OD_LOG_DBG(message)                      LogManager::getSingleton().logMessage(LogMessageLevel::TRIVIAL, __FILE__, __LINE__, (std::string("") + message).c_str(), 0)
 
     // DEPRECATED: Use OD_ASSERT instead.
-    #define OD_ASSERT_TRUE(condition)                if (!(condition)) LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, "", __FILE__, __LINE__, #condition, 0)
+    #define OD_ASSERT_TRUE(condition)                if (!(condition)) LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, __FILE__, __LINE__, #condition, 0)
     // DEPRECATED: Use OD_ASSERT_MSG instead.
-    #define OD_ASSERT_TRUE_MSG(condition, message)   if (!(condition)) LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, "", __FILE__, __LINE__, (std::string("") + message).c_str(), 0)
+    #define OD_ASSERT_TRUE_MSG(condition, message)   if (!(condition)) LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, __FILE__, __LINE__, (std::string("") + message).c_str(), 0)
 #endif
 
-#define OD_TRACE_ERR(_module, _message, ...)         LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, #_module, __FILE__, __LINE__, _message, __VA_ARGS__)
-#define OD_TRACE_WRN(_module, _message, ...)         LogManager::getSingleton().logMessage(LogMessageLevel::WARNING, #_module, __FILE__, __LINE__, _message, __VA_ARGS__)
-#define OD_TRACE_INF(_module, _message, ...)         LogManager::getSingleton().logMessage(LogMessageLevel::NORMAL, #_module, __FILE__, __LINE__, _message, __VA_ARGS__)
-#define OD_TRACE_DBG(_module, _message, ...)         LogManager::getSingleton().logMessage(LogMessageLevel::TRIVIAL, #_module, __FILE__, __LINE__, _message, __VA_ARGS__)
+#define OD_TRACE_ERR(_message, ...)                  LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, __FILE__, __LINE__, _message, __VA_ARGS__)
+#define OD_TRACE_WRN(_message, ...)                  LogManager::getSingleton().logMessage(LogMessageLevel::WARNING, __FILE__, __LINE__, _message, __VA_ARGS__)
+#define OD_TRACE_INF(_message, ...)                  LogManager::getSingleton().logMessage(LogMessageLevel::NORMAL, __FILE__, __LINE__, _message, __VA_ARGS__)
+#define OD_TRACE_DBG(_message, ...)                  LogManager::getSingleton().logMessage(LogMessageLevel::TRIVIAL, __FILE__, __LINE__, _message, __VA_ARGS__)
 
-#define OD_ASSERT(_condition)                        if (!(_condition)) LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, "Assert", __FILE__, __LINE__, #_condition, 0)
-#define OD_ASSERT_MSG(_condition, _message, ...)     if (!(_condition)) LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, "Assert", __FILE__, __LINE__, _message, __VA_ARGS__)
+#define OD_ASSERT(_condition)                        if (!(_condition)) LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, __FILE__, __LINE__, #_condition, 0)
+#define OD_ASSERT_MSG(_condition, _message, ...)     if (!(_condition)) LogManager::getSingleton().logMessage(LogMessageLevel::CRITICAL, __FILE__, __LINE__, _message, __VA_ARGS__)
 
 //! \brief Helper/wrapper class to provide thread-safe logging when ogre is compiled without threads.
 class LogManager : public Ogre::Singleton<LogManager>
@@ -66,14 +66,18 @@ public:
     //! \brief Add a sink for log messages.
     void addSink(const std::shared_ptr<LogSink>& sink);
 
+    //! \brief Set the minimum logging level per module.
+    void setModuleLevel(const char* module, LogMessageLevel level);
+
     //! \brief Log a message to the sinks.
-    void logMessage(LogMessageLevel level, const char* module, const char* filepath, int line, const char* format, ...);
+    void logMessage(LogMessageLevel level, const char* filepath, int line, const char* format, ...);
 
     static const std::string GAMELOG_NAME;
 private:
     LogManager(const LogManager&) = delete;
     LogManager& operator=(const LogManager&) = delete;
 
+    std::map<std::string, LogMessageLevel> mModuleLevel;
     std::mutex mLock;
     std::vector<std::shared_ptr<LogSink>> mSinks;
 };

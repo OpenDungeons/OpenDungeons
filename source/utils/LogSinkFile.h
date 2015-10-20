@@ -30,7 +30,6 @@ public:
 
     virtual void write(LogMessageLevel level, const char* module, const char* timestamp, const char* filename, int line, const char* message) override;
 private:
-    std::string mFilePath;
     std::ofstream mFile;
 };
 

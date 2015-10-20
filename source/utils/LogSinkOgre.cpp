@@ -37,7 +37,7 @@ Ogre::LoggingLevel toOgreLl(LogMessageLevel level)
         return Ogre::LL_BOREME;
 
     default:
-        OD_ASSERT_TRUE_MSG(0, "Unhandled LogMessageLevel %d.");
+        OD_ASSERT_MSG(0, "Unhandled LogMessageLevel %d.", level);
         return Ogre::LL_LOW;
 
     }
@@ -58,7 +58,7 @@ Ogre::LogMessageLevel toOgreLml(LogMessageLevel level)
         return Ogre::LML_CRITICAL;
 
     default:
-        OD_ASSERT_TRUE_MSG(0, "Unhandled LogMessageLevel %d.");
+        OD_ASSERT_MSG(0, "Unhandled LogMessageLevel %d.", level);
         return Ogre::LML_TRIVIAL;
 
     }

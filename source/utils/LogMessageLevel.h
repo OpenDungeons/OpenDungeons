@@ -28,6 +28,11 @@ enum class LogMessageLevel
 
 inline const char* LogMessageLevelToString(LogMessageLevel level)
 {
+    if (level > LogMessageLevel::CRITICAL)
+    {
+        return "<Invalid>";
+    }
+
     static const char* LevelToStringMap[] = {
         "TRIVIAL",
         "NORMAL",

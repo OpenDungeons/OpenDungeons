@@ -39,7 +39,7 @@ public:
 
     virtual void write(LogMessageLevel level, const char* module, const char* timestamp, const char* filename, int line, const char* message) override;
 private:
-    std::shared_ptr<Ogre::LogManager> mLogManager;
+    std::unique_ptr<Ogre::LogManager> mLogManager;
     Ogre::Log* mGameLog;
 #if !OGRE_THREAD_PROVIDER
     std::mutex mLogLockMutex;
