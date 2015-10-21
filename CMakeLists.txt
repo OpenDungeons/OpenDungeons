@@ -557,6 +557,23 @@ endif()
 #### Binary ######################
 ##################################
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+if(WIN32 OR APPLE)
+    set(OD_BUILD_SUFFIX "_d" CACHE STRING "String holding a suffix appended to the name of output binaries (under CMake build, only used for debug).")
+else()
+    set(OD_BUILD_SUFFIX "" CACHE STRING "String holding a suffix appended to the name of output binaries (under CMake build, only used for debug).")
+endif()
+
+if(OD_BUILD_SUFFIX)
+    set(OD_HAS_BUILD_SUFFIX TRUE)
+    set(CMAKE_DEBUG_POSTFIX ${OD_BUILD_SUFFIX})
+endif()
+
 # Create the angelscript library file
 #add_library(${AS_LIBRARY_NAME} ${AS_SOURCEFILES})
 
@@ -597,6 +614,10 @@ if(WIN32 AND MSVC)
     # same set of functions, once for Ogre, once for OD. It is harmless in our case
     # to select this option.
     SET_TARGET_PROPERTIES(${PROJECT_BINARY_NAME} PROPERTIES LINK_FLAGS " /FORCE:MULTIPLE")
+endif()
+
+if(OD_HAS_BUILD_SUFFIX)
+    SET_TARGET_PROPERTIES(${PROJECT_BINARY_NAME} PROPERTIES OUTPUT_NAME_DEBUG "${PROJECT_BINARY_NAME}${OD_BUILD_SUFFIX}")
 endif()
 
 # The name of the OGRE Overlay library is available as CMAKE variable, also discovering debug versions correctly; please leave it like that!
