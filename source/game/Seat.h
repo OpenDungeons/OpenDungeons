@@ -177,6 +177,9 @@ public:
     inline int getGold() const
     { return mGold; }
 
+    inline int getGoldMax() const
+    { return mGoldMax; }
+
     inline int getGoldMined() const
     { return mGoldMined; }
 
@@ -445,6 +448,9 @@ private:
 
     //! \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart.
     int mGold;
+
+    //! \brief The total amount of gold coins that the keeper treasuries can have.
+    int mGoldMax;
 
     //! \brief The seat id. Allows to identify this seat. Must be unique per level file.
     int mId;

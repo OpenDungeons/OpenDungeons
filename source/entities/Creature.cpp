@@ -41,7 +41,6 @@
 #include "render/CreatureOverlayStatus.h"
 #include "render/RenderManager.h"
 #include "rooms/RoomCrypt.h"
-#include "rooms/RoomTreasury.h"
 #include "rooms/RoomDormitory.h"
 #include "sound/SoundEffectsManager.h"
 #include "spells/Spell.h"
@@ -839,6 +838,7 @@ void Creature::doUpkeep()
             return;
 
         computeCreatureOverlayMoodValue();
+        return;
     }
 
     if(mKoTurnCounter < 0)
@@ -1134,11 +1134,12 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
     if(mDefinition->isWorker() && mForceAction == forcedActionSearchAction)
     {
         // If a worker is dropped, he will search in the tile he is and in the 4 neighboor tiles.
-        // 1 - If the tile he is in is treasury and he is carrying gold, he should deposit it
+        // 1 - If the tile he is in a treasury and he is carrying gold, he should deposit it
         // 2 - if one of the 4 neighboor tiles is marked, he will dig
-        // 3 - if the the tile he is in is not claimed and one of the neigbboor tiles is claimed, he will claim
-        // 4 - if the the tile he is in is claimed and one of the neigbboor tiles is not claimed, he will claim
-        // 5 - If the tile he is in is claimed and one of the neigbboor tiles is a not claimed wall, he will claim
+        // 3 - if there is a carryable entity where it is dropped, it should try to carry it
+        // 4 - if the the tile he is in is not claimed and one of the neigbboor tiles is claimed, he will claim
+        // 5 - if the the tile he is in is claimed and one of the neigbboor tiles is not claimed, he will claim
+        // 6 - If the tile he is in is claimed and one of the neigbboor tiles is a not claimed wall, he will claim
         Tile* position = getPositionTile();
         Seat* seat = getSeat();
         Tile* tileMarkedDig = nullptr;
@@ -1175,12 +1176,11 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
             }
         }
 
+        // We try to deposit gold if we are on a room while carrying gold
         if((mGoldCarried > 0) && (mDigRate > 0.0) &&
-           (position->getCoveringRoom() != nullptr) &&
-           (position->getCoveringRoom()->getType() == RoomType::treasury))
+           (position->getCoveringRoom() != nullptr))
         {
-            RoomTreasury* treasury = static_cast<RoomTreasury*>(position->getCoveringRoom());
-            int deposited = treasury->depositGold(mGoldCarried, position);
+            int deposited = position->getCoveringRoom()->depositGold(mGoldCarried, position);
             if(deposited > 0)
             {
                 mGoldCarried -= deposited;
@@ -1199,6 +1199,12 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         {
             mForceAction = forcedActionDigTile;
         }
+        else if(forceCarryObject)
+        {
+            mForceAction = forcedActionNone;
+            pushAction(CreatureActionType::carryEntityForced, false, true);
+            return true;
+        }
         else if((tileToClaim != nullptr) && (mClaimRate > 0.0))
         {
             mForceAction = forcedActionClaimTile;
@@ -1206,12 +1212,6 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         else if((tileWallNotClaimed != nullptr) && (mClaimRate > 0.0))
         {
             mForceAction = forcedActionClaimWallTile;
-        }
-        else if(forceCarryObject)
-        {
-            mForceAction = forcedActionNone;
-            pushAction(CreatureActionType::carryEntity, false, true);
-            return true;
         }
         else
         {
@@ -1251,8 +1251,8 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         if(pushAction(CreatureActionType::digTile, false, false))
             return true;
     }
-    // Decide to check for dead creature to carry to the crypt
-    if (mDefinition->isWorker() && diceRoll < 0.3)
+    // Decide to check for carryable entities
+    if (mDefinition->isWorker() && diceRoll < 0.6)
     {
         if(pushAction(CreatureActionType::carryEntity, false, false))
             return true;
@@ -1873,13 +1873,23 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
         obj->createMesh();
         obj->setPosition(pos);
 
-        std::vector<Room*> treasuries = getGameMap()->getRoomsByTypeAndSeat(RoomType::treasury, getSeat());
-        treasuries = getGameMap()->getReachableRooms(treasuries, myTile, this);
         bool isTreasuryAvailable = false;
-        for(Room* room : treasuries)
+        for(Room* room : getGameMap()->getRooms())
         {
-            RoomTreasury* treasury = static_cast<RoomTreasury*>(room);
-            if(treasury->emptyStorageSpace() <= 0)
+            if(room->getSeat() != getSeat())
+                continue;
+
+            if(room->getTotalGoldStorage() <= 0)
+                continue;
+
+            if(room->getTotalGoldStored() >= room->getTotalGoldStorage())
+                continue;
+
+            if(room->numCoveredTiles() <= 0)
+                continue;
+
+            Tile* tile = room->getCoveredTile(0);
+            if(!getGameMap()->pathExists(this, myTile, tile))
                 continue;
 
             isTreasuryAvailable = true;
@@ -1982,13 +1992,23 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
             obj->createMesh();
             obj->setPosition(pos);
 
-            std::vector<Room*> treasuries = getGameMap()->getRoomsByTypeAndSeat(RoomType::treasury, getSeat());
-            treasuries = getGameMap()->getReachableRooms(treasuries, myTile, this);
             bool isTreasuryAvailable = false;
-            for(Room* room : treasuries)
+            for(Room* room : getGameMap()->getRooms())
             {
-                RoomTreasury* treasury = static_cast<RoomTreasury*>(room);
-                if(treasury->emptyStorageSpace() <= 0)
+                if(room->getSeat() != getSeat())
+                    continue;
+
+                if(room->getTotalGoldStorage() <= 0)
+                    continue;
+
+                if(room->getTotalGoldStored() >= room->getTotalGoldStorage())
+                    continue;
+
+                if(room->numCoveredTiles() <= 0)
+                    continue;
+
+                Tile* tile = room->getCoveredTile(0);
+                if(!getGameMap()->pathExists(this, myTile, tile))
                     continue;
 
                 isTreasuryAvailable = true;
@@ -3124,15 +3144,13 @@ bool Creature::handleGetFee(const CreatureActionWrapper& actionItem)
     }
     // We check if we are on a treasury. If yes, we try to take our fee
     if((myTile->getCoveringRoom() != nullptr) &&
-       (myTile->getCoveringRoom()->getType() == RoomType::treasury) &&
        (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())))
     {
-        RoomTreasury* treasury = static_cast<RoomTreasury*>(myTile->getCoveringRoom());
-        int gold = treasury->getTotalGold();
-        if(gold > 0)
+        int goldTaken = myTile->getCoveringRoom()->withdrawGold(mGoldFee);
+        if(goldTaken > 0)
         {
-            int goldTaken = treasury->withdrawGold(std::min(gold, mGoldFee));
             mGoldFee -= goldTaken;
+            mGoldCarried += goldTaken;
             if((getSeat()->getPlayer() != nullptr) &&
                (getSeat()->getPlayer()->getIsHuman()))
             {
@@ -3149,7 +3167,6 @@ bool Creature::handleGetFee(const CreatureActionWrapper& actionItem)
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
 
-            mGoldCarried += goldTaken;
             if(mGoldFee <= 0)
             {
                 // We were able to take all the gold. We can do something else
@@ -3161,30 +3178,42 @@ bool Creature::handleGetFee(const CreatureActionWrapper& actionItem)
     }
 
     // We try to go to some treasury were there is still some gold
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::treasury, getSeat());
-    tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
-    while(!tempRooms.empty())
+    std::vector<Room*> availableTreasuries;
+    for(Room* room : getGameMap()->getRooms())
     {
-        // We can go to one treasury
-        int index = Random::Int(0, tempRooms.size() - 1);
-        Room* room = tempRooms[index];
-        tempRooms.erase(tempRooms.begin() + index);
-        RoomTreasury* treasury = static_cast<RoomTreasury*>(room);
-        if(treasury->getTotalGold() > 0)
-        {
-            Tile* tile = room->getCoveredTile(0);
-            std::list<Tile*> result = getGameMap()->path(this, tile);
-            std::vector<Ogre::Vector3> path;
-            tileToVector3(result, path, true, 0.0);
-            setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-            pushAction(CreatureActionType::walkToTile, false, true);
-            return false;
-        }
+        if(room->getSeat() != getSeat())
+            continue;
+
+        if(room->getTotalGoldStored() <= 0)
+            continue;
+
+        if(room->numCoveredTiles() <= 0)
+            continue;
+
+        Tile* tile = room->getCoveredTile(0);
+        if(!getGameMap()->pathExists(this, myTile, tile))
+            continue;
+
+        availableTreasuries.push_back(room);
     }
 
-    // No available treasury
-    popAction();
-    return true;
+    if(availableTreasuries.empty())
+    {
+        // No available treasury
+        popAction();
+        return true;
+    }
+
+    uint32_t index = Random::Uint(0, availableTreasuries.size() - 1);
+    Room* room = availableTreasuries[index];
+
+    Tile* tile = room->getCoveredTile(0);
+    std::list<Tile*> result = getGameMap()->path(this, tile);
+    std::vector<Ogre::Vector3> path;
+    tileToVector3(result, path, true, 0.0);
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+    pushAction(CreatureActionType::walkToTile, false, true);
+    return false;
 }
 
 bool Creature::handleLeaveDungeon(const CreatureActionWrapper& actionItem)
@@ -3724,7 +3753,7 @@ Tile* Creature::getCoveredTile(int index)
     return getPositionTile();
 }
 
-uint32_t Creature::numCoveredTiles()
+uint32_t Creature::numCoveredTiles() const
 {
     if(getPositionTile() == nullptr)
         return 0;

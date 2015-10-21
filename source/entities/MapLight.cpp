@@ -115,7 +115,7 @@ Tile* MapLight::getCoveredTile(int index)
     return getPositionTile();
 }
 
-uint32_t MapLight::numCoveredTiles()
+uint32_t MapLight::numCoveredTiles() const
 {
     if(getPositionTile() == nullptr)
         return 0;

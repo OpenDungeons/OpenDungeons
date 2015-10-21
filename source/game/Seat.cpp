@@ -61,6 +61,7 @@ Seat::Seat(GameMap* gameMap) :
     mNumClaimedTiles(0),
     mHasGoalsChanged(true),
     mGold(0),
+    mGoldMax(0),
     mId(-1),
     mTeamIndex(0),
     mNbRooms(std::vector<uint32_t>(static_cast<uint32_t>(RoomType::nbRooms), 0)),
@@ -334,6 +335,7 @@ void Seat::refreshFromSeat(Seat* s)
 {
     // We only refresh data that changes over time (gold, mana, ...)
     mGold = s->mGold;
+    mGoldMax = s->mGoldMax;
     mMana = s->mMana;
     mManaDelta = s->mManaDelta;
     mNumClaimedTiles = s->mNumClaimedTiles;

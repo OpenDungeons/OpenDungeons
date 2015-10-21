@@ -102,6 +102,24 @@ public:
 
     static bool sortForMapSave(Room* r1, Room* r2);
 
+    //! \brief Returns the total gold that can be stored in the room
+    virtual int getTotalGoldStorage() const
+    { return 0; }
+
+    //! \brief Returns the total gold that is stored in the room
+    virtual int getTotalGoldStored() const
+    { return 0; }
+
+    //! \brief Deposits the given gold in the room. Returns the gold that could
+    //! be deposited (may be less than the given amount if not enough space)
+    virtual int depositGold(int gold, Tile *tile)
+    { return 0; }
+
+    //! \brief Tries to withdraw gold from the room. Returns the amount that could
+    //! be taken (may be less than gold if not enough gold)
+    virtual int withdrawGold(int gold)
+    { return 0; }
+
 protected:
     /*! \brief Exports the headers needed to recreate the Room. It allows to extend Room as much as wanted.
      * The content of the Room will be exported by exportToPacket.

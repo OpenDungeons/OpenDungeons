@@ -419,6 +419,9 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
 void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
 {
+    if(isMouseWheelOnCEGUIWindow())
+        return;
+
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
 
     if (arg.state.Z.rel > 0)
@@ -456,6 +459,22 @@ bool GameMode::isMouseDownOnCEGUIWindow()
 
     // If the mouse press is on a CEGUI window, ignore it, except for the chat and event queues windows.
     if (winName == "Root" || winName == "GameChatWindow" || winName == "GameChatText" || winName == "GameEventText")
+        return false;
+
+    return true;
+}
+
+bool GameMode::isMouseWheelOnCEGUIWindow()
+{
+    CEGUI::Window* currentWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getWindowContainingMouse();
+
+    if (currentWindow == nullptr)
+        return false;
+
+    CEGUI::String winName = currentWindow->getName();
+
+    // For the wheel, we do not ignore chat and events windows
+    if (winName == "Root")
         return false;
 
     return true;
@@ -954,7 +973,7 @@ void GameMode::refreshMainUI()
 
     widget = guiSheet->getChild(Gui::DISPLAY_GOLD);
     tempSS.str("");
-    tempSS << mySeat->getGold();
+    tempSS << mySeat->getGold() << " / " << mySeat->getGoldMax();
     widget->setText(tempSS.str());
 
     widget = guiSheet->getChild(Gui::DISPLAY_MANA);

@@ -297,7 +297,7 @@ public:
     //! \brief Conform: GameEntity functions handling covered tiles
     std::vector<Tile*> getCoveredTiles();
     Tile* getCoveredTile(int index);
-    uint32_t numCoveredTiles();
+    uint32_t numCoveredTiles() const override;
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
     double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,

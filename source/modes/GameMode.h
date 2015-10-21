@@ -245,6 +245,7 @@ private:
     //! \brief Tells whether the latest mouse click was made on a relevant CEGUI widget,
     //! and thus, the game should ignore it.
     bool isMouseDownOnCEGUIWindow();
+    bool isMouseWheelOnCEGUIWindow();
 
     //! \brief Called when there is a mouse input change
     void checkInputCommand();

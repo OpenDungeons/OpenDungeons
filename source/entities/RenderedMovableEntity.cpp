@@ -221,7 +221,7 @@ Tile* RenderedMovableEntity::getCoveredTile(int index)
     return getPositionTile();
 }
 
-uint32_t RenderedMovableEntity::numCoveredTiles()
+uint32_t RenderedMovableEntity::numCoveredTiles() const
 {
     if(getPositionTile() == nullptr)
         return 0;

@@ -177,7 +177,7 @@ class GameEntity : public EntityBase
     virtual Tile* getCoveredTile(int index) = 0;
 
     //! \brief Returns the number of covered tiles.
-    virtual uint32_t numCoveredTiles() = 0;
+    virtual uint32_t numCoveredTiles() const = 0;
 
     //! \brief Returns the HP associated with the given tile of the object, it is up to the object how they want to treat the tile/HP relationship.
     virtual double getHP(Tile *tile) const = 0;
