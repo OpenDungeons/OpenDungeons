@@ -838,6 +838,7 @@ void Creature::doUpkeep()
             return;
 
         computeCreatureOverlayMoodValue();
+        return;
     }
 
     if(mKoTurnCounter < 0)
@@ -1133,11 +1134,12 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
     if(mDefinition->isWorker() && mForceAction == forcedActionSearchAction)
     {
         // If a worker is dropped, he will search in the tile he is and in the 4 neighboor tiles.
-        // 1 - If the tile he is in is treasury and he is carrying gold, he should deposit it
+        // 1 - If the tile he is in a treasury and he is carrying gold, he should deposit it
         // 2 - if one of the 4 neighboor tiles is marked, he will dig
-        // 3 - if the the tile he is in is not claimed and one of the neigbboor tiles is claimed, he will claim
-        // 4 - if the the tile he is in is claimed and one of the neigbboor tiles is not claimed, he will claim
-        // 5 - If the tile he is in is claimed and one of the neigbboor tiles is a not claimed wall, he will claim
+        // 3 - if there is a carryable entity where it is dropped, it should try to carry it
+        // 4 - if the the tile he is in is not claimed and one of the neigbboor tiles is claimed, he will claim
+        // 5 - if the the tile he is in is claimed and one of the neigbboor tiles is not claimed, he will claim
+        // 6 - If the tile he is in is claimed and one of the neigbboor tiles is a not claimed wall, he will claim
         Tile* position = getPositionTile();
         Seat* seat = getSeat();
         Tile* tileMarkedDig = nullptr;
@@ -1197,6 +1199,12 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         {
             mForceAction = forcedActionDigTile;
         }
+        else if(forceCarryObject)
+        {
+            mForceAction = forcedActionNone;
+            pushAction(CreatureActionType::carryEntityForced, false, true);
+            return true;
+        }
         else if((tileToClaim != nullptr) && (mClaimRate > 0.0))
         {
             mForceAction = forcedActionClaimTile;
@@ -1204,12 +1212,6 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         else if((tileWallNotClaimed != nullptr) && (mClaimRate > 0.0))
         {
             mForceAction = forcedActionClaimWallTile;
-        }
-        else if(forceCarryObject)
-        {
-            mForceAction = forcedActionNone;
-            pushAction(CreatureActionType::carryEntity, false, true);
-            return true;
         }
         else
         {
@@ -1249,8 +1251,8 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         if(pushAction(CreatureActionType::digTile, false, false))
             return true;
     }
-    // Decide to check for dead creature to carry to the crypt
-    if (mDefinition->isWorker() && diceRoll < 0.3)
+    // Decide to check for carryable entities
+    if (mDefinition->isWorker() && diceRoll < 0.6)
     {
         if(pushAction(CreatureActionType::carryEntity, false, false))
             return true;
