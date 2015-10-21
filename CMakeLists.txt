@@ -145,10 +145,11 @@ else()
     include(CheckCXXCompilerFlag)
     if(NOT OD_CXX11_FLAGS)
         CHECK_CXX_COMPILER_FLAG("-std=c++11" OD_CXX11_FLAG_SUPPORTED)
+        CHECK_CXX_COMPILER_FLAG("-std=gnu++11" OD_CXXGNU11_FLAG_SUPPORTED)
         # MinGW supports CXX11 flag but do not compile with it. However, it works with gnu++11
         if(OD_CXX11_FLAG_SUPPORTED AND NOT MINGW)
             set(OD_CXX11_FLAGS "-std=c++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
-        else()
+        elseif(OD_CXX11_FLAG_SUPPORTED)
             set(OD_CXX11_FLAGS "-std=gnu++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
         endif()
     endif()
@@ -489,7 +490,7 @@ endif()
 #This has to cover the versions not already known by CMake
 set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1 1.55.0)
 
-set(OD_BOOST_COMPONENTS system filesystem locale program_options)
+set(OD_BOOST_COMPONENTS system filesystem locale program_options thread)
 
 if(WIN32 AND ${OGRE_FOUND})
     # On windows we can try to use boost from the Ogre SDK instead
