@@ -35,9 +35,9 @@ LogManager::~LogManager()
 
 }
 
-void LogManager::addSink(const std::shared_ptr<LogSink>& sink)
+void LogManager::addSink(std::unique_ptr<LogSink> sink)
 {
-    mSinks.push_back(sink);
+    mSinks.push_back(std::move(sink));
 }
 
 void LogManager::setLevel(LogMessageLevel level)

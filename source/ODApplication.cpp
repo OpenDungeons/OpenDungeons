@@ -53,8 +53,8 @@ void ODApplication::startGame(boost::program_options::variables_map& options)
     ResourceManager resMgr(options);
 
     LogManager logMgr;
-    logMgr.addSink(std::shared_ptr<LogSink>(new LogSinkConsole()));
-    logMgr.addSink(std::shared_ptr<LogSink>(new LogSinkFile(resMgr.getLogFile())));
+    logMgr.addSink(std::unique_ptr<LogSink>(new LogSinkConsole()));
+    logMgr.addSink(std::unique_ptr<LogSink>(new LogSinkFile(resMgr.getLogFile())));
 
     if(resMgr.isServerMode())
         startServer();
