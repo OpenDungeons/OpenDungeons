@@ -17,7 +17,86 @@
 
 #include "utils/LogManager.h"
 
+#include <boost/filesystem.hpp>
+
 template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = nullptr;
 
 //! \brief Log filename used when OD Application throws errors without using Ogre default logger.
 const std::string LogManager::GAMELOG_NAME = "gameLog";
+
+LogManager::LogManager()
+    : mLevel(LogMessageLevel::NORMAL)
+{
+
+}
+
+LogManager::~LogManager()
+{
+
+}
+
+void LogManager::addSink(std::unique_ptr<LogSink> sink)
+{
+    mSinks.push_back(std::move(sink));
+}
+
+void LogManager::setLevel(LogMessageLevel level)
+{
+    mLevel = level;
+}
+
+void LogManager::setModuleLevel(const char* module, LogMessageLevel level)
+{
+    mModuleLevel[module] = level;
+}
+
+void LogManager::logMessage(LogMessageLevel level, const char* filepath, int line, const std::string& message)
+{
+    sf::Lock locked(mLock);
+
+    // module
+
+    const boost::filesystem::path strippedPath(filepath);
+    std::string module = strippedPath.stem().string();
+
+    // Check if the message fails the global threshold.
+
+    if (mLevel > level)
+    {
+        // Allow per-module overrides of the global logging level.
+
+        if (mModuleLevel.empty())
+        {
+            return;
+        }
+
+        auto found = mModuleLevel.find(module);
+        if (found == mModuleLevel.end() ||
+            found->second > level)
+        {
+            return;
+        }
+    }
+
+    // filename
+
+    std::string filename = strippedPath.filename().string();
+
+    // timestamp
+
+    time_t current_time = ::time(0);
+    struct tm* now = ::localtime(&current_time);
+
+    mTimestampStream.str("");
+    mTimestampStream
+        << std::setfill('0') << std::setw(2) << now->tm_hour << ':'
+        << std::setfill('0') << std::setw(2) << now->tm_min << ':'
+        << std::setfill('0') << std::setw(2) << now->tm_sec;
+
+    std::string timestamp = mTimestampStream.str();
+
+    for (const auto& sink : mSinks)
+    {
+        sink->write(level, module, timestamp, filename, line, message);
+    }
+}

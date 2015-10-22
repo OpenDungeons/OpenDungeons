@@ -27,8 +27,10 @@
 #include "sound/SoundEffectsManager.h"
 #include "render/Gui.h"
 #include "utils/ResourceManager.h"
-#include "utils/LogManagerFile.h"
-#include "utils/LogManagerOgre.h"
+#include "utils/LogManager.h"
+#include "utils/LogSinkConsole.h"
+#include "utils/LogSinkFile.h"
+#include "utils/LogSinkOgre.h"
 #include "utils/Random.h"
 #include "utils/ConfigManager.h"
 #include "network/ODServer.h"
@@ -49,6 +51,11 @@
 void ODApplication::startGame(boost::program_options::variables_map& options)
 {
     ResourceManager resMgr(options);
+
+    LogManager logMgr;
+    logMgr.addSink(std::unique_ptr<LogSink>(new LogSinkConsole()));
+    logMgr.addSink(std::unique_ptr<LogSink>(new LogSinkFile(resMgr.getLogFile())));
+
     if(resMgr.isServerMode())
         startServer();
     else
@@ -58,8 +65,6 @@ void ODApplication::startGame(boost::program_options::variables_map& options)
 void ODApplication::startServer()
 {
     ResourceManager& resMgr = ResourceManager::getSingleton();
-    LogManagerFile logManager(resMgr.getLogFile());
-    logManager.setLogDetail(LogMessageLevel::NORMAL);
 
     OD_LOG_INF("Initializing");
 
@@ -87,8 +92,6 @@ void ODApplication::startServer()
 void ODApplication::startClient()
 {
     ResourceManager& resMgr = ResourceManager::getSingleton();
-    LogManagerOgre logManager(resMgr.getLogFile());
-    logManager.setLogDetail(LogMessageLevel::NORMAL);
 
     {
         //NOTE: This prevents a segmentation fault from OpenGL on exit.

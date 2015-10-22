@@ -439,8 +439,9 @@ set(OD_SOURCEFILES
     ${SRC}/utils/FrameRateLimiter.cpp
     ${SRC}/utils/Helper.cpp
     ${SRC}/utils/LogManager.cpp
-    ${SRC}/utils/LogManagerFile.cpp
-    ${SRC}/utils/LogManagerOgre.cpp
+    ${SRC}/utils/LogSinkConsole.cpp
+    ${SRC}/utils/LogSinkFile.cpp
+    ${SRC}/utils/LogSinkOgre.cpp
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
 
