@@ -52,7 +52,7 @@ void LogManager::setModuleLevel(const char* module, LogMessageLevel level)
 
 void LogManager::logMessage(LogMessageLevel level, const char* filepath, int line, const char* format, ...)
 {
-    std::unique_lock<std::mutex>(mLock);
+    sf::Lock locked(mLock);
 
     // module
 

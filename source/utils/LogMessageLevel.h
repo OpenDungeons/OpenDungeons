@@ -39,7 +39,7 @@ inline const char* LogMessageLevelToString(LogMessageLevel level)
         "WARNING",
         "CRITICAL"
     };
-    return LevelToStringMap[(size_t)level];
+    return LevelToStringMap[static_cast<size_t>(level)];
 }
 
 #endif // _LOGMESSAGELEVEL_H_

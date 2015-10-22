@@ -22,6 +22,8 @@
 #include <mutex>
 #include <string>
 
+#include <SFML/System.hpp>
+
 #include <OgreSingleton.h>
 
 #include "utils/Helper.h"
@@ -82,7 +84,7 @@ private:
 
     LogMessageLevel mLevel;
     std::map<std::string, LogMessageLevel> mModuleLevel;
-    std::mutex mLock;
+    sf::Mutex mLock;
     std::vector<std::unique_ptr<LogSink>> mSinks;
     std::stringstream mTimestampStream;
 };
