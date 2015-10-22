@@ -37,7 +37,7 @@ public:
     LogSinkOgre(const std::string& userDataPath);
     ~LogSinkOgre();
 
-    virtual void write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const char* message) override;
+    virtual void write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const std::string& message) override;
 private:
     std::unique_ptr<Ogre::LogManager> mLogManager;
     Ogre::Log* mGameLog;

@@ -37,7 +37,7 @@ Ogre::LoggingLevel toOgreLl(LogMessageLevel level)
         return Ogre::LL_BOREME;
 
     default:
-        OD_ASSERT_MSG(0, "Unhandled LogMessageLevel %d.", level);
+        OD_ASSERT_TRUE_MSG(0, "Unhandled LogMessageLevel" + Helper::toString(static_cast<size_t>(level)) + ".");
         return Ogre::LL_LOW;
 
     }
@@ -58,7 +58,7 @@ Ogre::LogMessageLevel toOgreLml(LogMessageLevel level)
         return Ogre::LML_CRITICAL;
 
     default:
-        OD_ASSERT_MSG(0, "Unhandled LogMessageLevel %d.", level);
+        OD_ASSERT_TRUE_MSG(0, "Unhandled LogMessageLevel" + Helper::toString(static_cast<size_t>(level)) + ".");
         return Ogre::LML_TRIVIAL;
 
     }
@@ -82,10 +82,10 @@ LogSinkOgre::~LogSinkOgre()
 
 }
 
-void LogSinkOgre::write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const char* message)
+void LogSinkOgre::write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const std::string& message)
 {
 #if !OGRE_THREAD_PROVIDER
     std::lock_guard<std::mutex> lock(mLogLockMutex);
 #endif
-    mGameLog->logMessage(Ogre::String(message), toOgreLml(level));
+    mGameLog->logMessage(Ogre::String(message.c_str()), toOgreLml(level));
 }

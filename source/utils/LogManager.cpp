@@ -50,7 +50,7 @@ void LogManager::setModuleLevel(const char* module, LogMessageLevel level)
     mModuleLevel[module] = level;
 }
 
-void LogManager::logMessage(LogMessageLevel level, const char* filepath, int line, const char* format, ...)
+void LogManager::logMessage(LogMessageLevel level, const char* filepath, int line, const std::string& message)
 {
     sf::Lock locked(mLock);
 
@@ -95,17 +95,8 @@ void LogManager::logMessage(LogMessageLevel level, const char* filepath, int lin
 
     std::string timestamp = mTimestampStream.str();
 
-    // message
-
-    char message_formatted[1024] = { 0 };
-
-    va_list arguments;
-    va_start(arguments, format);
-    vsnprintf(message_formatted, 1023, format, arguments);
-    va_end(arguments);
-
     for (const auto& sink : mSinks)
     {
-        sink->write(level, module, timestamp, filename, line, message_formatted);
+        sink->write(level, module, timestamp, filename, line, message);
     }
 }

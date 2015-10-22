@@ -34,7 +34,7 @@ LogSinkFile::~LogSinkFile()
     }
 }
 
-void LogSinkFile::write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const char* message)
+void LogSinkFile::write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const std::string& message)
 {
     if (!mFile.is_open())
     {

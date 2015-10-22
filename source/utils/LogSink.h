@@ -28,7 +28,7 @@ class LogSink
 public:
     virtual ~LogSink() { }
 
-    virtual void write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const char* message) = 0;
+    virtual void write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const std::string& message) = 0;
 };
 
 #endif // _LOGSINK_H_
