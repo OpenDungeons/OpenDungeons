@@ -87,14 +87,13 @@ void LogManager::logMessage(LogMessageLevel level, const char* filepath, int lin
     time_t current_time = ::time(0);
     struct tm* now = ::localtime(&current_time);
 
-    char timestamp[32] = { 0 };
-    snprintf(
-        timestamp,
-        31,
-        "%02d:%02d:%02d",
-        now->tm_hour,
-        now->tm_min,
-        now->tm_sec);
+    mTimestampStream.str("");
+    mTimestampStream
+        << std::setfill('0') << std::setw(2) << now->tm_hour << ':'
+        << std::setfill('0') << std::setw(2) << now->tm_min << ':'
+        << std::setfill('0') << std::setw(2) << now->tm_sec;
+
+    std::string timestamp = mTimestampStream.str();
 
     // message
 
@@ -107,6 +106,6 @@ void LogManager::logMessage(LogMessageLevel level, const char* filepath, int lin
 
     for (const auto& sink : mSinks)
     {
-        sink->write(level, module.c_str(), timestamp, filename.c_str(), line, message_formatted);
+        sink->write(level, module, timestamp, filename, line, message_formatted);
     }
 }

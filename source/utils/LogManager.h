@@ -84,6 +84,7 @@ private:
     std::map<std::string, LogMessageLevel> mModuleLevel;
     std::mutex mLock;
     std::vector<std::shared_ptr<LogSink>> mSinks;
+    std::stringstream mTimestampStream;
 };
 
 #endif // LOGMANAGER_H

@@ -82,7 +82,7 @@ LogSinkOgre::~LogSinkOgre()
 
 }
 
-void LogSinkOgre::write(LogMessageLevel level, const char* module, const char* timestamp, const char* filename, int line, const char* message)
+void LogSinkOgre::write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const char* message)
 {
 #if !OGRE_THREAD_PROVIDER
     std::lock_guard<std::mutex> lock(mLogLockMutex);

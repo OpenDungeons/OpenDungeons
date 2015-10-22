@@ -28,7 +28,7 @@ public:
     LogSinkFile(const std::string& filepath);
     ~LogSinkFile();
 
-    virtual void write(LogMessageLevel level, const char* module, const char* timestamp, const char* filename, int line, const char* message) override;
+    virtual void write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const char* message) override;
 private:
     std::ofstream mFile;
 };

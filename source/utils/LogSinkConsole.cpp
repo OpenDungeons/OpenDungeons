@@ -34,7 +34,7 @@ LogSinkConsole::~LogSinkConsole()
 
 }
 
-void LogSinkConsole::write(LogMessageLevel level, const char* module, const char* timestamp, const char* filename, int line, const char* message)
+void LogSinkConsole::write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const char* message)
 {
     std::stringstream ss;
 
