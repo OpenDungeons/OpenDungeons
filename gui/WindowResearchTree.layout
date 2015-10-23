@@ -378,6 +378,23 @@
                         <Property name="ReversedProgress" value="True" />
                     </Window>
                 </Window>
+                <Window type="OD/ImageButton" name="CreatureStrengthButton" >
+                    <Property name="Area" value="{{0.5,-25},{0,195},{0.5,25},{0,255}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureStrengthButton" />
+                    <Property name="TooltipText" value="Spell: Increase creature strength" />
+                    <Window type="OD/ProgressBar" name="CreatureStrengthButtonProgressBar" >
+                        <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                        <Property name="VerticalProgress" value="True" />
+                        <Property name="Alpha" value="0.2" />
+                        <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+                        <Property name="ReversedProgress" value="True" />
+                    </Window>
+                </Window>
             </Window>
         </Window>
         <Window type="OD/Button" name="AutoFill" >

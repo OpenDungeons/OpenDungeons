@@ -130,6 +130,8 @@ std::string Research::researchTypeToString(ResearchType type)
             return "spellCreatureHeal";
         case ResearchType::spellCreatureSlow:
             return "spellCreatureSlow";
+        case ResearchType::spellCreatureStrength:
+            return "spellCreatureStrength";
         case ResearchType::trapBoulder:
             return "trapBoulder";
         case ResearchType::trapCannon:
@@ -183,6 +185,8 @@ std::string Research::researchTypeToPlayerVisibleString(ResearchType type)
             return "The 'Haste' Spell";
         case ResearchType::spellCreatureSlow:
             return "The 'Slow' Spell";
+        case ResearchType::spellCreatureStrength:
+            return "The 'Strength' Spell";
         case ResearchType::trapBoulder:
             return "The Boulder Trap";
         case ResearchType::trapCannon:

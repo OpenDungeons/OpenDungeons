@@ -284,6 +284,7 @@ set(OD_SOURCEFILES
     ${SRC}/creatureeffect/CreatureEffectManager.cpp
     ${SRC}/creatureeffect/CreatureEffectSlap.cpp
     ${SRC}/creatureeffect/CreatureEffectSpeedChange.cpp
+    ${SRC}/creatureeffect/CreatureEffectStrengthChange.cpp
 
     ${SRC}/creaturemood/CreatureMood.cpp
     ${SRC}/creaturemood/CreatureMoodWakefulness.cpp
@@ -424,6 +425,7 @@ set(OD_SOURCEFILES
     ${SRC}/spells/SpellCreatureHaste.cpp
     ${SRC}/spells/SpellCreatureHeal.cpp
     ${SRC}/spells/SpellCreatureSlow.cpp
+    ${SRC}/spells/SpellCreatureStrength.cpp
     ${SRC}/spells/SpellManager.cpp
     ${SRC}/spells/SpellSummonWorker.cpp
     ${SRC}/spells/SpellType.cpp
