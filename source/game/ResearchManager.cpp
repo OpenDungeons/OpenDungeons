@@ -478,6 +478,15 @@ ResearchManager::ResearchManager() :
     def->mapResearch(mResearchesFamily);
     mResearches[index] = def;
     lvl4depends.push_back(research);
+
+    resType = ResearchType::spellCreatureWeak;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl3depends);
+    def = new ResearchDefSpell("MagicSkills/", "CreatureWeakButton", research, SpellType::creatureWeak);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl4depends.push_back(research);
 }
 
 ResearchManager::~ResearchManager()

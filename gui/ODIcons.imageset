@@ -47,6 +47,7 @@
     <Image height="64" name="MapLightButton" width="64" xPos="448" yPos="64" />
     <Image height="64" name="RoomsButton" width="64" xPos="0" yPos="256" />
     <Image height="64" name="SpellsButton" width="64" xPos="64" yPos="256" />
+    <Image height="64" name="CreatureWeakButton" width="64" xPos="128" yPos="256" />
     <Image height="64" name="GoldButton" width="64" xPos="0" yPos="64" />
     <Image height="64" name="LavaButton" width="64" xPos="64" yPos="64" />
     <Image height="64" name="RockButton" width="64" xPos="128" yPos="64" />
