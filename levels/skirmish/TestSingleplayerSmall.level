@@ -1460,6 +1460,8 @@ DwarfWorker	1
     379	409	440	473	506	540	576	613	650	700
     [/XP]
     [CreatureSkills]
+    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	EffectValue
+    StrengthSelf	21	3	1	5	1.3
     # SkillName	CooldownNbTurns	WarmupNbTurns	RangeMax	LevelMin	EffectDuration	EffectValue
     Weak	14	2	10	1	3	0.6
     # SkillName	CooldownNbTurns	WarmupNbTurns	RangeMax	LevelMin	EffectDuration	EffectValue

@@ -304,6 +304,7 @@ set(OD_SOURCEFILES
     ${SRC}/creatureskill/CreatureSkillMeleeFight.cpp
     ${SRC}/creatureskill/CreatureSkillMissileLaunch.cpp
     ${SRC}/creatureskill/CreatureSkillSlow.cpp
+    ${SRC}/creatureskill/CreatureSkillStrengthSelf.cpp
     ${SRC}/creatureskill/CreatureSkillWeak.cpp
 
     ${SRC}/entities/Building.cpp
