@@ -973,7 +973,7 @@ void GameMode::refreshMainUI()
 
     widget = guiSheet->getChild(Gui::DISPLAY_GOLD);
     tempSS.str("");
-    tempSS << mySeat->getGold() << " / " << mySeat->getGoldMax();
+    tempSS << mySeat->getGold() << "/" << mySeat->getGoldMax();
     widget->setText(tempSS.str());
 
     widget = guiSheet->getChild(Gui::DISPLAY_MANA);
