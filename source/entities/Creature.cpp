@@ -2734,6 +2734,9 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
         std::vector<Tile*> coveredTiles = entity->getCoveredTiles();
         for(Tile* tile : coveredTiles)
         {
+            if(std::find(mVisibleTiles.begin(), mVisibleTiles.end(), tile) == mVisibleTiles.end())
+                continue;
+
             int dist = Pathfinding::squaredDistanceTile(*tile, *myTile);
             if((closestDistCheck != -1) && (dist >= closestDistCheck))
                 continue;
