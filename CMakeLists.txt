@@ -330,18 +330,15 @@ set(OD_SOURCEFILES
     ${SRC}/entities/ResearchEntity.cpp
     ${SRC}/entities/SmallSpiderEntity.cpp
     ${SRC}/entities/Tile.cpp
-    ${SRC}/entities/TileFunctions.cpp
     ${SRC}/entities/TrapEntity.cpp
     ${SRC}/entities/TreasuryObject.cpp
     ${SRC}/entities/Weapon.cpp
 
     ${SRC}/game/Player.cpp
-    ${SRC}/game/PlayerFunctions.cpp
     ${SRC}/game/PlayerSelection.cpp
     ${SRC}/game/Research.cpp
     ${SRC}/game/ResearchManager.cpp
     ${SRC}/game/Seat.cpp
-    ${SRC}/game/SeatFunctions.cpp
 
     ${SRC}/gamemap/GameMap.cpp
     ${SRC}/gamemap/MapLoader.cpp
