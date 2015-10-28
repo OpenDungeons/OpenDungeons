@@ -25,6 +25,7 @@
 #include <cstdint>
 
 class CreatureBehaviour;
+class CreatureMood;
 class CreatureSkill;
 class ODPacket;
 
@@ -210,6 +211,9 @@ public:
     inline const std::vector<const CreatureBehaviour*>& getCreatureBehaviours() const
     { return mCreatureBehaviours; }
 
+    inline const std::vector<const CreatureMood*>& getCreatureMoods() const
+    { return mCreatureMoods; }
+
     const CreatureRoomAffinity& getRoomAffinity(RoomType roomType) const;
 
     inline const std::string& getMoodModifierName() const
@@ -335,6 +339,9 @@ private:
     //! \brief Creature specific behaviours
     std::vector<const CreatureBehaviour*> mCreatureBehaviours;
 
+    //! \brief Creature specific mood modifiers
+    std::vector<const CreatureMood*> mCreatureMoods;
+
     //! \brief The rooms the creature should choose according to availability
     std::vector<CreatureRoomAffinity> mRoomAffinity;
 
@@ -357,6 +364,9 @@ private:
 
     //! \brief Loads the creature specific behaviours for the given definition.
     static void loadCreatureBehaviours(std::stringstream& defFile, CreatureDefinition* creatureDef);
+
+    //! \brief Loads the creature specific mood modifiers for the given definition.
+    static void loadCreatureMoods(std::stringstream& defFile, CreatureDefinition* creatureDef);
 
     //! \brief Loads the creature room affinity for the given definition.
     static void loadRoomAffinity(std::stringstream& defFile, CreatureDefinition* creatureDef);

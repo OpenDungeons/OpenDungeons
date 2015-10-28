@@ -21,6 +21,8 @@
 #include "creaturebehaviour/CreatureBehaviourManager.h"
 #include "creatureskill/CreatureSkill.h"
 #include "creatureskill/CreatureSkillManager.h"
+#include "creaturemood/CreatureMood.h"
+#include "creaturemood/CreatureMoodManager.h"
 #include "network/ODPacket.h"
 #include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
@@ -196,6 +198,16 @@ CreatureDefinition::CreatureDefinition(const CreatureDefinition& def) :
         }
         mCreatureBehaviours.push_back(cloned);
     }
+    for(const CreatureMood* mood : def.mCreatureMoods)
+    {
+        CreatureMood* cloned = CreatureMoodManager::clone(mood);
+        if(cloned == nullptr)
+        {
+            OD_LOG_ERR("Error while cloning creature def=" + def.getClassName() + ", mood=" + mood->getModifierName());
+            continue;
+        }
+        mCreatureMoods.push_back(cloned);
+    }
 }
 
 CreatureDefinition::~CreatureDefinition()
@@ -210,6 +222,11 @@ CreatureDefinition::~CreatureDefinition()
         CreatureBehaviourManager::dispose(behaviour);
     }
     mCreatureBehaviours.clear();
+    for(const CreatureMood* mood : mCreatureMoods)
+    {
+        CreatureMoodManager::dispose(mood);
+    }
+    mCreatureMoods.clear();
 }
 
 double CreatureDefinition::getXPNeededWhenLevel(unsigned int level) const
@@ -410,6 +427,12 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
         if (nextParam == "[CreatureBehaviours]")
         {
             loadCreatureBehaviours(defFile, creatureDef);
+            continue;
+        }
+
+        if (nextParam == "[MoodModifiers]")
+        {
+            loadCreatureMoods(defFile, creatureDef);
             continue;
         }
 
@@ -928,6 +951,33 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
         file << "    [/XP]" << std::endl;
     }
 
+    isSame = (def1 != nullptr && (def1->mCreatureMoods.size() == def2->mCreatureMoods.size()));
+    if(isSame)
+    {
+        for(uint32_t i = 0; i < def1->mCreatureMoods.size(); ++i)
+        {
+            if(!CreatureMoodManager::areEqual(*def1->mCreatureMoods[i], *def2->mCreatureMoods[i]))
+            {
+                isSame = false;
+                break;
+            }
+        }
+    }
+    if(!isSame && !def2->mCreatureMoods.empty())
+    {
+        file << "    [MoodModifiers]" << std::endl;
+        for(const CreatureMood* mood : def2->mCreatureMoods)
+        {
+            std::string format;
+            CreatureMoodManager::getFormatString(*mood, format);
+            file << "    " << format << std::endl;
+            file << "    ";
+            CreatureMoodManager::write(*mood, file);
+            file << std::endl;
+        }
+        file << "    [/MoodModifiers]" << std::endl;
+    }
+
     isSame = (def1 != nullptr && (def1->mCreatureSkills.size() == def2->mCreatureSkills.size()));
     if(isSame)
     {
@@ -1111,6 +1161,51 @@ void CreatureDefinition::loadCreatureBehaviours(std::stringstream& defFile, Crea
         }
 
         creatureDef->mCreatureBehaviours.push_back(behaviour);
+    }
+}
+
+void CreatureDefinition::loadCreatureMoods(std::stringstream& defFile, CreatureDefinition* creatureDef)
+{
+    if (creatureDef == nullptr)
+    {
+        OD_LOG_ERR("Cannot load null creature def");
+        return;
+    }
+
+    if(!defFile.good())
+    {
+        OD_LOG_ERR("input file invalid");
+        return;
+    }
+
+    std::string nextParam;
+    // We want to start on the next line
+    std::getline(defFile, nextParam);
+    while (defFile.good())
+    {
+        std::getline(defFile, nextParam);
+        if(!defFile.good())
+            break;
+
+        Helper::trim(nextParam);
+        if(nextParam.empty())
+            continue;
+
+        if (nextParam == "[/MoodModifiers]" ||
+            nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        {
+            break;
+        }
+
+        std::stringstream ss(nextParam);
+        CreatureMood* mood = CreatureMoodManager::load(ss);
+        if (mood == nullptr)
+        {
+            OD_LOG_ERR("line=" + nextParam);
+            continue;
+        }
+
+        creatureDef->mCreatureMoods.push_back(mood);
     }
 }
 

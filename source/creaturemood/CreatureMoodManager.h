@@ -22,7 +22,10 @@
 #include <iosfwd>
 #include <string>
 
+class Creature;
 class CreatureMood;
+
+enum class CreatureMoodLevel;
 
 //! \brief Factory class to register a new mood modifier
 class CreatureMoodFactory
@@ -47,7 +50,21 @@ public:
     virtual ~CreatureMoodManager()
     {}
 
+    static CreatureMoodLevel getCreatureMoodLevel(int32_t moodModifiersPoints);
+
+    static int32_t computeCreatureMoodModifiers(const Creature& creature);
+
+    static CreatureMood* clone(const CreatureMood* mood);
+
     static CreatureMood* load(std::istream& defFile);
+
+    static void dispose(const CreatureMood* mood);
+
+    static void write(const CreatureMood& mood, std::ostream& os);
+
+    static void getFormatString(const CreatureMood& mood, std::string& format);
+
+    static bool areEqual(const CreatureMood& mood1, const CreatureMood& mood2);
 
 private:
     static void registerFactory(const CreatureMoodFactory* factory);

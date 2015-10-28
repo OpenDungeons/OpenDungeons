@@ -368,66 +368,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     }
 
     levelFile >> nextParam;
-
-    if (nextParam == "[CreaturesMood]")
-    {
-        while(levelFile.good())
-        {
-            if(!(levelFile >> nextParam))
-                break;
-
-            if (nextParam == "[/CreaturesMood]")
-                break;
-
-            if (nextParam == "[/CreatureMood]")
-                continue;
-
-            if (nextParam != "[CreatureMood]")
-            {
-                OD_LOG_ERR("Invalid CreatureMood format. Line was " + nextParam);
-                return false;
-            }
-
-            if(!(levelFile >> nextParam))
-                    break;
-            if (nextParam != "CreatureMoodName")
-            {
-                OD_LOG_ERR("Invalid CreatureMoodName format. Line was " + nextParam);
-                return false;
-            }
-            std::string moodModifierName;
-            levelFile >> moodModifierName;
-            std::vector<CreatureMood*> moodModifiers;
-
-            while(levelFile.good())
-            {
-                if(!(levelFile >> nextParam))
-                    break;
-
-                if (nextParam == "[/CreatureMood]")
-                    break;
-
-                if (nextParam != "[MoodModifier]")
-                {
-                    OD_LOG_ERR("Invalid CreatureMood MoodModifier format. nextParam=" + nextParam);
-                    return false;
-                }
-
-                // Load the definition
-                CreatureMood* def = CreatureMoodManager::load(levelFile);
-                if (def == nullptr)
-                {
-                    OD_LOG_ERR("Invalid CreatureMood MoodModifier definition");
-                    return false;
-                }
-                moodModifiers.push_back(def);
-            }
-            gameMap.addCreatureMoodModifiers(moodModifierName, moodModifiers);
-        }
-
-        levelFile >> nextParam;
-    }
-
     if (nextParam == "[CreatureDefinitions]")
     {
         while(levelFile.good())

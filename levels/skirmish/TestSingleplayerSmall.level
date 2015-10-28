@@ -1459,6 +1459,20 @@ DwarfWorker	1
     # 21-30
     379	409	440	473	506	540	576	613	650	700
     [/XP]
+    [MoodModifiers]
+    # MoodModifierName	StartHunger	MoodModifier
+    Hunger	80	-60
+    # MoodModifierName	StartWakefulness	MoodModifier
+    Wakefulness	20	-160
+    # MoodModifierName	MoodModifier
+    Fee	-120
+    # MoodModifierName	MoodModifier
+    HpLoss	-6
+    # MoodModifierName	TurnsWithoutFightMin	TurnsWithoutFightMax	MoodModifier
+    TurnsWithoutFight	150	20	-35
+    # MoodModifierName	CreatureClass	MoodModifier
+    Creature	Goblin	-500
+    [/MoodModifiers]
     [CreatureSkills]
     # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	EffectValue
     StrengthSelf	21	3	1	5	1.3

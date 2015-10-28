@@ -39,3 +39,11 @@ std::string CreatureMood::toString(CreatureMoodLevel moodLevel)
             return "";
     }
 }
+
+bool CreatureMood::isEqual(const CreatureMood& creatureMood) const
+{
+    if(typeid(*this) != typeid(creatureMood))
+        return false;
+
+    return true;
+}

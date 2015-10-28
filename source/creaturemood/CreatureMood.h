@@ -44,18 +44,24 @@ public:
     virtual ~CreatureMood()
     {}
 
+    virtual const std::string& getModifierName() const = 0;
+
     //! \brief Computes the creature mood for this modifier
-    virtual int32_t computeMood(const Creature* creature) const = 0;
+    virtual int32_t computeMood(const Creature& creature) const = 0;
 
     //! \brief This function should return a copy of the current class
     virtual CreatureMood* clone() const = 0;
 
+    virtual bool isEqual(const CreatureMood& creatureMood) const;
+
+    //! \brief Returns the format string (including specific additional parameters)
+    virtual void getFormatString(std::string& format) const
+    {}
+
     //! \brief Can be overriden to read additional parameters from the stream
     virtual bool importFromStream(std::istream& file)
     { return true; }
-
-    //! \brief This function will be called after loading the level
-    virtual void init(GameMap* gameMap)
+    virtual void exportToStream(std::ostream& os) const
     {}
 
     static std::string toString(CreatureMoodLevel moodLevel);

@@ -20,6 +20,10 @@
 #include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
 
+static const std::string CreatureMoodWakefulnessName = "Wakefulness";
+
+namespace
+{
 class CreatureMoodWakefulnessFactory : public CreatureMoodFactory
 {
     CreatureMood* createCreatureMood() const override
@@ -27,21 +31,31 @@ class CreatureMoodWakefulnessFactory : public CreatureMoodFactory
 
     const std::string& getCreatureMoodName() const override
     {
-        static const std::string name = "Wakefulness";
-        return name;
+        return CreatureMoodWakefulnessName;
     }
 };
 
-//! \brief Register the mood type
+// Register the factory
 static CreatureMoodRegister reg(new CreatureMoodWakefulnessFactory);
+}
 
-int32_t CreatureMoodWakefulness::computeMood(const Creature* creature) const
+const std::string& CreatureMoodWakefulness::getModifierName() const
 {
-    int32_t wakefulness = static_cast<int32_t>(creature->getWakefulness());
+    return CreatureMoodWakefulnessName;
+}
+
+int32_t CreatureMoodWakefulness::computeMood(const Creature& creature) const
+{
+    int32_t wakefulness = static_cast<int32_t>(creature.getWakefulness());
     if(wakefulness > mStartWakefulness)
         return 0;
 
     return (mStartWakefulness - wakefulness) * mMoodModifier;
+}
+
+CreatureMoodWakefulness* CreatureMoodWakefulness::clone() const
+{
+    return new CreatureMoodWakefulness(*this);
 }
 
 bool CreatureMoodWakefulness::importFromStream(std::istream& is)
@@ -55,4 +69,20 @@ bool CreatureMoodWakefulness::importFromStream(std::istream& is)
         return false;
 
     return true;
+}
+
+void CreatureMoodWakefulness::exportToStream(std::ostream& os) const
+{
+    CreatureMood::exportToStream(os);
+    os << "\t" << mStartWakefulness;
+    os << "\t" << mMoodModifier;
+}
+
+void CreatureMoodWakefulness::getFormatString(std::string& format) const
+{
+    CreatureMood::getFormatString(format);
+    if(!format.empty())
+        format += "\t";
+
+    format += "StartWakefulness\tMoodModifier";
 }

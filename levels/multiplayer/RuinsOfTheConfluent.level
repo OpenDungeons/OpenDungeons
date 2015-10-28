@@ -2079,8 +2079,8 @@ BigKnight	5
     MeshScaleY	0.3
     MeshScaleZ	0.3
     BedMeshName	DragonBed
-    BedDimX	2
-    BedDimY	2
+    BedDim	1	1
+    BedPos	1	1	0	-1
     MinHP	50
     HP/Level	6
     Heal/Turn	0.03
@@ -2102,11 +2102,13 @@ BigKnight	5
     PhysicalDef/Level	0.2
     MagicalDefense	3
     MagicalDef/Level	0
-    WeakCoef	0.3
+    ElementDefense	1.5
+    ElementDef/Level	0.1
+    FightIdleDist	1
     FeeBase	300
     FeePerLevel	70
     SleepHeal	1
-    CreatureMoodName	MoodTier3
+    TurnsStunDropped	0
     WeaponSpawnL	none
     WeaponSpawnL	none
     SoundFamilyPickup	Default/Pickup
@@ -2128,9 +2130,31 @@ BigKnight	5
     # 21-30
     447	491	538	588	641	697	756	818	883	951
     [/XP]
+    [MoodModifiers]
+    # MoodModifierName	StartHunger	MoodModifier
+    Hunger	80	-60
+    # MoodModifierName	StartWakefulness	MoodModifier
+    Wakefulness	20	-160
+    # MoodModifierName	MoodModifier
+    Fee	-120
+    # MoodModifierName	MoodModifier
+    HpLoss	-6
+    # MoodModifierName	TurnsWithoutFightMin	TurnsWithoutFightMax	MoodModifier
+    TurnsWithoutFight	150	20	-35
+    [/MoodModifiers]
     [CreatureSkills]
+    # SkillName	CooldownNbTurns	WarmupNbTurns	RangeMax	LevelMin	EffectDuration	EffectValue
+    Slow	30	1	6	5	10	0.8
+    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	EffectValue
+    HealSelf	35	1	8	5	1
+    # SkillName	CooldownNbTurns	WarmupNbTurns	RangeMax	LevelMin	EffectDuration	EffectValue
+    Explosion	40	2	6	12	1	15
+    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	PhyDef	MagDef	EleDef
+    DefenseSelf	45	2	15	25	3	3	3
+    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	EffectValue
+    StrengthSelf	55	2	18	20	1.15
     # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	PhyAtk	PhyAtkPerLvl	MagAtk	MagAtkPerLvl	EleAtk	EleAtkPerLvl
-    Melee	5	2	1	16	0.8	0	0	0	0
+    Melee	2	1	1	0	0	16	0.31	0	0
     [/CreatureSkills]
     [CreatureBehaviours]
     # BehaviourName	WeakCoef

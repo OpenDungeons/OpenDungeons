@@ -210,11 +210,6 @@ public:
     uint32_t numWeapons();
     void saveLevelEquipments(std::ofstream& levelFile);
 
-    void clearCreatureMoodModifiers();
-    bool addCreatureMoodModifiers(const std::string& name,
-        const std::vector<CreatureMood*>& moodModifiers);
-    int32_t computeCreatureMoodModifiers(const Creature* creature) const;
-
     //! \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
     void clearRooms();
 
@@ -639,10 +634,6 @@ private:
     //! Map tileset
     const TileSet* mTileSet;
     std::string mTileSetName;
-
-    //! Creature mood modifiers. Used to compute mood. The name of the mood modifier is associated with
-    //! the list of mood modifier
-    std::map<const std::string, std::vector<CreatureMood*>> mCreatureMoodModifiers;
 
     //! \brief Updates different entities states.
     //! Updates active objects (creatures, rooms, ...), goals, count each team Workers, gold, mana and claimed tiles.

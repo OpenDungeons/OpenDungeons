@@ -192,19 +192,6 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
         addWeapon(def);
     }
 
-    // We reset the mood modifiers
-    clearCreatureMoodModifiers();
-    const std::map<const std::string, std::vector<const CreatureMood*>>& moodModifiers = ConfigManager::getSingleton().getCreatureMoodModifiers();
-    for(std::pair<const std::string, std::vector<const CreatureMood*>> p : moodModifiers)
-    {
-        std::vector<CreatureMood*> moodModifiersClone;
-        for(const CreatureMood* mood : p.second)
-        {
-            moodModifiersClone.push_back(mood->clone());
-        }
-        addCreatureMoodModifiers(p.first, moodModifiersClone);
-    }
-
     // We add the rogue default seat (seatId = 0 and teamId = 0)
     Seat* rogueSeat = Seat::createRogueSeat(this);
     if(!addSeat(rogueSeat))
@@ -217,15 +204,6 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
         setLevelFileName(levelFilepath);
     else
         return false;
-
-    // We initialize the mood modifiers
-    for(std::pair<const std::string, std::vector<CreatureMood*>>& p : mCreatureMoodModifiers)
-    {
-        for(CreatureMood* creatureMood : p.second)
-        {
-            creatureMood->init(this);
-        }
-    }
 
     return true;
 }
@@ -277,7 +255,6 @@ void GameMap::clearAll()
     clearRenderedMovableEntities();
     clearSpells();
     clearTiles();
-    clearCreatureMoodModifiers();
 
     clearGoalsForAllSeats();
     clearSeats();
@@ -2768,48 +2745,6 @@ void GameMap::updateVisibleEntities()
     {
         creature->fireCreatureRefreshIfNeeded();
     }
-}
-
-void GameMap::clearCreatureMoodModifiers()
-{
-    // We delete map specific mood modifiers
-    for(std::pair<const std::string, std::vector<CreatureMood*>>& p : mCreatureMoodModifiers)
-    {
-        for(const CreatureMood* creatureMood : p.second)
-            delete creatureMood;
-    }
-
-    mCreatureMoodModifiers.clear();
-}
-
-bool GameMap::addCreatureMoodModifiers(const std::string& name,
-    const std::vector<CreatureMood*>& moodModifiers)
-{
-    uint32_t nb = mCreatureMoodModifiers.count(name);
-    if(nb > 0)
-    {
-        OD_LOG_ERR("Duplicate mood modifier=" + name);
-        return false;
-    }
-
-    mCreatureMoodModifiers[name] = moodModifiers;
-    return true;
-}
-
-int32_t GameMap::computeCreatureMoodModifiers(const Creature* creature) const
-{
-    const std::string& moodModifierName = creature->getDefinition()->getMoodModifierName();
-    if(mCreatureMoodModifiers.count(moodModifierName) <= 0)
-        return 0;
-
-    int32_t moodValue = 0;
-    const std::vector<CreatureMood*>& moodModifiers = mCreatureMoodModifiers.at(moodModifierName);
-    for(const CreatureMood* mood : moodModifiers)
-    {
-        moodValue += mood->computeMood(creature);
-    }
-
-    return moodValue;
 }
 
 void GameMap::addSpell(Spell *spell)

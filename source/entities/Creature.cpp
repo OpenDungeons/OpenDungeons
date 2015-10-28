@@ -22,6 +22,7 @@
 #include "creatureeffect/CreatureEffectManager.h"
 #include "creatureeffect/CreatureEffectSlap.h"
 #include "creaturemood/CreatureMood.h"
+#include "creaturemood/CreatureMoodManager.h"
 #include "creatureskill/CreatureSkill.h"
 #include "entities/ChickenEntity.h"
 #include "entities/CreatureAction.h"
@@ -4576,10 +4577,10 @@ void Creature::decreaseWakefulness(double value)
 
 void Creature::computeMood()
 {
-    mMoodPoints = getGameMap()->computeCreatureMoodModifiers(this);
+    mMoodPoints = CreatureMoodManager::computeCreatureMoodModifiers(*this);
 
     CreatureMoodLevel oldMoodValue = mMoodValue;
-    mMoodValue = ConfigManager::getSingleton().getCreatureMoodLevel(mMoodPoints);
+    mMoodValue = CreatureMoodManager::getCreatureMoodLevel(mMoodPoints);
     if(mMoodValue == oldMoodValue)
         return;
 

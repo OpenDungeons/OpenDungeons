@@ -28,14 +28,18 @@ public:
         mMoodModifier(0)
     {}
 
-    virtual ~CreatureMoodHunger() {}
+    virtual ~CreatureMoodHunger()
+    {}
 
-    virtual int32_t computeMood(const Creature* creature) const override;
+    const std::string& getModifierName() const override;
 
-    inline CreatureMood* clone() const override
-    {  return new CreatureMoodHunger(mStartHunger, mMoodModifier); }
+    virtual int32_t computeMood(const Creature& creature) const override;
+
+    inline CreatureMoodHunger* clone() const override;
 
     virtual bool importFromStream(std::istream& is) override;
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void getFormatString(std::string& format) const override;
 
 private:
     CreatureMoodHunger(int32_t startHunger, int32_t moodModifier) :

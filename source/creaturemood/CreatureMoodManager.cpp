@@ -18,6 +18,9 @@
 #include "creaturemood/CreatureMoodManager.h"
 
 #include "creaturemood/CreatureMood.h"
+#include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -49,6 +52,40 @@ void CreatureMoodManager::unregisterFactory(const CreatureMoodFactory* factory)
         return;
     }
     factories.erase(it);
+}
+
+CreatureMoodLevel CreatureMoodManager::getCreatureMoodLevel(int32_t moodModifiersPoints)
+{
+    int32_t mood = ConfigManager::getSingleton().getCreatureBaseMood() + moodModifiersPoints;
+    if(mood >= ConfigManager::getSingleton().getCreatureMoodHappy())
+        return CreatureMoodLevel::Happy;
+
+    if(mood >= ConfigManager::getSingleton().getCreatureMoodUpset())
+        return CreatureMoodLevel::Neutral;
+
+    if(mood >= ConfigManager::getSingleton().getCreatureMoodAngry())
+        return CreatureMoodLevel::Upset;
+
+    if(mood >= ConfigManager::getSingleton().getCreatureMoodFurious())
+        return CreatureMoodLevel::Angry;
+
+    return CreatureMoodLevel::Furious;
+}
+
+int32_t CreatureMoodManager::computeCreatureMoodModifiers(const Creature& creature)
+{
+    int32_t moodValue = 0;
+    for(const CreatureMood* mood : creature.getDefinition()->getCreatureMoods())
+    {
+        moodValue += mood->computeMood(creature);
+    }
+
+    return moodValue;
+}
+
+CreatureMood* CreatureMoodManager::clone(const CreatureMood* mood)
+{
+    return mood->clone();
 }
 
 CreatureMood* CreatureMoodManager::load(std::istream& defFile)
@@ -87,4 +124,26 @@ CreatureMood* CreatureMoodManager::load(std::istream& defFile)
     }
 
     return mood;
+}
+
+void CreatureMoodManager::dispose(const CreatureMood* mood)
+{
+    delete mood;
+}
+
+void CreatureMoodManager::write(const CreatureMood& mood, std::ostream& os)
+{
+    os << mood.getModifierName();
+    mood.exportToStream(os);
+}
+
+void CreatureMoodManager::getFormatString(const CreatureMood& mood, std::string& format)
+{
+    format = "# MoodModifierName";
+    mood.getFormatString(format);
+}
+
+bool CreatureMoodManager::areEqual(const CreatureMood& mood1, const CreatureMood& mood2)
+{
+    return mood1.isEqual(mood2);
 }
