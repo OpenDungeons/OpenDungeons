@@ -108,10 +108,6 @@ public:
             double                  waterSpeedPerLevel  = 0.0,
             double                  lavaSpeedPerLevel   = 0.0,
 
-            double                  phyAtkMel           = 1.0,
-            double                  phyAtkMelPerLvl     = 0.6,
-            double                  magAtkMel           = 0.8,
-            double                  magAtkMelPerLvl     = 0.4,
             double                  physicalDefense     = 3.0,
             double                  physicalDefPerLevel = 0.2,
             double                  magicalDefense      = 1.5,

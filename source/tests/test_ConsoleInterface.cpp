@@ -15,14 +15,33 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "modes/AbstractModeManager.h"
 #include "modes/ConsoleInterface.h"
+
 #include <string>
-#include "mocks/TestModeManager.h"
 
 #define BOOST_TEST_MODULE ConsoleInterface
 #include "BoostTestTargetConfig.h"
 
 #include <boost/lexical_cast.hpp>
+
+class TestModeManager: public AbstractModeManager
+{
+public:
+    TestModeManager(ModeType mode)
+        : mode(mode)
+    {
+    }
+
+    ModeType getCurrentModeType() const override
+    {
+        return mode;
+    }
+
+private:
+    ModeType mode;
+};
+
 
 template<typename StringT>
 void appendText(StringT text)
