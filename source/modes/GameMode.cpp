@@ -17,8 +17,6 @@
 
 #include "modes/GameMode.h"
 
-#include "modes/GameEditorModeConsole.h"
-#include "ODApplication.h"
 #include "camera/CameraManager.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
@@ -28,6 +26,8 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
+#include "modes/GameEditorModeConsole.h"
+#include "network/ChatEventMessage.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
 #include "render/Gui.h"
@@ -47,6 +47,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
+#include "ODApplication.h"
 
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/WindowManager.h>
@@ -192,12 +193,14 @@ GameMode::GameMode(ModeManager *modeManager):
             CEGUI::Event::Subscriber(&GameMode::showResearchFromOptions, this)
         )
     );
+    CEGUI::Window* saveGameButtonWindow = guiSheet->getChild("GameOptionsWindow/SaveGameButton");
     addEventConnection(
-        guiSheet->getChild("GameOptionsWindow/SaveGameButton")->subscribeEvent(
+        saveGameButtonWindow->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&GameMode::saveGame, this)
         )
     );
+    saveGameButtonWindow->setEnabled(ODServer::getSingleton().isConnected());
     addEventConnection(
         guiSheet->getChild("GameOptionsWindow/SettingsButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
@@ -1331,6 +1334,15 @@ bool GameMode::showResearchFromOptions(const CEGUI::EventArgs& /*e*/)
 
 bool GameMode::saveGame(const CEGUI::EventArgs& /*e*/)
 {
+    // We can save if launching in server mode only
+    if(!ODServer::getSingleton().isConnected())
+    {
+        std::string msg = "You cannot save the game when not launching in server mode";
+        EventMessage* event = new EventMessage(msg, EventShortNoticeType::genericGameInfo);
+        receiveEventShortNotice(event);
+        return true;
+    }
+
     if(ODClient::getSingleton().isConnected())
     {
         // Send a message to the server telling it we want to drop the creature

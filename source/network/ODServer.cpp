@@ -1375,6 +1375,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(mPlayerConfig != player)
                 break;
 
+            // We only allow to save game if launching in client+server mode
+            if(ODClient::getSingletonPtr() == nullptr)
+                break;
+            if(!ODClient::getSingleton().isConnected())
+                break;
+
             const boost::filesystem::path levelPath(gameMap->getLevelFileName());
             std::string fileLevel = levelPath.filename().string();
             // In editor mode, we don't allow a player to have creatures in hand while saving map
@@ -1414,46 +1420,46 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                         ss << fileLevel;
                         break;
                     case ServerMode::ModeGameLoaded:
+                    {
+                        // We look for the Skirmish or multiplayer prefix and keep it.
+                        uint32_t indexSk = fileLevel.find(SAVEGAME_SKIRMISH_PREFIX);
+                        uint32_t indexMp = fileLevel.find(SAVEGAME_MULTIPLAYER_PREFIX);
+                        if((indexSk != std::string::npos) && (indexMp == std::string::npos))
                         {
-                            // We look for the Skirmish or multiplayer prefix and keep it.
-                            uint32_t indexSk = fileLevel.find(SAVEGAME_SKIRMISH_PREFIX);
-                            uint32_t indexMp = fileLevel.find(SAVEGAME_MULTIPLAYER_PREFIX);
-                            if((indexSk != std::string::npos) && (indexMp == std::string::npos))
+                            // Skirmish savegame
+                            ss << SAVEGAME_SKIRMISH_PREFIX;
+                            ss << fileLevel.substr(indexSk + SAVEGAME_SKIRMISH_PREFIX.length());
+
+                        }
+                        else if((indexSk == std::string::npos) && (indexMp != std::string::npos))
+                        {
+                            // Multiplayer savegame
+                            ss << SAVEGAME_MULTIPLAYER_PREFIX;
+                            ss << fileLevel.substr(indexMp + SAVEGAME_MULTIPLAYER_PREFIX.length());
+                        }
+                        else if((indexSk != std::string::npos) && (indexMp != std::string::npos))
+                        {
+                            // We found both prefixes. That can happen if the name contains the other
+                            // prefix. Because of filename construction, we know that the lowest is the good
+                            if(indexSk < indexMp)
                             {
-                                // Skirmish savegame
                                 ss << SAVEGAME_SKIRMISH_PREFIX;
                                 ss << fileLevel.substr(indexSk + SAVEGAME_SKIRMISH_PREFIX.length());
-
-                            }
-                            else if((indexSk == std::string::npos) && (indexMp != std::string::npos))
-                            {
-                                // Multiplayer savegame
-                                ss << SAVEGAME_MULTIPLAYER_PREFIX;
-                                ss << fileLevel.substr(indexMp + SAVEGAME_MULTIPLAYER_PREFIX.length());
-                            }
-                            else if((indexSk != std::string::npos) && (indexMp != std::string::npos))
-                            {
-                                // We found both prefixes. That can happen if the name contains the other
-                                // prefix. Because of filename construction, we know that the lowest is the good
-                                if(indexSk < indexMp)
-                                {
-                                    ss << SAVEGAME_SKIRMISH_PREFIX;
-                                    ss << fileLevel.substr(indexSk + SAVEGAME_SKIRMISH_PREFIX.length());
-                                }
-                                else
-                                {
-                                    ss << SAVEGAME_MULTIPLAYER_PREFIX;
-                                    ss << fileLevel.substr(indexMp + SAVEGAME_MULTIPLAYER_PREFIX.length());
-                                }
                             }
                             else
                             {
-                                // We couldn't find any prefix. That's not normal
-                                OD_LOG_ERR("fileLevel=" + fileLevel);
-                                ss << fileLevel;
+                                ss << SAVEGAME_MULTIPLAYER_PREFIX;
+                                ss << fileLevel.substr(indexMp + SAVEGAME_MULTIPLAYER_PREFIX.length());
                             }
                         }
+                        else
+                        {
+                            // We couldn't find any prefix. That's not normal
+                            OD_LOG_ERR("fileLevel=" + fileLevel);
+                            ss << fileLevel;
+                        }
                         break;
+                    }
                     default:
                         OD_LOG_ERR("mode=" + Helper::toString(static_cast<int>(mServerMode)));
                         ss << fileLevel;
@@ -1469,7 +1475,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             std::string msg = "Map saved successfully";
             MapLoader::writeGameMapToFile(levelSave.string(), *gameMap);
-            ServerNotification notif(ServerNotificationType::chatServer, player);
+            // We notify all the players that the game was saved successfully
+            ServerNotification notif(ServerNotificationType::chatServer, nullptr);
             notif.mPacket << msg << EventShortNoticeType::genericGameInfo;
             sendAsyncMsg(notif);
             break;
