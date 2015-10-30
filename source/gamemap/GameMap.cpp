@@ -635,7 +635,6 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
                     isDigging = true;
                     break;
 
-                case CreatureActionType::idle:
                 case CreatureActionType::walkToTile:
                     // We do nothing
                     break;
@@ -746,7 +745,6 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
                     isBusy = true;
                     break;
 
-                case CreatureActionType::idle:
                 case CreatureActionType::walkToTile:
                     // We do nothing
                     break;

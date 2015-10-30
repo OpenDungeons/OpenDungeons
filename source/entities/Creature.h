@@ -727,7 +727,7 @@ private:
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature idle action logic.
     //! \return true when another action should handled after that one.
-    bool handleIdleAction(const CreatureActionWrapper& actionItem);
+    bool handleIdleAction();
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature walking action logic.

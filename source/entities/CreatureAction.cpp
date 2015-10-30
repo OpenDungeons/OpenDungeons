@@ -95,9 +95,6 @@ std::string CreatureAction::toString(CreatureActionType actionType)
     case CreatureActionType::getFee:
         return "getFee";
 
-    case CreatureActionType::idle:
-        return "idle";
-
     case CreatureActionType::leaveDungeon:
         return "leaveDungeon";
 

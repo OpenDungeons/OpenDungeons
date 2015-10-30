@@ -185,8 +185,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     setMeshName(definition->getMeshName());
     setName(getGameMap()->nextUniqueNameCreature(definition->getClassName()));
 
-    pushAction(CreatureActionType::idle, false, true, false);
-
     mMaxHP = mDefinition->getMinHp();
     setHP(mMaxHP);
 
@@ -260,7 +258,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mKoTurnCounter           (0),
     mSeatPrison              (nullptr)
 {
-    pushAction(CreatureActionType::idle, false, true, false);
 }
 
 Creature::~Creature()
@@ -1026,16 +1023,14 @@ void Creature::doUpkeep()
         ++loops;
         loopBack = false;
 
-        // Carry out the current task
-        if (!mActionQueue.empty())
+        if (mActionQueue.empty())
+            loopBack = handleIdleAction();
+        else
         {
+            // Carry out the current task
             CreatureActionWrapper topActionItem(mActionQueue.front());
             switch (topActionItem.mType)
             {
-                case CreatureActionType::idle:
-                    loopBack = handleIdleAction(topActionItem);
-                    break;
-
                 case CreatureActionType::walkToTile:
                     loopBack = handleWalkToTileAction(topActionItem);
                     break;
@@ -1099,11 +1094,6 @@ void Creature::doUpkeep()
                     break;
             }
         }
-        else
-        {
-            OD_LOG_ERR("Creature has empty action queue in doUpkeep(), this should not happen.");
-            loopBack = false;
-        }
     } while (loopBack && loops < 20);
 
     for(CreatureAction& creatureAction : mActionQueue)
@@ -1125,7 +1115,7 @@ void Creature::decidePrioritaryAction()
     }
 }
 
-bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
+bool Creature::handleIdleAction()
 {
     double diceRoll = Random::Double(0.0, 1.0);
 
@@ -3982,8 +3972,6 @@ void Creature::clearActionQueue()
     stopEating();
     if(mCarriedEntity != nullptr)
         releaseCarriedEntity();
-
-    mActionQueue.emplace_front(*this, CreatureActionType::idle, false, nullptr, nullptr, nullptr);
 }
 
 bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* skillData)
