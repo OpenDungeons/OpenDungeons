@@ -103,6 +103,7 @@ class CreatureActionWrapper
 public:
     CreatureActionWrapper(const CreatureAction& action) :
         mType(action.getType()),
+        mForced(action.getForcedAction()),
         mAttackedEntity(action.getAttackedEntity()),
         mTile(action.getTile()),
         mCreatureSkillData(action.getCreatureSkillData()),
@@ -112,6 +113,7 @@ public:
     }
 
     const CreatureActionType mType;
+    const bool mForced;
     GameEntity* const mAttackedEntity;
     Tile* const mTile;
     CreatureSkillData* const mCreatureSkillData;
@@ -183,7 +185,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     setMeshName(definition->getMeshName());
     setName(getGameMap()->nextUniqueNameCreature(definition->getClassName()));
 
-    pushAction(CreatureActionType::idle, false, true);
+    pushAction(CreatureActionType::idle, false, true, false);
 
     mMaxHP = mDefinition->getMinHp();
     setHP(mMaxHP);
@@ -258,7 +260,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mKoTurnCounter           (0),
     mSeatPrison              (nullptr)
 {
-    pushAction(CreatureActionType::idle, false, true);
+    pushAction(CreatureActionType::idle, false, true, false);
 }
 
 Creature::~Creature()
@@ -1051,7 +1053,6 @@ void Creature::doUpkeep()
                     break;
 
                 case CreatureActionType::findHome:
-                case CreatureActionType::findHomeForced:
                     loopBack = handleFindHomeAction(topActionItem);
                     break;
 
@@ -1059,13 +1060,11 @@ void Creature::doUpkeep()
                     loopBack = handleSleepAction(topActionItem);
                     break;
 
-                case CreatureActionType::jobdecided:
-                case CreatureActionType::jobforced:
+                case CreatureActionType::job:
                     loopBack = handleJobAction(topActionItem);
                     break;
 
-                case CreatureActionType::eatdecided:
-                case CreatureActionType::eatforced:
+                case CreatureActionType::eat:
                     loopBack = handleEatingAction(topActionItem);
                     break;
 
@@ -1082,7 +1081,6 @@ void Creature::doUpkeep()
                     break;
 
                 case CreatureActionType::carryEntity:
-                case CreatureActionType::carryEntityForced:
                     loopBack = handleCarryableEntities(topActionItem);
                     break;
 
@@ -1095,8 +1093,7 @@ void Creature::doUpkeep()
                     break;
 
                 default:
-                    OD_LOG_ERR("Unhandled action type in Creature::doUpkeep():" + mActionQueue.front().toString()
-                        + ", action=" + Helper::toString(static_cast<int>(topActionItem.mType)));
+                    OD_LOG_ERR("Unhandled action type in Creature::doUpkeep():" + CreatureAction::toString(topActionItem.mType));
                     popAction();
                     loopBack = false;
                     break;
@@ -1205,7 +1202,7 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         else if(forceCarryObject)
         {
             mForceAction = forcedActionNone;
-            pushAction(CreatureActionType::carryEntityForced, false, true);
+            pushAction(CreatureActionType::carryEntity, false, true, true);
             return true;
         }
         else if((tileToClaim != nullptr) && (mClaimRate > 0.0))
@@ -1230,17 +1227,17 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         {
             case forcedActionDigTile:
             {
-                pushAction(CreatureActionType::digTile, false, true);
+                pushAction(CreatureActionType::digTile, false, true, false);
                 return true;
             }
             case forcedActionClaimTile:
             {
-                pushAction(CreatureActionType::claimTile, false, true);
+                pushAction(CreatureActionType::claimTile, false, true, false);
                 return true;
             }
             case forcedActionClaimWallTile:
             {
-                pushAction(CreatureActionType::claimWallTile, false, true);
+                pushAction(CreatureActionType::claimWallTile, false, true, false);
                 return true;
             }
             default:
@@ -1251,19 +1248,19 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
     // Decide to check for diggable tiles
     if (mDigRate > 0.0 && !mVisibleMarkedTiles.empty())
     {
-        if(pushAction(CreatureActionType::digTile, false, false))
+        if(pushAction(CreatureActionType::digTile, false, false, false))
             return true;
     }
     // Decide to check for carryable entities
     if (mDefinition->isWorker() && diceRoll < 0.6)
     {
-        if(pushAction(CreatureActionType::carryEntity, false, false))
+        if(pushAction(CreatureActionType::carryEntity, false, false, false))
             return true;
     }
     // Decide to check for claimable tiles
     if (mClaimRate > 0.0 && diceRoll < 0.9)
     {
-        if(pushAction(CreatureActionType::claimTile, false, false))
+        if(pushAction(CreatureActionType::claimTile, false, false, false))
             return true;
     }
 
@@ -1278,19 +1275,19 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
             // we see if we are in an hatchery
             if(room->getType() == RoomType::hatchery)
             {
-                pushAction(CreatureActionType::eatforced, false, true);
+                pushAction(CreatureActionType::eat, false, true, true);
                 return true;
             }
             else if(room->getType() == RoomType::dormitory)
             {
-                pushAction(CreatureActionType::sleep, false, true);
-                pushAction(CreatureActionType::findHomeForced, false, true);
+                pushAction(CreatureActionType::sleep, false, true, true);
+                pushAction(CreatureActionType::findHome, false, true, true);
                 return true;
             }
             // If not, can we work in this room ?
             else if(room->getType() != RoomType::hatchery)
             {
-                pushAction(CreatureActionType::jobforced, false, true);
+                pushAction(CreatureActionType::job, false, true, true);
                 return true;
             }
         }
@@ -1299,7 +1296,7 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
     // We check if we are looking for our fee
     if(!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.5 && mGoldFee > 0)
     {
-        if(pushAction(CreatureActionType::getFee, false, false))
+        if(pushAction(CreatureActionType::getFee, false, false, false))
             return true;
     }
 
@@ -1336,7 +1333,7 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
                 std::vector<Ogre::Vector3> path;
                 tileToVector3(tempPath, path, true, 0.0);
                 setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-                pushAction(CreatureActionType::walkToTile, false, true);
+                pushAction(CreatureActionType::walkToTile, false, true, false);
                 return false;
             }
         }
@@ -1351,7 +1348,7 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
         if (!tempRooms.empty())
         {
-            if(pushAction(CreatureActionType::findHome, false, false))
+            if(pushAction(CreatureActionType::findHome, false, false, false))
                 return true;
         }
     }
@@ -1362,7 +1359,7 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         (Random::Double(20.0, 30.0) > mWakefulness))
     {
         // Check to see if we can work
-        if(pushAction(CreatureActionType::sleep, false, false))
+        if(pushAction(CreatureActionType::sleep, false, false, false))
             return true;
     }
 
@@ -1371,7 +1368,7 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         (Random::Double(70.0, 80.0) < mHunger))
     {
         // Check to see if we can work
-        if(pushAction(CreatureActionType::eatdecided, false, false))
+        if(pushAction(CreatureActionType::eat, false, false, false))
             return true;
     }
 
@@ -1380,7 +1377,7 @@ bool Creature::handleIdleAction(const CreatureActionWrapper& actionItem)
         (Random::Double(0.0, 1.0) < 0.4))
     {
         // Check to see if we can work
-        if(pushAction(CreatureActionType::jobdecided, false, false))
+        if(pushAction(CreatureActionType::job, false, false, false))
             return true;
     }
 
@@ -1503,7 +1500,7 @@ bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
             // If there are any visible tiles marked for digging start working on that.
             if (!mVisibleMarkedTiles.empty())
             {
-                if(pushAction(CreatureActionType::digTile, true, false))
+                if(pushAction(CreatureActionType::digTile, true, false, false))
                     return true;
             }
         }
@@ -1511,7 +1508,7 @@ bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
         if (Random::Int(0, 10) < 5)
         {
             // We don't pop action to continue claiming after carrying entity
-            if(pushAction(CreatureActionType::carryEntity, false, false))
+            if(pushAction(CreatureActionType::carryEntity, false, false, false))
                 return true;
         }
     }
@@ -1572,7 +1569,7 @@ bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
             std::vector<Ogre::Vector3> path;
             path.push_back(dest);
             setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-            pushAction(CreatureActionType::walkToTile, false, true);
+            pushAction(CreatureActionType::walkToTile, false, true, false);
             return false;
         }
     }
@@ -1672,7 +1669,7 @@ bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
     // We couldn't find a tile to try to claim so we start searching for claimable walls
     mForceAction = forcedActionNone;
     popAction();
-    pushAction(CreatureActionType::claimWallTile, false, false);
+    pushAction(CreatureActionType::claimWallTile, false, false, false);
     return true;
 }
 
@@ -1694,7 +1691,7 @@ bool Creature::handleClaimWallTileAction(const CreatureActionWrapper& actionItem
             if (!mVisibleMarkedTiles.empty())
             {
 
-                if(pushAction(CreatureActionType::digTile, true, false))
+                if(pushAction(CreatureActionType::digTile, true, false, false))
                     return true;
             }
         }
@@ -1702,7 +1699,7 @@ bool Creature::handleClaimWallTileAction(const CreatureActionWrapper& actionItem
         if (Random::Int(0, 10) < 5)
         {
             // We don't pop action to continue claiming after carrying entity
-            if(pushAction(CreatureActionType::carryEntity, true, false))
+            if(pushAction(CreatureActionType::carryEntity, true, false, false))
                 return true;
         }
     }
@@ -1778,7 +1775,7 @@ bool Creature::handleClaimWallTileAction(const CreatureActionWrapper& actionItem
     std::vector<Ogre::Vector3> path;
     tileToVector3(chosenPath, path, true, 0.0);
     setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-    pushAction(CreatureActionType::walkToTile, false, true);
+    pushAction(CreatureActionType::walkToTile, false, true, false);
     return false;
 }
 
@@ -1849,7 +1846,7 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
                 std::vector<Ogre::Vector3> path;
                 path.push_back(v);
                 setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-                pushAction(CreatureActionType::walkToTile, false, true);
+                pushAction(CreatureActionType::walkToTile, false, true, false);
             }
             //Set sound position and play dig sound.
             fireCreatureSound(CreatureSound::Dig);
@@ -1900,7 +1897,7 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
         }
         if(isTreasuryAvailable)
         {
-            pushAction(CreatureActionType::carryEntity, false, true);
+            pushAction(CreatureActionType::carryEntity, false, true, false);
             return true;
         }
 
@@ -1974,7 +1971,7 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
             std::vector<Ogre::Vector3> path;
             tileToVector3(walkPath, path, true, 0.0);
             setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-            pushAction(CreatureActionType::walkToTile, false, true);
+            pushAction(CreatureActionType::walkToTile, false, true, false);
             return false;
         }
     }
@@ -2019,7 +2016,7 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
             }
             if(isTreasuryAvailable)
             {
-                pushAction(CreatureActionType::carryEntity, false, true);
+                pushAction(CreatureActionType::carryEntity, false, true, false);
             }
             else if((getSeat() != nullptr) &&
                     (getSeat()->getPlayer() != nullptr) &&
@@ -2044,7 +2041,7 @@ bool Creature::handleFindHomeAction(const CreatureActionWrapper& actionItem)
         return false;
     }
 
-    if((mHomeTile != nullptr) && (actionItem.mType != CreatureActionType::findHomeForced))
+    if(!actionItem.mForced && (mHomeTile != nullptr))
     {
         popAction();
         return false;
@@ -2086,14 +2083,14 @@ bool Creature::handleFindHomeAction(const CreatureActionWrapper& actionItem)
             std::vector<Ogre::Vector3> path;
             tileToVector3(tempPath, path, true, 0.0);
             setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-            pushAction(CreatureActionType::walkToTile, false, true);
+            pushAction(CreatureActionType::walkToTile, false, true, false);
             return false;
         }
     }
 
     // If we found a tile to claim as our home in the above block
     // If we have been forced, we do not search in another dormitory
-    if ((mHomeTile != nullptr) || (actionItem.mType == CreatureActionType::findHomeForced))
+    if (actionItem.mForced || (mHomeTile != nullptr))
     {
         popAction();
         return true;
@@ -2147,7 +2144,7 @@ bool Creature::handleFindHomeAction(const CreatureActionWrapper& actionItem)
         std::vector<Ogre::Vector3> path;
         tileToVector3(tempPath, path, true, 0.0);
         setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-        pushAction(CreatureActionType::walkToTile, false, true);
+        pushAction(CreatureActionType::walkToTile, false, true, false);
         return false;
     }
 
@@ -2199,7 +2196,7 @@ bool Creature::handleJobAction(const CreatureActionWrapper& actionItem)
     {
         popAction();
         stopJob();
-        pushAction(CreatureActionType::sleep, false, false);
+        pushAction(CreatureActionType::sleep, false, false, false);
         return true;
     }
 
@@ -2208,7 +2205,7 @@ bool Creature::handleJobAction(const CreatureActionWrapper& actionItem)
     {
         popAction();
         stopJob();
-        pushAction(CreatureActionType::eatdecided, false, false);
+        pushAction(CreatureActionType::eat, false, false, false);
         return true;
     }
 
@@ -2216,7 +2213,7 @@ bool Creature::handleJobAction(const CreatureActionWrapper& actionItem)
     if(mJobRoom != nullptr)
         return false;
 
-    if(actionItem.mType == CreatureActionType::jobforced)
+    if(actionItem.mForced)
     {
         // We check if we can work in the given room
         Room* room = myTile->getCoveringRoom();
@@ -2271,7 +2268,7 @@ bool Creature::handleJobAction(const CreatureActionWrapper& actionItem)
                 std::vector<Ogre::Vector3> path;
                 tileToVector3(tempPath, path, true, 0.0);
                 setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-                pushAction(CreatureActionType::walkToTile, false, true);
+                pushAction(CreatureActionType::walkToTile, false, true, false);
                 return false;
             }
 
@@ -2301,7 +2298,7 @@ bool Creature::handleJobAction(const CreatureActionWrapper& actionItem)
                 std::vector<Ogre::Vector3> path;
                 tileToVector3(tempPath, path, true, 0.0);
                 setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-                pushAction(CreatureActionType::walkToTile, false, true);
+                pushAction(CreatureActionType::walkToTile, false, true, false);
                 return false;
             }
         }
@@ -2333,8 +2330,15 @@ bool Creature::handleEatingAction(const CreatureActionWrapper& actionItem)
         return false;
     }
 
-    if (((actionItem.mType == CreatureActionType::eatforced) && mHunger < 5.0) ||
-        ((actionItem.mType != CreatureActionType::eatforced) && mHunger <= Random::Double(0.0, 15.0)))
+    if (actionItem.mForced && mHunger < 5.0)
+    {
+        popAction();
+
+        stopEating();
+        return true;
+    }
+
+    if (!actionItem.mForced && (mHunger <= Random::Double(0.0, 15.0)))
     {
         popAction();
 
@@ -2421,7 +2425,7 @@ bool Creature::handleEatingAction(const CreatureActionWrapper& actionItem)
         std::vector<Ogre::Vector3> path;
         tileToVector3(pathToChicken, path, true, 0.0);
         setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-        pushAction(CreatureActionType::walkToTile, false, true);
+        pushAction(CreatureActionType::walkToTile, false, true, false);
         return false;
     }
 
@@ -2484,7 +2488,7 @@ bool Creature::handleEatingAction(const CreatureActionWrapper& actionItem)
         std::vector<Ogre::Vector3> path;
         tileToVector3(tempPath, path, true, 0.0);
         setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-        pushAction(CreatureActionType::walkToTile, false, true);
+        pushAction(CreatureActionType::walkToTile, false, true, false);
         return false;
     }
     else
@@ -2643,7 +2647,7 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
                (skillData != nullptr))
             {
                 // We can attack
-                pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack, skillData);
+                pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData);
                 return true;
             }
 
@@ -2661,7 +2665,7 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
             std::vector<Ogre::Vector3> path;
             tileToVector3(result, path, true, 0.0);
             setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-            pushAction(CreatureActionType::walkToTile, false, true);
+            pushAction(CreatureActionType::walkToTile, false, true, false);
             return false;
         }
     }
@@ -2680,7 +2684,7 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
                (skillData != nullptr))
             {
                 // We can attack
-                pushAction(CreatureActionType::attackObject, false, true, entityAttack, tileAttack, skillData);
+                pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData);
                 return true;
             }
 
@@ -2698,7 +2702,7 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
             std::vector<Ogre::Vector3> path;
             tileToVector3(result, path, true, 0.0);
             setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-            pushAction(CreatureActionType::walkToTile, false, true);
+            pushAction(CreatureActionType::walkToTile, false, true, false);
             return false;
         }
     }
@@ -2893,7 +2897,7 @@ bool Creature::handleSleepAction(const CreatureActionWrapper& actionItem)
 {
     if (mHomeTile == nullptr)
     {
-        if(pushAction(CreatureActionType::findHome, false, false))
+        if(pushAction(CreatureActionType::findHome, false, false, false))
             return true;
 
         popAction();
@@ -2970,7 +2974,7 @@ bool Creature::handleFleeAction(const CreatureActionWrapper& actionItem)
             std::vector<Ogre::Vector3> path;
             tileToVector3(result, path, true, 0.0);
             setWalkPath(EntityAnimation::flee_anim, EntityAnimation::idle_anim, true, path);
-            pushAction(CreatureActionType::walkToTile, false, true);
+            pushAction(CreatureActionType::walkToTile, false, true, false);
             return false;
         }
     }
@@ -3008,11 +3012,8 @@ bool Creature::handleCarryableEntities(const CreatureActionWrapper& actionItem)
                 continue;
 
             // If we are forced to carry something, we consider only entities on our tile
-            if((actionItem.mType == CreatureActionType::carryEntityForced) &&
-               (myTile != carryableEntTile))
-            {
+            if(actionItem.mForced && (myTile != carryableEntTile))
                 continue;
-            }
 
             // We check if the current entity is highest or equal to the older one (if any)
             if(entity->getEntityCarryType(this) > highestPriority)
@@ -3218,7 +3219,7 @@ bool Creature::handleGetFee(const CreatureActionWrapper& actionItem)
     std::vector<Ogre::Vector3> path;
     tileToVector3(result, path, true, 0.0);
     setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-    pushAction(CreatureActionType::walkToTile, false, true);
+    pushAction(CreatureActionType::walkToTile, false, true, false);
     return false;
 }
 
@@ -3288,7 +3289,7 @@ bool Creature::handleLeaveDungeon(const CreatureActionWrapper& actionItem)
     std::vector<Ogre::Vector3> path;
     tileToVector3(result, path, true, 0.0);
     setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-    pushAction(CreatureActionType::walkToTile, false, true);
+    pushAction(CreatureActionType::walkToTile, false, true, false);
     return false;
 }
 
@@ -3309,7 +3310,7 @@ void Creature::engageAlliedNaturalEnemy(Creature& attackerCreature)
     clearDestinations(EntityAnimation::idle_anim, true);
     stopJob();
     stopEating();
-    pushAction(CreatureActionType::fight, false, true, &attackerCreature);
+    pushAction(CreatureActionType::fight, false, true, false, &attackerCreature);
 }
 
 double Creature::getMoveSpeed() const
@@ -3870,7 +3871,7 @@ std::string Creature::getStatsText()
     tempSS << "Actions:";
     for(const CreatureAction& ca : mActionQueue)
     {
-        tempSS << " " << ca.toString();
+        tempSS << " " << CreatureAction::toString(ca.getType());
     }
     tempSS << std::endl;
     tempSS << "Destinations:";
@@ -3950,7 +3951,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
     {
         clearDestinations(EntityAnimation::idle_anim, true);
         clearActionQueue();
-        pushAction(CreatureActionType::flee, false, true);
+        pushAction(CreatureActionType::flee, false, true, false);
         return damageDone;
     }
     return damageDone;
@@ -3982,10 +3983,10 @@ void Creature::clearActionQueue()
     if(mCarriedEntity != nullptr)
         releaseCarriedEntity();
 
-    mActionQueue.emplace_front(this, CreatureActionType::idle, nullptr, nullptr, nullptr);
+    mActionQueue.emplace_front(*this, CreatureActionType::idle, false, nullptr, nullptr, nullptr);
 }
 
-bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* skillData)
+bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* skillData)
 {
     if(std::find(mActionTry.begin(), mActionTry.end(), actionType) == mActionTry.end())
     {
@@ -4000,7 +4001,7 @@ bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, 
     if(popCurrentIfPush && !mActionQueue.empty())
         mActionQueue.pop_front();
 
-    mActionQueue.emplace_front(this, actionType, attackedEntity, tile, skillData);
+    mActionQueue.emplace_front(*this, actionType, forceAction, attackedEntity, tile, skillData);
     return true;
 }
 
@@ -4122,7 +4123,7 @@ bool Creature::setDestination(Tile* tile)
     std::vector<Ogre::Vector3> path;
     tileToVector3(result, path, true, 0.0);
     setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-    pushAction(CreatureActionType::walkToTile, false, true);
+    pushAction(CreatureActionType::walkToTile, false, true, false);
     return true;
 }
 
@@ -4149,7 +4150,7 @@ bool Creature::wanderRandomly(const std::string& animationState)
     std::vector<Ogre::Vector3> path;
     tileToVector3(result, path, true, 0.0);
     setWalkPath(animationState, EntityAnimation::idle_anim, true, path);
-    pushAction(CreatureActionType::walkToTile, false, true);
+    pushAction(CreatureActionType::walkToTile, false, true, false);
     return false;
 }
 

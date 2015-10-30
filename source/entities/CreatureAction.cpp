@@ -16,20 +16,20 @@
  */
 
 #include "entities/CreatureAction.h"
-#include "entities/Creature.h"
 
+#include "entities/Creature.h"
 #include "utils/LogManager.h"
 
-CreatureAction::CreatureAction(Creature* creature, const CreatureActionType actionType, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* creatureSkillData) :
+CreatureAction::CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* creatureSkillData) :
     mCreature(creature),
     mActionType(actionType),
+    mForcedAction(forcedAction),
     mAttackedEntity(attackedEntity),
     mTile(tile),
     mCreatureSkillData(creatureSkillData),
     mNbTurns(0),
     mNbTurnsActive(0)
 {
-    OD_ASSERT_TRUE(mCreature != nullptr);
     if(mAttackedEntity != nullptr)
         mAttackedEntity->addGameEntityListener(this);
 
@@ -52,9 +52,9 @@ CreatureAction::~CreatureAction()
         mAttackedEntity->removeGameEntityListener(this);
 }
 
-std::string CreatureAction::toString() const
+std::string CreatureAction::toString(CreatureActionType actionType)
 {
-    switch (mActionType)
+    switch (actionType)
     {
     case CreatureActionType::walkToTile:
         return "walkToTile";
@@ -77,32 +77,20 @@ std::string CreatureAction::toString() const
     case CreatureActionType::findHome:
         return "findHome";
 
-    case CreatureActionType::findHomeForced:
-        return "findHomeForced";
-
     case CreatureActionType::sleep:
         return "sleep";
 
-    case CreatureActionType::jobdecided:
-        return "jobdecided";
+    case CreatureActionType::job:
+        return "job";
 
-    case CreatureActionType::jobforced:
-        return "jobforced";
-
-    case CreatureActionType::eatdecided:
-        return "eatdecided";
-
-    case CreatureActionType::eatforced:
-        return "eatforced";
+    case CreatureActionType::eat:
+        return "eat";
 
     case CreatureActionType::flee:
         return "flee";
 
     case CreatureActionType::carryEntity:
         return "carryEntity";
-
-    case CreatureActionType::carryEntityForced:
-        return "carryEntityForced";
 
     case CreatureActionType::getFee:
         return "getFee";
@@ -118,12 +106,12 @@ std::string CreatureAction::toString() const
         break;
     }
 
-    return "unhandledAct";
+    return "unhandledAct=" + Helper::toString(static_cast<uint32_t>(actionType));
 }
 
 std::string CreatureAction::getListenerName() const
 {
-    return "Action" + mCreature->getName() + toString();
+    return "Action" + mCreature.getName() + toString(mActionType);
 }
 
 bool CreatureAction::notifyDead(GameEntity* entity)
@@ -160,6 +148,6 @@ bool CreatureAction::notifyDropped(GameEntity* entity)
 {
     // That should not happen. For now, we only require events for attacked creatures. And when they
     // are picked up, we should have cleared the action queue
-    OD_LOG_ERR("name=" + mCreature->getName() + ", entity=" + entity->getName());
+    OD_LOG_ERR("name=" + mCreature.getName() + ", entity=" + entity->getName());
     return true;
 }

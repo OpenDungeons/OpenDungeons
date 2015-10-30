@@ -445,9 +445,13 @@ public:
 
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
-    //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
-    //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
-    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
+    //! tried.
+    //! Parameters:
+    //! - actionType: The action we want to try
+    //! - popCurrentIfPush: If true and the given action is pushed, before pushing, the current action will be popped
+    //! - forcePush: If true, the action will be pushed even if it has already been tried
+    //! - forceAction: If true, the action is forced (the creature won't stop doing it until too tired/nothing to do)
+    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
     void popAction();
 
     inline double getWakefulness() const
