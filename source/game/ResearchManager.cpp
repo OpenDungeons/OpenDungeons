@@ -116,7 +116,7 @@ public:
 
     const std::string& getGuiPath() const
     {
-        static const std::string guiPath = "MainTabControl/Rooms/";
+        static const std::string guiPath = "MainTabControl/Rooms/RoomsSP/";
         return guiPath;
     }
 
