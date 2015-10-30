@@ -284,6 +284,7 @@ set(OD_SOURCEFILES
     ${SRC}/creatureeffect/CreatureEffectManager.cpp
     ${SRC}/creatureeffect/CreatureEffectSlap.cpp
     ${SRC}/creatureeffect/CreatureEffectSpeedChange.cpp
+    ${SRC}/creatureeffect/CreatureEffectStrengthChange.cpp
 
     ${SRC}/creaturemood/CreatureMood.cpp
     ${SRC}/creaturemood/CreatureMoodWakefulness.cpp
@@ -297,10 +298,14 @@ set(OD_SOURCEFILES
     ${SRC}/creatureskill/CreatureSkill.cpp
     ${SRC}/creatureskill/CreatureSkillDefenseSelf.cpp
     ${SRC}/creatureskill/CreatureSkillExplosion.cpp
+    ${SRC}/creatureskill/CreatureSkillHasteSelf.cpp
     ${SRC}/creatureskill/CreatureSkillHealSelf.cpp
     ${SRC}/creatureskill/CreatureSkillManager.cpp
     ${SRC}/creatureskill/CreatureSkillMeleeFight.cpp
     ${SRC}/creatureskill/CreatureSkillMissileLaunch.cpp
+    ${SRC}/creatureskill/CreatureSkillSlow.cpp
+    ${SRC}/creatureskill/CreatureSkillStrengthSelf.cpp
+    ${SRC}/creatureskill/CreatureSkillWeak.cpp
 
     ${SRC}/entities/Building.cpp
     ${SRC}/entities/BuildingObject.cpp
@@ -325,18 +330,15 @@ set(OD_SOURCEFILES
     ${SRC}/entities/ResearchEntity.cpp
     ${SRC}/entities/SmallSpiderEntity.cpp
     ${SRC}/entities/Tile.cpp
-    ${SRC}/entities/TileFunctions.cpp
     ${SRC}/entities/TrapEntity.cpp
     ${SRC}/entities/TreasuryObject.cpp
     ${SRC}/entities/Weapon.cpp
 
     ${SRC}/game/Player.cpp
-    ${SRC}/game/PlayerFunctions.cpp
     ${SRC}/game/PlayerSelection.cpp
     ${SRC}/game/Research.cpp
     ${SRC}/game/ResearchManager.cpp
     ${SRC}/game/Seat.cpp
-    ${SRC}/game/SeatFunctions.cpp
 
     ${SRC}/gamemap/GameMap.cpp
     ${SRC}/gamemap/MapLoader.cpp
@@ -423,6 +425,9 @@ set(OD_SOURCEFILES
     ${SRC}/spells/SpellCreatureExplosion.cpp
     ${SRC}/spells/SpellCreatureHaste.cpp
     ${SRC}/spells/SpellCreatureHeal.cpp
+    ${SRC}/spells/SpellCreatureSlow.cpp
+    ${SRC}/spells/SpellCreatureStrength.cpp
+    ${SRC}/spells/SpellCreatureWeak.cpp
     ${SRC}/spells/SpellManager.cpp
     ${SRC}/spells/SpellSummonWorker.cpp
     ${SRC}/spells/SpellType.cpp

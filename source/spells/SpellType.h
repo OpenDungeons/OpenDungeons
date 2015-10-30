@@ -32,6 +32,9 @@ enum class SpellType
     creatureExplosion,
     creatureHaste,
     creatureDefense,
+    creatureSlow,
+    creatureStrength,
+    creatureWeak,
     nbSpells     // Must be the last in this enum
 };
 

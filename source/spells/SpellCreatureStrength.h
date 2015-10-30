@@ -15,18 +15,26 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TESTLOGMANAGER_H
-#define TESTLOGMANAGER_H
+#ifndef SPELLCREATURESTRENGTH_H
+#define SPELLCREATURESTRENGTH_H
 
-#include "utils/LogManager.h"
+#include "spells/Spell.h"
+#include "spells/SpellType.h"
 
-class TestLogManager final : public LogManager
+class GameMap;
+class InputCommand;
+class InputManager;
+
+class SpellCreatureStrength : public Spell
 {
-    void logMessage(const std::string& message, LogMessageLevel lml = LogMessageLevel::NORMAL,
-                    bool maskDebug = false, bool addTimeStamp = false)
-    {};
-    //! \brief Set the log detail level.
-    void setLogDetail(LogMessageLevel ll) {};
+public:
+    static void checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
+    static bool castSpell(GameMap* gameMap, Player* player, ODPacket& packet);
+
+    static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
+    static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
+
+    static const SpellType mSpellType;
 };
 
-#endif // TESTLOGMANAGER_H
+#endif // SPELLCREATURESTRENGTH_H

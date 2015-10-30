@@ -35,6 +35,7 @@ BOOST_AUTO_TEST_CASE(test_Pathfinding)
     Point a{9,1};
     Point b{1,9};
     BOOST_CHECK(Pathfinding::squaredDistanceTile(a, b) == 128);
-    BOOST_CHECK(Pathfinding::distanceTile(a, b) == std::sqrt(128.0f));
+    // There might be round errors. We check that the difference is small enough
+    BOOST_CHECK((Pathfinding::distanceTile(a, b) - std::sqrt(128.0f)) < 0.0001f);
     BOOST_CHECK(Pathfinding::squaredDistance(9,1,1,9) == 128);
 }

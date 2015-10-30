@@ -259,6 +259,7 @@ ResearchManager::ResearchManager() :
     std::vector<const Research*> lvl1depends;
     std::vector<const Research*> lvl2depends;
     std::vector<const Research*> lvl3depends;
+    std::vector<const Research*> lvl4depends;
     Research* research;
     uint32_t index;
 
@@ -458,6 +459,34 @@ ResearchManager::ResearchManager() :
     def->mapResearch(mResearchesFamily);
     mResearches[index] = def;
     lvl3depends.push_back(research);
+
+    resType = ResearchType::spellCreatureSlow;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl2depends);
+    def = new ResearchDefSpell("MagicSkills/", "CreatureSlowButton", research, SpellType::creatureSlow);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl3depends.push_back(research);
+
+    // Lvl 4 researches
+    resType = ResearchType::spellCreatureStrength;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl3depends);
+    def = new ResearchDefSpell("MagicSkills/", "CreatureStrengthButton", research, SpellType::creatureStrength);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl4depends.push_back(research);
+
+    resType = ResearchType::spellCreatureWeak;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getResearchPoints(Research::researchTypeToString(resType));
+    research = new Research(resType, points, lvl3depends);
+    def = new ResearchDefSpell("MagicSkills/", "CreatureWeakButton", research, SpellType::creatureWeak);
+    def->mapResearch(mResearchesFamily);
+    mResearches[index] = def;
+    lvl4depends.push_back(research);
 }
 
 ResearchManager::~ResearchManager()

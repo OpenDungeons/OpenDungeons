@@ -22,6 +22,7 @@
 #include "creatureeffect/CreatureEffectManager.h"
 #include "creatureeffect/CreatureEffectSlap.h"
 #include "creaturemood/CreatureMood.h"
+#include "creaturemood/CreatureMoodManager.h"
 #include "creatureskill/CreatureSkill.h"
 #include "entities/ChickenEntity.h"
 #include "entities/CreatureAction.h"
@@ -131,6 +132,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mElementDefense          (0.0),
+    mModifierStrength        (1.0),
     mWeaponL                 (nullptr),
     mWeaponR                 (nullptr),
     mHomeTile                (nullptr),
@@ -212,6 +214,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mElementDefense          (0.0),
+    mModifierStrength        (1.0),
     mWeaponL                 (nullptr),
     mWeaponR                 (nullptr),
     mHomeTile                (nullptr),
@@ -2732,6 +2735,9 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
         std::vector<Tile*> coveredTiles = entity->getCoveredTiles();
         for(Tile* tile : coveredTiles)
         {
+            if(std::find(mVisibleTiles.begin(), mVisibleTiles.end(), tile) == mVisibleTiles.end())
+                continue;
+
             int dist = Pathfinding::squaredDistanceTile(*tile, *myTile);
             if((closestDistCheck != -1) && (dist >= closestDistCheck))
                 continue;
@@ -4571,10 +4577,10 @@ void Creature::decreaseWakefulness(double value)
 
 void Creature::computeMood()
 {
-    mMoodPoints = getGameMap()->computeCreatureMoodModifiers(this);
+    mMoodPoints = CreatureMoodManager::computeCreatureMoodModifiers(*this);
 
     CreatureMoodLevel oldMoodValue = mMoodValue;
-    mMoodValue = ConfigManager::getSingleton().getCreatureMoodLevel(mMoodPoints);
+    mMoodValue = CreatureMoodManager::getCreatureMoodLevel(mMoodPoints);
     if(mMoodValue == oldMoodValue)
         return;
 
@@ -4913,6 +4919,17 @@ void Creature::setDefenseModifier(double phy, double mag, double ele)
 void Creature::clearDefenseModifier()
 {
     setDefenseModifier(0.0, 0.0, 0.0);
+}
+
+void Creature::setStrengthModifier(double modifier)
+{
+    mModifierStrength = modifier;
+    // Since strength is not used on client side, no need to send it
+}
+
+void Creature::clearStrengthModifier()
+{
+    setStrengthModifier(1.0);
 }
 
 bool Creature::shouldKoAttackedCreature(const Creature& creature) const

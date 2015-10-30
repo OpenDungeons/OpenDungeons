@@ -21,6 +21,10 @@
 #include "entities/Creature.h"
 #include "utils/Helper.h"
 
+static const std::string CreatureMoodHpLossName = "HpLoss";
+
+namespace
+{
 class CreatureMoodHpLossFactory : public CreatureMoodFactory
 {
     CreatureMood* createCreatureMood() const override
@@ -28,22 +32,32 @@ class CreatureMoodHpLossFactory : public CreatureMoodFactory
 
     const std::string& getCreatureMoodName() const override
     {
-        static const std::string name = "HpLoss";
-        return name;
+        return CreatureMoodHpLossName;
     }
 };
 
-//! \brief Register the mood type
+// Register the factory
 static CreatureMoodRegister reg(new CreatureMoodHpLossFactory);
+}
 
-int32_t CreatureMoodHpLoss::computeMood(const Creature* creature) const
+const std::string& CreatureMoodHpLoss::getModifierName() const
 {
-    int32_t hpLost = creature->getMaxHp() - creature->getHP();
+    return CreatureMoodHpLossName;
+}
+
+int32_t CreatureMoodHpLoss::computeMood(const Creature& creature) const
+{
+    int32_t hpLost = creature.getMaxHp() - creature.getHP();
     if(hpLost <= 0)
         return 0;
 
     hpLost = Helper::round(static_cast<float>(hpLost));
     return hpLost * mMoodModifier;
+}
+
+CreatureMoodHpLoss* CreatureMoodHpLoss::clone() const
+{
+    return new CreatureMoodHpLoss(*this);
 }
 
 bool CreatureMoodHpLoss::importFromStream(std::istream& is)
@@ -55,4 +69,19 @@ bool CreatureMoodHpLoss::importFromStream(std::istream& is)
         return false;
 
     return true;
+}
+
+void CreatureMoodHpLoss::exportToStream(std::ostream& os) const
+{
+    CreatureMood::exportToStream(os);
+    os << "\t" << mMoodModifier;
+}
+
+void CreatureMoodHpLoss::getFormatString(std::string& format) const
+{
+    CreatureMood::getFormatString(format);
+    if(!format.empty())
+        format += "\t";
+
+    format += "MoodModifier";
 }

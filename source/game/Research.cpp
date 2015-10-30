@@ -128,6 +128,12 @@ std::string Research::researchTypeToString(ResearchType type)
             return "spellCreatureHaste";
         case ResearchType::spellCreatureHeal:
             return "spellCreatureHeal";
+        case ResearchType::spellCreatureSlow:
+            return "spellCreatureSlow";
+        case ResearchType::spellCreatureStrength:
+            return "spellCreatureStrength";
+        case ResearchType::spellCreatureWeak:
+            return "spellCreatureWeak";
         case ResearchType::trapBoulder:
             return "trapBoulder";
         case ResearchType::trapCannon:
@@ -173,10 +179,18 @@ std::string Research::researchTypeToPlayerVisibleString(ResearchType type)
             return "The 'Summon Worker' Spell";
         case ResearchType::spellCreatureHeal:
             return "The 'Heal' Spell";
+        case ResearchType::spellCreatureDefense:
+            return "The 'Defense' Spell";
         case ResearchType::spellCreatureExplosion:
             return "The 'Explosion' Spell";
         case ResearchType::spellCreatureHaste:
             return "The 'Haste' Spell";
+        case ResearchType::spellCreatureSlow:
+            return "The 'Slow' Spell";
+        case ResearchType::spellCreatureStrength:
+            return "The 'Strength' Spell";
+        case ResearchType::spellCreatureWeak:
+            return "The 'Weak' Spell";
         case ResearchType::trapBoulder:
             return "The Boulder Trap";
         case ResearchType::trapCannon:

@@ -38,26 +38,22 @@ void LogSinkConsole::write(LogMessageLevel level, const std::string& module, con
 {
     std::stringstream ss;
 
-    if (level >= LogMessageLevel::WARNING)
-    {
-        ss << "(" << filename << ":" << line << ") ";
-    }
-
     ss
         << "(" << timestamp << ") "
         << "(" << module << ") "
-        << "[" << LogMessageLevelToString(level) << "] "
+        << "[" << LogMessageLevelToString(level) << "] ";
+
+    if (level >= LogMessageLevel::WARNING)
+        ss << "(" << filename << ":" << line << ") ";
+
+    ss
         << message
         << std::endl;
 
     if (level >= LogMessageLevel::WARNING)
-    {
         std::cerr << ss.str();
-    }
     else
-    {
         std::cout << ss.str();
-    }
 
 #if (WIN32 || _WINDOWS) && OD_DEBUG
     ::OutputDebugStringA(ss.str().c_str());

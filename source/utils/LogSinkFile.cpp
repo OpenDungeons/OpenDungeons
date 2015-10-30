@@ -29,27 +29,23 @@ LogSinkFile::LogSinkFile(const std::string& filepath)
 LogSinkFile::~LogSinkFile()
 {
     if (mFile.is_open())
-    {
         mFile.close();
-    }
 }
 
 void LogSinkFile::write(LogMessageLevel level, const std::string& module, const std::string& timestamp, const std::string& filename, int line, const std::string& message)
 {
     if (!mFile.is_open())
-    {
         return;
-    }
-
-    if (level >= LogMessageLevel::WARNING)
-    {
-        mFile << "(" << filename << ":" << line << ") ";
-    }
 
     mFile
         << "(" << timestamp << ") "
         << "(" << module << ") "
-        << "[" << LogMessageLevelToString(level) << "] "
+        << "[" << LogMessageLevelToString(level) << "] ";
+
+    if (level >= LogMessageLevel::WARNING)
+        mFile << "(" << filename << ":" << line << ") ";
+
+    mFile
         << message
         << std::endl;
 

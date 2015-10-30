@@ -19,10 +19,14 @@
 
 #include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
-#include "entities/GameEntity.h"
+#include "entities/CreatureDefinition.h"
 #include "gamemap/GameMap.h"
 #include "utils/LogManager.h"
 
+static const std::string CreatureMoodCreatureName = "Creature";
+
+namespace
+{
 class CreatureMoodCreatureFactory : public CreatureMoodFactory
 {
     CreatureMood* createCreatureMood() const override
@@ -30,26 +34,34 @@ class CreatureMoodCreatureFactory : public CreatureMoodFactory
 
     const std::string& getCreatureMoodName() const override
     {
-        static const std::string name = "Creature";
-        return name;
+        return CreatureMoodCreatureName;
     }
 };
 
-//! \brief Register the mood type
+// Register the factory
 static CreatureMoodRegister reg(new CreatureMoodCreatureFactory);
+}
 
-int32_t CreatureMoodCreature::computeMood(const Creature* creature) const
+const std::string& CreatureMoodCreature::getModifierName() const
 {
-    std::vector<GameEntity*> alliedCreatures = creature->getGameMap()->getVisibleCreatures(creature->getVisibleTiles(),
-        creature->getSeat(), false);
+    return CreatureMoodCreatureName;
+}
+
+int32_t CreatureMoodCreature::computeMood(const Creature& creature) const
+{
+    std::vector<GameEntity*> alliedCreatures = creature.getGameMap()->getVisibleCreatures(creature.getVisibleTiles(),
+        creature.getSeat(), false);
     int nbCreatures = 0;
     for(GameEntity* entity : alliedCreatures)
     {
         if(entity->getObjectType() != GameEntityType::creature)
             continue;
 
+        if(&creature == entity)
+            continue;
+
         Creature* alliedCreature = static_cast<Creature*>(entity);
-        if(alliedCreature->getDefinition() != mCreatureDefinition)
+        if(alliedCreature->getDefinition()->getClassName() != mCreatureClass)
             continue;
 
         ++nbCreatures;
@@ -57,13 +69,9 @@ int32_t CreatureMoodCreature::computeMood(const Creature* creature) const
     return nbCreatures * mMoodModifier;
 }
 
-void CreatureMoodCreature::init(GameMap* gameMap)
+CreatureMoodCreature* CreatureMoodCreature::clone() const
 {
-    mCreatureDefinition = gameMap->getClassDescription(mCreatureClass);
-    if(mCreatureDefinition == nullptr)
-    {
-        OD_LOG_ERR("Unknown creature class=" + mCreatureClass);
-    }
+    return new CreatureMoodCreature(*this);
 }
 
 bool CreatureMoodCreature::importFromStream(std::istream& is)
@@ -77,4 +85,20 @@ bool CreatureMoodCreature::importFromStream(std::istream& is)
         return false;
 
     return true;
+}
+
+void CreatureMoodCreature::exportToStream(std::ostream& os) const
+{
+    CreatureMood::exportToStream(os);
+    os << "\t" << mCreatureClass;
+    os << "\t" << mMoodModifier;
+}
+
+void CreatureMoodCreature::getFormatString(std::string& format) const
+{
+    CreatureMood::getFormatString(format);
+    if(!format.empty())
+        format += "\t";
+
+    format += "CreatureClass\tMoodModifier";
 }

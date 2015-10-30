@@ -1459,7 +1459,27 @@ DwarfWorker	1
     # 21-30
     379	409	440	473	506	540	576	613	650	700
     [/XP]
+    [MoodModifiers]
+    # MoodModifierName	StartHunger	MoodModifier
+    Hunger	80	-60
+    # MoodModifierName	StartWakefulness	MoodModifier
+    Wakefulness	20	-160
+    # MoodModifierName	MoodModifier
+    Fee	-120
+    # MoodModifierName	MoodModifier
+    HpLoss	-6
+    # MoodModifierName	TurnsWithoutFightMin	TurnsWithoutFightMax	MoodModifier
+    TurnsWithoutFight	150	20	-35
+    # MoodModifierName	CreatureClass	MoodModifier
+    Creature	Goblin	-500
+    [/MoodModifiers]
     [CreatureSkills]
+    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	EffectValue
+    StrengthSelf	21	3	1	5	1.3
+    # SkillName	CooldownNbTurns	WarmupNbTurns	RangeMax	LevelMin	EffectDuration	EffectValue
+    Weak	14	2	10	1	3	0.6
+    # SkillName	CooldownNbTurns	WarmupNbTurns	RangeMax	LevelMin	EffectDuration	EffectValue
+    Slow	12	2	10	1	6	0.6
     # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	EffectValue
     HealSelf	30	5	1	5	1
     # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	PhyDef	MagDef	EleDef
@@ -1470,6 +1490,8 @@ DwarfWorker	1
     MissileLaunch	10	2	6	0	1	Cannonball	MissileMagic	3	2	0.5	2	0.5	1	0.5
     # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	PhyAtk	PhyAtkPerLvl	MagAtk	MagAtkPerLvl	EleAtk	EleAtkPerLvl
     Melee	5	1	1	12	0.2	0	0	0	0
+    # SkillName	CooldownNbTurns	WarmupNbTurns	LevelMin	EffectDuration	EffectValue
+    HasteSelf	30	2	1	10	1.5
     [/CreatureSkills]
     [CreatureBehaviours]
     # BehaviourName	WeakCoef

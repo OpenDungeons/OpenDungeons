@@ -22,6 +22,10 @@
 #include "entities/CreatureDefinition.h"
 #include "utils/Helper.h"
 
+static const std::string CreatureMoodFeeName = "Fee";
+
+namespace
+{
 class CreatureMoodFeeFactory : public CreatureMoodFactory
 {
     CreatureMood* createCreatureMood() const override
@@ -29,22 +33,32 @@ class CreatureMoodFeeFactory : public CreatureMoodFactory
 
     const std::string& getCreatureMoodName() const override
     {
-        static const std::string name = "Fee";
-        return name;
+        return CreatureMoodFeeName;
     }
 };
 
-//! \brief Register the mood type
+// Register the factory
 static CreatureMoodRegister reg(new CreatureMoodFeeFactory);
+}
 
-int32_t CreatureMoodFee::computeMood(const Creature* creature) const
+const std::string& CreatureMoodFee::getModifierName() const
 {
-    int32_t owedGold = creature->getGoldFee() - creature->getDefinition()->getFee(creature->getLevel());
+    return CreatureMoodFeeName;
+}
+
+int32_t CreatureMoodFee::computeMood(const Creature& creature) const
+{
+    int32_t owedGold = creature.getGoldFee() - creature.getDefinition()->getFee(creature.getLevel());
     if(owedGold < 100)
         return 0;
 
     owedGold = Helper::round(static_cast<double>(owedGold) * 0.01);
     return owedGold * mMoodModifier;
+}
+
+CreatureMoodFee* CreatureMoodFee::clone() const
+{
+    return new CreatureMoodFee(*this);
 }
 
 bool CreatureMoodFee::importFromStream(std::istream& is)
@@ -56,4 +70,19 @@ bool CreatureMoodFee::importFromStream(std::istream& is)
         return false;
 
     return true;
+}
+
+void CreatureMoodFee::exportToStream(std::ostream& os) const
+{
+    CreatureMood::exportToStream(os);
+    os << "\t" << mMoodModifier;
+}
+
+void CreatureMoodFee::getFormatString(std::string& format) const
+{
+    CreatureMood::getFormatString(format);
+    if(!format.empty())
+        format += "\t";
+
+    format += "MoodModifier";
 }

@@ -20,8 +20,6 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
-#include "creaturemood/CreatureMood.h"
-#include "creaturemood/CreatureMoodManager.h"
 #include "game/Research.h"
 #include "gamemap/TileSet.h"
 #include "spawnconditions/SpawnCondition.h"
@@ -112,12 +110,6 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
         OD_LOG_ERR("Couldn't read loadSpellConfig");
         exit(1);
     }
-    fileName = configPath + mFilenameCreaturesMood;
-    if(!loadCreaturesMood(fileName))
-    {
-        OD_LOG_ERR("Couldn't read loadCreaturesMood");
-        exit(1);
-    }
     fileName = configPath + mFilenameResearches;
     if(!loadResearches(fileName))
     {
@@ -153,15 +145,6 @@ ConfigManager::~ConfigManager()
         delete def;
     }
     mWeapons.clear();
-
-    for(std::pair<const std::string, std::vector<const CreatureMood*>> p : mCreatureMoodModifiers)
-    {
-        for(const CreatureMood* creatureMood : p.second)
-        {
-            delete creatureMood;
-        }
-    }
-    mCreatureMoodModifiers.clear();
 
     for(std::pair<const CreatureDefinition*, std::vector<const SpawnCondition*>> p : mCreatureSpawnConditions)
     {
@@ -320,24 +303,19 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
             mFilenameSpells = fileName;
             filesOk |= 0x40;
         }
-        else if(type == "CreaturesMood")
-        {
-            mFilenameCreaturesMood = fileName;
-            filesOk |= 0x80;
-        }
         else if(type == "Researches")
         {
             mFilenameResearches = fileName;
-            filesOk |= 0x100;
+            filesOk |= 0x080;
         }
         else if(type == "Tilesets")
         {
             mFilenameTilesets = fileName;
-            filesOk |= 0x200;
+            filesOk |= 0x100;
         }
     }
 
-    if(filesOk != 0x3FF)
+    if(filesOk != 0x1FF)
     {
         OD_LOG_ERR("Missing parameter file filesOk=" + Helper::toString(filesOk));
         return false;
@@ -538,6 +516,41 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mDigCoefGem = Helper::toDouble(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "CreatureBaseMood")
+        {
+            configFile >> nextParam;
+            mCreatureBaseMood = Helper::toInt(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "CreatureMoodHappy")
+        {
+            configFile >> nextParam;
+            mCreatureMoodHappy = Helper::toInt(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "CreatureMoodUpset")
+        {
+            configFile >> nextParam;
+            mCreatureMoodUpset = Helper::toInt(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "CreatureMoodAngry")
+        {
+            configFile >> nextParam;
+            mCreatureMoodAngry = Helper::toInt(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "CreatureMoodFurious")
+        {
+            configFile >> nextParam;
+            mCreatureMoodFurious = Helper::toInt(nextParam);
             // Not mandatory
         }
 
@@ -962,128 +975,6 @@ bool ConfigManager::loadSpellConfig(const std::string& fileName)
             break;
 
         defFile >> mSpellConfig[nextParam];
-    }
-
-    return true;
-}
-
-bool ConfigManager::loadCreaturesMood(const std::string& fileName)
-{
-    OD_LOG_INF("Load creature spawn conditions file: " + fileName);
-    std::stringstream defFile;
-    if(!Helper::readFileWithoutComments(fileName, defFile))
-    {
-        OD_LOG_ERR("Couldn't read " + fileName);
-        return false;
-    }
-
-    std::string nextParam;
-    // Read in the creature class descriptions
-    defFile >> nextParam;
-    if (nextParam != "[CreaturesMood]")
-    {
-        OD_LOG_ERR("Invalid creature spawn condition start format. Line was " + nextParam);
-        return false;
-    }
-
-    while(defFile.good())
-    {
-        if(!(defFile >> nextParam))
-            break;
-
-        if (nextParam == "[/CreaturesMood]")
-            break;
-
-        if (nextParam == "[/CreatureMood]")
-            continue;
-
-        if (nextParam == "BaseMood")
-        {
-            defFile >> nextParam;
-            mCreatureBaseMood = Helper::toInt(nextParam);
-            continue;
-        }
-
-        if (nextParam == "MoodHappy")
-        {
-            defFile >> nextParam;
-            mCreatureMoodHappy = Helper::toInt(nextParam);
-            continue;
-        }
-
-        if (nextParam == "MoodUpset")
-        {
-            defFile >> nextParam;
-            mCreatureMoodUpset = Helper::toInt(nextParam);
-            continue;
-        }
-
-        if (nextParam == "MoodAngry")
-        {
-            defFile >> nextParam;
-            mCreatureMoodAngry = Helper::toInt(nextParam);
-            continue;
-        }
-
-        if (nextParam == "MoodFurious")
-        {
-            defFile >> nextParam;
-            mCreatureMoodFurious = Helper::toInt(nextParam);
-            continue;
-        }
-
-        if (nextParam != "[CreatureMood]")
-        {
-            OD_LOG_ERR("Invalid CreatureMood format. Line was " + nextParam);
-            return false;
-        }
-
-        if(!(defFile >> nextParam))
-                break;
-        if (nextParam != "CreatureMoodName")
-        {
-            OD_LOG_ERR("Invalid CreatureMoodName format. Line was " + nextParam);
-            return false;
-        }
-        std::string moodModifierName;
-        defFile >> moodModifierName;
-        std::vector<const CreatureMood*>& moodModifiers = mCreatureMoodModifiers[moodModifierName];
-
-        if(!(defFile >> nextParam))
-            break;
-
-        if (nextParam == "[/CreatureMood]")
-            continue;
-
-        if (nextParam != "[MoodModifiers]")
-        {
-            OD_LOG_ERR("Invalid CreatureMood MoodModifier format. nextParam=" + nextParam);
-            return false;
-        }
-
-        while(defFile.good())
-        {
-            // Load the definition
-            std::getline(defFile, nextParam);
-            if(!defFile.good())
-                break;
-
-            Helper::trim(nextParam);
-            if(nextParam.empty())
-                continue;
-
-            if (nextParam == "[/MoodModifiers]")
-                break;
-
-            std::stringstream ss(nextParam);
-            CreatureMood* def = CreatureMoodManager::load(ss);
-            if (def == nullptr)
-            {
-                OD_LOG_ERR("Invalid CreatureMood MoodModifier definition");
-                return false;
-            }
-            moodModifiers.push_back(def);
-        }
     }
 
     return true;
@@ -1650,24 +1541,6 @@ const std::string& ConfigManager::getFactionWorkerClass(const std::string& facti
         return EMPTY_STRING;
 
     return mFactionDefaultWorkerClass.at(faction);
-}
-
-CreatureMoodLevel ConfigManager::getCreatureMoodLevel(int32_t moodModifiersPoints) const
-{
-    int32_t mood = mCreatureBaseMood + moodModifiersPoints;
-    if(mood >= mCreatureMoodHappy)
-        return CreatureMoodLevel::Happy;
-
-    if(mood >= mCreatureMoodUpset)
-        return CreatureMoodLevel::Neutral;
-
-    if(mood >= mCreatureMoodAngry)
-        return CreatureMoodLevel::Upset;
-
-    if(mood >= mCreatureMoodFurious)
-        return CreatureMoodLevel::Angry;
-
-    return CreatureMoodLevel::Furious;
 }
 
 const TileSet* ConfigManager::getTileSet(const std::string& tileSetName) const

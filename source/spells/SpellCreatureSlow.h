@@ -15,30 +15,26 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TESTMODEMANAGER_H
-#define TESTMODEMANAGER_H
+#ifndef SPELLCREATURESLOW_H
+#define SPELLCREATURESLOW_H
 
-#include "modes/AbstractModeManager.h"
+#include "spells/Spell.h"
+#include "spells/SpellType.h"
 
-class TestModeManager: public AbstractModeManager
+class GameMap;
+class InputCommand;
+class InputManager;
+
+class SpellCreatureSlow : public Spell
 {
 public:
-    TestModeManager(ModeType mode)
-        : mode(mode)
-    {
-    }
+    static void checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
+    static bool castSpell(GameMap* gameMap, Player* player, ODPacket& packet);
 
-    ModeType getCurrentModeTypeExceptConsole() const
-    {
-        return mode;
-    }
+    static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
+    static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
 
-    ModeType getCurrentModeType()
-    {
-        return mode;
-    }
-private:
-    ModeType mode;
+    static const SpellType mSpellType;
 };
 
-#endif // TESTMODEMANAGER_H
+#endif // SPELLCREATURESLOW_H

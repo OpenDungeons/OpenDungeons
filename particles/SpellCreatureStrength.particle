@@ -1,0 +1,41 @@
+
+particle_system SpellCreatureStrength
+{
+    material        SpellCreatureStrength
+    point_rendering false
+    particle_width	1
+    particle_height 1
+    cull_each       false
+    quota           5000
+    billboard_type  point
+
+    // Area emitter
+    emitter Box
+    {
+        angle           30
+        emission_rate   2
+        time_to_live    1
+        direction       0 1 0
+        velocity    	0
+        colour_range_start  0.2 0.8 0.3
+        colour_range_end    0.1 0.9 0.1
+        width           1
+        height          1
+        depth           0
+    }
+
+    // Make em float upwards
+    affector LinearForce
+    {
+        force_vector      0 0 2
+        force_application add
+    }
+
+    // Fader
+    affector ColourFader
+    {
+        red -0.25
+        green -0.25
+        blue -0.25
+    }
+}

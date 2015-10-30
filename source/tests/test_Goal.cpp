@@ -19,6 +19,8 @@
 #include "BoostTestTargetConfig.h"
 
 #include "goals/Goal.h"
+#include "utils/LogManager.h"
+#include "utils/LogSinkConsole.h"
 
 struct GameMap
 {
@@ -57,6 +59,8 @@ public:
 BOOST_AUTO_TEST_CASE(test_Goal)
 {
     //TODO: Write tests once goal dependencies are testable
+    LogManager logMgr;
+    logMgr.addSink(std::unique_ptr<LogSink>(new LogSinkConsole()));
     TestGoal g("name", "arguments");
     BOOST_CHECK(g.isMet(Seat(), GameMap()));
 }

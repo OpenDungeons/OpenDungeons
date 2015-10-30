@@ -116,5 +116,59 @@
                 <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
             </Window>
         </Window>
+        <Window type="OD/GameTabButton" name="CreatureSlowButton" >
+            <Property name="Area" value="{{0,460},{0,25},{0,520},{0,85}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/CreatureSlowButton" />
+            <Property name="TooltipText" value="Decrease target speed. Target: enemy creatures on claimed tiles" />
+            <Property name="InheritsAlpha" value="False" />
+            <Property name="Visible" value="False" />
+            <Window type="OD/ProgressBar" name="CreatureSlowButtonProgressBar" >
+                <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
+                <Property name="InheritsTooltipText" value="True" />
+                <Property name="CurrentProgress" value="0.0" />
+                <Property name="MousePassThroughEnabled" value="True" />
+                <Property name="StepSize" value="0.1" />
+                <Property name="Visible" value="False" />
+                <Property name="VerticalProgress" value="True" />
+                <Property name="Alpha" value="0.2" />
+                <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+            </Window>
+        </Window>
+        <Window type="OD/GameTabButton" name="CreatureStrengthButton" >
+            <Property name="Area" value="{{0,520},{0,25},{0,580},{0,85}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/CreatureStrengthButton" />
+            <Property name="TooltipText" value="Increase target strength. Target: allied creatures on claimed tiles" />
+            <Property name="InheritsAlpha" value="False" />
+            <Property name="Visible" value="False" />
+            <Window type="OD/ProgressBar" name="CreatureStrengthButtonProgressBar" >
+                <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
+                <Property name="InheritsTooltipText" value="True" />
+                <Property name="CurrentProgress" value="0.0" />
+                <Property name="MousePassThroughEnabled" value="True" />
+                <Property name="StepSize" value="0.1" />
+                <Property name="Visible" value="False" />
+                <Property name="VerticalProgress" value="True" />
+                <Property name="Alpha" value="0.2" />
+                <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+            </Window>
+        </Window>
+        <Window type="OD/GameTabButton" name="CreatureWeakButton" >
+            <Property name="Area" value="{{0,580},{0,25},{0,640},{0,85}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/CreatureWeakButton" />
+            <Property name="TooltipText" value="Decrease target strength. Target: enemy creatures on claimed tiles" />
+            <Property name="InheritsAlpha" value="False" />
+            <Property name="Visible" value="False" />
+            <Window type="OD/ProgressBar" name="CreatureWeakButtonProgressBar" >
+                <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
+                <Property name="InheritsTooltipText" value="True" />
+                <Property name="CurrentProgress" value="0.0" />
+                <Property name="MousePassThroughEnabled" value="True" />
+                <Property name="StepSize" value="0.1" />
+                <Property name="Visible" value="False" />
+                <Property name="VerticalProgress" value="True" />
+                <Property name="Alpha" value="0.2" />
+                <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+            </Window>
+        </Window>
     </Window>
 </GUILayout>

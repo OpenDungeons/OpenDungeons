@@ -15,13 +15,26 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define BOOST_TEST_MODULE Random
-#include "BoostTestTargetConfig.h"
+#ifndef SPELLCREATUREWEAK_H
+#define SPELLCREATUREWEAK_H
 
-#include "entities/Tile.h"
+#include "spells/Spell.h"
+#include "spells/SpellType.h"
 
-BOOST_AUTO_TEST_CASE(test_Tile)
+class GameMap;
+class InputCommand;
+class InputManager;
+
+class SpellCreatureWeak : public Spell
 {
-    Tile tile(nullptr, 0, 0);
-    BOOST_CHECK (tile.getObjectType() == GameEntityType::tile);
-}
+public:
+    static void checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
+    static bool castSpell(GameMap* gameMap, Player* player, ODPacket& packet);
+
+    static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
+    static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
+
+    static const SpellType mSpellType;
+};
+
+#endif // SPELLCREATUREWEAK_H

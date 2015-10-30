@@ -20,6 +20,10 @@
 #include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
 
+static const std::string CreatureMoodHungerName = "Hunger";
+
+namespace
+{
 class CreatureMoodHungerFactory : public CreatureMoodFactory
 {
     CreatureMood* createCreatureMood() const override
@@ -27,21 +31,31 @@ class CreatureMoodHungerFactory : public CreatureMoodFactory
 
     const std::string& getCreatureMoodName() const override
     {
-        static const std::string name = "Hunger";
-        return name;
+        return CreatureMoodHungerName;
     }
 };
 
-//! \brief Register the mood type
+// Register the factory
 static CreatureMoodRegister reg(new CreatureMoodHungerFactory);
+}
 
-int32_t CreatureMoodHunger::computeMood(const Creature* creature) const
+const std::string& CreatureMoodHunger::getModifierName() const
 {
-    int32_t hunger = static_cast<int32_t>(creature->getHunger());
+    return CreatureMoodHungerName;
+}
+
+int32_t CreatureMoodHunger::computeMood(const Creature& creature) const
+{
+    int32_t hunger = static_cast<int32_t>(creature.getHunger());
     if(hunger < mStartHunger)
         return 0;
 
     return (hunger - mStartHunger) * mMoodModifier;
+}
+
+CreatureMoodHunger* CreatureMoodHunger::clone() const
+{
+    return new CreatureMoodHunger(*this);
 }
 
 bool CreatureMoodHunger::importFromStream(std::istream& is)
@@ -55,4 +69,20 @@ bool CreatureMoodHunger::importFromStream(std::istream& is)
         return false;
 
     return true;
+}
+
+void CreatureMoodHunger::exportToStream(std::ostream& os) const
+{
+    CreatureMood::exportToStream(os);
+    os << "\t" << mStartHunger;
+    os << "\t" << mMoodModifier;
+}
+
+void CreatureMoodHunger::getFormatString(std::string& format) const
+{
+    CreatureMood::getFormatString(format);
+    if(!format.empty())
+        format += "\t";
+
+    format += "StartHunger\tMoodModifier";
 }

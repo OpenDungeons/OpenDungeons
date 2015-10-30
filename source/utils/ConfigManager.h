@@ -26,12 +26,10 @@
 class CreatureDefinition;
 class Weapon;
 class SpawnCondition;
-class CreatureMood;
 class Research;
 class TileSet;
 class TileSetValue;
 
-enum class CreatureMoodLevel;
 enum class TileVisual;
 
 namespace Config
@@ -96,6 +94,21 @@ public:
     inline uint32_t getMaxCreaturesPerSeatDefault() const
     { return mMaxCreaturesPerSeatDefault; }
 
+    inline int32_t getCreatureBaseMood() const
+    { return mCreatureBaseMood; }
+
+    inline int32_t getCreatureMoodHappy() const
+    { return mCreatureMoodHappy; }
+
+    inline int32_t getCreatureMoodUpset() const
+    { return mCreatureMoodUpset; }
+
+    inline int32_t getCreatureMoodAngry() const
+    { return mCreatureMoodAngry; }
+
+    inline int32_t getCreatureMoodFurious() const
+    { return mCreatureMoodFurious; }
+
     inline double getSlapDamagePercent() const
     { return mSlapDamagePercent; }
 
@@ -114,9 +127,6 @@ public:
     inline uint32_t getBaseSpawnPoint() const
     { return mBaseSpawnPoint; }
 
-    inline const std::map<const std::string, std::vector<const CreatureMood*> >& getCreatureMoodModifiers() const
-    { return mCreatureMoodModifiers; }
-    CreatureMoodLevel getCreatureMoodLevel(int32_t moodModifiersPoints) const;
     inline int32_t getNbTurnsFuriousMax() const
     { return mNbTurnsFuriousMax; }
 
@@ -227,7 +237,6 @@ private:
     bool loadRooms(const std::string& fileName);
     bool loadTraps(const std::string& fileName);
     bool loadSpellConfig(const std::string& fileName);
-    bool loadCreaturesMood(const std::string& fileName);
     bool loadResearches(const std::string& fileName);
     bool loadTilesets(const std::string& fileName);
     bool loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues);
@@ -251,7 +260,6 @@ private:
     std::string mFilenameRooms;
     std::string mFilenameTraps;
     std::string mFilenameSpells;
-    std::string mFilenameCreaturesMood;
     std::string mFilenameResearches;
     std::string mFilenameTilesets;
     std::string mFilenameUserCfg;
@@ -278,7 +286,6 @@ private:
     std::string mDefaultWorkerRogue;
     std::string mMainMenuMusic;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
-    std::map<const std::string, std::vector<const CreatureMood*> > mCreatureMoodModifiers;
     std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;
 
     //! \brief Stores the faction default worker creature definition.

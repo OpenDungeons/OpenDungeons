@@ -22,6 +22,10 @@
 #include "entities/CreatureDefinition.h"
 #include "utils/Helper.h"
 
+static const std::string CreatureMoodTurnsWithoutFightName = "TurnsWithoutFight";
+
+namespace
+{
 class CreatureMoodTurnsWithoutFightFactory : public CreatureMoodFactory
 {
     CreatureMood* createCreatureMood() const override
@@ -29,22 +33,32 @@ class CreatureMoodTurnsWithoutFightFactory : public CreatureMoodFactory
 
     const std::string& getCreatureMoodName() const override
     {
-        static const std::string name = "TurnsWithoutFight";
-        return name;
+        return CreatureMoodTurnsWithoutFightName;
     }
 };
 
-//! \brief Register the mood type
+// Register the factory
 static CreatureMoodRegister reg(new CreatureMoodTurnsWithoutFightFactory);
+}
 
-int32_t CreatureMoodTurnsWithoutFight::computeMood(const Creature* creature) const
+const std::string& CreatureMoodTurnsWithoutFight::getModifierName() const
 {
-    int32_t turns = creature->getNbTurnsWithoutBattle();
+    return CreatureMoodTurnsWithoutFightName;
+}
+
+int32_t CreatureMoodTurnsWithoutFight::computeMood(const Creature& creature) const
+{
+    int32_t turns = creature.getNbTurnsWithoutBattle();
     if(turns < mTurnsWithoutFightMin)
         return 0;
 
     turns = std::min(turns - mTurnsWithoutFightMin, mTurnsWithoutFightMax);
     return turns * mMoodModifier;
+}
+
+CreatureMoodTurnsWithoutFight* CreatureMoodTurnsWithoutFight::clone() const
+{
+    return new CreatureMoodTurnsWithoutFight(*this);
 }
 
 bool CreatureMoodTurnsWithoutFight::importFromStream(std::istream& is)
@@ -60,4 +74,21 @@ bool CreatureMoodTurnsWithoutFight::importFromStream(std::istream& is)
         return false;
 
     return true;
+}
+
+void CreatureMoodTurnsWithoutFight::exportToStream(std::ostream& os) const
+{
+    CreatureMood::exportToStream(os);
+    os << "\t" << mTurnsWithoutFightMin;
+    os << "\t" << mTurnsWithoutFightMax;
+    os << "\t" << mMoodModifier;
+}
+
+void CreatureMoodTurnsWithoutFight::getFormatString(std::string& format) const
+{
+    CreatureMood::getFormatString(format);
+    if(!format.empty())
+        format += "\t";
+
+    format += "TurnsWithoutFightMin\tTurnsWithoutFightMax\tMoodModifier";
 }

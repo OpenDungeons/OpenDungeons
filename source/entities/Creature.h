@@ -365,6 +365,10 @@ public:
     void setDefenseModifier(double phy, double mag, double ele);
     void clearDefenseModifier();
 
+    //! \brief sets the strength modifier (coef)
+    void setStrengthModifier(double modifier);
+    void clearStrengthModifier();
+
     virtual bool shouldKoAttackedCreature(const Creature& creature) const override;
 
     virtual double getAnimationSpeedFactor() const override
@@ -518,6 +522,9 @@ public:
     //! \brief Called when an angry creature wants to attack a natural enemy
     void engageAlliedNaturalEnemy(Creature& attacker);
 
+    inline double getModifierStrength() const
+    { return mModifierStrength; }
+
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
@@ -548,6 +555,9 @@ private:
     double mPhysicalDefense;
     double mMagicalDefense;
     double mElementDefense;
+
+    //! \brief Strength modifiers (can be changed by effects like spells)
+    double mModifierStrength;
 
     //! \brief The weapon the creature is holding in its left hand or nullptr if none. It will be set by a pointer
     //! managed by the game map and thus, should not be deleted by the creature class

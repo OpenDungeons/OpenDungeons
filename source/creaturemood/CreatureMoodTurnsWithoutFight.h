@@ -29,23 +29,20 @@ public:
         mMoodModifier(0)
     {}
 
-    virtual ~CreatureMoodTurnsWithoutFight() {}
-
-    virtual int32_t computeMood(const Creature* creature) const override;
-
-    inline CreatureMood* clone() const override
-    {  return new CreatureMoodTurnsWithoutFight(mTurnsWithoutFightMin, mTurnsWithoutFightMax, mMoodModifier); }
-
-    virtual bool importFromStream(std::istream& is) override;
-
-private:
-    CreatureMoodTurnsWithoutFight(int32_t turnsWithoutFightMin, int32_t turnsWithoutFightMax,
-            int32_t moodModifier) :
-        mTurnsWithoutFightMin(turnsWithoutFightMin),
-        mTurnsWithoutFightMax(turnsWithoutFightMax),
-        mMoodModifier(moodModifier)
+    virtual ~CreatureMoodTurnsWithoutFight()
     {}
 
+    const std::string& getModifierName() const override;
+
+    virtual int32_t computeMood(const Creature& creature) const override;
+
+    inline CreatureMoodTurnsWithoutFight* clone() const override;
+
+    virtual bool importFromStream(std::istream& is) override;
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void getFormatString(std::string& format) const override;
+
+private:
     int32_t mTurnsWithoutFightMin;
     int32_t mTurnsWithoutFightMax;
     int32_t mMoodModifier;

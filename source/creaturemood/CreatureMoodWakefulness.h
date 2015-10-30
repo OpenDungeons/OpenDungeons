@@ -28,21 +28,20 @@ public:
         mMoodModifier(0)
     {}
 
-    virtual ~CreatureMoodWakefulness() {}
-
-    virtual int32_t computeMood(const Creature* creature) const override;
-
-    inline CreatureMood* clone() const override
-    {  return new CreatureMoodWakefulness(mStartWakefulness, mMoodModifier); }
-
-    virtual bool importFromStream(std::istream& is) override;
-
-private:
-    CreatureMoodWakefulness(int32_t startWakefulness, int32_t moodModifier) :
-        mStartWakefulness(startWakefulness),
-        mMoodModifier(moodModifier)
+    virtual ~CreatureMoodWakefulness()
     {}
 
+    const std::string& getModifierName() const override;
+
+    virtual int32_t computeMood(const Creature& creature) const override;
+
+    inline CreatureMoodWakefulness* clone() const override;
+
+    virtual bool importFromStream(std::istream& is) override;
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void getFormatString(std::string& format) const override;
+
+private:
     int32_t mStartWakefulness;
     int32_t mMoodModifier;
 };
