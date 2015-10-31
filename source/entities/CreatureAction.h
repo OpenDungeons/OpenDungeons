@@ -41,7 +41,8 @@ enum class CreatureActionType
     flee, // If a fighter is weak (low hp) or a worker is attacked by a fighter, he will flee
     carryEntity, // (worker only) Carry an entity to a suitable building
     getFee, // (fighter only) Gets the creature fee
-    leaveDungeon // (fighter only) Try to go to the portal to leave the dungeon
+    leaveDungeon, // (fighter only) Try to go to the portal to leave the dungeon
+    nb // Must be the last value of this enum
 };
 
 //! \brief A data structure to be used in the creature AI calculations.

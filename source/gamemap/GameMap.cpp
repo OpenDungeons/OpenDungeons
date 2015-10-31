@@ -256,6 +256,9 @@ void GameMap::clearAll()
     clearSpells();
     clearTiles();
 
+    processActiveObjectsChanges();
+    processDeletionQueues();
+
     clearGoalsForAllSeats();
     clearSeats();
     mLocalPlayer = nullptr;
@@ -268,9 +271,6 @@ void GameMap::clearAll()
     resetUniqueNumbers();
     mIsFOWActivated = true;
     mTimePayDay = 0;
-
-    processActiveObjectsChanges();
-    processDeletionQueues();
 
     // We check if the different vectors are empty
     if(!mActiveObjects.empty())

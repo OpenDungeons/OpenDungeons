@@ -17,6 +17,8 @@
 
 #include "game/Player.h"
 
+#include "entities/Creature.h"
+#include "entities/CreatureAction.h"
 #include "entities/Tile.h"
 #include "game/ResearchManager.h"
 #include "game/Seat.h"
@@ -33,6 +35,7 @@
 #include "network/ServerNotification.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/Random.h"
 #include "ODApplication.h"
 
 #include <cmath>
@@ -61,7 +64,8 @@ Player::Player(GameMap* gameMap, int32_t id) :
     mNoWorkerTime(0.0f),
     mNoTreasuryAvailableTime(0.0f),
     mHasLost(false),
-    mSpellsCooldown(std::vector<std::pair<uint32_t, float>>(static_cast<uint32_t>(SpellType::nbSpells), std::pair<uint32_t, float>(0,0.0f)))
+    mSpellsCooldown(std::vector<std::pair<uint32_t, float>>(static_cast<uint32_t>(SpellType::nbSpells), std::pair<uint32_t, float>(0,0.0f))),
+    mWorkersActions(std::vector<uint32_t>(static_cast<uint32_t>(CreatureActionType::nb), 0))
 {
 }
 
@@ -680,4 +684,96 @@ void Player::setSpellCooldownTurns(SpellType spellType, uint32_t cooldown)
         serverNotification->mPacket << spellType << cooldown;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
+}
+
+void Player::notifyWorkerAction(Creature& worker, CreatureActionType actionType)
+{
+    uint32_t index = static_cast<uint32_t>(actionType);
+    if(index >= mWorkersActions.size())
+    {
+        OD_LOG_ERR("Invalid index seatId=" + Helper::toString(getId()) + ", value=" + Helper::toString(index) + ", size=" + Helper::toString(mWorkersActions.size()));
+        return;
+    }
+
+    mWorkersActions[index]++;
+}
+
+void Player::notifyWorkerStopsAction(Creature& worker, CreatureActionType actionType)
+{
+    uint32_t index = static_cast<uint32_t>(actionType);
+    if(index >= mWorkersActions.size())
+    {
+        OD_LOG_ERR("Invalid index seatId=" + Helper::toString(getId()) + ", value=" + Helper::toString(index) + ", size=" + Helper::toString(mWorkersActions.size()));
+        return;
+    }
+
+    mWorkersActions[index]--;
+}
+
+uint32_t Player::getNbWorkersDoing(CreatureActionType actionType) const
+{
+    uint32_t index = static_cast<uint32_t>(actionType);
+    if(index >= mWorkersActions.size())
+    {
+        OD_LOG_ERR("Invalid index seatId=" + Helper::toString(getId()) + ", value=" + Helper::toString(index) + ", size=" + Helper::toString(mWorkersActions.size()));
+        return 0;
+    }
+
+    return mWorkersActions.at(index);
+}
+
+std::vector<CreatureActionType> Player::getWorkerPreferredActions(Creature& worker) const
+{
+    std::vector<CreatureActionType> ret;
+    // We want to have more or less 40% workers digging, 40% claiming ground tiles and 20% claiming wall tiles
+    // Concerning carrying stuff, most workers should try unless more than 20% are already carrying.
+    uint32_t nbWorkersDigging = getNbWorkersDoing(CreatureActionType::digTile);
+    uint32_t nbWorkersClaimingGround = getNbWorkersDoing(CreatureActionType::claimTile);
+    uint32_t nbWorkersClaimingWall = getNbWorkersDoing(CreatureActionType::claimWallTile);
+    uint32_t nbWorkersCarrying = getNbWorkersDoing(CreatureActionType::carryEntity);
+    // For the total number of workers, we consider only those doing something in the wanted list (and not
+    // the ones fighting or having nothing to do) + the one we are considering
+    uint32_t nbWorkersTotal = nbWorkersDigging + nbWorkersClaimingGround
+            + nbWorkersClaimingWall + nbWorkersCarrying + 1;
+
+    double percent;
+    bool isCarryAdded = false;
+    percent = static_cast<double>(nbWorkersCarrying) / static_cast<double>(nbWorkersTotal);
+    if(percent <= 0.2)
+    {
+        isCarryAdded = true;
+        ret.push_back(CreatureActionType::carryEntity);
+    }
+
+    bool isClaimWallAdded = false;
+    percent = static_cast<double>(nbWorkersDigging + nbWorkersClaimingGround) / static_cast<double>(nbWorkersTotal);
+    if(percent > 0.8)
+    {
+        isClaimWallAdded = true;
+        ret.push_back(CreatureActionType::claimWallTile);
+    }
+
+    bool digTileFirst = false;
+    if(nbWorkersDigging < nbWorkersClaimingGround)
+        digTileFirst = true;
+    else if(nbWorkersDigging == nbWorkersClaimingGround)
+        digTileFirst = (Random::Uint(0,1) == 0);
+
+    if(digTileFirst)
+    {
+        ret.push_back(CreatureActionType::digTile);
+        ret.push_back(CreatureActionType::claimTile);
+    }
+    else
+    {
+        ret.push_back(CreatureActionType::claimTile);
+        ret.push_back(CreatureActionType::digTile);
+    }
+
+    if(!isClaimWallAdded)
+        ret.push_back(CreatureActionType::claimWallTile);
+    if(!isCarryAdded)
+        ret.push_back(CreatureActionType::carryEntity);
+
+    return ret;
 }

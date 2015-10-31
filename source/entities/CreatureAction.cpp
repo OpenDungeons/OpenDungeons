@@ -18,6 +18,9 @@
 #include "entities/CreatureAction.h"
 
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
+#include "game/Player.h"
+#include "game/Seat.h"
 #include "utils/LogManager.h"
 
 CreatureAction::CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* creatureSkillData) :
@@ -44,12 +47,18 @@ CreatureAction::CreatureAction(Creature& creature, const CreatureActionType acti
         default:
             break;
     }
+
+    if(mCreature.getDefinition()->isWorker())
+        mCreature.getSeat()->getPlayer()->notifyWorkerAction(mCreature, mActionType);
 }
 
 CreatureAction::~CreatureAction()
 {
     if(mAttackedEntity != nullptr)
         mAttackedEntity->removeGameEntityListener(this);
+
+    if(mCreature.getDefinition()->isWorker())
+        mCreature.getSeat()->getPlayer()->notifyWorkerStopsAction(mCreature, mActionType);
 }
 
 std::string CreatureAction::toString(CreatureActionType actionType)

@@ -1117,8 +1117,6 @@ void Creature::decidePrioritaryAction()
 
 bool Creature::handleIdleAction()
 {
-    double diceRoll = Random::Double(0.0, 1.0);
-
     setAnimationState(EntityAnimation::idle_anim);
 
     if(mDefinition->isWorker() && mForceAction == forcedActionSearchAction)
@@ -1234,24 +1232,38 @@ bool Creature::handleIdleAction()
                 break;
         }
     }
-
-    // Decide to check for diggable tiles
-    if (mDigRate > 0.0 && !mVisibleMarkedTiles.empty())
+    if (mDefinition->isWorker())
     {
-        if(pushAction(CreatureActionType::digTile, false, false, false))
-            return true;
-    }
-    // Decide to check for carryable entities
-    if (mDefinition->isWorker() && diceRoll < 0.6)
-    {
-        if(pushAction(CreatureActionType::carryEntity, false, false, false))
-            return true;
-    }
-    // Decide to check for claimable tiles
-    if (mClaimRate > 0.0 && diceRoll < 0.9)
-    {
-        if(pushAction(CreatureActionType::claimTile, false, false, false))
-            return true;
+        // Decide what to do
+        std::vector<CreatureActionType> workerActions = getSeat()->getPlayer()->getWorkerPreferredActions(*this);
+        for(CreatureActionType actionType : workerActions)
+        {
+            switch(actionType)
+            {
+                case CreatureActionType::digTile:
+                {
+                    if((mDigRate > 0.0) && !mVisibleMarkedTiles.empty())
+                    {
+                        if(pushAction(CreatureActionType::digTile, false, false, false))
+                            return true;
+                    }
+                    break;
+                }
+                case CreatureActionType::claimTile:
+                case CreatureActionType::claimWallTile:
+                case CreatureActionType::carryEntity:
+                {
+                    if(pushAction(actionType, false, false, false))
+                        return true;
+                    break;
+                }
+                default:
+                {
+                    OD_LOG_ERR("Unexpected action type for worker name=" + getName() + ", action=" + CreatureAction::toString(actionType));
+                    break;
+                }
+            }
+        }
     }
 
     if(!mDefinition->isWorker() && mForceAction == forcedActionSearchAction)
@@ -1482,24 +1494,14 @@ bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
         return false;
     }
 
-    if(mForceAction != forcedActionClaimTile)
+    if(!actionItem.mForced)
     {
-        // Randomly decide to stop claiming with a small probability
-        if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * mVisibleMarkedTiles.size())
+        // If we are claiming tiles for too long, we stop to check if there is
+        // something else to do
+        if(actionItem.mNbTurns >= 15)
         {
-            // If there are any visible tiles marked for digging start working on that.
-            if (!mVisibleMarkedTiles.empty())
-            {
-                if(pushAction(CreatureActionType::digTile, true, false, false))
-                    return true;
-            }
-        }
-        // Randomly try to carry entities if any around
-        if (Random::Int(0, 10) < 5)
-        {
-            // We don't pop action to continue claiming after carrying entity
-            if(pushAction(CreatureActionType::carryEntity, false, false, false))
-                return true;
+            popAction();
+            return true;
         }
     }
 
@@ -1659,7 +1661,6 @@ bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
     // We couldn't find a tile to try to claim so we start searching for claimable walls
     mForceAction = forcedActionNone;
     popAction();
-    pushAction(CreatureActionType::claimWallTile, false, false, false);
     return true;
 }
 
@@ -1673,24 +1674,14 @@ bool Creature::handleClaimWallTileAction(const CreatureActionWrapper& actionItem
     }
 
     // Randomly decide to stop claiming with a small probability
-    if(mForceAction != forcedActionClaimWallTile)
+    if(!actionItem.mForced)
     {
-        if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * mVisibleMarkedTiles.size())
+        // If we are claiming walls for too long, we stop to check if there is
+        // something else to do
+        if(actionItem.mNbTurns >= 15)
         {
-            // If there are any visible tiles marked for digging start working on that.
-            if (!mVisibleMarkedTiles.empty())
-            {
-
-                if(pushAction(CreatureActionType::digTile, true, false, false))
-                    return true;
-            }
-        }
-        // Randomly try to carry entities if any around
-        if (Random::Int(0, 10) < 5)
-        {
-            // We don't pop action to continue claiming after carrying entity
-            if(pushAction(CreatureActionType::carryEntity, true, false, false))
-                return true;
+            popAction();
+            return true;
         }
     }
 
@@ -1704,6 +1695,9 @@ bool Creature::handleClaimWallTileAction(const CreatureActionWrapper& actionItem
 
         if (tempPlayer == nullptr)
             break;
+
+        if (tempTile->getMarkedForDigging(tempPlayer))
+            continue;
 
         if (!tempTile->isWallClaimable(getSeat()))
             continue;
@@ -1774,6 +1768,17 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
     Tile* myTile = getPositionTile();
     if (myTile == nullptr)
         return false;
+
+    if(!actionItem.mForced)
+    {
+        // If we are digging tiles for too long, we stop to check if there is
+        // something else to do
+        if(actionItem.mNbTurns >= 15)
+        {
+            popAction();
+            return true;
+        }
+    }
 
     // See if any of the tiles is one of our neighbors
     bool wasANeighbor = false;
@@ -3609,7 +3614,13 @@ std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
     for (Tile* tile : mTilesWithinSightRadius)
     {
         // Check to see whether the tile is a claimable wall
-        if (tile == nullptr || !tile->isWallClaimable(getSeat()))
+        if (tile == nullptr)
+            continue;
+
+        if (!tile->isWallClaimable(getSeat()))
+            continue;
+
+        if (tile->getMarkedForDigging(getSeat()->getPlayer()))
             continue;
 
         // and can be reached by the creature
