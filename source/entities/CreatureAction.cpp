@@ -19,6 +19,7 @@
 
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
 #include "utils/LogManager.h"
@@ -39,6 +40,11 @@ CreatureAction::CreatureAction(Creature& creature, const CreatureActionType acti
     // We check mandatory items according to action type
     switch(mActionType)
     {
+        case CreatureActionType::digTile:
+            OD_ASSERT_TRUE(mTile != nullptr);
+            if(mTile != nullptr)
+                mTile->addWorkerDigging(mCreature);
+            break;
         case CreatureActionType::attackObject:
             OD_ASSERT_TRUE(mAttackedEntity != nullptr);
             OD_ASSERT_TRUE(mTile != nullptr);
@@ -57,6 +63,16 @@ CreatureAction::~CreatureAction()
     if(mAttackedEntity != nullptr)
         mAttackedEntity->removeGameEntityListener(this);
 
+    switch(mActionType)
+    {
+        case CreatureActionType::digTile:
+            if(mTile != nullptr)
+                mTile->removeWorkerDigging(mCreature);
+            break;
+        default:
+            break;
+    }
+
     if(mCreature.getDefinition()->isWorker())
         mCreature.getSeat()->getPlayer()->notifyWorkerStopsAction(mCreature, mActionType);
 }
@@ -70,6 +86,9 @@ std::string CreatureAction::toString(CreatureActionType actionType)
 
     case CreatureActionType::fight:
         return "fight";
+
+    case CreatureActionType::searchTileToDig:
+        return "searchTileToDig";
 
     case CreatureActionType::digTile:
         return "digTile";

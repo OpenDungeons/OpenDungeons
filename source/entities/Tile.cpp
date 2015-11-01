@@ -66,7 +66,8 @@ Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, do
     mHasBridge          (false),
     mLocalPlayerHasVision   (false),
     mGameMap(gameMap),
-    mIsOnServerMap(isOnServerMap)
+    mIsOnServerMap(isOnServerMap),
+    mNbWorkersDigging(0)
 {
     setSeat(nullptr);
     computeTileVisual();
@@ -1799,6 +1800,54 @@ double Tile::getCreatureSpeedDefault(const Creature* creature) const
         default:
             return 0.0;
     }
+}
+
+bool Tile::canWorkerClaim(const Creature& worker)
+{
+    // TODO
+    return true;
+}
+
+bool Tile::addWorkerClaiming(const Creature& worker)
+{
+    // TODO
+    return true;
+}
+
+bool Tile::removeWorkerClaiming(const Creature& worker)
+{
+    // TODO
+    return true;
+}
+
+bool Tile::canWorkerDig(const Creature& worker)
+{
+    if(mNbWorkersDigging < ConfigManager::getSingleton().getNbWorkersDigSameTile())
+        return true;
+
+    return false;
+}
+
+bool Tile::addWorkerDigging(const Creature& worker)
+{
+    if(!canWorkerDig(worker))
+        return false;
+
+    ++mNbWorkersDigging;
+    return true;
+}
+
+bool Tile::removeWorkerDigging(const Creature& worker)
+{
+    // Sanity check
+    if(mNbWorkersDigging <= 0)
+    {
+        OD_LOG_ERR("Cannot remove worker=" + worker.getName() + ", tile=" + Tile::displayAsString(this));
+        return false;
+    }
+
+    --mNbWorkersDigging;
+    return true;
 }
 
 std::string Tile::displayAsString(const Tile* tile)

@@ -745,7 +745,12 @@ private:
     bool handleClaimWallTileAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature dig tile action logic.
+    //! This functions will handle the creature dig tile search action logic.
+    //! \return true when another action should handled after that one.
+    bool handleSearchTileToDigAction(const CreatureActionWrapper& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature dig tile action logic for 1 tile.
     //! \return true when another action should handled after that one.
     bool handleDigTileAction(const CreatureActionWrapper& actionItem);
 

@@ -254,8 +254,11 @@ void GameMap::clearAll()
     // NOTE : clearRenderedMovableEntities should be called after clearRooms because clearRooms will try to remove the objects from the room
     clearRenderedMovableEntities();
     clearSpells();
-    clearTiles();
 
+    processActiveObjectsChanges();
+    processDeletionQueues();
+
+    clearTiles();
     processActiveObjectsChanges();
     processDeletionQueues();
 
@@ -630,6 +633,7 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
                     isClaiming = true;
                     break;
 
+                case CreatureActionType::searchTileToDig:
                 case CreatureActionType::digTile:
                     isIdle = false;
                     isDigging = true;

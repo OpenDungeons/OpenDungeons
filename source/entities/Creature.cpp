@@ -736,6 +736,7 @@ void Creature::setLevel(unsigned int level)
 void Creature::dropCarriedEquipment()
 {
     fireCreatureSound(CreatureSound::Die);
+    clearActionQueue();
     stopJob();
     stopEating();
     clearDestinations(EntityAnimation::die_anim, false);
@@ -1043,6 +1044,10 @@ void Creature::doUpkeep()
                     loopBack = handleClaimWallTileAction(topActionItem);
                     break;
 
+                case CreatureActionType::searchTileToDig:
+                    loopBack = handleSearchTileToDigAction(topActionItem);
+                    break;
+
                 case CreatureActionType::digTile:
                     loopBack = handleDigTileAction(topActionItem);
                     break;
@@ -1215,7 +1220,7 @@ bool Creature::handleIdleAction()
         {
             case forcedActionDigTile:
             {
-                pushAction(CreatureActionType::digTile, false, true, false);
+                pushAction(CreatureActionType::searchTileToDig, false, true, false);
                 return true;
             }
             case forcedActionClaimTile:
@@ -1238,31 +1243,8 @@ bool Creature::handleIdleAction()
         std::vector<CreatureActionType> workerActions = getSeat()->getPlayer()->getWorkerPreferredActions(*this);
         for(CreatureActionType actionType : workerActions)
         {
-            switch(actionType)
-            {
-                case CreatureActionType::digTile:
-                {
-                    if((mDigRate > 0.0) && !mVisibleMarkedTiles.empty())
-                    {
-                        if(pushAction(CreatureActionType::digTile, false, false, false))
-                            return true;
-                    }
-                    break;
-                }
-                case CreatureActionType::claimTile:
-                case CreatureActionType::claimWallTile:
-                case CreatureActionType::carryEntity:
-                {
-                    if(pushAction(actionType, false, false, false))
-                        return true;
-                    break;
-                }
-                default:
-                {
-                    OD_LOG_ERR("Unexpected action type for worker name=" + getName() + ", action=" + CreatureAction::toString(actionType));
-                    break;
-                }
-            }
+            if(pushAction(actionType, false, false, false))
+                return true;
         }
     }
 
@@ -1487,9 +1469,13 @@ bool Creature::handleWalkToTileAction(const CreatureActionWrapper& actionItem)
 
 bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
 {
+    if(mClaimRate <= 0.0)
+        return false;
+
     Tile* myTile = getPositionTile();
     if (myTile == nullptr)
     {
+        OD_LOG_ERR("creature=" + getName() + ", pos=" + Helper::toString(getPosition()));
         popAction();
         return false;
     }
@@ -1666,9 +1652,13 @@ bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
 
 bool Creature::handleClaimWallTileAction(const CreatureActionWrapper& actionItem)
 {
+    if(mClaimRate <= 0.0)
+        return false;
+
     Tile* myTile = getPositionTile();
     if (myTile == nullptr)
     {
+        OD_LOG_ERR("creature=" + getName() + ", pos=" + Helper::toString(getPosition()));
         popAction();
         return false;
     }
@@ -1763,11 +1753,18 @@ bool Creature::handleClaimWallTileAction(const CreatureActionWrapper& actionItem
     return false;
 }
 
-bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
+bool Creature::handleSearchTileToDigAction(const CreatureActionWrapper& actionItem)
 {
+    if(mDigRate <= 0.0)
+        return false;
+
     Tile* myTile = getPositionTile();
     if (myTile == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", pos=" + Helper::toString(getPosition()));
+        popAction();
         return false;
+    }
 
     if(!actionItem.mForced)
     {
@@ -1781,138 +1778,35 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
     }
 
     // See if any of the tiles is one of our neighbors
-    bool wasANeighbor = false;
     std::vector<Tile*> creatureNeighbors = myTile->getAllNeighbors();
     Player* tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
     for (Tile* tempTile : creatureNeighbors)
     {
-        if(wasANeighbor)
-            break;
-
         if (tempPlayer == nullptr)
             break;
 
         if (!tempTile->getMarkedForDigging(tempPlayer))
             continue;
 
+        // Check if there is still empty space for digging the tile
+        if (!tempTile->canWorkerDig(*this))
+            continue;
+
         // We found a tile marked by our controlling seat, dig out the tile.
-
-        // Dig out the tile by decreasing the tile's fullness.
-        Ogre::Vector3 walkDirection(tempTile->getX() - getPosition().x, tempTile->getY() - getPosition().y, 0);
-        walkDirection.normalise();
-        setAnimationState(EntityAnimation::dig_anim, true, walkDirection);
-        double amountDug = tempTile->digOut(mDigRate);
-        if(amountDug > 0.0)
-        {
-            receiveExp(1.5 * mDigRate / 20.0);
-
-            // If the tile is a gold tile accumulate gold for this creature.
-            switch(tempTile->getType())
-            {
-                case TileType::gold:
-                {
-                    static const double digCoefGold = ConfigManager::getSingleton().getDigCoefGold();
-                    double tempDouble = digCoefGold * amountDug;
-                    mGoldCarried += static_cast<int>(tempDouble);
-                    getSeat()->addGoldMined(static_cast<int>(tempDouble));
-                    // Receive extra experience for digging gold
-                    receiveExp(digCoefGold * mDigRate / 20.0);
-                    break;
-                }
-                case TileType::gem:
-                {
-                    static const double digCoefGem = ConfigManager::getSingleton().getDigCoefGold();
-                    double tempDouble = digCoefGem * amountDug;
-                    mGoldCarried += static_cast<int>(tempDouble);
-                    getSeat()->addGoldMined(static_cast<int>(tempDouble));
-                    // Receive extra experience for digging gold
-                    receiveExp(digCoefGem * mDigRate / 20.0);
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            // If the tile has been dug out, move into that tile and try to continue digging.
-            if (tempTile->getFullness() == 0.0)
-            {
-                receiveExp(2.5);
-                Ogre::Vector3 v (static_cast<Ogre::Real>(tempTile->getX()), static_cast<Ogre::Real>(tempTile->getY()), 0.0);
-                std::vector<Ogre::Vector3> path;
-                path.push_back(v);
-                setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-                pushAction(CreatureActionType::walkToTile, false, true, false);
-            }
-            //Set sound position and play dig sound.
-            fireCreatureSound(CreatureSound::Dig);
-        }
-        else
-        {
-            //We tried to dig a tile we are not able to
-            //Completely bail out if this happens.
-            clearActionQueue();
-        }
-
-        wasANeighbor = true;
-        break;
+        pushAction(CreatureActionType::digTile, false, true, false, nullptr, tempTile, nullptr);
+        return true;
     }
-
-    // Check to see if we are carrying the maximum amount of gold we can carry, and if so, try to take it to a treasury.
-    if (mGoldCarried >= mDefinition->getMaxGoldCarryable())
-    {
-        // We create the treasury object and push action to deposit it
-        TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
-        mGoldCarried = 0;
-        Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
-        obj->addToGameMap();
-        obj->createMesh();
-        obj->setPosition(pos);
-
-        bool isTreasuryAvailable = false;
-        for(Room* room : getGameMap()->getRooms())
-        {
-            if(room->getSeat() != getSeat())
-                continue;
-
-            if(room->getTotalGoldStorage() <= 0)
-                continue;
-
-            if(room->getTotalGoldStored() >= room->getTotalGoldStorage())
-                continue;
-
-            if(room->numCoveredTiles() <= 0)
-                continue;
-
-            Tile* tile = room->getCoveredTile(0);
-            if(!getGameMap()->pathExists(this, myTile, tile))
-                continue;
-
-            isTreasuryAvailable = true;
-            break;
-        }
-        if(isTreasuryAvailable)
-        {
-            pushAction(CreatureActionType::carryEntity, false, true, false);
-            return true;
-        }
-
-        if((getSeat() != nullptr) &&
-            (getSeat()->getPlayer() != nullptr) &&
-            (getSeat()->getPlayer()->getIsHuman()))
-        {
-            getSeat()->getPlayer()->notifyNoTreasuryAvailable();
-        }
-    }
-
-    // If we successfully dug a tile then we are done for this turn.
-    if (wasANeighbor)
-        return false;
 
     // Find paths to all of the neighbor tiles for all of the marked visible tiles.
+    // FIXME: use a std::vector<Tile*> here and compute only the selected path. pathExists already guarantees
+    // that we can go to the tile
     std::vector<std::list<Tile*> > possiblePaths;
-    for (unsigned int i = 0; i < mVisibleMarkedTiles.size(); ++i)
+    for (Tile* tile : mVisibleMarkedTiles)
     {
-        for (Tile* neighborTile : mVisibleMarkedTiles[i]->getAllNeighbors())
+        if(!tile->canWorkerDig(*this))
+            continue;
+
+        for (Tile* neighborTile : tile->getAllNeighbors())
         {
             if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
                 possiblePaths.push_back(getGameMap()->path(this, neighborTile));
@@ -1974,7 +1868,7 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
     // If none of our neighbors are marked for digging we got here too late.
     // Finish digging
     mForceAction = forcedActionNone;
-    bool isDigging = isActionInList(CreatureActionType::digTile);
+    bool isDigging = isActionInList(CreatureActionType::searchTileToDig);
     if (isDigging)
     {
         popAction();
@@ -2023,6 +1917,142 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
 
         return true;
     }
+    return false;
+}
+
+bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
+{
+    Tile* myTile = getPositionTile();
+    if(myTile == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", pos=" + Helper::toString(getPosition()));
+        popAction();
+        return false;
+    }
+
+    Tile* tileDig = actionItem.mTile;
+    if(tileDig == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName());
+        popAction();
+        return false;
+    }
+
+    // Check if the tile should still be dug (it may have been dug by another worker)
+    if(!tileDig->getMarkedForDigging(getSeat()->getPlayer()) ||
+       !tileDig->isDiggable(getSeat()))
+    {
+        popAction();
+        return true;
+    }
+
+
+
+    // Dig out the tile by decreasing the tile's fullness.
+    Ogre::Vector3 walkDirection(tileDig->getX() - getPosition().x, tileDig->getY() - getPosition().y, 0);
+    walkDirection.normalise();
+    setAnimationState(EntityAnimation::dig_anim, true, walkDirection);
+    double amountDug = tileDig->digOut(mDigRate);
+    if(amountDug > 0.0)
+    {
+        receiveExp(1.5 * mDigRate / 20.0);
+
+        // If the tile is a gold tile accumulate gold for this creature.
+        switch(tileDig->getType())
+        {
+            case TileType::gold:
+            {
+                static const double digCoefGold = ConfigManager::getSingleton().getDigCoefGold();
+                double tempDouble = digCoefGold * amountDug;
+                mGoldCarried += static_cast<int>(tempDouble);
+                getSeat()->addGoldMined(static_cast<int>(tempDouble));
+                // Receive extra experience for digging gold
+                receiveExp(digCoefGold * mDigRate / 20.0);
+                break;
+            }
+            case TileType::gem:
+            {
+                static const double digCoefGem = ConfigManager::getSingleton().getDigCoefGold();
+                double tempDouble = digCoefGem * amountDug;
+                mGoldCarried += static_cast<int>(tempDouble);
+                getSeat()->addGoldMined(static_cast<int>(tempDouble));
+                // Receive extra experience for digging gold
+                receiveExp(digCoefGem * mDigRate / 20.0);
+                break;
+            }
+            default:
+                break;
+        }
+
+        // If the tile has been dug out, move into that tile and try to continue digging.
+        if (tileDig->getFullness() <= 0.0)
+        {
+            popAction();
+            receiveExp(2.5);
+            Ogre::Vector3 v (static_cast<Ogre::Real>(tileDig->getX()), static_cast<Ogre::Real>(tileDig->getY()), 0.0);
+            std::vector<Ogre::Vector3> path;
+            path.push_back(v);
+            setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+            pushAction(CreatureActionType::walkToTile, false, true, false);
+        }
+        //Set sound position and play dig sound.
+        fireCreatureSound(CreatureSound::Dig);
+    }
+    else
+    {
+        //We tried to dig a tile we are not able to
+        //Completely bail out if this happens.
+        clearActionQueue();
+    }
+
+    // Check to see if we are carrying the maximum amount of gold we can carry, and if so, try to take it to a treasury.
+    if (mGoldCarried >= mDefinition->getMaxGoldCarryable())
+    {
+        // We create the treasury object and push action to deposit it
+        TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
+        mGoldCarried = 0;
+        Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
+        obj->addToGameMap();
+        obj->createMesh();
+        obj->setPosition(pos);
+
+        bool isTreasuryAvailable = false;
+        for(Room* room : getGameMap()->getRooms())
+        {
+            if(room->getSeat() != getSeat())
+                continue;
+
+            if(room->getTotalGoldStorage() <= 0)
+                continue;
+
+            if(room->getTotalGoldStored() >= room->getTotalGoldStorage())
+                continue;
+
+            if(room->numCoveredTiles() <= 0)
+                continue;
+
+            Tile* tile = room->getCoveredTile(0);
+            if(!getGameMap()->pathExists(this, myTile, tile))
+                continue;
+
+            isTreasuryAvailable = true;
+            break;
+        }
+
+        if(isTreasuryAvailable)
+        {
+            pushAction(CreatureActionType::carryEntity, true, true, false);
+            return true;
+        }
+
+        if((getSeat() != nullptr) &&
+            (getSeat()->getPlayer() != nullptr) &&
+            (getSeat()->getPlayer()->getIsHuman()))
+        {
+            getSeat()->getPlayer()->notifyNoTreasuryAvailable();
+        }
+    }
+
     return false;
 }
 

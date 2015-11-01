@@ -707,6 +707,14 @@ void Player::notifyWorkerStopsAction(Creature& worker, CreatureActionType action
         return;
     }
 
+    // Sanity check
+    if(mWorkersActions[index] <= 0)
+    {
+        OD_LOG_ERR("No worker doing action seatId=" + Helper::toString(getId()) + ", action=" + CreatureAction::toString(actionType));
+        return;
+    }
+
+
     mWorkersActions[index]--;
 }
 
@@ -727,7 +735,7 @@ std::vector<CreatureActionType> Player::getWorkerPreferredActions(Creature& work
     std::vector<CreatureActionType> ret;
     // We want to have more or less 40% workers digging, 40% claiming ground tiles and 20% claiming wall tiles
     // Concerning carrying stuff, most workers should try unless more than 20% are already carrying.
-    uint32_t nbWorkersDigging = getNbWorkersDoing(CreatureActionType::digTile);
+    uint32_t nbWorkersDigging = getNbWorkersDoing(CreatureActionType::searchTileToDig);
     uint32_t nbWorkersClaimingGround = getNbWorkersDoing(CreatureActionType::claimTile);
     uint32_t nbWorkersClaimingWall = getNbWorkersDoing(CreatureActionType::claimWallTile);
     uint32_t nbWorkersCarrying = getNbWorkersDoing(CreatureActionType::carryEntity);
@@ -761,13 +769,13 @@ std::vector<CreatureActionType> Player::getWorkerPreferredActions(Creature& work
 
     if(digTileFirst)
     {
-        ret.push_back(CreatureActionType::digTile);
+        ret.push_back(CreatureActionType::searchTileToDig);
         ret.push_back(CreatureActionType::claimTile);
     }
     else
     {
         ret.push_back(CreatureActionType::claimTile);
-        ret.push_back(CreatureActionType::digTile);
+        ret.push_back(CreatureActionType::searchTileToDig);
     }
 
     if(!isClaimWallAdded)

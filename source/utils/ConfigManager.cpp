@@ -58,7 +58,8 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
     mDigCoefGold(5.0),
     mDigCoefGem(1.0),
     mNbTurnsKoCreatureAttacked(10),
-    mCreatureDefinitionDefaultWorker(nullptr)
+    mCreatureDefinitionDefaultWorker(nullptr),
+    mNbWorkersDigSameTile(2)
 {
     mCreatureDefinitionDefaultWorker = new CreatureDefinition(DefaultWorkerCreatureDefinition,
         CreatureDefinition::CreatureJob::Worker,
@@ -551,6 +552,13 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mCreatureMoodFurious = Helper::toInt(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "NbWorkersDigSameTile")
+        {
+            configFile >> nextParam;
+            mNbWorkersDigSameTile = Helper::toUInt32(nextParam);
             // Not mandatory
         }
 
