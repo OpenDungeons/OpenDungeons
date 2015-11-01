@@ -912,9 +912,6 @@ void Creature::doUpkeep()
     mVisibleAlliedObjects        = getVisibleAlliedObjects();
     mReachableAlliedObjects      = getReachableAttackableObjects(mVisibleAlliedObjects);
 
-    if (mDigRate > 0.0)
-        updateVisibleMarkedTiles();
-
     // Check if we should compute mood
     if(mMoodCooldownTurns > 0)
     {
@@ -1801,11 +1798,33 @@ bool Creature::handleSearchTileToDigAction(const CreatureActionWrapper& actionIt
     float distBest = -1;
     Tile* tileToDig = nullptr;
     Tile* dest = nullptr;
-    for (Tile* tile : mVisibleMarkedTiles)
+    for (Tile* tile : mTilesWithinSightRadius)
     {
+        // Check to see whether the tile is marked for digging
+        if(!tile->getMarkedForDigging(tempPlayer))
+            continue;
+
+        // and it can be reached by the worker
+        bool isReachable = false;
+        for (Tile* neighborTile : tile->getAllNeighbors())
+        {
+            if(neighborTile->isFullTile())
+                continue;
+
+            if (!getGameMap()->pathExists(this, myTile, neighborTile))
+                continue;
+
+            isReachable = true;
+            break;
+        }
+        if(!isReachable)
+            continue;
+
+        // and there is still room to work on it
         if(!tile->canWorkerDig(*this))
             continue;
 
+        // We search for the closest neighbor tile
         for (Tile* neighborTile : tile->getAllNeighbors())
         {
             if (!getGameMap()->pathExists(this, myTile, neighborTile))
@@ -3581,35 +3600,6 @@ std::vector<GameEntity*> Creature::getCreaturesFromList(const std::vector<GameEn
 std::vector<GameEntity*> Creature::getVisibleAlliedObjects()
 {
     return getVisibleForce(getSeat(), false);
-}
-
-void Creature::updateVisibleMarkedTiles()
-{
-    mVisibleMarkedTiles.clear();
-    Player *player = getGameMap()->getPlayerBySeat(getSeat());
-    if (player == nullptr)
-        return;
-
-    // Loop over all the visible tiles.
-    for (Tile* tile : mTilesWithinSightRadius)
-    {
-        // Check to see whether the tile is marked for digging
-        if (tile == nullptr || !tile->getMarkedForDigging(player))
-            continue;
-
-        // and can be reached by the creature
-        for (Tile* neighborTile : tile->getAllNeighbors())
-        {
-            if (neighborTile == nullptr)
-                continue;
-
-            if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
-            {
-                mVisibleMarkedTiles.push_back(tile);
-                break;
-            }
-        }
-    }
 }
 
 std::vector<Tile*> Creature::getVisibleClaimableWallTiles()

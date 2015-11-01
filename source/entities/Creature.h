@@ -284,9 +284,6 @@ public:
     //! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
     std::vector<GameEntity*> getVisibleAlliedObjects();
 
-    //! \brief Loops over the visibleTiles and updates any which are marked for digging, and are reachable.
-    void updateVisibleMarkedTiles();
-
     //! \brief Loops over the visibleTiles and adds any which are claimable walls.
     std::vector<Tile*> getVisibleClaimableWallTiles();
 
@@ -627,9 +624,6 @@ private:
     //! \brief Only visible tiles, not hidden for other tiles,
     //! used for actions linked to enemies.
     std::vector<Tile*>              mVisibleTiles;
-
-    //! \brief Visible, reachable, marked and diggable tiles.
-    std::vector<Tile*>              mVisibleMarkedTiles;
 
     std::vector<GameEntity*>        mVisibleEnemyObjects;
     std::vector<GameEntity*>        mVisibleAlliedObjects;
