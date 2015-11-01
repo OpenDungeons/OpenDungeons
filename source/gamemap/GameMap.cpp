@@ -1080,24 +1080,6 @@ void GameMap::doTurn(double timeSinceLastTurn)
 
     uint32_t miscUpkeepTime = doMiscUpkeep(timeSinceLastTurn);
 
-    // Count how many creatures the player controls
-    for(Creature* creature : mCreatures)
-    {
-        // Check to see if the creature has died.
-        if (!creature->isAlive())
-            continue;
-
-        Seat *tempSeat = creature->getSeat();
-        if(tempSeat == nullptr)
-            continue;
-
-        // We only count fighters
-        if (creature->getDefinition()->isWorker())
-            ++(tempSeat->mNumCreaturesWorkers);
-        else
-            ++(tempSeat->mNumCreaturesFighters);
-    }
-
     for (Seat* seat : mSeats)
     {
         if(seat->getPlayer() == nullptr)
@@ -1181,6 +1163,24 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
         // Set the creatures count to 0. It will be reset by the next count in doTurn()
         seat->mNumCreaturesFighters = 0;
         seat->mNumCreaturesWorkers = 0;
+    }
+
+    // Count how many creatures the player controls
+    for(Creature* creature : mCreatures)
+    {
+        // Check to see if the creature has died.
+        if (!creature->isAlive())
+            continue;
+
+        Seat *tempSeat = creature->getSeat();
+        if(tempSeat == nullptr)
+            continue;
+
+        // We only count fighters
+        if (creature->getDefinition()->isWorker())
+            ++(tempSeat->mNumCreaturesWorkers);
+        else
+            ++(tempSeat->mNumCreaturesFighters);
     }
 
     // At each upkeep, we re-compute tiles with vision
