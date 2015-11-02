@@ -284,9 +284,6 @@ public:
     //! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
     std::vector<GameEntity*> getVisibleAlliedObjects();
 
-    //! \brief Loops over the visibleTiles and adds any which are claimable walls.
-    std::vector<Tile*> getVisibleClaimableWallTiles();
-
     //! \brief Loops over the visibleTiles and returns any creatures in those tiles
     //! allied with the given seat (or if invert is true, does not allied)
     std::vector<GameEntity*> getVisibleForce(Seat* seat, bool invert);
@@ -737,6 +734,11 @@ private:
     //! This functions will handle the creature claim ground tile action logic.
     //! \return true when another action should handled after that one.
     bool handleClaimGroundTileAction(const CreatureActionWrapper& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature claim wall tile search action logic.
+    //! \return true when another action should handled after that one.
+    bool handleSearchWallTileToClaimAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature claim wall tile action logic.

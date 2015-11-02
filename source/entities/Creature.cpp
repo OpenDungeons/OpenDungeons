@@ -1041,6 +1041,10 @@ void Creature::doUpkeep()
                     loopBack = handleClaimGroundTileAction(topActionItem);
                     break;
 
+                case CreatureActionType::searchWallTileToClaim:
+                    loopBack = handleSearchWallTileToClaimAction(topActionItem);
+                    break;
+
                 case CreatureActionType::claimWallTile:
                     loopBack = handleClaimWallTileAction(topActionItem);
                     break;
@@ -1231,7 +1235,7 @@ bool Creature::handleIdleAction()
             }
             case forcedActionClaimWallTile:
             {
-                pushAction(CreatureActionType::claimWallTile, false, true, false);
+                pushAction(CreatureActionType::searchWallTileToClaim, false, true, false);
                 return true;
             }
             default:
@@ -1648,7 +1652,7 @@ bool Creature::handleClaimGroundTileAction(const CreatureActionWrapper& actionIt
     return false;
 }
 
-bool Creature::handleClaimWallTileAction(const CreatureActionWrapper& actionItem)
+bool Creature::handleSearchWallTileToClaimAction(const CreatureActionWrapper& actionItem)
 {
     if(mClaimRate <= 0.0)
         return false;
@@ -1674,80 +1678,108 @@ bool Creature::handleClaimWallTileAction(const CreatureActionWrapper& actionItem
     }
 
     // See if any of the tiles is one of our neighbors
-    bool wasANeighbor = false;
-    Player* tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
-    for (Tile* tempTile : myTile->getAllNeighbors())
+    Player* tempPlayer = getSeat()->getPlayer();
+    for (Tile* tile : myTile->getAllNeighbors())
     {
-        if(wasANeighbor)
-            break;
-
-        if (tempPlayer == nullptr)
-            break;
-
-        if (tempTile->getMarkedForDigging(tempPlayer))
+        if (tile->getMarkedForDigging(tempPlayer))
+            continue;
+        if (!tile->isWallClaimable(getSeat()))
+            continue;
+        if (!tile->canWorkerClaim(*this))
             continue;
 
-        if (!tempTile->isWallClaimable(getSeat()))
-            continue;
-
-        // Dig out the tile by decreasing the tile's fullness.
-        Ogre::Vector3 walkDirection(tempTile->getX() - getPosition().x, tempTile->getY() - getPosition().y, 0);
-        walkDirection.normalise();
-        setAnimationState(EntityAnimation::claim_anim, true, walkDirection);
-        tempTile->claimForSeat(getSeat(), mClaimRate);
-        receiveExp(1.5 * mClaimRate / 20.0);
-
-        wasANeighbor = true;
-        //std::cout << "Claiming wall" << std::endl;
-        break;
+        pushAction(CreatureActionType::claimWallTile, false, true, false, nullptr, tile, nullptr);
+        return true;
     }
 
-    // If we successfully found a wall tile to claim then we are done for this turn.
-    if (wasANeighbor)
-        return false;
-
     // Find paths to all of the neighbor tiles for all of the visible wall tiles.
-    std::vector<Tile*> wallTiles = getVisibleClaimableWallTiles();
-    if(wallTiles.empty())
+    float distBest = -1;
+    Tile* tileToClaim = nullptr;
+    Tile* dest = nullptr;
+    for(Tile* tile : mTilesWithinSightRadius)
     {
-        mForceAction = forcedActionNone;
+        // Check to see whether the tile is a claimable wall
+        if(tile->getMarkedForDigging(tempPlayer))
+            continue;
+        if(!tile->isWallClaimable(getSeat()))
+            continue;
+        if (!tile->canWorkerClaim(*this))
+            continue;
+
+        // and can be reached by the creature
+        for(Tile* neigh : tile->getAllNeighbors())
+        {
+            if(!getGameMap()->pathExists(this, myTile, neigh))
+                continue;
+
+            float dist = Pathfinding::squaredDistanceTile(*myTile, *neigh);
+            if((distBest != -1) && (distBest <= dist))
+                continue;
+
+            distBest = dist;
+            tileToClaim = tile;
+            dest = neigh;
+        }
+    }
+
+    if((dest != nullptr) && (tileToClaim != nullptr))
+    {
+        std::list<Tile*> pathToDest = getGameMap()->path(this, dest);
+        if(pathToDest.empty())
+        {
+            OD_LOG_ERR("creature=" + getName() + " posTile=" + Tile::displayAsString(myTile) + " empty path to dest tile=" + Tile::displayAsString(dest));
+            popAction();
+            return true;
+        }
+
+        // We also push the dig action to lock the tile to make sure not every worker will try to go to the same tile
+        pushAction(CreatureActionType::claimWallTile, false, true, false, nullptr, tileToClaim, nullptr);
+
+        std::vector<Ogre::Vector3> path;
+        tileToVector3(pathToDest, path, true, 0.0);
+        setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+        pushAction(CreatureActionType::walkToTile, false, true, false);
+        return false;
+    }
+
+    // We couldn't find a tile to claim so we do something else
+    mForceAction = forcedActionNone;
+    popAction();
+    return true;
+}
+
+bool Creature::handleClaimWallTileAction(const CreatureActionWrapper& actionItem)
+{
+    Tile* myTile = getPositionTile();
+    if (myTile == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", pos=" + Helper::toString(getPosition()));
+        popAction();
+        return false;
+    }
+
+    Tile* tileToClaim = actionItem.mTile;
+    if (tileToClaim == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", pos=" + Helper::toString(getPosition()));
+        popAction();
+        return false;
+    }
+
+    // We check if the tile is still claimable
+    if(!tileToClaim->isWallClaimable(getSeat()))
+    {
         popAction();
         return true;
     }
 
-    // Take the shortest path.
-    unsigned int shortestPath = 10000;
-    std::list<Tile*> chosenPath;
-    for (unsigned int i = 0; i < wallTiles.size(); ++i)
-    {
-        for (Tile* neighborTile : wallTiles[i]->getAllNeighbors())
-        {
-            // We have the shortest path already, so don't bother testing anything else.
-            if (shortestPath == 2)
-                break;
+    // Claim the wall tile
+    Ogre::Vector3 walkDirection(tileToClaim->getX() - getPosition().x, tileToClaim->getY() - getPosition().y, 0);
+    walkDirection.normalise();
+    setAnimationState(EntityAnimation::claim_anim, true, walkDirection);
+    tileToClaim->claimForSeat(getSeat(), mClaimRate);
+    receiveExp(1.5 * mClaimRate / 20.0);
 
-            if (!getGameMap()->pathExists(this, getPositionTile(), neighborTile))
-                continue;
-
-            std::list<Tile*> currentPath = getGameMap()->path(this, neighborTile);
-            unsigned int pathLength = currentPath.size();
-            if (pathLength < shortestPath)
-            {
-                shortestPath = pathLength;
-                chosenPath = currentPath;
-            }
-        }
-
-        // We have the shortest path already, so don't bother testing anything else.
-        if (shortestPath == 2)
-            break;
-    }
-
-    // If the path is a legitimate path, walk down it to the tile to be dug out
-    std::vector<Ogre::Vector3> path;
-    tileToVector3(chosenPath, path, true, 0.0);
-    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-    pushAction(CreatureActionType::walkToTile, false, true, false);
     return false;
 }
 
@@ -3601,40 +3633,6 @@ std::vector<GameEntity*> Creature::getCreaturesFromList(const std::vector<GameEn
 std::vector<GameEntity*> Creature::getVisibleAlliedObjects()
 {
     return getVisibleForce(getSeat(), false);
-}
-
-std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
-{
-    std::vector<Tile*> claimableWallTiles;
-
-    // Loop over all the visible tiles.
-    for (Tile* tile : mTilesWithinSightRadius)
-    {
-        // Check to see whether the tile is a claimable wall
-        if (tile == nullptr)
-            continue;
-
-        if (!tile->isWallClaimable(getSeat()))
-            continue;
-
-        if (tile->getMarkedForDigging(getSeat()->getPlayer()))
-            continue;
-
-        // and can be reached by the creature
-        for (Tile* neighborTile : tile->getAllNeighbors())
-        {
-            if (neighborTile == nullptr)
-                continue;
-
-            if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
-            {
-                claimableWallTiles.push_back(tile);
-                break;
-            }
-        }
-    }
-
-    return claimableWallTiles;
 }
 
 std::vector<GameEntity*> Creature::getVisibleForce(Seat* seat, bool invert)
