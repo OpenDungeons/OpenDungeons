@@ -45,6 +45,11 @@ CreatureAction::CreatureAction(Creature& creature, const CreatureActionType acti
             if(mTile != nullptr)
                 mTile->addWorkerDigging(mCreature);
             break;
+        case CreatureActionType::claimGroundTile:
+            OD_ASSERT_TRUE(mTile != nullptr);
+            if(mTile != nullptr)
+                mTile->addWorkerClaiming(mCreature);
+            break;
         case CreatureActionType::attackObject:
             OD_ASSERT_TRUE(mAttackedEntity != nullptr);
             OD_ASSERT_TRUE(mTile != nullptr);
@@ -68,6 +73,10 @@ CreatureAction::~CreatureAction()
         case CreatureActionType::digTile:
             if(mTile != nullptr)
                 mTile->removeWorkerDigging(mCreature);
+            break;
+        case CreatureActionType::claimGroundTile:
+            if(mTile != nullptr)
+                mTile->removeWorkerClaiming(mCreature);
             break;
         default:
             break;
@@ -96,8 +105,11 @@ std::string CreatureAction::toString(CreatureActionType actionType)
     case CreatureActionType::claimWallTile:
         return "claimWallTile";
 
-    case CreatureActionType::claimTile:
-        return "claimTile";
+    case CreatureActionType::searchGroundTileToClaim:
+        return "searchGroundTileToClaim";
+
+    case CreatureActionType::claimGroundTile:
+        return "claimGroundTile";
 
     case CreatureActionType::attackObject:
         return "attackObject";

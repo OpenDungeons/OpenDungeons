@@ -729,9 +729,14 @@ private:
     bool handleWalkToTileAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature claim tile action logic.
+    //! This functions will handle the creature claim ground tile search action logic.
     //! \return true when another action should handled after that one.
-    bool handleClaimTileAction(const CreatureActionWrapper& actionItem);
+    bool handleSearchGroundTileToClaimAction(const CreatureActionWrapper& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature claim ground tile action logic.
+    //! \return true when another action should handled after that one.
+    bool handleClaimGroundTileAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature claim wall tile action logic.

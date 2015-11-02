@@ -628,7 +628,8 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
                     isFighting = true;
                     break;
 
-                case CreatureActionType::claimTile:
+                case CreatureActionType::searchGroundTileToClaim:
+                case CreatureActionType::claimGroundTile:
                     isIdle = false;
                     isClaiming = true;
                     break;

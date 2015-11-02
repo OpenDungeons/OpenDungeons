@@ -1033,8 +1033,12 @@ void Creature::doUpkeep()
                     loopBack = handleWalkToTileAction(topActionItem);
                     break;
 
-                case CreatureActionType::claimTile:
-                    loopBack = handleClaimTileAction(topActionItem);
+                case CreatureActionType::searchGroundTileToClaim:
+                    loopBack = handleSearchGroundTileToClaimAction(topActionItem);
+                    break;
+
+                case CreatureActionType::claimGroundTile:
+                    loopBack = handleClaimGroundTileAction(topActionItem);
                     break;
 
                 case CreatureActionType::claimWallTile:
@@ -1222,7 +1226,7 @@ bool Creature::handleIdleAction()
             }
             case forcedActionClaimTile:
             {
-                pushAction(CreatureActionType::claimTile, false, true, false);
+                pushAction(CreatureActionType::searchGroundTileToClaim, false, true, false);
                 return true;
             }
             case forcedActionClaimWallTile:
@@ -1464,7 +1468,7 @@ bool Creature::handleWalkToTileAction(const CreatureActionWrapper& actionItem)
     return false;
 }
 
-bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
+bool Creature::handleSearchGroundTileToClaimAction(const CreatureActionWrapper& actionItem)
 {
     if(mClaimRate <= 0.0)
         return false;
@@ -1489,25 +1493,20 @@ bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
     }
 
     // See if the tile we are standing on can be claimed
-    if (myTile->isGroundClaimable(getSeat()))
+    if ((myTile->isGroundClaimable(getSeat())) &&
+        (myTile->canWorkerClaim(*this)))
     {
-        //cout << "\nTrying to claim the tile I am standing on.";
         // Check to see if one of the tile's neighbors is claimed for our color
         for (Tile* tempTile : myTile->getAllNeighbors())
         {
             // Check to see if the current neighbor is a claimed ground tile
             if (tempTile->isClaimedForSeat(getSeat()) && (tempTile->getFullness() == 0.0) && tempTile->getClaimedPercentage() >= 1.0)
             {
-                //cout << "\t\tFound a neighbor that is claimed.";
                 // If we found a neighbor that is claimed for our side than we can start
                 // dancing on this tile.  If there is "left over" claiming that can be done
                 // it will spill over into neighboring tiles until it is gone.
-                setAnimationState(EntityAnimation::claim_anim);
-                myTile->claimForSeat(getSeat(), mClaimRate);
-                receiveExp(1.5 * (mClaimRate / (0.35 + 0.05 * getLevel())));
-
-                // Since we danced on a tile we are done for this turn
-                return false;
+                pushAction(CreatureActionType::claimGroundTile, false, true, false, nullptr, myTile, nullptr);
+                return true;
             }
         }
     }
@@ -1517,30 +1516,34 @@ bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
     // Start by checking the neighbor tiles of the one we are already in
     std::vector<Tile*> neighbors = myTile->getAllNeighbors();
     std::random_shuffle(neighbors.begin(), neighbors.end());
-    while (!neighbors.empty())
+    for(Tile* tile : neighbors)
     {
         // If the current neighbor is claimable, walk into it and skip to the end of this turn
-        Tile* tempTile = neighbors.back();
-        neighbors.pop_back();
-        if(tempTile == nullptr)
+        if(tile == nullptr)
             continue;
-        if(tempTile->isFullTile())
+        if(tile->isFullTile())
             continue;
-        if(!tempTile->isGroundClaimable(getSeat()))
+        if(!tile->isGroundClaimable(getSeat()))
             continue;
 
         // The neighbor tile is a potential candidate for claiming, to be an actual candidate
         // though it must have a neighbor of its own that is already claimed for our side.
-        for(Tile* tempTile2 : tempTile->getAllNeighbors())
+        for(Tile* neigh : tile->getAllNeighbors())
         {
-            if(tempTile2->isFullTile())
+            if(neigh->isFullTile())
                 continue;
-            if(!tempTile2->isClaimedForSeat(getSeat()))
+            if(!neigh->isClaimedForSeat(getSeat()))
                 continue;
-            if(tempTile2->getClaimedPercentage() < 1.0)
+            if(neigh->getClaimedPercentage() < 1.0)
+                continue;
+            if(!neigh->canWorkerClaim(*this))
                 continue;
 
-            Ogre::Vector3 dest(static_cast<Ogre::Real>(tempTile->getX()), static_cast<Ogre::Real>(tempTile->getY()), 0.0);
+            // We lock the tile
+            pushAction(CreatureActionType::claimGroundTile, false, true, false, nullptr, neigh, nullptr);
+
+            // And we walk to it
+            Ogre::Vector3 dest(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), 0.0);
             std::vector<Ogre::Vector3> path;
             path.push_back(dest);
             setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
@@ -1549,102 +1552,100 @@ bool Creature::handleClaimTileAction(const CreatureActionWrapper& actionItem)
         }
     }
 
-    // If we still haven't found a tile to claim, check the rest of the accessible tiles in radius
-    std::vector<Tile*> claimableTiles;
-    for (Tile* tempTile : mTilesWithinSightRadius)
+    // If we still haven't found a tile to claim, we try to take the closest one
+    float distBest = -1;
+    Tile* tileToClaim = nullptr;
+    for (Tile* tile : mTilesWithinSightRadius)
     {
         // if this tile is not fully claimed yet or the tile is of another player's color
-        if(tempTile == nullptr)
+        if(tile == nullptr)
             continue;
-        if(tempTile->isFullTile())
+        if(tile->isFullTile())
             continue;
-        if(!tempTile->isGroundClaimable(getSeat()))
+        if(!tile->isGroundClaimable(getSeat()))
+            continue;
+        if(!getGameMap()->pathExists(this, myTile, tile))
+            continue;
+        if(!tile->canWorkerClaim(*this))
+            continue;
+
+        float dist = Pathfinding::squaredDistanceTile(*myTile, *tile);
+        if((distBest != -1) && (distBest <= dist))
             continue;
 
         // Check to see if one of the tile's neighbors is claimed for our color
-        for (Tile* t : tempTile->getAllNeighbors())
+        for (Tile* neigh : tile->getAllNeighbors())
         {
-            if(t->isFullTile())
+            if(neigh->isFullTile())
                 continue;
-            if(!t->isClaimedForSeat(getSeat()))
+            if(!neigh->isClaimedForSeat(getSeat()))
                 continue;
-            if(t->getClaimedPercentage() < 1.0)
-                continue;
-            if(!getGameMap()->pathExists(this, myTile, t))
+            if(neigh->getClaimedPercentage() < 1.0)
                 continue;
 
-            claimableTiles.push_back(t);
+            distBest = dist;
+            tileToClaim = tile;
         }
     }
 
-    // Randomly pick a claimable tile, plot a path to it and walk to it
-    unsigned int tempUnsigned = 0;
-    Tile* tempTile = nullptr;
-    while (!claimableTiles.empty())
+    // Check if we found a tile
+    if(tileToClaim != nullptr)
     {
-        // Randomly find a "good" tile to claim.  A good tile is one that has many neighbors
-        // already claimed, this makes the claimed are more "round" and less jagged.
-        do
+        std::list<Tile*> pathToDest = getGameMap()->path(this, tileToClaim);
+        if(pathToDest.empty())
         {
-            int numNeighborsClaimed = 0;
-
-            // Start by randomly picking a candidate tile.
-            tempTile = claimableTiles[Random::Uint(0, claimableTiles.size() - 1)];
-
-            // Count how many of the candidate tile's neighbors are already claimed.
-            for (Tile* t : tempTile->getAllNeighbors())
-            {
-                if(t->isFullTile())
-                    continue;
-                if(!t->isClaimedForSeat(getSeat()))
-                    continue;
-                if(t->getClaimedPercentage() < 1.0)
-                    continue;
-
-                ++numNeighborsClaimed;
-            }
-
-            // Pick a random number in [0:1], if this number is high enough, than use this tile to claim.  The
-            // bar for success approaches 0 as numTiles approaches N so this will be guaranteed to succeed at,
-            // or before the time we get to the last unclaimed tile.  The bar for success is also lowered
-            // according to how many neighbors are already claimed.
-            //NOTE: The bar can be negative, when this happens we are guaranteed to use this candidate tile.
-            double bar = 1.0 - (numNeighborsClaimed / 4.0) - (tempUnsigned / static_cast<double>(claimableTiles.size() - 1));
-            if (Random::Double(0.0, 1.0) >= bar)
-                break;
-
-            // Safety catch to prevent infinite loop in case the bar for success is too high and is never met.
-            if (tempUnsigned >= claimableTiles.size() - 1)
-                break;
-
-            // Increment the counter indicating how many candidate tiles we have rejected so far.
-            ++tempUnsigned;
-        } while (true);
-
-        if (tempTile != nullptr)
-        {
-            // If we find a valid path to the tile start walking to it and break
-            if (setDestination(tempTile))
-                return false;
+            OD_LOG_ERR("creature=" + getName() + ", posTile=" + Tile::displayAsString(myTile) + " empty path to dest tile=" + Tile::displayAsString(tileToClaim));
+            popAction();
+            return true;
         }
 
-        // If we got to this point, the tile we randomly picked cannot be gotten to via a
-        // valid path.  Delete it from the claimable tiles vector and repeat the outer
-        // loop to try to find another valid tile.
-        for (unsigned int i = 0; i < claimableTiles.size(); ++i)
-        {
-            if (claimableTiles[i] == tempTile)
-            {
-                claimableTiles.erase(claimableTiles.begin() + i);
-                break; // Break out of this for loop.
-            }
-        }
+        // We lock the tile
+        pushAction(CreatureActionType::claimGroundTile, false, true, false, nullptr, tileToClaim, nullptr);
+
+        // And we walk to it
+        std::vector<Ogre::Vector3> path;
+        tileToVector3(pathToDest, path, true, 0.0);
+        setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+        pushAction(CreatureActionType::walkToTile, false, true, false);
+        return false;
     }
 
-    // We couldn't find a tile to try to claim so we start searching for claimable walls
+    // We couldn't find a tile to claim so we do something else
     mForceAction = forcedActionNone;
     popAction();
     return true;
+}
+
+bool Creature::handleClaimGroundTileAction(const CreatureActionWrapper& actionItem)
+{
+    Tile* myTile = getPositionTile();
+    if (myTile == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", pos=" + Helper::toString(getPosition()));
+        popAction();
+        return false;
+    }
+
+    // We check if we are on the expected tile
+    if(myTile != actionItem.mTile)
+    {
+        popAction();
+        return true;
+    }
+
+    // We check if the tile is still claimable
+    if(!myTile->isGroundClaimable(getSeat()))
+    {
+        popAction();
+        return true;
+    }
+
+    setAnimationState(EntityAnimation::claim_anim);
+    myTile->claimForSeat(getSeat(), mClaimRate);
+    receiveExp(1.5 * (mClaimRate / (0.35 + 0.05 * getLevel())));
+
+    // Since we danced on a tile we are done for this turn
+    return false;
 }
 
 bool Creature::handleClaimWallTileAction(const CreatureActionWrapper& actionItem)
@@ -1830,7 +1831,7 @@ bool Creature::handleSearchTileToDigAction(const CreatureActionWrapper& actionIt
             if (!getGameMap()->pathExists(this, myTile, neighborTile))
                 continue;
 
-            float dist = Pathfinding::distanceTile(*myTile, *neighborTile);
+            float dist = Pathfinding::squaredDistanceTile(*myTile, *neighborTile);
             if((distBest != -1) && (distBest <= dist))
                 continue;
 
@@ -1857,7 +1858,7 @@ bool Creature::handleSearchTileToDigAction(const CreatureActionWrapper& actionIt
         tileToVector3(pathToDest, path, true, 0.0);
         setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
         pushAction(CreatureActionType::walkToTile, false, true, false);
-        return true;
+        return false;
     }
 
     // If none of our neighbors are marked for digging we got here too late.

@@ -400,6 +400,8 @@ public:
 
     //! \brief Allows to lock the tile for the workers claiming it. Returns true if the worker could be added
     //! and false otherwise
+    //! Note that by nature, a tile cannot be claimed for wall and ground. Because of that, we can use the same
+    //! functions for both
     bool canWorkerClaim(const Creature& worker);
     bool addWorkerClaiming(const Creature& worker);
     bool removeWorkerClaiming(const Creature& worker);
@@ -502,6 +504,7 @@ private:
     const bool mIsOnServerMap;
 
     uint32_t mNbWorkersDigging;
+    uint32_t mNbWorkersClaiming;
 };
 
 #endif // TILE_H

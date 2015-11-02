@@ -188,6 +188,9 @@ public:
     inline uint32_t getNbWorkersDigSameTile() const
     { return mNbWorkersDigSameTile; }
 
+    inline uint32_t getNbWorkersClaimSameTile() const
+    { return mNbWorkersClaimSameTile; }
+
     //! Returns the tileset for the given name. If the tileset is not found, returns the default tileset
     const TileSet* getTileSet(const std::string& tileSetName) const;
 
@@ -305,6 +308,7 @@ private:
     CreatureDefinition* mCreatureDefinitionDefaultWorker;
 
     uint32_t mNbWorkersDigSameTile;
+    uint32_t mNbWorkersClaimSameTile;
 
     //! \brief Allowed tilesets
     std::map<std::string, const TileSet*> mTileSets;

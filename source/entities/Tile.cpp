@@ -67,7 +67,8 @@ Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, do
     mLocalPlayerHasVision   (false),
     mGameMap(gameMap),
     mIsOnServerMap(isOnServerMap),
-    mNbWorkersDigging(0)
+    mNbWorkersDigging(0),
+    mNbWorkersClaiming(0)
 {
     setSeat(nullptr);
     computeTileVisual();
@@ -123,7 +124,7 @@ bool Tile::isDiggable(const Seat* seat) const
 
 bool Tile::isWallClaimable(Seat* seat)
 {
-    if (getFullness() == 0.0)
+    if (getFullness() <= 0.0)
         return false;
 
     if (mType == TileType::lava || mType == TileType::water || mType == TileType::rock || mType == TileType::gold)
@@ -1804,19 +1805,31 @@ double Tile::getCreatureSpeedDefault(const Creature* creature) const
 
 bool Tile::canWorkerClaim(const Creature& worker)
 {
-    // TODO
-    return true;
+    if(mNbWorkersClaiming < ConfigManager::getSingleton().getNbWorkersClaimSameTile())
+        return true;
+
+    return false;
 }
 
 bool Tile::addWorkerClaiming(const Creature& worker)
 {
-    // TODO
+    if(!canWorkerClaim(worker))
+        return false;
+
+    ++mNbWorkersClaiming;
     return true;
 }
 
 bool Tile::removeWorkerClaiming(const Creature& worker)
 {
-    // TODO
+    // Sanity check
+    if(mNbWorkersClaiming <= 0)
+    {
+        OD_LOG_ERR("Cannot remove worker=" + worker.getName() + ", tile=" + Tile::displayAsString(this));
+        return false;
+    }
+
+    --mNbWorkersClaiming;
     return true;
 }
 

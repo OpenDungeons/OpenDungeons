@@ -59,7 +59,8 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
     mDigCoefGem(1.0),
     mNbTurnsKoCreatureAttacked(10),
     mCreatureDefinitionDefaultWorker(nullptr),
-    mNbWorkersDigSameTile(2)
+    mNbWorkersDigSameTile(2),
+    mNbWorkersClaimSameTile(1)
 {
     mCreatureDefinitionDefaultWorker = new CreatureDefinition(DefaultWorkerCreatureDefinition,
         CreatureDefinition::CreatureJob::Worker,
@@ -559,6 +560,13 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mNbWorkersDigSameTile = Helper::toUInt32(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "NbWorkersClaimSameTile")
+        {
+            configFile >> nextParam;
+            mNbWorkersClaimSameTile = Helper::toUInt32(nextParam);
             // Not mandatory
         }
 
