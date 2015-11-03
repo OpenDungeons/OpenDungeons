@@ -212,4 +212,62 @@ namespace Helper
         std::string imageColours = "tl:" + colourStr + " tr:" + colourStr + " bl:" + colourStr + " br:" + colourStr;
         return imageColours;
     }
+
+    std::string toString(float f, unsigned short precision)
+    {
+        std::ostringstream oss;
+        oss << std::setprecision(precision) << f;
+        return oss.str();
+    }
+    std::string toString(double d, unsigned short precision)
+    {
+        std::ostringstream oss;
+        oss << std::setprecision(precision) << d;
+        return oss.str();
+    }
+    std::string toString(int8_t d)
+    {
+        return std::to_string(d);
+    }
+    std::string toString(uint8_t d)
+    {
+        return std::to_string(d);
+    }
+    std::string toString(int16_t d)
+    {
+        return std::to_string(d);
+    }
+    std::string toString(uint16_t d)
+    {
+        return std::to_string(d);
+    }
+    std::string toString(int32_t d)
+    {
+        return std::to_string(d);
+    }
+    std::string toString(uint32_t d)
+    {
+        return std::to_string(d);
+    }
+    std::string toString(int64_t d)
+    {
+        return std::to_string(d);
+    }
+    std::string toString(uint64_t d)
+    {
+        return std::to_string(d);
+    }
+    std::string toString(const Ogre::Vector3& v)
+    {
+        return "[" + std::to_string(v.x)
+            + "," + std::to_string(v.y)
+            + "," + std::to_string(v.z) + "]";
+    }
+    std::string toString(const Ogre::ColourValue& c)
+    {
+        return "[" + std::to_string(c.r)
+            + "," + std::to_string(c.g)
+            + "," + std::to_string(c.b)
+            + "," + std::to_string(c.a) + "]";
+    }
 } // namespace Helper

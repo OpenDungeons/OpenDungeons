@@ -429,7 +429,7 @@ Command::Result cSetCameraFOVy(const Command::ArgumentList_t& args, ConsoleInter
     Ogre::Camera* cam = ODFrameListener::getSingleton().getCameraManager()->getActiveCamera();
     if(args.size() < 2)
     {
-        c.print("Camera FOVy :" + Helper::toString(cam->getFOVy()));
+        c.print("Camera FOVy :" + Helper::toString(cam->getFOVy().valueDegrees()));
     }
     else
     {
