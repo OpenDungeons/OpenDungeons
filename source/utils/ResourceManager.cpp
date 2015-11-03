@@ -459,6 +459,15 @@ void ResourceManager::takeScreenshot(Ogre::RenderTarget* renderTarget)
     renderTarget->writeContentsToFile(getUserDataPath() + ss.str());
 }
 
+std::string ResourceManager::buildReplayFilename()
+{
+    static std::locale loc(std::wcout.getloc(), new boost::posix_time::time_facet("%Y%m%d_%H%M%S"));
+    std::ostringstream ss;
+    ss.imbue(loc);
+    ss << "replay_" << boost::posix_time::second_clock::local_time() << ".odr";
+    return ss.str();
+}
+
 void ResourceManager::buildCommandOptions(boost::program_options::options_description& desc)
 {
     desc.add_options()

@@ -196,7 +196,11 @@ bool MenuModeEditor::launchSelectedButtonPressed(const CEGUI::EventArgs&)
         tmpWin->show();
     }
 
-    if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
+    int port = ConfigManager::getSingleton().getNetworkPort();
+    uint32_t timeout = ConfigManager::getSingleton().getClientConnectionTimeout();
+    std::string replayFilename = ResourceManager::getSingleton().getReplayDataPath()
+        + ResourceManager::getSingleton().buildReplayFilename();
+    if(!ODClient::getSingleton().connect("localhost", port, timeout, replayFilename))
     {
         OD_LOG_ERR("Could not connect to server for editor !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);

@@ -1045,7 +1045,7 @@ void ODClient::sendToServer(ODPacket& packetToSend)
     send(packetToSend);
 }
 
-bool ODClient::connect(const std::string& host, const int port)
+bool ODClient::connect(const std::string& host, const int port, uint32_t timeout, const std::string& outputReplayFilename)
 {
     mIsPlayerConfig = false;
     // Start the server socket listener as well as the server socket thread
@@ -1055,7 +1055,7 @@ bool ODClient::connect(const std::string& host, const int port)
         return false;
     }
 
-    if(!ODSocketClient::connect(host, port))
+    if(!ODSocketClient::connect(host, port, timeout, outputReplayFilename))
         return false;
 
     // Send a hello request to start the conversation with the server

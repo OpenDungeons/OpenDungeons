@@ -71,7 +71,7 @@ class ODSocketClient
         { return mGameClock.getElapsedTime().asMilliseconds(); }
 
     protected:
-        virtual bool connect(const std::string& host, const int port);
+        virtual bool connect(const std::string& host, const int port, uint32_t timeout, const std::string& outputReplayFilename);
         virtual bool replay(const std::string& filename);
         inline ODSource getSource() const
         { return mSource; }

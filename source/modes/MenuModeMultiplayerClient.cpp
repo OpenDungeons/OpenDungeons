@@ -17,16 +17,17 @@
 
 #include "modes/MenuModeMultiplayerClient.h"
 
-#include "utils/Helper.h"
-#include "render/Gui.h"
-#include "modes/ModeManager.h"
-#include "sound/MusicPlayer.h"
 #include "gamemap/GameMap.h"
-#include "render/ODFrameListener.h"
+#include "modes/ModeManager.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
+#include "render/Gui.h"
+#include "render/ODFrameListener.h"
+#include "sound/MusicPlayer.h"
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/ResourceManager.h"
 
 #include <CEGUI/CEGUI.h>
 #include <boost/locale.hpp>
@@ -114,7 +115,11 @@ bool MenuModeMultiplayerClient::clientButtonPressed(const CEGUI::EventArgs&)
 
     ODFrameListener::getSingleton().getClientGameMap()->setLocalPlayerNick(nick);
 
-    if(!ODClient::getSingleton().connect(ip, ConfigManager::getSingleton().getNetworkPort()))
+    int port = ConfigManager::getSingleton().getNetworkPort();
+    uint32_t timeout = ConfigManager::getSingleton().getClientConnectionTimeout();
+    std::string replayFilename = ResourceManager::getSingleton().getReplayDataPath()
+        + ResourceManager::getSingleton().buildReplayFilename();
+    if(!ODClient::getSingleton().connect(ip, port, timeout, replayFilename))
     {
         // Error while connecting
         infoText->setText("Could not connect to: " + ip);
