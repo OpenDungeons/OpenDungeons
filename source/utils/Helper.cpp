@@ -227,47 +227,47 @@ namespace Helper
     }
     std::string toString(int8_t d)
     {
-        return std::to_string(d);
+        return TTostring(d);
     }
     std::string toString(uint8_t d)
     {
-        return std::to_string(d);
+        return TTostring(d);
     }
     std::string toString(int16_t d)
     {
-        return std::to_string(d);
+        return TTostring(d);
     }
     std::string toString(uint16_t d)
     {
-        return std::to_string(d);
+        return TTostring(d);
     }
     std::string toString(int32_t d)
     {
-        return std::to_string(d);
+        return TTostring(d);
     }
     std::string toString(uint32_t d)
     {
-        return std::to_string(d);
+        return TTostring(d);
     }
     std::string toString(int64_t d)
     {
-        return std::to_string(d);
+        return TTostring(d);
     }
     std::string toString(uint64_t d)
     {
-        return std::to_string(d);
+        return TTostring(d);
     }
     std::string toString(const Ogre::Vector3& v)
     {
-        return "[" + std::to_string(v.x)
-            + "," + std::to_string(v.y)
-            + "," + std::to_string(v.z) + "]";
+        return "[" + TTostring(v.x)
+            + "," + TTostring(v.y)
+            + "," + TTostring(v.z) + "]";
     }
     std::string toString(const Ogre::ColourValue& c)
     {
-        return "[" + std::to_string(c.r)
-            + "," + std::to_string(c.g)
-            + "," + std::to_string(c.b)
-            + "," + std::to_string(c.a) + "]";
+        return "[" + TTostring(c.r)
+            + "," + TTostring(c.g)
+            + "," + TTostring(c.b)
+            + "," + TTostring(c.a) + "]";
     }
 } // namespace Helper
