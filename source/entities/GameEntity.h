@@ -155,6 +155,12 @@ class GameEntity : public EntityBase
     inline bool getIsOnServerMap() const
     { return mIsOnServerMap; }
 
+    inline bool getCarryLock(const Creature& worker) const
+    { return mCarryLock; }
+
+    inline void setCarryLock(const Creature& worker, bool lock)
+    { mCarryLock = lock; }
+
     // ===== METHODS =====
     //! \brief Function that schedules the object destruction. This function should not be called twice
     void deleteYourself();
@@ -306,6 +312,10 @@ class GameEntity : public EntityBase
 
     //! Unique number allowing to have unique names for particle systems attached to this creature
     uint32_t mParticleSystemsNumber;
+
+    //! \brief boolean used by workers to lock the entity so that other workers
+    //! know that they should not consider taking it
+    bool mCarryLock;
 
     const bool mIsOnServerMap;
 

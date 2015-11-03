@@ -738,7 +738,7 @@ std::vector<CreatureActionType> Player::getWorkerPreferredActions(Creature& work
     uint32_t nbWorkersDigging = getNbWorkersDoing(CreatureActionType::searchTileToDig);
     uint32_t nbWorkersClaimingGround = getNbWorkersDoing(CreatureActionType::searchGroundTileToClaim);
     uint32_t nbWorkersClaimingWall = getNbWorkersDoing(CreatureActionType::searchWallTileToClaim);
-    uint32_t nbWorkersCarrying = getNbWorkersDoing(CreatureActionType::carryEntity);
+    uint32_t nbWorkersCarrying = getNbWorkersDoing(CreatureActionType::searchEntityToCarry);
     // For the total number of workers, we consider only those doing something in the wanted list (and not
     // the ones fighting or having nothing to do) + the one we are considering
     uint32_t nbWorkersTotal = nbWorkersDigging + nbWorkersClaimingGround
@@ -750,7 +750,7 @@ std::vector<CreatureActionType> Player::getWorkerPreferredActions(Creature& work
     if(percent <= 0.2)
     {
         isCarryAdded = true;
-        ret.push_back(CreatureActionType::carryEntity);
+        ret.push_back(CreatureActionType::searchEntityToCarry);
     }
 
     bool isClaimWallAdded = false;
@@ -781,7 +781,7 @@ std::vector<CreatureActionType> Player::getWorkerPreferredActions(Creature& work
     if(!isClaimWallAdded)
         ret.push_back(CreatureActionType::searchWallTileToClaim);
     if(!isCarryAdded)
-        ret.push_back(CreatureActionType::carryEntity);
+        ret.push_back(CreatureActionType::searchEntityToCarry);
 
     return ret;
 }

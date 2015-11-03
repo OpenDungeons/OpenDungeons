@@ -378,8 +378,8 @@ public:
     //! (or if enemyCreatures is true, is not allied)
     std::vector<GameEntity*> getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyCreatures);
 
-    //! \brief Loops over the visibleTiles and returns any carryable entity in those tiles
-    std::vector<GameEntity*> getVisibleCarryableEntities(Creature* carrier, const std::vector<Tile*>& visibleTiles);
+    //! \brief Loops over the given tiles and returns any carryable entity in those tiles
+    std::vector<GameEntity*> getCarryableEntities(Creature* carrier, const std::vector<Tile*>& tiles);
 
     //! \brief Checks the neighboor tiles to see if the floodfill can be used. Floodfill consists on tagging all contiguous tiles
     //! to be able to know before computing it if a path exists between 2 tiles. We do that to avoid computing paths when we

@@ -104,7 +104,7 @@ public:
     CreatureActionWrapper(const CreatureAction& action) :
         mType(action.getType()),
         mForced(action.getForcedAction()),
-        mAttackedEntity(action.getAttackedEntity()),
+        mEntity(action.getEntity()),
         mTile(action.getTile()),
         mCreatureSkillData(action.getCreatureSkillData()),
         mNbTurns(action.getNbTurns()),
@@ -114,7 +114,7 @@ public:
 
     const CreatureActionType mType;
     const bool mForced;
-    GameEntity* const mAttackedEntity;
+    GameEntity* const mEntity;
     Tile* const mTile;
     CreatureSkillData* const mCreatureSkillData;
     const int32_t mNbTurns;
@@ -1085,8 +1085,16 @@ void Creature::doUpkeep()
                     loopBack = handleFleeAction(topActionItem);
                     break;
 
+                case CreatureActionType::searchEntityToCarry:
+                    loopBack = handleSearchEntityToCarryAction(topActionItem);
+                    break;
+
+                case CreatureActionType::grabEntity:
+                    loopBack = handleGrabEntityAction(topActionItem);
+                    break;
+
                 case CreatureActionType::carryEntity:
-                    loopBack = handleCarryableEntities(topActionItem);
+                    loopBack = handleCarryEntityAction(topActionItem);
                     break;
 
                 case CreatureActionType::getFee:
@@ -1200,7 +1208,7 @@ bool Creature::handleIdleAction()
         else if(forceCarryObject)
         {
             mForceAction = forcedActionNone;
-            pushAction(CreatureActionType::carryEntity, false, true, true);
+            pushAction(CreatureActionType::searchEntityToCarry, false, true, true);
             return true;
         }
         else if((tileToClaim != nullptr) && (mClaimRate > 0.0))
@@ -1933,7 +1941,10 @@ bool Creature::handleSearchTileToDigAction(const CreatureActionWrapper& actionIt
             }
             if(isTreasuryAvailable)
             {
-                pushAction(CreatureActionType::carryEntity, false, true, false);
+                // We do not push CreatureActionType::searchEntityToCarry because we want
+                // this worker to be count as digging, not as carrying stuff
+                pushAction(CreatureActionType::grabEntity, false, true, false, obj, nullptr, nullptr);
+                return true;
             }
             else if((getSeat() != nullptr) &&
                     (getSeat()->getPlayer() != nullptr) &&
@@ -2069,7 +2080,9 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
 
         if(isTreasuryAvailable)
         {
-            pushAction(CreatureActionType::carryEntity, true, true, false);
+            // We do not push CreatureActionType::searchEntityToCarry because we want
+            // this worker to be count as digging, not as carrying stuff
+            pushAction(CreatureActionType::grabEntity, false, true, false, obj, nullptr, nullptr);
             return true;
         }
 
@@ -2590,8 +2603,8 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
     if (actionItem.mTile == nullptr)
         return true;
 
-    // actionItem.mAttackedEntity can be nullptr if the entity died between the time we started to chase it and the time we strike
-    if(actionItem.mAttackedEntity == nullptr)
+    // actionItem.mEntity can be nullptr if the entity died between the time we started to chase it and the time we strike
+    if(actionItem.mEntity == nullptr)
         return true;
 
     // We check what we are attacking.
@@ -2610,14 +2623,14 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
     float range = Pathfinding::distanceTile(*myTile, *actionItem.mTile);
     if(actionItem.mCreatureSkillData == nullptr)
     {
-        OD_LOG_ERR("creature=" + getName() + ", attackedObject=" + actionItem.mAttackedEntity->getName()
+        OD_LOG_ERR("creature=" + getName() + ", attackedObject=" + actionItem.mEntity->getName()
             + ", myTile=" + Tile::displayAsString(myTile) + ", attackedTile=" + Tile::displayAsString(actionItem.mTile));
         return false;
     }
 
     // We use the skill
     actionItem.mCreatureSkillData->mSkill->tryUseFight(*getGameMap(), this, range,
-        actionItem.mAttackedEntity, actionItem.mTile);
+        actionItem.mEntity, actionItem.mTile);
     actionItem.mCreatureSkillData->mWarmup = actionItem.mCreatureSkillData->mSkill->getWarmupNbTurns();
     actionItem.mCreatureSkillData->mCooldown = actionItem.mCreatureSkillData->mSkill->getCooldownNbTurns();
 
@@ -2642,10 +2655,10 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
     std::vector<GameEntity*> enemyPrioritaryTargets;
     std::vector<GameEntity*> enemySecondaryTargets;
     // If we have a particular target, we attack it. Otherwise, we search for one
-    if((actionItem.mAttackedEntity != nullptr) &&
-       (actionItem.mAttackedEntity->getHP(nullptr) > 0))
+    if((actionItem.mEntity != nullptr) &&
+       (actionItem.mEntity->getHP(nullptr) > 0))
     {
-        enemyPrioritaryTargets.push_back(actionItem.mAttackedEntity);
+        enemyPrioritaryTargets.push_back(actionItem.mEntity);
     }
     else
     {
@@ -3037,7 +3050,7 @@ bool Creature::handleFleeAction(const CreatureActionWrapper& actionItem)
     return false;
 }
 
-bool Creature::handleCarryableEntities(const CreatureActionWrapper& actionItem)
+bool Creature::handleSearchEntityToCarryAction(const CreatureActionWrapper& actionItem)
 {
     Tile* myTile = getPositionTile();
     if(myTile == nullptr)
@@ -3047,151 +3060,245 @@ bool Creature::handleCarryableEntities(const CreatureActionWrapper& actionItem)
         return true;
     }
 
-    // If we are not carrying anything, we check if there is something carryable around
-    if(mCarriedEntity == nullptr)
+    // We should not be carrying something here
+    if(mCarriedEntity != nullptr)
     {
-        std::vector<Building*> buildings = getGameMap()->getReachableBuildingsPerSeat(getSeat(), myTile, this);
-        std::vector<GameEntity*> carryableEntities = getGameMap()->getVisibleCarryableEntities(this, mVisibleTiles);
-        std::vector<Tile*> carryableEntityInMyTileClients;
-        std::vector<GameEntity*> availableEntities;
-        EntityCarryType highestPriority = EntityCarryType::notCarryable;
-        // If a carryable entity of highest priority is in my tile, I proceed it
-        GameEntity* carryableEntityInMyTile = nullptr;
-        for(GameEntity* entity : carryableEntities)
+        OD_LOG_ERR("name=" + getName() + ", mCarriedEntity=" + mCarriedEntity->getName() + ", myTile=" + Tile::displayAsString(myTile));
+        releaseCarriedEntity();
+        popAction();
+        return true;
+    }
+
+    std::vector<Building*> buildings = getGameMap()->getReachableBuildingsPerSeat(getSeat(), myTile, this);
+    std::vector<GameEntity*> carryableEntities = getGameMap()->getCarryableEntities(this, mTilesWithinSightRadius);
+    std::vector<Tile*> carryableEntityInMyTileClients;
+    std::vector<GameEntity*> availableEntities;
+    EntityCarryType highestPriority = EntityCarryType::notCarryable;
+    // If a carryable entity of highest priority is in my tile, I proceed it
+    GameEntity* carryableEntityInMyTile = nullptr;
+    for(GameEntity* entity : carryableEntities)
+    {
+        // We check that the entity is free to be carried
+        if(entity->getCarryLock(*this))
+            continue;
+        // We check that the carryable entity is reachable
+        Tile* carryableEntTile = entity->getPositionTile();
+        if(!getGameMap()->pathExists(this, myTile, carryableEntTile))
+            continue;
+
+        // If we are forced to carry something, we consider only entities on our tile
+        if(actionItem.mForced && (myTile != carryableEntTile))
+            continue;
+
+        // We check if the current entity is highest or equal to the older one (if any)
+        if(entity->getEntityCarryType(this) > highestPriority)
         {
-            // We start by checking that the carryable entity is reachable
-            Tile* carryableEntTile = entity->getPositionTile();
-            if(!getGameMap()->pathExists(this, myTile, carryableEntTile))
-                continue;
-
-            // If we are forced to carry something, we consider only entities on our tile
-            if(actionItem.mForced && (myTile != carryableEntTile))
-                continue;
-
-            // We check if the current entity is highest or equal to the older one (if any)
-            if(entity->getEntityCarryType(this) > highestPriority)
+            // We check if a buildings wants this entity
+            std::vector<Tile*> tilesDest;
+            for(Building* building : buildings)
             {
-                // We check if a buildings wants this entity
-                std::vector<Tile*> tilesDest;
-                for(Building* building : buildings)
+                if(building->hasCarryEntitySpot(entity))
                 {
-                    if(building->hasCarryEntitySpot(entity))
-                    {
-                        Tile* tile = building->getCoveredTile(0);
-                        tilesDest.push_back(tile);
-                    }
-                }
-
-                if(!tilesDest.empty())
-                {
-                    // We found a reachable building for a higher priority entity. We use this from now on
-                    carryableEntityInMyTile = nullptr;
-                    availableEntities.clear();
-                    availableEntities.push_back(entity);
-                    highestPriority = entity->getEntityCarryType(this);
-                    if(myTile == carryableEntTile)
-                    {
-                        carryableEntityInMyTile = entity;
-                        carryableEntityInMyTileClients = tilesDest;
-                    }
+                    Tile* tile = building->getCoveredTile(0);
+                    tilesDest.push_back(tile);
                 }
             }
-            else if(entity->getEntityCarryType(this) == highestPriority)
-            {
-                // We check if a buildings wants this entity
-                std::vector<Tile*> tilesDest;
-                for(Building* building : buildings)
-                {
-                    if(building->hasCarryEntitySpot(entity))
-                    {
-                        Tile* tile = building->getCoveredTile(0);
-                        tilesDest.push_back(tile);
-                    }
-                }
 
-                if(!tilesDest.empty())
+            if(!tilesDest.empty())
+            {
+                // We found a reachable building for a higher priority entity. We use this from now on
+                carryableEntityInMyTile = nullptr;
+                availableEntities.clear();
+                availableEntities.push_back(entity);
+                highestPriority = entity->getEntityCarryType(this);
+                if(myTile == carryableEntTile)
                 {
-                    // We found a reachable building for a higher priority entity. We use this from now on
-                    availableEntities.push_back(entity);
-                    if((myTile == carryableEntTile) &&
-                       (carryableEntityInMyTile == nullptr))
-                    {
-                        carryableEntityInMyTile = entity;
-                        carryableEntityInMyTileClients = tilesDest;
-                    }
+                    carryableEntityInMyTile = entity;
+                    carryableEntityInMyTileClients = tilesDest;
                 }
             }
-            else
-            {
-                // Entity with lower priority. We don't proceed
-            }
         }
-
-        if(availableEntities.empty())
+        else if(entity->getEntityCarryType(this) == highestPriority)
         {
-            // No entity to carry. We can do something else
-            popAction();
-            return true;
-        }
-
-        // If a carryable entity is in my tile, I take it
-        if(carryableEntityInMyTile != nullptr)
-        {
-            // We search for the closest building
-            Tile* tileBuilding = nullptr;
-            getGameMap()->findBestPath(this, myTile, carryableEntityInMyTileClients, tileBuilding);
-            if(tileBuilding == nullptr)
+            // We check if a buildings wants this entity
+            std::vector<Tile*> tilesDest;
+            for(Building* building : buildings)
             {
-                // We couldn't find a way to the building
-                popAction();
-                return true;
+                if(building->hasCarryEntitySpot(entity))
+                {
+                    Tile* tile = building->getCoveredTile(0);
+                    tilesDest.push_back(tile);
+                }
             }
 
-            Building* buildingWants = tileBuilding->getCoveringBuilding();
-            Tile* tileDest = buildingWants->askSpotForCarriedEntity(carryableEntityInMyTile);
-            if(tileDest == nullptr)
+            if(!tilesDest.empty())
             {
-                // The building doesn't want the entity after all
-                popAction();
-                return true;
+                // We found a reachable building for a higher priority entity. We use this from now on
+                availableEntities.push_back(entity);
+                if((myTile == carryableEntTile) &&
+                   (carryableEntityInMyTile == nullptr))
+                {
+                    carryableEntityInMyTile = entity;
+                    carryableEntityInMyTileClients = tilesDest;
+                }
             }
-
-            if(!setDestination(tileDest))
-            {
-                popAction();
-                return true;
-            }
-
-            mCarriedEntityDestType = buildingWants->getObjectType();
-            mCarriedEntityDestName = buildingWants->getName();
-            carryEntity(carryableEntityInMyTile);
-            return false;
         }
-
-        // We randomly choose one of the visible carryable entities
-        uint32_t index = Random::Uint(0,availableEntities.size()-1);
-        GameEntity* entity = availableEntities[index];
-        Tile* t = entity->getPositionTile();
-        if(t == nullptr)
+        else
         {
-            OD_LOG_ERR("entity=" + entity->getName());
-            popAction();
-            return true;
+            // Entity with lower priority. We don't proceed
         }
+    }
 
-        if(!setDestination(t))
-        {
-            popAction();
-            return true;
-        }
+    if(availableEntities.empty())
+    {
+        // No entity to carry. We can do something else
+        popAction();
+        return true;
+    }
 
+    // If a carryable entity is in my tile, I take it
+    if(carryableEntityInMyTile != nullptr)
+    {
+        pushAction(CreatureActionType::grabEntity, false, true, false, carryableEntityInMyTile, nullptr, nullptr);
+        return true;
+    }
+
+    // We randomly choose one of the visible carryable entities
+    uint32_t index = Random::Uint(0,availableEntities.size()-1);
+    GameEntity* entity = availableEntities[index];
+    pushAction(CreatureActionType::grabEntity, false, true, false, entity, nullptr, nullptr);
+    return true;
+}
+
+bool Creature::handleGrabEntityAction(const CreatureActionWrapper& actionItem)
+{
+    Tile* myTile = getPositionTile();
+    if(myTile == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", pos=" + Helper::toString(getPosition()));
+        popAction();
         return false;
     }
 
-    // If we are in this state while carrying something, we should be at the destination
+    GameEntity* entityToCarry = actionItem.mEntity;
+    if(entityToCarry == nullptr)
+    {
+        // entity may be nullptr if it got rotten before we reach it
+        popAction();
+        return false;
+    }
+
+    // We check if we are on the entity position tile. If yes, we carry it to a building
+    // that wants it (if any)
+    Tile* entityTile = entityToCarry->getPositionTile();
+    if(entityTile == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", entityToCarry=" + entityToCarry->getName() + ", entityToCarry pos=" + Helper::toString(entityToCarry->getPosition()));
+        popAction();
+        return false;
+    }
+
+    if(entityTile != myTile)
+    {
+        // We try to go at the given entity
+        setDestination(entityTile);
+        return false;
+    }
+
+    // We try to find a building that wants the entity
+    std::vector<Building*> buildings = getGameMap()->getReachableBuildingsPerSeat(getSeat(), myTile, this);
+    std::vector<Tile*> tilesDest;
+    for(Building* building : buildings)
+    {
+        if(building->hasCarryEntitySpot(entityToCarry))
+        {
+            Tile* tile = building->getCoveredTile(0);
+            tilesDest.push_back(tile);
+        }
+    }
+
+    if(tilesDest.empty())
+    {
+        // No building wants this entity
+        popAction();
+        return true;
+    }
+
+    Tile* tileBuilding = nullptr;
+    getGameMap()->findBestPath(this, myTile, tilesDest, tileBuilding);
+    if(tileBuilding == nullptr)
+    {
+        // We couldn't find a way to the building
+        popAction();
+        return true;
+    }
+
+    Building* buildingWants = tileBuilding->getCoveringBuilding();
+    if(buildingWants == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", entityToCarry=" + entityToCarry->getName() + ", tileBuilding=" + Tile::displayAsString(tileBuilding));
+        popAction();
+        return false;
+    }
+
+    Tile* tileDest = buildingWants->askSpotForCarriedEntity(entityToCarry);
+    if(tileDest == nullptr)
+    {
+        // The building doesn't want the entity after all
+        popAction();
+        return true;
+    }
+
+    popAction();
+    mCarriedEntityDestType = buildingWants->getObjectType();
+    mCarriedEntityDestName = buildingWants->getName();
+    carryEntity(entityToCarry);
+    pushAction(CreatureActionType::carryEntity, false, true, false, entityToCarry, tileDest, nullptr);
+    return true;
+}
+
+bool Creature::handleCarryEntityAction(const CreatureActionWrapper& actionItem)
+{
+    Tile* myTile = getPositionTile();
+    if(myTile == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", pos=" + Helper::toString(getPosition()));
+        popAction();
+        return false;
+    }
+
+    GameEntity* entityToCarry = actionItem.mEntity;
+    if(entityToCarry == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName());
+        popAction();
+        return false;
+    }
+
+    // We check if we are on the entity position tile. If yes, we carry it to a building
+    // that wants it (if any)
+    Tile* tileDest = actionItem.mTile;
+    if(tileDest == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", entityToCarry=" + entityToCarry->getName() + ", myTile=" + Tile::displayAsString(myTile));
+        popAction();
+        return false;
+    }
+
+    if(myTile != tileDest)
+    {
+        if(!setDestination(tileDest))
+        {
+            OD_LOG_ERR("creature=" + getName() + ", myTile=" + Tile::displayAsString(myTile) + ", tileDest=" + Tile::displayAsString(tileDest));
+            popAction();
+        }
+        return false;
+    }
+
+    // We are at the destination tile
     releaseCarriedEntity();
     popAction();
-    return true;
+    return false;
 }
 
 bool Creature::handleGetFee(const CreatureActionWrapper& actionItem)
@@ -3980,7 +4087,7 @@ void Creature::clearActionQueue()
         releaseCarriedEntity();
 }
 
-bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* skillData)
+bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* entity, Tile* tile, CreatureSkillData* skillData)
 {
     if(std::find(mActionTry.begin(), mActionTry.end(), actionType) == mActionTry.end())
     {
@@ -3995,7 +4102,7 @@ bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, 
     if(popCurrentIfPush && !mActionQueue.empty())
         mActionQueue.pop_front();
 
-    mActionQueue.emplace_front(*this, actionType, forceAction, attackedEntity, tile, skillData);
+    mActionQueue.emplace_front(*this, actionType, forceAction, entity, tile, skillData);
     return true;
 }
 

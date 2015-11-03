@@ -24,18 +24,18 @@
 #include "game/Seat.h"
 #include "utils/LogManager.h"
 
-CreatureAction::CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* creatureSkillData) :
+CreatureAction::CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* entity, Tile* tile, CreatureSkillData* creatureSkillData) :
     mCreature(creature),
     mActionType(actionType),
     mForcedAction(forcedAction),
-    mAttackedEntity(attackedEntity),
+    mEntity(entity),
     mTile(tile),
     mCreatureSkillData(creatureSkillData),
     mNbTurns(0),
     mNbTurnsActive(0)
 {
-    if(mAttackedEntity != nullptr)
-        mAttackedEntity->addGameEntityListener(this);
+    if(mEntity != nullptr)
+        mEntity->addGameEntityListener(this);
 
     // We check mandatory items according to action type
     switch(mActionType)
@@ -52,8 +52,14 @@ CreatureAction::CreatureAction(Creature& creature, const CreatureActionType acti
                 mTile->addWorkerClaiming(mCreature);
             break;
         case CreatureActionType::attackObject:
-            OD_ASSERT_TRUE(mAttackedEntity != nullptr);
+            OD_ASSERT_TRUE(mEntity != nullptr);
             OD_ASSERT_TRUE(mTile != nullptr);
+            break;
+        case CreatureActionType::grabEntity:
+        case CreatureActionType::carryEntity:
+            OD_ASSERT_TRUE(mEntity != nullptr);
+            if(mEntity != nullptr)
+                mEntity->setCarryLock(mCreature, true);
             break;
 
         default:
@@ -66,8 +72,8 @@ CreatureAction::CreatureAction(Creature& creature, const CreatureActionType acti
 
 CreatureAction::~CreatureAction()
 {
-    if(mAttackedEntity != nullptr)
-        mAttackedEntity->removeGameEntityListener(this);
+    if(mEntity != nullptr)
+        mEntity->removeGameEntityListener(this);
 
     switch(mActionType)
     {
@@ -80,6 +86,12 @@ CreatureAction::~CreatureAction()
             if(mTile != nullptr)
                 mTile->removeWorkerClaiming(mCreature);
             break;
+        case CreatureActionType::grabEntity:
+        case CreatureActionType::carryEntity:
+            if(mEntity != nullptr)
+                mEntity->setCarryLock(mCreature, false);
+            break;
+
         default:
             break;
     }
@@ -134,6 +146,12 @@ std::string CreatureAction::toString(CreatureActionType actionType)
     case CreatureActionType::flee:
         return "flee";
 
+    case CreatureActionType::searchEntityToCarry:
+        return "searchEntityToCarry";
+
+    case CreatureActionType::grabEntity:
+        return "grabEntity";
+
     case CreatureActionType::carryEntity:
         return "carryEntity";
 
@@ -158,9 +176,9 @@ std::string CreatureAction::getListenerName() const
 
 bool CreatureAction::notifyDead(GameEntity* entity)
 {
-    if(entity == mAttackedEntity)
+    if(entity == mEntity)
     {
-        mAttackedEntity = nullptr;
+        mEntity = nullptr;
         return false;
     }
     return true;
@@ -168,9 +186,9 @@ bool CreatureAction::notifyDead(GameEntity* entity)
 
 bool CreatureAction::notifyRemovedFromGameMap(GameEntity* entity)
 {
-    if(entity == mAttackedEntity)
+    if(entity == mEntity)
     {
-        mAttackedEntity = nullptr;
+        mEntity = nullptr;
         return false;
     }
     return true;
@@ -178,9 +196,9 @@ bool CreatureAction::notifyRemovedFromGameMap(GameEntity* entity)
 
 bool CreatureAction::notifyPickedUp(GameEntity* entity)
 {
-    if(entity == mAttackedEntity)
+    if(entity == mEntity)
     {
-        mAttackedEntity = nullptr;
+        mEntity = nullptr;
         return false;
     }
     return true;

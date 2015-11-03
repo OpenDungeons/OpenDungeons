@@ -42,7 +42,9 @@ enum class CreatureActionType
     job, // (fighters only) Check to see if our seat controls a room where we can work (train, workshop, forge, search, ...)
     eat, // (fighters only) Try to find a hatchery to eat
     flee, // If a fighter is weak (low hp) or a worker is attacked by a fighter, he will flee
-    carryEntity, // (worker only) Carry an entity to a suitable building
+    searchEntityToCarry, // (worker only) Searches around for an entity to carry
+    grabEntity, // (worker only) Try to take the entity to carry
+    carryEntity, // (worker only) Carries the entity to some building needing it
     getFee, // (fighter only) Gets the creature fee
     leaveDungeon, // (fighter only) Try to go to the portal to leave the dungeon
     nb // Must be the last value of this enum
@@ -52,7 +54,7 @@ enum class CreatureActionType
 class CreatureAction : public GameEntityListener
 {
 public:
-    CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* creatureSkillData);
+    CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* entity, Tile* tile, CreatureSkillData* creatureSkillData);
     virtual ~CreatureAction();
 
     inline const CreatureActionType getType() const
@@ -73,8 +75,8 @@ public:
     inline int32_t getNbTurnsActive() const
     { return mNbTurnsActive; }
 
-    inline GameEntity* getAttackedEntity() const
-    { return mAttackedEntity; }
+    inline GameEntity* getEntity() const
+    { return mEntity; }
 
     inline void clearNbTurnsActive()
     { mNbTurnsActive = 0; }
@@ -98,7 +100,7 @@ private:
     Creature& mCreature;
     CreatureActionType mActionType;
     bool mForcedAction;
-    GameEntity* mAttackedEntity;
+    GameEntity* mEntity;
     Tile* mTile;
     CreatureSkillData* mCreatureSkillData;
     //! Number of turns the action is in the creature pending actions

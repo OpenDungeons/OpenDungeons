@@ -48,6 +48,7 @@ GameEntity::GameEntity(
     mGameMap           (gameMap),
     mIsOnMap           (false),
     mParticleSystemsNumber   (0),
+    mCarryLock         (false),
     mIsOnServerMap     (isOnServerMap)
 {
     assert(mGameMap != nullptr);

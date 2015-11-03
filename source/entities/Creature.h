@@ -445,7 +445,7 @@ public:
     //! - popCurrentIfPush: If true and the given action is pushed, before pushing, the current action will be popped
     //! - forcePush: If true, the action will be pushed even if it has already been tried
     //! - forceAction: If true, the action is forced (the creature won't stop doing it until too tired/nothing to do)
-    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
+    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* entity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
     void popAction();
 
     inline double getWakefulness() const
@@ -792,9 +792,21 @@ private:
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature action logic about finding a carryable entity.
-    //! And trying to carry it to a suitable building
     //! \return true when another action should handled after that one.
-    bool handleCarryableEntities(const CreatureActionWrapper& actionItem);
+    bool handleSearchEntityToCarryAction(const CreatureActionWrapper& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature action logic about going to the given
+    //! carryable entity
+    //! \return true when another action should handled after that one.
+    bool handleGrabEntityAction(const CreatureActionWrapper& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature action logic about carrying an entity to its
+    //! destination building. This function assumes the worker is on the carryable
+    //! entity tile
+    //! \return true when another action should handled after that one.
+    bool handleCarryEntityAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature action logic about getting the creature fee.

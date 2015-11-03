@@ -1720,12 +1720,12 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& 
     return returnList;
 }
 
-std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(Creature* carrier, const std::vector<Tile*>& visibleTiles)
+std::vector<GameEntity*> GameMap::getCarryableEntities(Creature* carrier, const std::vector<Tile*>& tiles)
 {
     std::vector<GameEntity*> returnList;
 
     // Loop over the visible tiles
-    for (Tile* tile : visibleTiles)
+    for (Tile* tile : tiles)
     {
         if(tile == nullptr)
         {
