@@ -631,8 +631,6 @@ private:
     //! \brief Contains the actions that have already been tested to avoid trying several times same action
     std::vector<CreatureActionType> mActionTry;
 
-    ForceAction                     mForceAction;
-
     GameEntity*                     mCarriedEntity;
     GameEntityType                  mCarriedEntityDestType;
     std::string                     mCarriedEntityDestName;
