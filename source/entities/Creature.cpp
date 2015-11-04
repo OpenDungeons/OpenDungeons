@@ -72,7 +72,8 @@
 #endif
 
 static const int NB_TURN_FLEE_MAX = 5;
-const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
+static const int32_t NB_TURNS_BEFORE_CHECKING_TASK = 15;
+static const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 
 const uint32_t Creature::NB_OVERLAY_HEALTH_VALUES = 8;
 
@@ -1353,7 +1354,7 @@ bool Creature::handleSearchGroundTileToClaimAction(const CreatureActionWrapper& 
     {
         // If we are claiming tiles for too long, we stop to check if there is
         // something else to do
-        if(actionItem.mNbTurns >= 15)
+        if(actionItem.mNbTurns >= NB_TURNS_BEFORE_CHECKING_TASK)
         {
             popAction();
             return true;
@@ -1516,7 +1517,7 @@ bool Creature::handleSearchWallTileToClaimAction(const CreatureActionWrapper& ac
     {
         // If we are claiming walls for too long, we stop to check if there is
         // something else to do
-        if(actionItem.mNbTurns >= 15)
+        if(actionItem.mNbTurns >= NB_TURNS_BEFORE_CHECKING_TASK)
         {
             popAction();
             return true;
@@ -1667,7 +1668,7 @@ bool Creature::handleSearchTileToDigAction(const CreatureActionWrapper& actionIt
     {
         // If we are digging tiles for too long, we stop to check if there is
         // something else to do
-        if(actionItem.mNbTurns >= 15)
+        if(actionItem.mNbTurns >= NB_TURNS_BEFORE_CHECKING_TASK)
         {
             popAction();
             return true;
