@@ -38,13 +38,6 @@ class ODClient: public Ogre::Singleton<ODClient>,
 
     // CLIENT
 
-    /*! \brief A function which runs on the client to handle communications with the server.
-     *
-     * A single instance of this thread is spawned by the client when it connects
-     * to a server.
-     */
-    void processClientSocketMessages(GameMap& gameMap);
-
     /*! \brief The function which monitors the clientNotificationQueue for new events and informs the server about them.
      *
      * This runs on the client side and acts as a "consumer" on the
@@ -90,11 +83,11 @@ class ODClient: public Ogre::Singleton<ODClient>,
     inline bool getIsPlayerConfig() const
     { return mIsPlayerConfig; }
 
+ protected:
+    bool processMessage(ServerNotificationType cmd, ODPacket& packetReceived) override;
+    void playerDisconnected() override;
+
  private:
-    bool processOneClientSocketMessage();
-
-    void sendToServer(ODPacket& packetToSend);
-
     //! \brief Convenience function to send a chat message.
     void addChatMessage(ChatMessage* chat);
 

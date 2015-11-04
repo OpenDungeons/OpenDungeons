@@ -33,6 +33,7 @@
 #include "modes/ModeManager.h"
 #include "network/ChatEventMessage.h"
 #include "network/ODPacket.h"
+#include "network/ServerMode.h"
 #include "network/ServerNotification.h"
 #include "render/ODFrameListener.h"
 #include "render/RenderManager.h"
@@ -60,16 +61,15 @@ ODClient::~ODClient()
 {
 }
 
-void ODClient::processClientSocketMessages(GameMap& gameMap)
+void ODClient::playerDisconnected()
 {
-    gameMap.processDeletionQueues();
-    // If we receive message for a new turn, after processing every message,
-    // we will refresh what is needed
-    // We loop until no more data is available
-    while(isConnected() && processOneClientSocketMessage());
+    std::string message = getPlayer() ? getPlayer()->getNick() + " disconnected from the server." : "A player disconnected.";
+    // Place an event in the queue to inform the user about the disconnection.
+    addEventMessage(new EventMessage(message));
+    // TODO : try to reconnect to the server
 }
 
-bool ODClient::processOneClientSocketMessage()
+bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceived)
 {
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
 
@@ -77,26 +77,7 @@ bool ODClient::processOneClientSocketMessage()
     if (!gameMap)
         return false;
 
-    if(!isDataAvailable())
-        return false;
-
-    ODPacket packetReceived;
-
-    // Check if data available
-    ODComStatus comStatus = recv(packetReceived);
-    if(comStatus != ODComStatus::OK)
-    {
-        std::string message = getPlayer() ? getPlayer()->getNick() + " disconnected from the server." : "A player disconnected.";
-        // Place an event in the queue to inform the user about the disconnection.
-        addEventMessage(new EventMessage(message));
-        // TODO : try to reconnect to the server
-        return false;
-    }
-
-    ServerNotificationType serverCommand;
-    OD_ASSERT_TRUE(packetReceived >> serverCommand);
-
-    switch(serverCommand)
+    switch(cmd)
     {
         case ServerNotificationType::loadLevel:
         {
@@ -958,7 +939,7 @@ bool ODClient::processOneClientSocketMessage()
         default:
         {
             OD_LOG_ERR("Unknown server command:"
-                + Helper::toString(static_cast<int>(serverCommand)));
+                + Helper::toString(static_cast<int>(cmd)));
             break;
         }
     }
@@ -986,7 +967,7 @@ void ODClient::processClientNotifications()
         {
             // If there are specific things to do before sending, it can be done here
             default:
-                sendToServer(event->mPacket);
+                send(event->mPacket);
                 break;
         }
         delete event;
@@ -1040,11 +1021,6 @@ void ODClient::refreshMainUI(const std::string& goalsString)
     // Note: Later, we can handle other modes here if necessary.
 }
 
-void ODClient::sendToServer(ODPacket& packetToSend)
-{
-    send(packetToSend);
-}
-
 bool ODClient::connect(const std::string& host, const int port, uint32_t timeout, const std::string& outputReplayFilename)
 {
     mIsPlayerConfig = false;
@@ -1062,7 +1038,7 @@ bool ODClient::connect(const std::string& host, const int port, uint32_t timeout
     ODPacket packSend;
     packSend << ClientNotificationType::hello
         << std::string("OpenDungeons V ") + ODApplication::VERSION;
-    sendToServer(packSend);
+    send(packSend);
 
     return true;
 }

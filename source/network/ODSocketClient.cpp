@@ -17,6 +17,7 @@
 
 #include "ODSocketClient.h"
 #include "network/ODPacket.h"
+#include "network/ServerNotification.h"
 
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -200,3 +201,31 @@ bool ODSocketClient::isConnected()
     return mSource != ODSource::none;
 }
 
+void ODSocketClient::processClientSocketMessages()
+{
+    // If we receive message for a new turn, after processing every message,
+    // we will refresh what is needed
+    // We loop until no more data is available
+    while(isConnected() && processOneClientSocketMessage());
+}
+
+bool ODSocketClient::processOneClientSocketMessage()
+{
+    if(!isDataAvailable())
+        return false;
+
+    ODPacket packetReceived;
+
+    // Check if data available
+    ODComStatus comStatus = recv(packetReceived);
+    if(comStatus != ODComStatus::OK)
+    {
+        playerDisconnected();
+        return false;
+    }
+
+    ServerNotificationType serverCommand;
+    OD_ASSERT_TRUE(packetReceived >> serverCommand);
+
+    return processMessage(serverCommand, packetReceived);
+}

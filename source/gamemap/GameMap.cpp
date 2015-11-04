@@ -40,6 +40,7 @@
 #include "goals/Goal.h"
 #include "modes/ModeManager.h"
 #include "network/ODServer.h"
+#include "network/ServerMode.h"
 #include "network/ServerNotification.h"
 #include "render/ODFrameListener.h"
 #include "rooms/Room.h"

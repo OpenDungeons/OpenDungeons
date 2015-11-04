@@ -26,7 +26,6 @@
 
 ODSocketServer::ODSocketServer():
     mThread(nullptr),
-    mNewClient(nullptr),
     mIsConnected(false)
 {
 }
@@ -51,7 +50,6 @@ bool ODSocketServer::createServer(int listeningPort)
     }
 
     mSockSelector.add(mSockListener);
-    mNewClient = new ODSocketClient;
     mIsConnected = true;
     OD_LOG_INF("Server connected and listening");
     mThread = new sf::Thread(&ODSocketServer::serverThread, this);
@@ -91,32 +89,15 @@ void ODSocketServer::doTask(int timeoutMs)
         if(mSockSelector.isReady(mSockListener))
         {
             // New connection
-            sf::Socket::Status status = mSockListener.accept(mNewClient->mSockClient);
-
-            if (status == sf::Socket::Done)
+            ODSocketClient* newClient = notifyNewConnection(mSockListener);
+            if (newClient != nullptr)
             {
                 // New connection
                 OD_LOG_INF("New client connected.");
-                if(notifyNewConnection(mNewClient))
-                {
-                    // The server wants to keep the client
-                    mNewClient->mSource = ODSocketClient::ODSource::network;
-                    mSockSelector.add(mNewClient->mSockClient);
-                    mSockClients.push_back(mNewClient);
-
-                    mNewClient = new ODSocketClient;
-                    OD_LOG_INF("New client accepted.");
-                }
-                else
-                {
-                    OD_LOG_INF("New client refused.");
-                }
-            }
-            else
-            {
-                // Error
-                OD_LOG_ERR("Could not listen to server port error="
-                    + Helper::toString(status));
+                // The server wants to keep the client
+                newClient->setSource(ODSocketClient::ODSource::network);
+                mSockSelector.add(newClient->getSockClient());
+                mSockClients.push_back(newClient);
             }
         }
         else
@@ -125,12 +106,12 @@ void ODSocketServer::doTask(int timeoutMs)
             for(std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end();)
             {
                 ODSocketClient* client = *it;
-                if((mSockSelector.isReady(client->mSockClient)) &&
+                if((mSockSelector.isReady(client->getSockClient())) &&
                     (!notifyClientMessage(client)))
                 {
                     // The server wants to remove the client
                     it = mSockClients.erase(it);
-                    mSockSelector.remove(client->mSockClient);
+                    mSockSelector.remove(client->getSockClient());
                     client->disconnect();
                     delete client;
                 }
@@ -141,16 +122,6 @@ void ODSocketServer::doTask(int timeoutMs)
             }
         }
     }
-}
-
-ODSocketClient::ODComStatus ODSocketServer::receiveMsgFromClient(ODSocketClient* client, ODPacket& packetReceived)
-{
-    return client->recv(packetReceived);
-}
-
-ODSocketClient::ODComStatus ODSocketServer::sendMsgToClient(ODSocketClient* client, ODPacket& packetReceived)
-{
-    return client->send(packetReceived);
 }
 
 void ODSocketServer::stopServer()
@@ -169,14 +140,4 @@ void ODSocketServer::stopServer()
     }
 
     mSockClients.clear();
-    if(mNewClient != nullptr)
-    {
-        delete mNewClient;
-        mNewClient = nullptr;
-    }
-}
-
-void ODSocketServer::setClientState(ODSocketClient* client, const std::string& state)
-{
-    client->setState(state);
 }

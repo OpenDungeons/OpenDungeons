@@ -28,10 +28,10 @@
 
 class Player;
 
+enum class ServerNotificationType;
+
 class ODSocketClient
 {
-    friend class ODSocketServer;
-
     public:
         enum ODComStatus
         {
@@ -61,6 +61,10 @@ class ODSocketClient
         //! \brief Disconnect the client and tell whether to keep the replay file.
         virtual void disconnect(bool keepReplay = false);
 
+        /*! \brief This function should be called periodically. It will
+         */
+        void processClientSocketMessages();
+
         Player* getPlayer() { return mPlayer; }
         void setPlayer(Player* player) { mPlayer = player; }
         int64_t getLastTurnAck() { return mLastTurnAck; }
@@ -70,11 +74,13 @@ class ODSocketClient
         int32_t getGameTimeMillis()
         { return mGameClock.getElapsedTime().asMilliseconds(); }
 
-    protected:
-        virtual bool connect(const std::string& host, const int port, uint32_t timeout, const std::string& outputReplayFilename);
-        virtual bool replay(const std::string& filename);
-        inline ODSource getSource() const
-        { return mSource; }
+        void setState(const std::string& state) {mState = state;}
+
+        sf::TcpSocket& getSockClient()
+        { return mSockClient; }
+
+        void setSource(ODSource source)
+        { mSource = source; }
 
         // Data Transimission
         /*! \brief Sends a packet through the network
@@ -83,6 +89,7 @@ class ODSocketClient
          * nothing less, nothing more). It is up to ODSocketClient to do so.
          */
         ODComStatus send(ODPacket& s);
+
         /*! \brief Receives a packet through the network
          * ODPacket should preserve integrity. That means that if an ODSocketClient
          * sends an ODPacket, the server should receive exactly 1 similar ODPacket (same data,
@@ -90,8 +97,19 @@ class ODSocketClient
          */
         ODComStatus recv(ODPacket& s);
 
+    protected:
+        virtual bool connect(const std::string& host, const int port, uint32_t timeout, const std::string& outputReplayFilename);
+        virtual bool replay(const std::string& filename);
+        inline ODSource getSource() const
+        { return mSource; }
+
+        virtual bool processMessage(ServerNotificationType cmd, ODPacket& packetReceived)
+        { return false; }
+        virtual void playerDisconnected()
+        {}
+
     private :
-        void setState(const std::string& state) {mState = state;}
+        bool processOneClientSocketMessage();
 
         ODSource mSource;
         sf::SocketSelector mSockSelector;
