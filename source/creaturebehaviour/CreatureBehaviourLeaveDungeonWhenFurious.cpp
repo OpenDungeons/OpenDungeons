@@ -57,7 +57,7 @@ bool CreatureBehaviourLeaveDungeonWhenFurious::processBehaviour(Creature& creatu
         creature.clearActionQueue();
         creature.stopJob();
         creature.stopEating();
-        creature.pushAction(CreatureActionType::leaveDungeon, false, true);
+        creature.pushAction(CreatureActionType::leaveDungeon, false, true, false);
     }
 
     // If the creature is furious, it does nothing else

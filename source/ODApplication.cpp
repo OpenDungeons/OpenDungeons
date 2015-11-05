@@ -21,20 +21,21 @@
 
 #include "ODApplication.h"
 
-#include "render/ODFrameListener.h"
-#include "render/TextRenderer.h"
+#include "network/ODServer.h"
+#include "network/ODClient.h"
+#include "network/ServerMode.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
 #include "render/Gui.h"
-#include "utils/ResourceManager.h"
+#include "render/ODFrameListener.h"
+#include "render/TextRenderer.h"
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 #include "utils/LogSinkConsole.h"
 #include "utils/LogSinkFile.h"
 #include "utils/LogSinkOgre.h"
 #include "utils/Random.h"
-#include "utils/ConfigManager.h"
-#include "network/ODServer.h"
-#include "network/ODClient.h"
+#include "utils/ResourceManager.h"
 
 #include <OgreErrorDialog.h>
 #include <OgreRenderWindow.h>

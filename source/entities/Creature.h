@@ -284,12 +284,6 @@ public:
     //! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
     std::vector<GameEntity*> getVisibleAlliedObjects();
 
-    //! \brief Loops over the visibleTiles and updates any which are marked for digging, and are reachable.
-    void updateVisibleMarkedTiles();
-
-    //! \brief Loops over the visibleTiles and adds any which are claimable walls.
-    std::vector<Tile*> getVisibleClaimableWallTiles();
-
     //! \brief Loops over the visibleTiles and returns any creatures in those tiles
     //! allied with the given seat (or if invert is true, does not allied)
     std::vector<GameEntity*> getVisibleForce(Seat* seat, bool invert);
@@ -445,9 +439,13 @@ public:
 
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
-    //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
-    //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
-    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
+    //! tried.
+    //! Parameters:
+    //! - actionType: The action we want to try
+    //! - popCurrentIfPush: If true and the given action is pushed, before pushing, the current action will be popped
+    //! - forcePush: If true, the action will be pushed even if it has already been tried
+    //! - forceAction: If true, the action is forced (the creature won't stop doing it until too tired/nothing to do)
+    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* entity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
     void popAction();
 
     inline double getWakefulness() const
@@ -624,9 +622,6 @@ private:
     //! used for actions linked to enemies.
     std::vector<Tile*>              mVisibleTiles;
 
-    //! \brief Visible, reachable, marked and diggable tiles.
-    std::vector<Tile*>              mVisibleMarkedTiles;
-
     std::vector<GameEntity*>        mVisibleEnemyObjects;
     std::vector<GameEntity*>        mVisibleAlliedObjects;
     std::vector<GameEntity*>        mReachableAlliedObjects;
@@ -635,8 +630,6 @@ private:
 
     //! \brief Contains the actions that have already been tested to avoid trying several times same action
     std::vector<CreatureActionType> mActionTry;
-
-    ForceAction                     mForceAction;
 
     GameEntity*                     mCarriedEntity;
     GameEntityType                  mCarriedEntityDestType;
@@ -723,7 +716,7 @@ private:
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature idle action logic.
     //! \return true when another action should handled after that one.
-    bool handleIdleAction(const CreatureActionWrapper& actionItem);
+    bool handleIdleAction();
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature walking action logic.
@@ -731,9 +724,19 @@ private:
     bool handleWalkToTileAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature claim tile action logic.
+    //! This functions will handle the creature claim ground tile search action logic.
     //! \return true when another action should handled after that one.
-    bool handleClaimTileAction(const CreatureActionWrapper& actionItem);
+    bool handleSearchGroundTileToClaimAction(const CreatureActionWrapper& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature claim ground tile action logic.
+    //! \return true when another action should handled after that one.
+    bool handleClaimGroundTileAction(const CreatureActionWrapper& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature claim wall tile search action logic.
+    //! \return true when another action should handled after that one.
+    bool handleSearchWallTileToClaimAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature claim wall tile action logic.
@@ -741,7 +744,12 @@ private:
     bool handleClaimWallTileAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature dig tile action logic.
+    //! This functions will handle the creature dig tile search action logic.
+    //! \return true when another action should handled after that one.
+    bool handleSearchTileToDigAction(const CreatureActionWrapper& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature dig tile action logic for 1 tile.
     //! \return true when another action should handled after that one.
     bool handleDigTileAction(const CreatureActionWrapper& actionItem);
 
@@ -782,9 +790,21 @@ private:
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature action logic about finding a carryable entity.
-    //! And trying to carry it to a suitable building
     //! \return true when another action should handled after that one.
-    bool handleCarryableEntities(const CreatureActionWrapper& actionItem);
+    bool handleSearchEntityToCarryAction(const CreatureActionWrapper& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature action logic about going to the given
+    //! carryable entity
+    //! \return true when another action should handled after that one.
+    bool handleGrabEntityAction(const CreatureActionWrapper& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature action logic about carrying an entity to its
+    //! destination building. This function assumes the worker is on the carryable
+    //! entity tile
+    //! \return true when another action should handled after that one.
+    bool handleCarryEntityAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature action logic about getting the creature fee.

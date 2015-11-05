@@ -17,19 +17,17 @@
 
 #include "ODSocketClient.h"
 #include "network/ODPacket.h"
+#include "network/ServerNotification.h"
 
-#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
-#include "utils/ResourceManager.h"
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
 
-bool ODSocketClient::connect(const std::string& host, const int port)
+bool ODSocketClient::connect(const std::string& host, const int port, uint32_t timeout, const std::string& outputReplayFilename)
 {
     mSource = ODSource::none;
-    uint32_t timeout = ConfigManager::getSingleton().getClientConnectionTimeout();
 
     // As we use selector, there is no need to set the socket as not-blocking
     sf::Socket::Status status = mSockClient.connect(host, port, sf::milliseconds(timeout));
@@ -42,11 +40,8 @@ bool ODSocketClient::connect(const std::string& host, const int port)
     }
     mSockSelector.add(mSockClient);
     OD_LOG_INF("Connected to server successfully");
-    static std::locale loc(std::wcout.getloc(), new boost::posix_time::time_facet("%Y%m%d_%H%M%S"));
-    std::ostringstream ss;
-    ss.imbue(loc);
-    ss << "replay_" << boost::posix_time::second_clock::local_time();
-    mOutputReplayFilename = ResourceManager::getSingleton().getReplayDataPath() + ss.str() + ".odr";
+
+    mOutputReplayFilename = outputReplayFilename;
 
     mReplayOutputStream.open(mOutputReplayFilename, std::ios::out | std::ios::binary);
     mGameClock.restart();
@@ -206,3 +201,31 @@ bool ODSocketClient::isConnected()
     return mSource != ODSource::none;
 }
 
+void ODSocketClient::processClientSocketMessages()
+{
+    // If we receive message for a new turn, after processing every message,
+    // we will refresh what is needed
+    // We loop until no more data is available
+    while(isConnected() && processOneClientSocketMessage());
+}
+
+bool ODSocketClient::processOneClientSocketMessage()
+{
+    if(!isDataAvailable())
+        return false;
+
+    ODPacket packetReceived;
+
+    // Check if data available
+    ODComStatus comStatus = recv(packetReceived);
+    if(comStatus != ODComStatus::OK)
+    {
+        playerDisconnected();
+        return false;
+    }
+
+    ServerNotificationType serverCommand;
+    OD_ASSERT_TRUE(packetReceived >> serverCommand);
+
+    return processMessage(serverCommand, packetReceived);
+}

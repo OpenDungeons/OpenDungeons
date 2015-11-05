@@ -39,12 +39,11 @@ class ODSocketServer
         virtual void stopServer();
 
     protected:
-        /*! \brief Function called when a new client connects. If it returns true,
-         * the new client will be keeped in the list. If false, the client will be discarded.
-         * As this function is called from the doTask context, it shall return as soon as
-         * possible (no communication with the client should be done).
+        /*! \brief Function called when a new client connects. If the server returns an ODSocketClient,
+         *! it will be added to the client list
          */
-        virtual bool notifyNewConnection(ODSocketClient *sock) = 0;
+        virtual ODSocketClient* notifyNewConnection(sf::TcpListener& sockListener) = 0;
+
         /*! \brief Function called when a client sends a message. As this function is called
          * from the doTask context, it shall return as soon as possible (we should not send
          * a message and wait actively for its answer). The proper way of communicating should be :
@@ -65,10 +64,7 @@ class ODSocketServer
          * timeoutMs milliseconds, even if new clients connected or clients are sending messages.
          */
         void doTask(int timeoutMs);
-        ODSocketClient::ODComStatus receiveMsgFromClient(ODSocketClient* client, ODPacket& packetReceived);
-        ODSocketClient::ODComStatus sendMsgToClient(ODSocketClient* client, ODPacket& packetReceived);
         std::vector<ODSocketClient*> mSockClients;
-        void setClientState(ODSocketClient* client, const std::string& state);
         virtual void serverThread() = 0;
         sf::Thread* mThread;
 
@@ -76,7 +72,6 @@ class ODSocketServer
         sf::TcpListener mSockListener;
         sf::SocketSelector mSockSelector;
         sf::Clock mClockMainTask;
-        ODSocketClient* mNewClient;
         bool mIsConnected;
 };
 

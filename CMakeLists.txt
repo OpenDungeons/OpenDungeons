@@ -384,6 +384,7 @@ set(OD_SOURCEFILES
     ${SRC}/network/ODServer.cpp
     ${SRC}/network/ODSocketClient.cpp
     ${SRC}/network/ODSocketServer.cpp
+    ${SRC}/network/ServerMode.cpp
     ${SRC}/network/ServerNotification.cpp
 
     ${SRC}/render/CreatureOverlayStatus.cpp

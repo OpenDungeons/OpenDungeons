@@ -16,45 +16,93 @@
  */
 
 #include "entities/CreatureAction.h"
-#include "entities/Creature.h"
 
+#include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
+#include "entities/Tile.h"
+#include "game/Player.h"
+#include "game/Seat.h"
 #include "utils/LogManager.h"
 
-CreatureAction::CreatureAction(Creature* creature, const CreatureActionType actionType, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* creatureSkillData) :
+CreatureAction::CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* entity, Tile* tile, CreatureSkillData* creatureSkillData) :
     mCreature(creature),
     mActionType(actionType),
-    mAttackedEntity(attackedEntity),
+    mForcedAction(forcedAction),
+    mEntity(entity),
     mTile(tile),
     mCreatureSkillData(creatureSkillData),
     mNbTurns(0),
     mNbTurnsActive(0)
 {
-    OD_ASSERT_TRUE(mCreature != nullptr);
-    if(mAttackedEntity != nullptr)
-        mAttackedEntity->addGameEntityListener(this);
+    if(mEntity != nullptr)
+        mEntity->addGameEntityListener(this);
 
     // We check mandatory items according to action type
     switch(mActionType)
     {
-        case CreatureActionType::attackObject:
-            OD_ASSERT_TRUE(mAttackedEntity != nullptr);
+        case CreatureActionType::digTile:
             OD_ASSERT_TRUE(mTile != nullptr);
+            if(mTile != nullptr)
+                mTile->addWorkerDigging(mCreature);
+            break;
+        case CreatureActionType::claimGroundTile:
+        case CreatureActionType::claimWallTile:
+            OD_ASSERT_TRUE(mTile != nullptr);
+            if(mTile != nullptr)
+                mTile->addWorkerClaiming(mCreature);
+            break;
+        case CreatureActionType::attackObject:
+            OD_ASSERT_TRUE(mEntity != nullptr);
+            OD_ASSERT_TRUE(mTile != nullptr);
+            break;
+        case CreatureActionType::grabEntity:
+        case CreatureActionType::carryEntity:
+            OD_ASSERT_TRUE(mEntity != nullptr);
+            if(mEntity != nullptr)
+                mEntity->setCarryLock(mCreature, true);
             break;
 
         default:
             break;
     }
+
+    if(mCreature.getDefinition()->isWorker())
+        mCreature.getSeat()->getPlayer()->notifyWorkerAction(mCreature, mActionType);
 }
 
 CreatureAction::~CreatureAction()
 {
-    if(mAttackedEntity != nullptr)
-        mAttackedEntity->removeGameEntityListener(this);
+    if(mEntity != nullptr)
+        mEntity->removeGameEntityListener(this);
+
+    switch(mActionType)
+    {
+        case CreatureActionType::digTile:
+            if(mTile != nullptr)
+                mTile->removeWorkerDigging(mCreature);
+            break;
+        case CreatureActionType::claimGroundTile:
+        case CreatureActionType::claimWallTile:
+            if(mTile != nullptr)
+                mTile->removeWorkerClaiming(mCreature);
+            break;
+        case CreatureActionType::grabEntity:
+        case CreatureActionType::carryEntity:
+            if(mEntity != nullptr)
+                mEntity->setCarryLock(mCreature, false);
+            break;
+
+        default:
+            break;
+    }
+
+    if(mCreature.getDefinition()->isWorker())
+        mCreature.getSeat()->getPlayer()->notifyWorkerStopsAction(mCreature, mActionType);
 }
 
-std::string CreatureAction::toString() const
+std::string CreatureAction::toString(CreatureActionType actionType)
 {
-    switch (mActionType)
+    switch (actionType)
     {
     case CreatureActionType::walkToTile:
         return "walkToTile";
@@ -62,14 +110,23 @@ std::string CreatureAction::toString() const
     case CreatureActionType::fight:
         return "fight";
 
+    case CreatureActionType::searchTileToDig:
+        return "searchTileToDig";
+
     case CreatureActionType::digTile:
         return "digTile";
+
+    case CreatureActionType::searchWallTileToClaim:
+        return "searchWallTileToClaim";
 
     case CreatureActionType::claimWallTile:
         return "claimWallTile";
 
-    case CreatureActionType::claimTile:
-        return "claimTile";
+    case CreatureActionType::searchGroundTileToClaim:
+        return "searchGroundTileToClaim";
+
+    case CreatureActionType::claimGroundTile:
+        return "claimGroundTile";
 
     case CreatureActionType::attackObject:
         return "attackObject";
@@ -77,38 +134,29 @@ std::string CreatureAction::toString() const
     case CreatureActionType::findHome:
         return "findHome";
 
-    case CreatureActionType::findHomeForced:
-        return "findHomeForced";
-
     case CreatureActionType::sleep:
         return "sleep";
 
-    case CreatureActionType::jobdecided:
-        return "jobdecided";
+    case CreatureActionType::job:
+        return "job";
 
-    case CreatureActionType::jobforced:
-        return "jobforced";
-
-    case CreatureActionType::eatdecided:
-        return "eatdecided";
-
-    case CreatureActionType::eatforced:
-        return "eatforced";
+    case CreatureActionType::eat:
+        return "eat";
 
     case CreatureActionType::flee:
         return "flee";
 
+    case CreatureActionType::searchEntityToCarry:
+        return "searchEntityToCarry";
+
+    case CreatureActionType::grabEntity:
+        return "grabEntity";
+
     case CreatureActionType::carryEntity:
         return "carryEntity";
 
-    case CreatureActionType::carryEntityForced:
-        return "carryEntityForced";
-
     case CreatureActionType::getFee:
         return "getFee";
-
-    case CreatureActionType::idle:
-        return "idle";
 
     case CreatureActionType::leaveDungeon:
         return "leaveDungeon";
@@ -118,19 +166,19 @@ std::string CreatureAction::toString() const
         break;
     }
 
-    return "unhandledAct";
+    return "unhandledAct=" + Helper::toString(static_cast<uint32_t>(actionType));
 }
 
 std::string CreatureAction::getListenerName() const
 {
-    return "Action" + mCreature->getName() + toString();
+    return "Action" + mCreature.getName() + toString(mActionType);
 }
 
 bool CreatureAction::notifyDead(GameEntity* entity)
 {
-    if(entity == mAttackedEntity)
+    if(entity == mEntity)
     {
-        mAttackedEntity = nullptr;
+        mEntity = nullptr;
         return false;
     }
     return true;
@@ -138,9 +186,9 @@ bool CreatureAction::notifyDead(GameEntity* entity)
 
 bool CreatureAction::notifyRemovedFromGameMap(GameEntity* entity)
 {
-    if(entity == mAttackedEntity)
+    if(entity == mEntity)
     {
-        mAttackedEntity = nullptr;
+        mEntity = nullptr;
         return false;
     }
     return true;
@@ -148,9 +196,9 @@ bool CreatureAction::notifyRemovedFromGameMap(GameEntity* entity)
 
 bool CreatureAction::notifyPickedUp(GameEntity* entity)
 {
-    if(entity == mAttackedEntity)
+    if(entity == mEntity)
     {
-        mAttackedEntity = nullptr;
+        mEntity = nullptr;
         return false;
     }
     return true;
@@ -160,6 +208,6 @@ bool CreatureAction::notifyDropped(GameEntity* entity)
 {
     // That should not happen. For now, we only require events for attacked creatures. And when they
     // are picked up, we should have cleared the action queue
-    OD_LOG_ERR("name=" + mCreature->getName() + ", entity=" + entity->getName());
+    OD_LOG_ERR("name=" + mCreature.getName() + ", entity=" + entity->getName());
     return true;
 }

@@ -125,32 +125,18 @@ namespace Helper
     inline Ogre::Real toReal(const std::string& text)
     { return Ogre::StringConverter::parseReal(text); }
 
-    inline std::string toString(float f, unsigned short precision = 6)
-    { return Ogre::StringConverter::toString(f, precision); }
-    inline std::string toString(double d, unsigned short precision = 6)
-    { return Ogre::StringConverter::toString(d, precision); }
-    inline std::string toString(int8_t d)
-    { return Ogre::StringConverter::toString(d); }
-    inline std::string toString(uint8_t d)
-    { return Ogre::StringConverter::toString(d); }
-    inline std::string toString(int16_t d)
-    { return Ogre::StringConverter::toString(d); }
-    inline std::string toString(uint16_t d)
-    { return Ogre::StringConverter::toString(d); }
-    inline std::string toString(int32_t d)
-    { return Ogre::StringConverter::toString(d); }
-    inline std::string toString(uint32_t d)
-    { return Ogre::StringConverter::toString(d); }
-    inline std::string toString(int64_t d)
-    { return TTostring(d); }
-    inline std::string toString(uint64_t d)
-    { return TTostring(d); }
-    inline std::string toString(const Ogre::Vector3& v)
-    { return Ogre::StringConverter::toString(v); }
-    inline std::string toString(const Ogre::Radian& r)
-    { return Ogre::StringConverter::toString(r); }
-    inline std::string toString(const Ogre::ColourValue& c)
-    { return Ogre::StringConverter::toString(c); }
+    std::string toString(float f, unsigned short precision = 6);
+    std::string toString(double d, unsigned short precision = 6);
+    std::string toString(int8_t d);
+    std::string toString(uint8_t d);
+    std::string toString(int16_t d);
+    std::string toString(uint16_t d);
+    std::string toString(int32_t d);
+    std::string toString(uint32_t d);
+    std::string toString(int64_t d);
+    std::string toString(uint64_t d);
+    std::string toString(const Ogre::Vector3& v);
+    std::string toString(const Ogre::ColourValue& c);
 
     //! \brief Converts a pointer to displayable string. Useful for debug
     std::string toString(void* p);

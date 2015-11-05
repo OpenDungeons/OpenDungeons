@@ -30,34 +30,38 @@ enum class CreatureActionType
 {
     walkToTile, // Calculate a path to the tile and follow it each turn.
     fight, // When seeing enemy objects, the creature might decide to fight
-    digTile, // (worker only) Dig out a tile, i.e. decrease its fullness.
-    claimTile, // (worker only) "Dance" on tile to change its color.
-    claimWallTile, // (worker only) "Dance" next to wall tile to change its color and set it as reinforced.
+    searchTileToDig, // (worker only) Searches a tile to dig
+    digTile, // (worker only) Digs a tile
+    searchGroundTileToClaim, // (worker only) Searches a ground tile to claim
+    claimGroundTile, // (worker only) "Dance" on tile to change its color.
+    searchWallTileToClaim, // (worker only) Searches a wall tile to claim
+    claimWallTile, // (worker only) "Dance" around the tile to change its color and reinforce it.
     attackObject, // Do damage to an attackableObject within range, if not in range begin maneuvering.
     findHome, // (fighters only) Try to find a "home" tile in a dormitory somewhere where the creature can sleep.
-    findHomeForced, // Try to find a "home" tile in the dormitory where the creature is
     sleep, // (fighters only) Try to go to its home tile to and sleep when it gets there.
-    jobdecided, // (fighters only) Check to see if our seat controls a room where we can work (train, workshop, forge, search, ...)
-    jobforced, // (fighters only)Check to see if we have been dropped on a room where we can work
-    eatdecided, // (fighters only) Try to find a hatchery to eat
-    eatforced, // (fighters only) Force eating if the creature is dropped in a hatchery
+    job, // (fighters only) Check to see if our seat controls a room where we can work (train, workshop, forge, search, ...)
+    eat, // (fighters only) Try to find a hatchery to eat
     flee, // If a fighter is weak (low hp) or a worker is attacked by a fighter, he will flee
-    carryEntity, // (worker only) Carry an entity to a suitable building
-    carryEntityForced, // (worker only) Carry an entity to a suitable building
+    searchEntityToCarry, // (worker only) Searches around for an entity to carry
+    grabEntity, // (worker only) Try to take the entity to carry
+    carryEntity, // (worker only) Carries the entity to some building needing it
     getFee, // (fighter only) Gets the creature fee
     leaveDungeon, // (fighter only) Try to go to the portal to leave the dungeon
-    idle // Stand around doing nothing.
+    nb // Must be the last value of this enum
 };
 
 //! \brief A data structure to be used in the creature AI calculations.
 class CreatureAction : public GameEntityListener
 {
 public:
-    CreatureAction(Creature* creature, const CreatureActionType actionType, GameEntity* attackedEntity, Tile* tile, CreatureSkillData* creatureSkillData);
+    CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* entity, Tile* tile, CreatureSkillData* creatureSkillData);
     virtual ~CreatureAction();
 
     inline const CreatureActionType getType() const
     { return mActionType; }
+
+    inline bool getForcedAction() const
+    { return mForcedAction; }
 
     inline void increaseNbTurn()
     { ++mNbTurns; }
@@ -71,8 +75,8 @@ public:
     inline int32_t getNbTurnsActive() const
     { return mNbTurnsActive; }
 
-    inline GameEntity* getAttackedEntity() const
-    { return mAttackedEntity; }
+    inline GameEntity* getEntity() const
+    { return mEntity; }
 
     inline void clearNbTurnsActive()
     { mNbTurnsActive = 0; }
@@ -83,19 +87,20 @@ public:
     inline CreatureSkillData* getCreatureSkillData() const
     { return mCreatureSkillData; }
 
-    std::string toString() const;
-
     std::string getListenerName() const override;
     bool notifyDead(GameEntity* entity) override;
     bool notifyRemovedFromGameMap(GameEntity* entity) override;
     bool notifyPickedUp(GameEntity* entity) override;
     bool notifyDropped(GameEntity* entity) override;
 
+    static std::string toString(CreatureActionType actionType);
+
 private:
     CreatureAction(const CreatureAction&) = delete;
-    Creature* mCreature;
+    Creature& mCreature;
     CreatureActionType mActionType;
-    GameEntity* mAttackedEntity;
+    bool mForcedAction;
+    GameEntity* mEntity;
     Tile* mTile;
     CreatureSkillData* mCreatureSkillData;
     //! Number of turns the action is in the creature pending actions

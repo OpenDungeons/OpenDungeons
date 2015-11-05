@@ -65,7 +65,7 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
 
         creature.clearDestinations(EntityAnimation::idle_anim, true);
         creature.clearActionQueue();
-        creature.pushAction(CreatureActionType::flee, false, true);
+        creature.pushAction(CreatureActionType::flee, false, true, false);
         return true;
     }
 
@@ -77,7 +77,7 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
 
         creature.clearDestinations(EntityAnimation::idle_anim, true);
         creature.clearActionQueue();
-        creature.pushAction(CreatureActionType::flee, false, true);
+        creature.pushAction(CreatureActionType::flee, false, true, false);
         return true;
     }
 

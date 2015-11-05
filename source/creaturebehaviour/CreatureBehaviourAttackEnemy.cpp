@@ -66,7 +66,7 @@ bool CreatureBehaviourAttackEnemy::processBehaviour(Creature& creature) const
             {
                 creature.clearDestinations(EntityAnimation::idle_anim, true);
                 creature.clearActionQueue();
-                creature.pushAction(CreatureActionType::flee, false, true);
+                creature.pushAction(CreatureActionType::flee, false, true, false);
                 return false;
             }
             break;
@@ -78,7 +78,7 @@ bool CreatureBehaviourAttackEnemy::processBehaviour(Creature& creature) const
     // If we are not already fighting with a creature then start doing so.
     creature.clearDestinations(EntityAnimation::idle_anim, true);
     creature.clearActionQueue();
-    creature.pushAction(CreatureActionType::fight, false, true);
+    creature.pushAction(CreatureActionType::fight, false, true, false);
 
     return false;
 }

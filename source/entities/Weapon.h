@@ -27,10 +27,18 @@ class WeaponDefinition;
 
 class Weapon
 {
-    friend class ODClient;
 public:
     Weapon(const std::string& name) :
        mName(name),
+       mPhysicalDamage(0.0),
+       mMagicalDamage(0.0),
+       mElementDamage(0.0),
+       mPhysicalDefense(0.0),
+       mMagicalDefense(0.0),
+       mElementDefense(0.0)
+    {}
+
+    Weapon() :
        mPhysicalDamage(0.0),
        mMagicalDamage(0.0),
        mElementDamage(0.0),
@@ -82,15 +90,6 @@ public:
     friend ODPacket& operator >>(ODPacket& is, Weapon *weapon);
 
 private:
-    Weapon() :
-       mPhysicalDamage(0.0),
-       mMagicalDamage(0.0),
-       mElementDamage(0.0),
-       mPhysicalDefense(0.0),
-       mMagicalDefense(0.0),
-       mElementDefense(0.0)
-    {}
-
     std::string     mName;
     //! \brief the Weapon name this class extends. Can be empty if no class extended
     std::string     mBaseDefinition;

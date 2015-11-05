@@ -80,6 +80,8 @@ public:
     //! \brief saves a screenshot
     void takeScreenshot(Ogre::RenderTarget* renderTarget);
 
+    std::string buildReplayFilename();
+
     inline const std::string& getGameDataPath() const
     { return mGameDataPath; }
 

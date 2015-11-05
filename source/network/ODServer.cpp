@@ -30,6 +30,7 @@
 #include "gamemap/MapLoader.h"
 #include "modes/ServerConsoleCommands.h"
 #include "network/ODClient.h"
+#include "network/ServerMode.h"
 #include "network/ServerNotification.h"
 #include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
@@ -213,7 +214,7 @@ void ODServer::sendMsg(Player* player, ODPacket& packet)
     {
         // If player is nullptr, we send the message to every connected player
         for (ODSocketClient* client : mSockClients)
-            sendMsgToClient(client, packet);
+            client->send(packet);
 
         return;
     }
@@ -230,7 +231,7 @@ void ODServer::sendMsg(Player* player, ODPacket& packet)
     }
 
     if(client != nullptr)
-        sendMsgToClient(client, packet);
+        client->send(packet);
 }
 
 void ODServer::queueConsoleCommand(ServerConsoleCommand* cc)
@@ -535,7 +536,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
     ODPacket packetReceived;
 
-    ODSocketClient::ODComStatus status = receiveMsgFromClient(clientSocket, packetReceived);
+    ODSocketClient::ODComStatus status = clientSocket->recv(packetReceived);
 
     // If the client closed the connection
     if (status != ODSocketClient::ODComStatus::OK)
@@ -579,7 +580,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             mPlayerConfig = otherHumanConnected->getPlayer();
             ODPacket packetSend;
             packetSend << ServerNotificationType::playerConfigChange;
-            sendMsgToClient(otherHumanConnected, packetSend);
+            otherHumanConnected->send(packetSend);
 
             OD_LOG_INF("Changing game host to " + mPlayerConfig->getNick());
         }
@@ -608,7 +609,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             // Tell the client to load the given map
             OD_LOG_INF("Level sent to client: " + gameMap->getLevelName());
-            setClientState(clientSocket, "loadLevel");
+            clientSocket->setState("loadLevel");
             int32_t mapSizeX = gameMap->getMapSizeX();
             int32_t mapSizeY = gameMap->getMapSizeY();
 
@@ -700,7 +701,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 gameMap->tileToPacket(packet, tile);
             }
 
-            sendMsgToClient(clientSocket, packet);
+            clientSocket->send(packet);
             break;
         }
 
@@ -709,11 +710,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(std::string("loadLevel").compare(clientSocket->getState()) != 0)
                 return false;
 
-            setClientState(clientSocket, "nick");
+            clientSocket->setState("nick");
             // Tell the client to give us their nickname
             ODPacket packetSend;
             packetSend << ServerNotificationType::pickNick << mServerMode;
-            sendMsgToClient(clientSocket, packetSend);
+            clientSocket->send(packetSend);
             break;
         }
 
@@ -733,7 +734,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             curPlayer->setNick(clientNick);
             curPlayer->setIsHuman(true);
             clientSocket->setPlayer(curPlayer);
-            setClientState(clientSocket, "ready");
+            clientSocket->setState("ready");
 
             OD_LOG_INF("Player id: " + Helper::toString(playerId) + " nickname is: " + clientNick);
 
@@ -755,7 +756,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 mPlayerConfig = curPlayer;
                 ODPacket packetSend;
                 packetSend << ServerNotificationType::playerConfigChange;
-                sendMsgToClient(clientSocket, packetSend);
+                clientSocket->send(packetSend);
             }
 
             Seat* seat = seats[0];
@@ -772,11 +773,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int32_t teamId = 0;
             seat->setMapSize(gameMap->getMapSizeX(), gameMap->getMapSizeY());
             packetSend << nick << id << seatId << teamId;
-            sendMsgToClient(clientSocket, packetSend);
+            clientSocket->send(packetSend);
 
             packetSend.clear();
             packetSend << ServerNotificationType::startGameMode << seatId << mServerMode;
-            sendMsgToClient(clientSocket, packetSend);
+            clientSocket->send(packetSend);
             mSeatsConfigured = true;
             break;
         }
@@ -793,7 +794,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 OD_LOG_INF("New player host: " + mPlayerConfig->getNick());
                 ODPacket packetSend;
                 packetSend << ServerNotificationType::playerConfigChange;
-                sendMsgToClient(clientSocket, packetSend);
+                clientSocket->send(packetSend);
             }
 
             ODPacket packetSend;
@@ -807,7 +808,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 int32_t id = client->getPlayer()->getId();
                 packetSend << nick << id;
             }
-            sendMsgToClient(clientSocket, packetSend);
+            clientSocket->send(packetSend);
 
             // Then, we notify the newly connected client to every client
             const std::string& clientNick = clientSocket->getPlayer()->getNick();
@@ -821,7 +822,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 if(clientSocket == client)
                     continue;
 
-                sendMsgToClient(client, packetSend);
+                client->send(packetSend);
             }
 
             // Then we look for the first available human seat and assign the player there (if available)
@@ -1018,8 +1019,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     OD_LOG_INF("Rejecting player id="
                         + Helper::toString(player->getId())
                         + ", nick=" + player->getNick());
-                    setClientState(client, "rejected");
-                    sendMsgToClient(client, packetSend);
+                    client->setState("rejected");
+                    client->send(packetSend);
                     delete player;
                     client->setPlayer(nullptr);
                 }
@@ -1046,7 +1047,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 ODPacket packetSend;
                 int seatId = client->getPlayer()->getSeat()->getId();
                 packetSend << ServerNotificationType::startGameMode << seatId << mServerMode;
-                sendMsgToClient(client, packetSend);
+                client->send(packetSend);
             }
 
             for(Seat* seat : gameMap->getSeats())
@@ -1721,31 +1722,45 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
     return true;
 }
 
-bool ODServer::notifyNewConnection(ODSocketClient *clientSocket)
+ODSocketClient* ODServer::notifyNewConnection(sf::TcpListener& sockListener)
 {
+    ODSocketClient* newClient = new ODSocketClient;
+    sf::Socket::Status status = sockListener.accept(newClient->getSockClient());
+    if (status != sf::Socket::Done)
+    {
+        OD_LOG_ERR("Error while listening to socket status=" + Helper::toString(static_cast<uint32_t>(status)));
+        delete newClient;
+        return nullptr;
+    }
+
     switch(mServerState)
     {
         case ServerState::StateNone:
         {
             // It is not normal to receive new connexions while not connected. We are in an unexpected state
             OD_LOG_ERR("Unexpected none server mode");
-            return false;
+            delete newClient;
+            return nullptr;
         }
         case ServerState::StateConfiguration:
         {
-            setClientState(clientSocket, "connected");
-            return true;
+            newClient->setState("connected");
+            return newClient;
         }
         case ServerState::StateGame:
         {
             // TODO : handle re-connexion if a client was disconnected and tries to reconnect
-            return false;
+            OD_LOG_WRN("Received a reconnexion from a client while in game state");
+            delete newClient;
+            return nullptr;
         }
         default:
+            OD_LOG_ERR("Unexpected server state=" + Helper::toString(static_cast<uint32_t>(mServerState)));
             break;
     }
 
-    return false;
+    delete newClient;
+    return nullptr;
 }
 
 bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
@@ -1908,19 +1923,5 @@ ODPacket& operator>>(ODPacket& is, EventShortNoticeType& type)
     int32_t tmp;
     OD_ASSERT_TRUE(is >> tmp);
     type = static_cast<EventShortNoticeType>(tmp);
-    return is;
-}
-
-ODPacket& operator<<(ODPacket& os, const ServerMode& sm)
-{
-    os << static_cast<int32_t>(sm);
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, ServerMode& sm)
-{
-    int32_t tmp;
-    is >> tmp;
-    sm = static_cast<ServerMode>(tmp);
     return is;
 }

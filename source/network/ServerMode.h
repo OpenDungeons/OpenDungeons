@@ -15,21 +15,29 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "entities/Building.h"
-#include "entities/Creature.h"
-#include "entities/GameEntity.h"
-#include "entities/Tile.h"
-#include "entities/TreasuryObject.h"
-#include "game/Player.h"
-#include "game/Seat.h"
-#include "gamemap/GameMap.h"
-#include "network/ODPacket.h"
-#include "network/ODServer.h"
-#include "network/ServerNotification.h"
-#include "render/RenderManager.h"
-#include "rooms/Room.h"
-#include "sound/SoundEffectsManager.h"
-#include "traps/Trap.h"
-#include "utils/ConfigManager.h"
-#include "utils/Helper.h"
-#include "utils/LogManager.h"
+#ifndef SERVERMODE_H
+#define SERVERMODE_H
+
+#include <string>
+
+class ODPacket;
+
+enum class ServerMode
+{
+    ModeNone,
+    ModeGameSinglePlayer,
+    ModeGameMultiPlayer,
+    ModeGameLoaded,
+    ModeEditor
+};
+
+ODPacket& operator<<(ODPacket& os, const ServerMode& sm);
+ODPacket& operator>>(ODPacket& is, ServerMode& sm);
+
+namespace ServerModes
+{
+    std::string toString(ServerMode sm);
+}
+
+#endif // SERVERMODE_H
+

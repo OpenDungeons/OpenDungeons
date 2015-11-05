@@ -32,6 +32,7 @@ class Research;
 class Seat;
 class Tile;
 
+enum class CreatureActionType;
 enum class SpellType;
 
 enum class PlayerEventType
@@ -212,6 +213,17 @@ public:
     //! \brief Called each time a frame is displayed. Called on client side
     void frameStarted(float timeSinceLastFrame);
 
+    //! \brief Called when a worker picks up a new action
+    void notifyWorkerAction(Creature& worker, CreatureActionType actionType);
+    void notifyWorkerStopsAction(Creature& worker, CreatureActionType actionType);
+
+    //! \brief Returns how many workers are doing the given action
+    uint32_t getNbWorkersDoing(CreatureActionType actionType) const;
+
+    //! \brief Returns a list of the actions the worker should do based on what the other workers
+    //! of this seat are doing. The worker should try the actions on the given order
+    std::vector<CreatureActionType> getWorkerPreferredActions(Creature& worker) const;
+
 private:
     //! \brief Player ID is only used during seat configuration phase
     //! During the game, one should use the seat ID to identify a player because
@@ -253,6 +265,10 @@ private:
     //! 1 turn duration at each refresh)
     //! Note that the second value is used on client side only
     std::vector<std::pair<uint32_t, float>> mSpellsCooldown;
+
+    //! \brief Used to know what the workers are doing. That will help to change
+    //! probability to choose the action to do
+    std::vector<uint32_t> mWorkersActions;
 
     //! \brief A simple mutator function to put the given entity into the player's hand,
     //! note this should NOT be called directly for creatures on the map,

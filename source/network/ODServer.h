@@ -26,14 +26,7 @@ class ServerNotification;
 class GameMap;
 class ServerConsoleCommand;
 
-enum class ServerMode
-{
-    ModeNone,
-    ModeGameSinglePlayer,
-    ModeGameMultiPlayer,
-    ModeGameLoaded,
-    ModeEditor
-};
+enum class ServerMode;
 
 //! \brief An enum used to know what kind of game event it is.
 enum class EventShortNoticeType : int32_t
@@ -47,9 +40,6 @@ enum class EventShortNoticeType : int32_t
 
 ODPacket& operator<<(ODPacket& os, const EventShortNoticeType& type);
 ODPacket& operator>>(ODPacket& is, EventShortNoticeType& type);
-
-ODPacket& operator<<(ODPacket& os, const ServerMode& sm);
-ODPacket& operator>>(ODPacket& is, ServerMode& sm);
 
 /**
  * When playing single player or multiplayer, there is always one reference gamemap. It is
@@ -107,9 +97,9 @@ class ODServer: public Ogre::Singleton<ODServer>,
     bool waitEndGame();
 
 protected:
-    bool notifyNewConnection(ODSocketClient *sock);
-    bool notifyClientMessage(ODSocketClient *sock);
-    void serverThread();
+    ODSocketClient* notifyNewConnection(sf::TcpListener& sockListener) override;
+    bool notifyClientMessage(ODSocketClient *sock) override;
+    void serverThread() override;
 
 private:
     uint32_t mUniqueNumberPlayer;

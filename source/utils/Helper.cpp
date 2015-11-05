@@ -212,4 +212,62 @@ namespace Helper
         std::string imageColours = "tl:" + colourStr + " tr:" + colourStr + " bl:" + colourStr + " br:" + colourStr;
         return imageColours;
     }
+
+    std::string toString(float f, unsigned short precision)
+    {
+        std::ostringstream oss;
+        oss << std::setprecision(precision) << f;
+        return oss.str();
+    }
+    std::string toString(double d, unsigned short precision)
+    {
+        std::ostringstream oss;
+        oss << std::setprecision(precision) << d;
+        return oss.str();
+    }
+    std::string toString(int8_t d)
+    {
+        return TTostring(d);
+    }
+    std::string toString(uint8_t d)
+    {
+        return TTostring(d);
+    }
+    std::string toString(int16_t d)
+    {
+        return TTostring(d);
+    }
+    std::string toString(uint16_t d)
+    {
+        return TTostring(d);
+    }
+    std::string toString(int32_t d)
+    {
+        return TTostring(d);
+    }
+    std::string toString(uint32_t d)
+    {
+        return TTostring(d);
+    }
+    std::string toString(int64_t d)
+    {
+        return TTostring(d);
+    }
+    std::string toString(uint64_t d)
+    {
+        return TTostring(d);
+    }
+    std::string toString(const Ogre::Vector3& v)
+    {
+        return "[" + TTostring(v.x)
+            + "," + TTostring(v.y)
+            + "," + TTostring(v.z) + "]";
+    }
+    std::string toString(const Ogre::ColourValue& c)
+    {
+        return "[" + TTostring(c.r)
+            + "," + TTostring(c.g)
+            + "," + TTostring(c.b)
+            + "," + TTostring(c.a) + "]";
+    }
 } // namespace Helper

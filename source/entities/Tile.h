@@ -398,6 +398,19 @@ public:
 
     double getCreatureSpeedDefault(const Creature* creature) const;
 
+    //! \brief Allows to lock the tile for the workers claiming it. Returns true if the worker could be added
+    //! and false otherwise
+    //! Note that by nature, a tile cannot be claimed for wall and ground. Because of that, we can use the same
+    //! functions for both
+    bool canWorkerClaim(const Creature& worker);
+    bool addWorkerClaiming(const Creature& worker);
+    bool removeWorkerClaiming(const Creature& worker);
+    //! \brief Allows to lock the tile for the workers claiming it. Returns true if the worker could be added
+    //! and false otherwise
+    bool canWorkerDig(const Creature& worker);
+    bool addWorkerDigging(const Creature& worker);
+    bool removeWorkerDigging(const Creature& worker);
+
     static void exportToStream(Tile* tile, std::ostream& os);
 
     virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const override;
@@ -489,6 +502,9 @@ private:
     GameMap* mGameMap;
 
     const bool mIsOnServerMap;
+
+    uint32_t mNbWorkersDigging;
+    uint32_t mNbWorkersClaiming;
 };
 
 #endif // TILE_H

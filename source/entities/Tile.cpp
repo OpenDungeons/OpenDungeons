@@ -66,7 +66,9 @@ Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, do
     mHasBridge          (false),
     mLocalPlayerHasVision   (false),
     mGameMap(gameMap),
-    mIsOnServerMap(isOnServerMap)
+    mIsOnServerMap(isOnServerMap),
+    mNbWorkersDigging(0),
+    mNbWorkersClaiming(0)
 {
     setSeat(nullptr);
     computeTileVisual();
@@ -122,7 +124,7 @@ bool Tile::isDiggable(const Seat* seat) const
 
 bool Tile::isWallClaimable(Seat* seat)
 {
-    if (getFullness() == 0.0)
+    if (getFullness() <= 0.0)
         return false;
 
     if (mType == TileType::lava || mType == TileType::water || mType == TileType::rock || mType == TileType::gold)
@@ -1799,6 +1801,66 @@ double Tile::getCreatureSpeedDefault(const Creature* creature) const
         default:
             return 0.0;
     }
+}
+
+bool Tile::canWorkerClaim(const Creature& worker)
+{
+    if(mNbWorkersClaiming < ConfigManager::getSingleton().getNbWorkersClaimSameTile())
+        return true;
+
+    return false;
+}
+
+bool Tile::addWorkerClaiming(const Creature& worker)
+{
+    if(!canWorkerClaim(worker))
+        return false;
+
+    ++mNbWorkersClaiming;
+    return true;
+}
+
+bool Tile::removeWorkerClaiming(const Creature& worker)
+{
+    // Sanity check
+    if(mNbWorkersClaiming <= 0)
+    {
+        OD_LOG_ERR("Cannot remove worker=" + worker.getName() + ", tile=" + Tile::displayAsString(this));
+        return false;
+    }
+
+    --mNbWorkersClaiming;
+    return true;
+}
+
+bool Tile::canWorkerDig(const Creature& worker)
+{
+    if(mNbWorkersDigging < ConfigManager::getSingleton().getNbWorkersDigSameTile())
+        return true;
+
+    return false;
+}
+
+bool Tile::addWorkerDigging(const Creature& worker)
+{
+    if(!canWorkerDig(worker))
+        return false;
+
+    ++mNbWorkersDigging;
+    return true;
+}
+
+bool Tile::removeWorkerDigging(const Creature& worker)
+{
+    // Sanity check
+    if(mNbWorkersDigging <= 0)
+    {
+        OD_LOG_ERR("Cannot remove worker=" + worker.getName() + ", tile=" + Tile::displayAsString(this));
+        return false;
+    }
+
+    --mNbWorkersDigging;
+    return true;
 }
 
 std::string Tile::displayAsString(const Tile* tile)

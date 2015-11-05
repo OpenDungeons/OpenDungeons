@@ -40,6 +40,7 @@
 #include "goals/Goal.h"
 #include "modes/ModeManager.h"
 #include "network/ODServer.h"
+#include "network/ServerMode.h"
 #include "network/ServerNotification.h"
 #include "render/ODFrameListener.h"
 #include "rooms/Room.h"
@@ -254,7 +255,13 @@ void GameMap::clearAll()
     // NOTE : clearRenderedMovableEntities should be called after clearRooms because clearRooms will try to remove the objects from the room
     clearRenderedMovableEntities();
     clearSpells();
+
+    processActiveObjectsChanges();
+    processDeletionQueues();
+
     clearTiles();
+    processActiveObjectsChanges();
+    processDeletionQueues();
 
     clearGoalsForAllSeats();
     clearSeats();
@@ -268,9 +275,6 @@ void GameMap::clearAll()
     resetUniqueNumbers();
     mIsFOWActivated = true;
     mTimePayDay = 0;
-
-    processActiveObjectsChanges();
-    processDeletionQueues();
 
     // We check if the different vectors are empty
     if(!mActiveObjects.empty())
@@ -625,17 +629,18 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
                     isFighting = true;
                     break;
 
-                case CreatureActionType::claimTile:
+                case CreatureActionType::searchGroundTileToClaim:
+                case CreatureActionType::claimGroundTile:
                     isIdle = false;
                     isClaiming = true;
                     break;
 
+                case CreatureActionType::searchTileToDig:
                 case CreatureActionType::digTile:
                     isIdle = false;
                     isDigging = true;
                     break;
 
-                case CreatureActionType::idle:
                 case CreatureActionType::walkToTile:
                     // We do nothing
                     break;
@@ -740,15 +745,12 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
                     isFleeing = true;
                     break;
 
-                case CreatureActionType::eatdecided:
-                case CreatureActionType::eatforced:
-                case CreatureActionType::jobdecided:
-                case CreatureActionType::jobforced:
+                case CreatureActionType::eat:
+                case CreatureActionType::job:
                     isIdle = false;
                     isBusy = true;
                     break;
 
-                case CreatureActionType::idle:
                 case CreatureActionType::walkToTile:
                     // We do nothing
                     break;
@@ -1084,24 +1086,6 @@ void GameMap::doTurn(double timeSinceLastTurn)
 
     uint32_t miscUpkeepTime = doMiscUpkeep(timeSinceLastTurn);
 
-    // Count how many creatures the player controls
-    for(Creature* creature : mCreatures)
-    {
-        // Check to see if the creature has died.
-        if (!creature->isAlive())
-            continue;
-
-        Seat *tempSeat = creature->getSeat();
-        if(tempSeat == nullptr)
-            continue;
-
-        // We only count fighters
-        if (creature->getDefinition()->isWorker())
-            ++(tempSeat->mNumCreaturesWorkers);
-        else
-            ++(tempSeat->mNumCreaturesFighters);
-    }
-
     for (Seat* seat : mSeats)
     {
         if(seat->getPlayer() == nullptr)
@@ -1185,6 +1169,24 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
         // Set the creatures count to 0. It will be reset by the next count in doTurn()
         seat->mNumCreaturesFighters = 0;
         seat->mNumCreaturesWorkers = 0;
+    }
+
+    // Count how many creatures the player controls
+    for(Creature* creature : mCreatures)
+    {
+        // Check to see if the creature has died.
+        if (!creature->isAlive())
+            continue;
+
+        Seat *tempSeat = creature->getSeat();
+        if(tempSeat == nullptr)
+            continue;
+
+        // We only count fighters
+        if (creature->getDefinition()->isWorker())
+            ++(tempSeat->mNumCreaturesWorkers);
+        else
+            ++(tempSeat->mNumCreaturesFighters);
     }
 
     // At each upkeep, we re-compute tiles with vision
@@ -1719,12 +1721,12 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& 
     return returnList;
 }
 
-std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(Creature* carrier, const std::vector<Tile*>& visibleTiles)
+std::vector<GameEntity*> GameMap::getCarryableEntities(Creature* carrier, const std::vector<Tile*>& tiles)
 {
     std::vector<GameEntity*> returnList;
 
     // Loop over the visible tiles
-    for (Tile* tile : visibleTiles)
+    for (Tile* tile : tiles)
     {
         if(tile == nullptr)
         {

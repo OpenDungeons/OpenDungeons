@@ -196,7 +196,8 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
     printDebugInfo();
 
-    ODClient::getSingleton().processClientSocketMessages(*mGameMap.get());
+    mGameMap.get()->processDeletionQueues();
+    ODClient::getSingleton().processClientSocketMessages();
     ODClient::getSingleton().processClientNotifications();
 
     return mContinue;
