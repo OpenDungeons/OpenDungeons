@@ -1542,7 +1542,6 @@ bool Creature::handleSearchWallTileToClaimAction(const CreatureActionWrapper& ac
     // Find paths to all of the neighbor tiles for all of the visible wall tiles.
     float distBest = -1;
     Tile* tileToClaim = nullptr;
-    Tile* dest = nullptr;
     for(Tile* tile : mTilesWithinSightRadius)
     {
         // Check to see whether the tile is a claimable wall
@@ -1565,11 +1564,10 @@ bool Creature::handleSearchWallTileToClaimAction(const CreatureActionWrapper& ac
 
             distBest = dist;
             tileToClaim = tile;
-            dest = neigh;
         }
     }
 
-    if((dest != nullptr) && (tileToClaim != nullptr))
+    if(tileToClaim != nullptr)
     {
         // We also push the dig action to lock the tile to make sure not every worker will try to go to the same tile
         pushAction(CreatureActionType::claimWallTile, false, true, false, nullptr, tileToClaim, nullptr);
@@ -1698,11 +1696,14 @@ bool Creature::handleSearchTileToDigAction(const CreatureActionWrapper& actionIt
     // Find the closest tile to dig
     float distBest = -1;
     Tile* tileToDig = nullptr;
-    Tile* dest = nullptr;
     for (Tile* tile : mTilesWithinSightRadius)
     {
         // Check to see whether the tile is marked for digging
         if(!tile->getMarkedForDigging(tempPlayer))
+            continue;
+
+        // and there is still room to work on it
+        if(!tile->canWorkerDig(*this))
             continue;
 
         // and it can be reached by the worker
@@ -1721,10 +1722,6 @@ bool Creature::handleSearchTileToDigAction(const CreatureActionWrapper& actionIt
         if(!isReachable)
             continue;
 
-        // and there is still room to work on it
-        if(!tile->canWorkerDig(*this))
-            continue;
-
         // We search for the closest neighbor tile
         for (Tile* neighborTile : tile->getAllNeighbors())
         {
@@ -1737,85 +1734,65 @@ bool Creature::handleSearchTileToDigAction(const CreatureActionWrapper& actionIt
 
             distBest = dist;
             tileToDig = tile;
-            dest = neighborTile;
         }
     }
 
-    if((dest != nullptr) && (tileToDig != nullptr))
+    if(tileToDig != nullptr)
     {
-        std::list<Tile*> pathToDest = getGameMap()->path(this, dest);
-        if(pathToDest.empty())
-        {
-            OD_LOG_ERR("creature=" + getName() + " posTile=" + Tile::displayAsString(myTile) + " empty path to dest tile=" + Tile::displayAsString(dest));
-            popAction();
-            return true;
-        }
-
         // We also push the dig action to lock the tile to make sure not every worker will try to go to the same tile
         pushAction(CreatureActionType::digTile, false, true, false, nullptr, tileToDig, nullptr);
-
-        std::vector<Ogre::Vector3> path;
-        tileToVector3(pathToDest, path, true, 0.0);
-        setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-        pushAction(CreatureActionType::walkToTile, false, true, false);
-        return false;
+        return true;
     }
 
     // If none of our neighbors are marked for digging we got here too late.
     // Finish digging
-    bool isDigging = isActionInList(CreatureActionType::searchTileToDig);
-    if (isDigging)
+    popAction();
+    if(mGoldCarried > 0)
     {
-        popAction();
-        if(mGoldCarried > 0)
+        TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
+        mGoldCarried = 0;
+        Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
+        obj->addToGameMap();
+        obj->createMesh();
+        obj->setPosition(pos);
+
+        bool isTreasuryAvailable = false;
+        for(Room* room : getGameMap()->getRooms())
         {
-            TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
-            mGoldCarried = 0;
-            Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
-            obj->addToGameMap();
-            obj->createMesh();
-            obj->setPosition(pos);
+            if(room->getSeat() != getSeat())
+                continue;
 
-            bool isTreasuryAvailable = false;
-            for(Room* room : getGameMap()->getRooms())
-            {
-                if(room->getSeat() != getSeat())
-                    continue;
+            if(room->getTotalGoldStorage() <= 0)
+                continue;
 
-                if(room->getTotalGoldStorage() <= 0)
-                    continue;
+            if(room->getTotalGoldStored() >= room->getTotalGoldStorage())
+                continue;
 
-                if(room->getTotalGoldStored() >= room->getTotalGoldStorage())
-                    continue;
+            if(room->numCoveredTiles() <= 0)
+                continue;
 
-                if(room->numCoveredTiles() <= 0)
-                    continue;
+            Tile* tile = room->getCoveredTile(0);
+            if(!getGameMap()->pathExists(this, myTile, tile))
+                continue;
 
-                Tile* tile = room->getCoveredTile(0);
-                if(!getGameMap()->pathExists(this, myTile, tile))
-                    continue;
-
-                isTreasuryAvailable = true;
-                break;
-            }
-            if(isTreasuryAvailable)
-            {
-                // We do not push CreatureActionType::searchEntityToCarry because we want
-                // this worker to be count as digging, not as carrying stuff
-                pushAction(CreatureActionType::grabEntity, false, true, false, obj, nullptr, nullptr);
-                return true;
-            }
-            else if((getSeat() != nullptr) &&
-                    (getSeat()->getPlayer() != nullptr) &&
-                    (getSeat()->getPlayer()->getIsHuman()))
-            {
-                getSeat()->getPlayer()->notifyNoTreasuryAvailable();
-            }
+            isTreasuryAvailable = true;
+            break;
         }
-
-        return true;
+        if(isTreasuryAvailable)
+        {
+            // We do not push CreatureActionType::searchEntityToCarry because we want
+            // this worker to be count as digging, not as carrying stuff
+            pushAction(CreatureActionType::grabEntity, false, true, false, obj, nullptr, nullptr);
+            return true;
+        }
+        else if((getSeat() != nullptr) &&
+                (getSeat()->getPlayer()->getIsHuman()))
+        {
+            getSeat()->getPlayer()->notifyNoTreasuryAvailable();
+        }
     }
-    return false;
+
+    return true;
 }
 
 bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
@@ -1844,7 +1821,40 @@ bool Creature::handleDigTileAction(const CreatureActionWrapper& actionItem)
         return true;
     }
 
+    // We check if we are on a claimed tile next to the tile to claim
+    Tile* tileDest = nullptr;
+    float distBest = -1;
+    for(Tile* tile : tileDig->getAllNeighbors())
+    {
+        // We look for the closest allowed tile
+        if(tile->isFullTile())
+            continue;
+        if(!getGameMap()->pathExists(this, myTile, tile))
+            continue;
+        float dist = Pathfinding::squaredDistanceTile(*myTile, *tile);
+        if((distBest != -1) && (distBest <= dist))
+            continue;
 
+        distBest = dist,
+        tileDest = tile;
+    }
+
+    if(tileDest == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", myTile=" + Tile::displayAsString(myTile) + ", tileDig=" + Tile::displayAsString(tileDig));
+        popAction();
+        return true;
+    }
+
+    if(tileDest != myTile)
+    {
+        if(!setDestination(tileDest))
+        {
+            OD_LOG_ERR("creature=" + getName() + ", myTile=" + Tile::displayAsString(myTile) + ", tileDig=" + Tile::displayAsString(tileDig) + ", tileDest=" + Tile::displayAsString(tileDest));
+            popAction();
+        }
+        return true;
+    }
 
     // Dig out the tile by decreasing the tile's fullness.
     Ogre::Vector3 walkDirection(tileDig->getX() - getPosition().x, tileDig->getY() - getPosition().y, 0);
