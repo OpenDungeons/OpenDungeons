@@ -35,3 +35,19 @@ add_boost_test(Goal
 add_boost_test(Pathfinding
         SOURCES
         test_Pathfinding.cpp)
+
+add_boost_test(LaunchGame
+        SOURCES
+        ${SRC}/tests/mocks/ODClientTest.cpp
+        ${SRC}/network/ClientNotification.cpp
+        ${SRC}/network/ODPacket.cpp
+        ${SRC}/network/ODSocketClient.cpp
+        ${SRC}/network/ODSocketServer.cpp
+        ${SRC}/network/ServerMode.cpp
+        ${SRC}/network/ServerNotification.cpp
+        ${SRC}/utils/Helper.cpp
+        ${SRC}/utils/LogManager.cpp
+        ${SRC}/utils/LogSinkConsole.cpp
+        test_LaunchGame.cpp
+        LIBRARIES
+        ${SFML_LIBRARIES})
