@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(test_LaunchGame)
     }
 
     ODClientLaunchGame client(players);
-    BOOST_CHECK(client.connect("localhost", 31222, 10, "test_LaunchGameReplay"));
+    BOOST_CHECK(client.connect("localhost", 32222, 10, "test_LaunchGameReplay"));
 
     BOOST_CHECK(client.isConnected());
 
