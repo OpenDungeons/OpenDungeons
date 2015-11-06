@@ -205,7 +205,7 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
         return true;
     }
 
-    int port = ConfigManager::getSingleton().getNetworkPort();
+    int port = ODServer::getSingleton().getNetworkPort();
     uint32_t timeout = ConfigManager::getSingleton().getClientConnectionTimeout();
     std::string replayFilename = ResourceManager::getSingleton().getReplayDataPath()
         + ResourceManager::getSingleton().buildReplayFilename();

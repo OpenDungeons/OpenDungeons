@@ -115,7 +115,7 @@ bool MenuModeMultiplayerClient::clientButtonPressed(const CEGUI::EventArgs&)
 
     ODFrameListener::getSingleton().getClientGameMap()->setLocalPlayerNick(nick);
 
-    int port = ConfigManager::getSingleton().getNetworkPort();
+    int port = ODServer::getSingleton().getNetworkPort();
     uint32_t timeout = ConfigManager::getSingleton().getClientConnectionTimeout();
     std::string replayFilename = ResourceManager::getSingleton().getReplayDataPath()
         + ResourceManager::getSingleton().buildReplayFilename();

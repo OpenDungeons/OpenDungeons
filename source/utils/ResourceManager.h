@@ -137,9 +137,16 @@ public:
     inline const std::string& getServerModeLevel() const
     { return mServerModeLevel; }
 
+    inline int32_t getForcedNetworkPort() const
+    { return mForcedNetworkPort; }
+
 private:
+    //! \brief used when the executable is launched in server mode
     bool mServerMode;
     std::string mServerModeLevel;
+
+    //! \brief used when the network port is forced
+    int32_t mForcedNetworkPort;
 
     //! \brief The application data path
     //! \example "/usr/share/game/opendungeons" on linux

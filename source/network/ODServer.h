@@ -96,6 +96,8 @@ class ODServer: public Ogre::Singleton<ODServer>,
     //! and false if there is an error (server not launched or system error)
     bool waitEndGame();
 
+    int32_t getNetworkPort() const;
+
 protected:
     ODSocketClient* notifyNewConnection(sf::TcpListener& sockListener) override;
     bool notifyClientMessage(ODSocketClient *sock) override;

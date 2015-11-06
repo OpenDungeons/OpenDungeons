@@ -84,6 +84,7 @@ const std::string ResourceManager::RESOURCEGROUPSOUND = "Sound";
  */
 ResourceManager::ResourceManager(boost::program_options::variables_map& options) :
         mServerMode(false),
+        mForcedNetworkPort(-1),
         mGameDataPath("./"),
         mUserDataPath("./"),
         mUserConfigPath("./")
@@ -334,6 +335,9 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
         mServerModeLevel = level.string();
     }
 
+    if(options.count("port") > 0)
+        mForcedNetworkPort = options["port"].as<int32_t>();
+
     mUserConfigFile = mUserConfigPath + USERCFGFILENAME;
     mCeguiLogFile = mUserDataPath + CEGUILOGFILENAME;
     mShaderCachePath = mUserDataPath + SHADERCACHESUBPATH;
@@ -474,6 +478,7 @@ void ResourceManager::buildCommandOptions(boost::program_options::options_descri
         ("log", boost::program_options::value<std::string>(), "log file to use")
         ("server", boost::program_options::value<std::string>(), "Launches the game on server mode and opens the given level")
         ("appData", boost::program_options::value<std::string>(), "Sets appData to the given path (where logs, replays, ... are saved)")
+        ("port", boost::program_options::value<int32_t>(), "Sets the port used. Note that the port is used for both single and multi player")
     ;
 }
 

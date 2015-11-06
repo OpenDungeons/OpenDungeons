@@ -94,7 +94,7 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
     }
 
     // Set up the socket to listen on the specified port
-    if (!createServer(ConfigManager::getSingleton().getNetworkPort()))
+    if (!createServer(getNetworkPort()))
     {
         mServerMode = ServerMode::ModeNone;
         mServerState = ServerState::StateNone;
@@ -1910,6 +1910,15 @@ void ODServer::fireSeatConfigurationRefresh()
         }
     }
     sendMsg(nullptr, packetSend);
+}
+
+int32_t ODServer::getNetworkPort() const
+{
+    int32_t port = ResourceManager::getSingleton().getForcedNetworkPort();
+    if(port != -1)
+        return port;
+
+    return ConfigManager::getSingleton().getNetworkPort();
 }
 
 ODPacket& operator<<(ODPacket& os, const EventShortNoticeType& type)
