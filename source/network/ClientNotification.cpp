@@ -75,6 +75,8 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "askSetPlayerSettings";
         case ClientNotificationType::askSaveMap:
             return "askSaveMap";
+        case ClientNotificationType::askExecuteConsoleCommand:
+            return "askExecuteConsoleCommand";
         case ClientNotificationType::editorAskChangeTiles:
             return "editorAskChangeTiles";
         case ClientNotificationType::editorAskBuildRoom:

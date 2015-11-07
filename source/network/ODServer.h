@@ -19,12 +19,12 @@
 #define ODSERVER_H
 
 #include "ODSocketServer.h"
+#include "modes/ConsoleInterface.h"
 
 #include <OgreSingleton.h>
 
 class ServerNotification;
 class GameMap;
-class ServerConsoleCommand;
 
 enum class ServerMode;
 
@@ -86,9 +86,6 @@ class ODServer: public Ogre::Singleton<ODServer>,
     //! for messages that need to show reactivity (after a player does something like building a room or tried to pickup a creature).
     void sendAsyncMsg(ServerNotification& notif);
 
-    //! \brief Adds a console command to the queue.
-    void queueConsoleCommand(ServerConsoleCommand* cc);
-
     void notifyExit();
 
     //! This function will block the calling thread until the game is launched and
@@ -114,9 +111,12 @@ private:
     std::vector<Player*> mDisconnectedPlayers;
 
     std::deque<ServerNotification*> mServerNotificationQueue;
-    std::deque<ServerConsoleCommand*> mConsoleCommandQueue;
 
     std::map<ODSocketClient*, std::vector<std::string>> mCreaturesInfoWanted;
+
+    ConsoleInterface mConsoleInterface;
+
+    void printConsoleMsg(const std::string& text);
 
     ODSocketClient* getClientFromPlayer(Player* player);
     ODSocketClient* getClientFromPlayerId(int32_t playerId);
@@ -142,12 +142,13 @@ private:
      */
     bool processClientNotifications(ODSocketClient* clientSocket);
 
-    void processServerCommandQueue();
-
     //! \brief Sends the packet to the given player. If player is nullptr, the packet is sent to every connected player
     void sendMsg(Player* player, ODPacket& packet);
 
     void fireSeatConfigurationRefresh();
+
+    //! \brief Handles console command. player is the player that launched the command
+    void handleConsoleCommand(Player* player, GameMap* gameMap, const std::vector<std::string>& args);
 };
 
 #endif // ODSERVER_H

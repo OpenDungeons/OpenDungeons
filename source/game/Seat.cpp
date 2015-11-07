@@ -747,7 +747,7 @@ void Seat::refreshVisualDebugEntities(const std::vector<Tile*>& tiles)
     }
 }
 
-void Seat::displaySeatVisualDebug(bool enable)
+void Seat::toggleSeatVisualDebug()
 {
     if(!mGameMap->isServerGameMap())
         return;
@@ -759,9 +759,9 @@ void Seat::displaySeatVisualDebug(bool enable)
     if(!mPlayer->getIsHuman())
         return;
 
-    mIsDebuggingVision = enable;
+    mIsDebuggingVision = !mIsDebuggingVision;
     int seatId = getId();
-    if(enable)
+    if(mIsDebuggingVision)
     {
         std::vector<Tile*> tiles;
         int xMax = static_cast<int>(mTilesStates.size());

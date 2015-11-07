@@ -132,7 +132,7 @@ void GameEditorModeConsole::printToConsole(const std::string& text)
 
 bool GameEditorModeConsole::executeCurrentPrompt(const CEGUI::EventArgs& e)
 {
-    mConsoleInterface.tryExecuteCommand(mEditboxWindow->getText().c_str(),
+    mConsoleInterface.tryExecuteClientCommand(mEditboxWindow->getText().c_str(),
                                         mModeManager->getCurrentModeType(),
                                         *mModeManager);
     mEditboxWindow->setText("");

@@ -28,7 +28,7 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/MapLoader.h"
-#include "modes/ServerConsoleCommands.h"
+#include "modes/ConsoleCommands.h"
 #include "network/ODClient.h"
 #include "network/ServerMode.h"
 #include "network/ServerNotification.h"
@@ -48,9 +48,11 @@
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
+
 
 const std::string SAVEGAME_SKIRMISH_PREFIX = "SK-";
 const std::string SAVEGAME_MULTIPLAYER_PREFIX = "MP-";
@@ -63,8 +65,10 @@ ODServer::ODServer() :
     mServerState(ServerState::StateNone),
     mGameMap(new GameMap(true)),
     mSeatsConfigured(false),
-    mPlayerConfig(nullptr)
+    mPlayerConfig(nullptr),
+    mConsoleInterface(std::bind(&ODServer::printConsoleMsg, this, std::placeholders::_1))
 {
+    ConsoleCommands::addConsoleCommands(mConsoleInterface);
 }
 
 ODServer::~ODServer()
@@ -234,35 +238,32 @@ void ODServer::sendMsg(Player* player, ODPacket& packet)
         client->send(packet);
 }
 
-void ODServer::queueConsoleCommand(ServerConsoleCommand* cc)
+void ODServer::handleConsoleCommand(Player* player, GameMap* gameMap, const std::vector<std::string>& args)
 {
-    if ((cc == nullptr) || (!isConnected()))
-        return;
-    mConsoleCommandQueue.push_back(cc);
-}
-
-void ODServer::processServerCommandQueue()
-{
-    bool running = true;
-    GameMap* gameMap = mGameMap;
-
-    while(running)
+    if(args.empty())
     {
-        // If the queue is empty, let's get out of the loop.
-        if (mConsoleCommandQueue.empty())
-            break;
-
-        // Take a message out of the front of the notification queue
-        ServerConsoleCommand *command = mConsoleCommandQueue.front();
-        mConsoleCommandQueue.pop_front();
-
-        if (command == nullptr)
-            continue;
-
-        command->execute(gameMap);
-
-        delete command;
+        OD_LOG_WRN("Invalid empty console command");
+        return;
     }
+
+    if(mConsoleInterface.tryExecuteServerCommand(args, *gameMap) != Command::Result::SUCCESS)
+    {
+        std::string msg = "Cannot execute console command";
+        for(const std::string& str : args)
+        {
+            msg += " " + str;
+        }
+        OD_LOG_WRN(msg);
+        return;
+    }
+
+    // We notify all players that a console command has been executed
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::chatServer, nullptr);
+
+    std::string msg = "Console cmd launched: " + args[0];
+    serverNotification->mPacket << msg << EventShortNoticeType::genericGameInfo;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
 }
 
 void ODServer::startNewTurn(double timeSinceLastTurn)
@@ -459,8 +460,6 @@ void ODServer::serverThread()
         startNewTurn(static_cast<double>(clock.restart().asSeconds()) * 0.95);
 
         processServerNotifications();
-
-        processServerCommandQueue();
     }
 }
 
@@ -1691,6 +1690,23 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
+        case ClientNotificationType::askExecuteConsoleCommand:
+        {
+            uint32_t nbArgs;
+            std::string str;
+            std::vector<std::string> args;
+            OD_ASSERT_TRUE(packetReceived >> nbArgs);
+            while(nbArgs > 0)
+            {
+                --nbArgs;
+                OD_ASSERT_TRUE(packetReceived >> str);
+                args.push_back(str);
+            }
+            Player* player = clientSocket->getPlayer();
+            handleConsoleCommand(player, gameMap, args);
+            break;
+        }
+
         case ClientNotificationType::editorAskCreateMapLight:
         {
             Player* player = clientSocket->getPlayer();
@@ -1919,6 +1935,11 @@ int32_t ODServer::getNetworkPort() const
         return port;
 
     return ConfigManager::getSingleton().getNetworkPort();
+}
+
+void ODServer::printConsoleMsg(const std::string& text)
+{
+    OD_LOG_INF("Console:" + text);
 }
 
 ODPacket& operator<<(ODPacket& os, const EventShortNoticeType& type)
