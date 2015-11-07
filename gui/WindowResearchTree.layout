@@ -379,7 +379,7 @@
                     </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="CreatureStrengthButton" >
-                    <Property name="Area" value="{{0.7,-25},{0,195},{0.7,25},{0,255}}" />
+                    <Property name="Area" value="{{0.7,-25},{0,195},{0.7,25},{0,245}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureStrengthButton" />
                     <Property name="TooltipText" value="Spell: Increase creature strength" />
                     <Window type="OD/ProgressBar" name="CreatureStrengthButtonProgressBar" >
@@ -396,7 +396,7 @@
                     </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="CreatureWeakButton" >
-                    <Property name="Area" value="{{0.3,-25},{0,195},{0.3,25},{0,255}}" />
+                    <Property name="Area" value="{{0.3,-25},{0,195},{0.3,25},{0,245}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureWeakButton" />
                     <Property name="TooltipText" value="Spell: Decrease creature strength" />
                     <Window type="OD/ProgressBar" name="CreatureWeakButtonProgressBar" >
