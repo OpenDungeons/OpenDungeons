@@ -266,6 +266,7 @@ public:
 
     //! \brief Server side to toggle the tiles this seat has vision on
     void toggleSeatVisualDebug();
+    void refreshSeatVisualDebug();
 
     //! Sends a message to the player on this seat to refresh the list of tiles he has vision on
     void sendVisibleTiles();

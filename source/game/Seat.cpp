@@ -760,6 +760,10 @@ void Seat::toggleSeatVisualDebug()
         return;
 
     mIsDebuggingVision = !mIsDebuggingVision;
+}
+
+void Seat::refreshSeatVisualDebug()
+{
     int seatId = getId();
     if(mIsDebuggingVision)
     {
