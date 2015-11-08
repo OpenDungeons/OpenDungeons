@@ -31,7 +31,8 @@ add_boost_test(Goal
         ${SRC}/utils/LogSinkConsole.cpp
         LIBRARIES
         ${SFML_LIBRARIES}
-        ${Boost_FILESYSTEM_LIBRARY_RELEASE})
+        ${Boost_FILESYSTEM_LIBRARY_RELEASE}
+        ${Boost_SYSTEM_LIBRARY_RELEASE})
 
 add_boost_test(Pathfinding
         SOURCES
@@ -52,4 +53,5 @@ add_boost_test(LaunchGame
         test_LaunchGame.cpp
         LIBRARIES
         ${SFML_LIBRARIES}
-        ${Boost_FILESYSTEM_LIBRARY_RELEASE})
+        ${Boost_FILESYSTEM_LIBRARY_RELEASE}
+        ${Boost_SYSTEM_LIBRARY_RELEASE})
