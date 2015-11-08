@@ -35,9 +35,14 @@ install:
   - if "%generator%" == "mingw32" (set "PATH=c:\dev\MinGW\bin;C:\od-deps-win32\bin\mingw48;")
   - if "%generator%" == "msvc12" (set "PATH=C:\Program Files (x86)\MSBuild\12.0\Bin;C:\od-deps-win32\bin\msvc;")
   - echo %PATH%
+
 build_script:
-  - if [%generator%]==[msvc12] "C:\Program Files (x86)\CMake\bin\cmake" -G "Visual Studio 12" -DCMAKE_INSTALL_PREFIX="%cd%/inst" && msbuild INSTALL.vcxproj /verbosity:normal  /p:Configuration=Release
-  - if [%generator%]==[mingw32] "C:\Program Files (x86)\CMake\bin\cmake" -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX="%cd%/inst" -DCMAKE_BUILD_TYPE=Release && mingw32-make install
+  - if [%generator%]==[msvc12] "C:\Program Files (x86)\CMake\bin\cmake" -G "Visual Studio 12" -DOD_BUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX="%cd%/inst" && msbuild INSTALL.vcxproj /verbosity:normal  /p:Configuration=Release
+  - if [%generator%]==[mingw32] "C:\Program Files (x86)\CMake\bin\cmake" -G "MinGW Makefiles" -DOD_BUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX="%cd%/inst" -DCMAKE_BUILD_TYPE=Release && mingw32-make install
+
+test_script:
+  - scripts\win32\OpenDungeonsTests.bat
+
 artifacts:
   - path: OpenDungeons.exe
     name: OpenDungeons exe

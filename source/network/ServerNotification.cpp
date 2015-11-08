@@ -32,6 +32,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
 {
     switch(type)
     {
+        case ServerNotificationType::loadLevel:
+            return "loadLevel";
         case ServerNotificationType::pickNick:
             return "pickNick";
         case ServerNotificationType::addPlayers:

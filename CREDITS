@@ -72,6 +72,7 @@ multiplayer/
 -> TestMultiplayerSmallAlliance.level  OD Team                 GPLv3+
 -> TestMultiplayerSmallFreeForAll.level OD Team                GPLv3+
 -> TheBridge.level                     OD Team                 GPLv3+
+-> UnitTest.level                      OD Team                 GPLv3+
 
 skirmish/
 -> FallingKeeper.level                 OD Team                 GPLv3+

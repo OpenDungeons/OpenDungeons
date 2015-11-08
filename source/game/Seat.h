@@ -264,8 +264,9 @@ public:
     //! the players if yes
     void notifyChangedVisibleTiles();
 
-    //! \brief Server side to display the tile this seat has vision on
-    void displaySeatVisualDebug(bool enable);
+    //! \brief Server side to toggle the tiles this seat has vision on
+    void toggleSeatVisualDebug();
+    void refreshSeatVisualDebug();
 
     //! Sends a message to the player on this seat to refresh the list of tiles he has vision on
     void sendVisibleTiles();

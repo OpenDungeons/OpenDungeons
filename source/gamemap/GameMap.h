@@ -446,7 +446,7 @@ public:
     void logFloodFileTiles();
     void consoleSetCreatureDestination(const std::string& creatureName, int x, int y);
     void consoleToggleCreatureVisualDebug(const std::string& creatureName);
-    void consoleDisplaySeatVisualDebug(int seatId, bool enable);
+    void consoleToggleSeatVisualDebug(int seatId);
     void consoleSetLevelCreature(const std::string& creatureName, uint32_t level);
     void consoleAskToggleFOW();
     void consoleAskUnlockResearches();

@@ -19,12 +19,17 @@
 
 #include <algorithm>
 
-Command::Result Command::execute(const ArgumentList_t& argumentList, ModeType mode,
+Command::Result Command::executeClient(const ArgumentList_t& argumentList, ModeType mode,
                                  ConsoleInterface& consoleInterface, AbstractModeManager& modeManager)
 {
     if(isAllowedInMode(mode))
     {
-        return mCommand(argumentList, consoleInterface, modeManager);
+        return mCommandClient(argumentList, consoleInterface, modeManager);
     }
     return Result::WRONG_MODE;
+}
+
+Command::Result Command::executeServer(const ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
+{
+    return mCommandServer(args, c, gameMap);
 }

@@ -30,6 +30,8 @@
 #include <map>
 #include <vector>
 
+class GameMap;
+
 //! \class ConsoleInterface
 //! \brief A class that implements a console
 class ConsoleInterface
@@ -38,7 +40,8 @@ public:
     using ModeType = AbstractModeManager::ModeType;
     using String_t = Command::String_t;
     using PrintFunction_t = std::function<void(const String_t&)>;
-    using CommandFunction_t = Command::CommandFunction_t;
+    using CommandClientFunction_t = Command::CommandClientFunction_t;
+    using CommandServerFunction_t = Command::CommandServerFunction_t;
 
     ConsoleInterface(PrintFunction_t printFunction);
 
@@ -54,16 +57,23 @@ public:
     //! \param command The commnad to be run
     //! \param allowedModes A list of modes this command is allowed to run in.
     //! \param aliases And optional list of aliases
-    bool addCommand(String_t name, String_t description, CommandFunction_t command,
+    bool addCommand(String_t name, String_t description,
+                    CommandClientFunction_t commandClient,
+                    CommandServerFunction_t commandServer,
                     std::initializer_list<ModeType> allowedModes,
                     std::initializer_list<String_t> aliases = {});
 
-    //! \brief Try executing a command
+    //! \brief Try executing a command on client side
     //! \param commandString The command string to be executed
     //! \returns Command::Result::SUCCESS if the command succeeds, Command::Result::WRONG_MODE if the
-    //!     command is ran in the worng mode, Command::Result::INVALID_ARGUMENT if one or more of the arguments
+    //!     command is ran in the wrong mode, Command::Result::INVALID_ARGUMENT if one or more of the arguments
     //!     can't be parsed, and Command::Result::FAILED if the command fails.
-    Command::Result tryExecuteCommand(String_t commandString, ModeType modeType, AbstractModeManager& modeManager);
+    Command::Result tryExecuteClientCommand(String_t commandString, ModeType modeType, AbstractModeManager& modeManager);
+
+    //! \brief Try executing a command on server side
+    //! \param commandString The command string to be executed
+    //! \returns Command::Result::SUCCESS if the command succeeds
+    Command::Result tryExecuteServerCommand(const std::vector<std::string>& args, GameMap& gameMap);
 
     //! \brief Try to complete the command from the string prefix.
     //! \returns The completed string if the lookup succeeds, boost::none if the lookup

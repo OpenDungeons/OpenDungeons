@@ -54,6 +54,7 @@ enum class ClientNotificationType
     askSetPlayerSettings,
 
     askSaveMap,
+    askExecuteConsoleCommand,
 
     //  Editor
     editorAskChangeTiles,

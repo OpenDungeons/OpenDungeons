@@ -1,10 +1,13 @@
 #include "modes/ConsoleCommands.h"
 
+#include "entities/Creature.h"
 #include "game/Player.h"
 #include "game/Seat.h"
+#include "gamemap/GameMap.h"
 #include "goals/Goal.h"
 #include "modes/ConsoleInterface.h"
-#include "modes/ServerConsoleCommands.h"
+#include "network/ClientNotification.h"
+#include "network/ODClient.h"
 #include "network/ODServer.h"
 #include "render/ODFrameListener.h"
 #include "render/RenderManager.h"
@@ -73,6 +76,32 @@ Command::Result cSetFrameListenerVar(Getter getter,
     return Command::Result::SUCCESS;
 }
 
+Command::Result cSendCmdToServer(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+{
+    // If we should send a console command, we do it
+    if(!ODClient::getSingleton().isConnected())
+    {
+        c.print("Trying to send a console command while not connected");
+        return Command::Result::FAILED;
+    }
+
+    if(args.empty())
+    {
+        c.print("Trying to send an empty console command");
+        return Command::Result::INVALID_ARGUMENT;
+    }
+
+    ClientNotification *clientNotification = new ClientNotification(
+        ClientNotificationType::askExecuteConsoleCommand);
+    uint32_t nbArgs = args.size();
+    clientNotification->mPacket << nbArgs;
+    for(const std::string& str : args)
+        clientNotification->mPacket << str;
+
+    ODClient::getSingleton().queueClientNotification(clientNotification);
+    return Command::Result::SUCCESS;
+}
+
 Command::Result cAmbientLight(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
 {
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
@@ -118,7 +147,7 @@ Command::Result cFPS(const Command::ArgumentList_t& args, ConsoleInterface& c, A
     return Command::Result::SUCCESS;
 }
 
-Command::Result cAddCreature(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+Command::Result cSrvAddCreature(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {
     if (args.size() < 6)
     {
@@ -126,18 +155,12 @@ Command::Result cAddCreature(const Command::ArgumentList_t& args, ConsoleInterfa
         return Command::Result::INVALID_ARGUMENT;
     }
 
-    if(ODServer::getSingleton().isConnected())
-    {
-        ServerConsoleCommand* cc = new SCCAddCreature(boost::algorithm::join(args, " "));
-        ODServer::getSingleton().queueConsoleCommand(cc);
-        c.print("Creature added successfully\n");
-        return Command::Result::SUCCESS;
-    }
-    else
-    {
-        c.print("ERROR : This command is available on the server only.\n");
-        return Command::Result::WRONG_MODE;
-    }
+    std::stringstream ss(boost::algorithm::join(args, " "));
+    Creature* creature = Creature::getCreatureFromStream(&gameMap, ss);
+    creature->createMesh();
+    creature->addToGameMap();
+
+    return Command::Result::SUCCESS;
 }
 
 Command::Result cList(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager& mm)
@@ -178,16 +201,13 @@ Command::Result cList(const Command::ArgumentList_t& args, ConsoleInterface& c, 
                   << gameMap->getLocalPlayer()->getSeat()->getId() << "\t"
                   << gameMap->getLocalPlayer()->getSeat()->getTeamId() << "\n\n";
 
-        if (ODServer::getSingleton().isConnected())
-        {
-            stringStr << "Player:\tNick:\tSeatId\tTeamId:\n\n";
+        stringStr << "Player:\tNick:\tSeatId\tTeamId:\n\n";
 
-            for (Player* player : gameMap->getPlayers())
-            {
-                stringStr << player->getId() << "\t\t" << player->getNick() << "\t"
-                        << player->getSeat()->getId() << "\t"
-                        << player->getSeat()->getTeamId() << "\n\n";
-            }
+        for (Player* player : gameMap->getPlayers())
+        {
+            stringStr << player->getId() << "\t\t" << player->getNick() << "\t"
+                    << player->getSeat()->getId() << "\t"
+                    << player->getSeat()->getTeamId() << "\n\n";
         }
     }
     else if (args[1].compare("network") == 0)
@@ -257,123 +277,41 @@ Command::Result cList(const Command::ArgumentList_t& args, ConsoleInterface& c, 
     return Command::Result::SUCCESS;
 }
 
-Command::Result cCreatureVisDebug(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+Command::Result cSrvCreatureVisDebug(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {
-    if (!ODServer::getSingleton().isConnected())
-    {
-        c.print("\nERROR:  Visual debugging only works when you are hosting a game.\n");
-        return Command::Result::FAILED;
-    }
-
-    if (args.size() < 2)
-    {
-        c.print("\nERROR:  You must supply a valid creature name to create debug entities for.\n");
+    if(args.size() < 2)
         return Command::Result::INVALID_ARGUMENT;
-    }
 
-    ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    GameMap* gameMap = frameListener.getClientGameMap();
-    Creature* creature = gameMap->getCreature(args[1]);
-    if (creature == nullptr)
-    {
-        c.print("\nERROR:  The specified creature was not found: "
-                          + args[1] + "\n");
-        return Command::Result::FAILED;
-    }
-
-    const std::string& name = creature->getName();
-    ServerConsoleCommand* cc = new SCCDisplayCreatureVisualDebug(name);
-    ODServer::getSingleton().queueConsoleCommand(cc);
-
-    c.print("\nVisual debugging entities toggling asked for creature: "
-                      + args[1] + "\n");
+    const std::string& name = args[1];
+    gameMap.consoleToggleCreatureVisualDebug(name);
 
     return Command::Result::SUCCESS;
 }
 
-Command::Result cSeatVisDebug(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+Command::Result cSrvSeatVisDebug(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {
-    if (!ODServer::getSingleton().isConnected())
-    {
-        c.print("\nERROR:  Visual debugging only works when you are hosting a game.\n");
-        return Command::Result::FAILED;
-    }
-
-    if (args.size() < 2)
-    {
-        c.print("\nERROR:  You must supply a valid seat id debug vision for.\n");
+    if(args.size() < 2)
         return Command::Result::INVALID_ARGUMENT;
-    }
 
     int seatId = Helper::toInt(args[1]);
-
-    ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    GameMap* gameMap = frameListener.getClientGameMap();
-    Seat* seat = gameMap->getSeatById(seatId);
-    if (seat == nullptr)
-    {
-        c.print("\nCould not create visual debugging entities for seat: "
-                          + args[1] + "\n");
-        return Command::Result::FAILED;
-    }
-
-    if (seat->getIsDebuggingVision())
-    {
-        ServerConsoleCommand* cc = new SCCDisplaySeatVisualDebug(seatId, false);
-        ODServer::getSingleton().queueConsoleCommand(cc);
-
-        c.print("\nVisual debugging entities destroyed for seat: "
-                          + args[1] + "\n");
-    }
-    else
-    {
-        ServerConsoleCommand* cc = new SCCDisplaySeatVisualDebug(seatId, true);
-        ODServer::getSingleton().queueConsoleCommand(cc);
-
-        c.print("\nVisual debugging entities created for seat: "
-                          + args[1] + "\n");
-    }
+    gameMap.consoleToggleSeatVisualDebug(seatId);
     return Command::Result::SUCCESS;
 }
 
-Command::Result cToggleFOW(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+Command::Result cSrvToggleFOW(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {
-    if (ODServer::getSingleton().isConnected())
-    {
-        ServerConsoleCommand* cc = new SCCAskToggleFOW();
-        ODServer::getSingleton().queueConsoleCommand(cc);
-        c.print("\nAsking to toggle fog of war\n");
-        return Command::Result::SUCCESS;
-    }
-    else
-    {
-        c.print("\nERROR:  You can toggle fog of war only when you are hosting a game.\n");
-        return Command::Result::FAILED;
-    }
+    gameMap.consoleAskToggleFOW();
+    return Command::Result::SUCCESS;
 }
 
-Command::Result cSetCreatureLevel(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+Command::Result cSrvSetCreatureLevel(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {
-    if (!ODServer::getSingleton().isConnected())
-    {
-        c.print("\nERROR:  Only the server can change a creature level.\n");
-        return Command::Result::FAILED;
-    }
-
     if(args.size() < 3)
-    {
-        c.print("\nERROR:  You must supply a valid creature name.\n");
         return Command::Result::INVALID_ARGUMENT;
-    }
 
-
-    const Command::String_t& name = args[1];
-    int level = Helper::toInt(args[2]);
-
-    ServerConsoleCommand* cc = new SCCSetLevelCreature(name, level);
-    ODServer::getSingleton().queueConsoleCommand(cc);
-
-    c.print("\nCommand sent to change creature level: " + args[1] + " " + args[2] + "\n");
+    const std::string& name = args[1];
+    uint32_t level = Helper::toUInt32(args[2]);
+    gameMap.consoleSetLevelCreature(name, level);
     return Command::Result::SUCCESS;
 }
 
@@ -424,6 +362,35 @@ Command::Result cHermiteCatmullSpline(const Command::ArgumentList_t& args, Conso
     return Command::Result::SUCCESS;
 }
 
+Command::Result cSrvAddGold(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
+{
+    if(args.size() < 3)
+        return Command::Result::INVALID_ARGUMENT;
+
+    int seatId = Helper::toInt(args[1]);
+    int gold = Helper::toInt(args[2]);
+    gameMap.addGoldToSeat(gold, seatId);
+    return Command::Result::SUCCESS;
+}
+
+Command::Result cSrvSetCreatureDest(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
+{
+    if(args.size() < 3)
+        return Command::Result::INVALID_ARGUMENT;
+
+    const std::string& name = args[0];
+    int x = Helper::toInt(args[1]);
+    int y = Helper::toInt(args[2]);
+    gameMap.consoleSetCreatureDestination(name, x, y);
+    return Command::Result::SUCCESS;
+}
+
+Command::Result cSrvLogFloodFill(const Command::ArgumentList_t&, ConsoleInterface& c, GameMap& gameMap)
+{
+    gameMap.logFloodFileTiles();
+    return Command::Result::SUCCESS;
+}
+
 Command::Result cSetCameraFOVy(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
 {
     Ogre::Camera* cam = ODFrameListener::getSingleton().getCameraManager()->getActiveCamera();
@@ -435,72 +402,6 @@ Command::Result cSetCameraFOVy(const Command::ArgumentList_t& args, ConsoleInter
     {
         cam->setFOVy(Ogre::Degree(static_cast<Ogre::Real>(Helper::toFloat(args[1]))));
     }
-    return Command::Result::SUCCESS;
-}
-
-Command::Result cAddGold(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
-{
-    if(args.size() < 3)
-    {
-        c.print("\nERROR:You need to specify an player id and the amount of gold to give.\n");
-        return Command::Result::INVALID_ARGUMENT;
-    }
-    if(!ODServer::getSingleton().isConnected())
-    {
-        c.print("\nERROR : This command is available on the server only.\n");
-        return Command::Result::WRONG_MODE;
-    }
-
-    int seatId = Helper::toInt(args[1]);
-    int gold = Helper::toInt(args[2]);
-
-    if(ODFrameListener::getSingleton().getClientGameMap()->getSeatById(seatId) != nullptr)
-    {
-        ServerConsoleCommand* cc = new SCCAddGold(gold, seatId);
-        ODServer::getSingleton().queueConsoleCommand(cc);
-        c.print("Added " + Helper::toString(gold) + " to seat " + Helper::toString(seatId) + "\n");
-        return Command::Result::SUCCESS;
-    }
-    else
-    {
-        c.print("Seat: " + Helper::toString(seatId) + " not found.\n");
-        return Command::Result::FAILED;
-    }
-}
-
-Command::Result cSetCreatureDest(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
-{
-    if(args.size() < 4)
-    {
-        c.print("\nERROR : Need to specify creature name, x and y.\n");
-        return Command::Result::INVALID_ARGUMENT;
-    }
-
-    if(!ODServer::getSingleton().isConnected())
-    {
-        c.print("\nERROR : This command is available on the server only\n");
-        return Command::Result::WRONG_MODE;
-    }
-
-    std::string creatureName = args[1];
-    int x = Helper::toInt(args[2]);
-    int y = Helper::toInt(args[3]);
-
-    ServerConsoleCommand* cc = new SCCSetCreatureDestination(creatureName, x, y);
-    ODServer::getSingleton().queueConsoleCommand(cc);
-    return Command::Result::SUCCESS;
-}
-
-Command::Result cLogFloodFill(const Command::ArgumentList_t&, ConsoleInterface& c, AbstractModeManager&)
-{
-    if(!ODServer::getSingleton().isConnected())
-    {
-        c.print("\nERROR : This command is available on the server only\n");
-        return Command::Result::WRONG_MODE;
-    }
-
-    ServerConsoleCommand* cc = new SCCLogFloodFill();
-    ODServer::getSingleton().queueConsoleCommand(cc);
     return Command::Result::SUCCESS;
 }
 
@@ -516,20 +417,10 @@ Command::Result cListMeshAnims(const Command::ArgumentList_t& args, ConsoleInter
     return Command::Result::SUCCESS;
 }
 
-Command::Result cUnlockResearches(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+Command::Result cSrvUnlockResearches(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {
-    if (ODServer::getSingleton().isConnected())
-    {
-        ServerConsoleCommand* cc = new SCCAskUnlockResearches();
-        ODServer::getSingleton().queueConsoleCommand(cc);
-        c.print("\nAsking to unlock researches\n");
-        return Command::Result::SUCCESS;
-    }
-    else
-    {
-        c.print("\nERROR:  You can unlock researches only when you are hosting a game.\n");
-        return Command::Result::FAILED;
-    }
+    gameMap.consoleAskUnlockResearches();
+    return Command::Result::SUCCESS;
 }
 
 Command::Result cKeys(const Command::ArgumentList_t&, ConsoleInterface& c, AbstractModeManager&)
@@ -571,7 +462,6 @@ Command::Result cTriggerCompositor(const Command::ArgumentList_t& args, ConsoleI
 
 namespace ConsoleCommands
 {
-
 void addConsoleCommands(ConsoleInterface& cl)
 {
     cl.addCommand("ambientlight",
@@ -579,12 +469,14 @@ void addConsoleCommands(ConsoleInterface& cl)
                    "It takes as it's argument and RGB triplet whose values for red, green, and blue range from 0.0 to 1.0.\n\nExample:\n"
                    "ambientlight 0.4 0.6 0.5\n\nThe above command sets the ambient light color to red=0.4, green=0.6, and blue = 0.5.",
                    cAmbientLight,
+                   Command::cStubServer,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("fps",
                   "'fps' (framespersecond) for short is a utility which displays or sets the maximum framerate at which the"
                   "rendering will attempt to update the screen.\n\nExample:\n"
                   "fps 35\n\nThe above command will set the current maximum framerate to 35 turns per second.",
                   cFPS,
+                  Command::cStubServer,
                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("nearclip",
                    "Sets the minimal viewpoint clipping distance. Objects nearer than that won't be rendered.\n\nE.g.: nearclip 3.0",
@@ -594,6 +486,7 @@ void addConsoleCommands(ConsoleInterface& cl)
                                                                  ODFrameListener::getSingleton(),
                                                                  "near clip distance", args, c);
                     },
+                  Command::cStubServer,
                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("farclip",
                   "Sets the maximal viewpoint clipping distance. Objects farther than that won't be rendered.\n\nE.g.: farclip 30.0",
@@ -603,6 +496,7 @@ void addConsoleCommands(ConsoleInterface& cl)
                                                                 ODFrameListener::getSingleton(),
                                                                 "far clip distance", args, c);
                   },
+                  Command::cStubServer,
                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("maxtime",
                   "Sets the max time (in seconds) a message will be displayed in the info text area.\n\nExample:\n"
@@ -613,10 +507,12 @@ void addConsoleCommands(ConsoleInterface& cl)
                                                                 ODFrameListener::getSingleton(),
                                                                 "event max time display", args, c);
                   },
+                  Command::cStubServer,
                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("addcreature",
                   "this seems to currently be broken",
-                  cAddCreature,
+                  cSendCmdToServer,
+                  cSrvAddCreature,
                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
 
     std::string listDescription = "'list' (or 'ls' for short) is a utility which lists various types of information about the current game. "
@@ -632,6 +528,7 @@ void addConsoleCommands(ConsoleInterface& cl)
     cl.addCommand("list",
                    listDescription,
                    cList,
+                   Command::cStubServer,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR},
                    {"ls"});
     cl.addCommand("creaturevisualdebug",
@@ -639,24 +536,28 @@ void addConsoleCommands(ConsoleInterface& cl)
                    "creaturevisdebug skeletor\n\n"
                    "The above command wil turn on visual debugging for the creature named \'skeletor\'. "
                    "The same command will turn it back off again.",
-                   cCreatureVisDebug,
+                   cSendCmdToServer,
+                   cSrvCreatureVisDebug,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR},
                    {"creaturevisdebug"});
     cl.addCommand("seatvisualdebug",
                    "Visual debugging is a way to see all the tiles a given seat can see.\n\nExample:\n"
-                   "seatvisdebug 1\n\nThe above command will show every tiles seat 1 can see.  The same command will turn it off.",
-                   cSeatVisDebug,
+                   "seatvisualdebug 1\n\nThe above command will show every tiles seat 1 can see.  The same command will turn it off.",
+                   cSendCmdToServer,
+                   cSrvSeatVisDebug,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR},
                    {"seatvisdebug"});
     cl.addCommand("togglefow",
                    "Toggles on/off fog of war for every connected player",
-                   cToggleFOW,
+                   cSendCmdToServer,
+                   cSrvToggleFOW,
                    {AbstractModeManager::ModeType::GAME},
                    {"icanseedeadpeople"});
     cl.addCommand("setcreaturelevel",
                    "Sets the level of a given creature.\n\nExample:\n"
                    "setlevel BigKnight1 10\n\nThe above command will set the creature \'BigKnight1\' to 10.",
-                   cSetCreatureLevel,
+                   cSendCmdToServer,
+                   cSrvSetCreatureLevel,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("hermitecatmullspline",
                    "Triggers the catmullspline camera movement behaviour.\n\nExample:\n"
@@ -664,6 +565,7 @@ void addConsoleCommands(ConsoleInterface& cl)
                    "Make the camera follow a lazy curved path along the given coordinates pairs. "
                    "The first parameter is the number of pairs",
                    cHermiteCatmullSpline,
+                   Command::cStubServer,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR},
                    {"catmullspline"});
     cl.addCommand("circlearound",
@@ -671,42 +573,52 @@ void addConsoleCommands(ConsoleInterface& cl)
                    "circlearound 6 4 8\n"
                    "Make the camera follow a lazy a circle path around coors 6,4 with a radius of 8.",
                    cCircleAround,
+                   Command::cStubServer,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("setcamerafovy",
                    "Sets the camera vertical field of view aspect ratio on the Y axis.\n\nExample:\n"
                    "setcamerafovy 45",
                    cSetCameraFOVy,
+                   Command::cStubServer,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("addgold",
                    "'addgold' adds the given amount of gold to one player. It takes as arguments the color of the player to"
                    "whom the gold should be given and the amount. If the player's treasuries are full, no more gold is given."
                    "Note that this command is available in server mode only. \n\nExample\n"
                    "to give 5000 gold to player color 1 : addgold 1 5000",
-                   cAddGold,
+                   cSendCmdToServer,
+                   cSrvAddGold,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("setcreaturedest",
                    "Sets the camera vertical field of view aspect ratio on the Y axis.\n\nExample:\n"
                    "setcamerafovy 45",
-                   cSetCreatureDest,
+                   cSendCmdToServer,
+                   cSrvSetCreatureDest,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR},
                    {"setcreaturedestination"});
     cl.addCommand("logfloodfill",
                    "'logfloodfill' logs the FloodFillValues of all the Tiles in the GameMap.",
-                   cLogFloodFill,
-                   {AbstractModeManager::ModeType::GAME});
+                   cSendCmdToServer,
+                   cSrvLogFloodFill,
+                   {AbstractModeManager::ModeType::GAME},
+                   {});
     cl.addCommand("listmeshanims",
                    "'listmeshanims' lists all the animations for the given mesh.",
                    cListMeshAnims,
+                   Command::cStubServer,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR},
                    {"listmeshanimations"});
     cl.addCommand("keys",
                    "list keys",
                    cKeys,
-                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
+                   Command::cStubServer,
+                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR},
+                   {});
     cl.addCommand("triggercompositor",
                    "Starts the given compositor. The compositor must exist.\n\nExample:\n"
                    "triggercompositor blacknwhite",
                    cTriggerCompositor,
+                   Command::cStubServer,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("helpmessage",
                    "Display help message",
@@ -714,11 +626,13 @@ void addConsoleCommands(ConsoleInterface& cl)
                         c.print(HELPMESSAGE);
                         return Command::Result::SUCCESS;
                    },
+                   Command::cStubServer,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("unlockresearches",
                    "Unlock all researches for every seats\n"
                    "unlockresearches",
-                   cUnlockResearches,
+                   cSendCmdToServer,
+                   cSrvUnlockResearches,
                    {AbstractModeManager::ModeType::GAME});
 
 }

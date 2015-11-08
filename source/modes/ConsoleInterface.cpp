@@ -17,6 +17,9 @@
 
 #include "ConsoleInterface.h"
 
+#include "network/ClientNotification.h"
+#include "network/ODClient.h"
+
 #include <regex>
 
 ConsoleInterface::ConsoleInterface(PrintFunction_t printFunction)
@@ -25,15 +28,18 @@ ConsoleInterface::ConsoleInterface(PrintFunction_t printFunction)
    addCommand("help",
               ">help Lists available commands\n>help <command> displays description for <command>",
               ConsoleInterface::helpCommand,
-              {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR}
-              );
+              Command::cStubServer,
+              {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR},
+              {});
 }
 
-bool ConsoleInterface::addCommand(String_t name, String_t description, CommandFunction_t command,
+bool ConsoleInterface::addCommand(String_t name, String_t description,
+                CommandClientFunction_t commandClient,
+                CommandServerFunction_t commandServer,
                 std::initializer_list<ModeType> allowedModes,
                 std::initializer_list<String_t> aliases)
 {
-    CommandPtr_t commandPtr = std::make_shared<Command>(command, description, allowedModes);
+    CommandPtr_t commandPtr = std::make_shared<Command>(commandClient, commandServer, description, allowedModes);
     mCommandMap.emplace(name, commandPtr);
     for(auto& alias : aliases)
     {
@@ -42,7 +48,7 @@ bool ConsoleInterface::addCommand(String_t name, String_t description, CommandFu
     return true;
 }
 
-Command::Result ConsoleInterface::tryExecuteCommand(String_t commandString,
+Command::Result ConsoleInterface::tryExecuteClientCommand(String_t commandString,
                                                     ModeType modeType,
                                                     AbstractModeManager& modeManager)
 {
@@ -57,9 +63,12 @@ Command::Result ConsoleInterface::tryExecuteCommand(String_t commandString,
     auto it = mCommandMap.find(commandName);
     if(it != mCommandMap.end())
     {
+        // Check if there is something to do on client side
         try
         {
-            Command::Result result = it->second->execute(tokenList, modeType, *this, modeManager);
+            Command::Result result = Command::Result::SUCCESS;
+            result = it->second->executeClient(tokenList, modeType, *this, modeManager);
+
             return result;
         }
         catch(const std::invalid_argument& e)
@@ -76,6 +85,43 @@ Command::Result ConsoleInterface::tryExecuteCommand(String_t commandString,
     else
     {
         print("Unknown command: \"" + commandString + "\"");
+        return Command::Result::NOT_FOUND;
+    }
+}
+
+Command::Result ConsoleInterface::tryExecuteServerCommand(const std::vector<std::string>& args, GameMap& gameMap)
+{
+    if(args.empty())
+    {
+        print("Invalid empty command");
+        return Command::Result::INVALID_ARGUMENT;
+    }
+    const std::string& commandName = args[0];
+    auto it = mCommandMap.find(commandName);
+    if(it != mCommandMap.end())
+    {
+        // Check if there is something to do on client side
+        try
+        {
+            Command::Result result = Command::Result::SUCCESS;
+            result = it->second->executeServer(args, *this, gameMap);
+
+            return result;
+        }
+        catch(const std::invalid_argument& e)
+        {
+            print(std::string("Invalid argument: ") + e.what());
+            return Command::Result::INVALID_ARGUMENT;
+        }
+        catch(const std::out_of_range& e)
+        {
+            print(std::string("Argument out of range") + e.what());
+            return Command::Result::INVALID_ARGUMENT;
+        }
+    }
+    else
+    {
+        print("Unknown command: \"" + commandName + "\"");
         return Command::Result::NOT_FOUND;
     }
 }
@@ -157,7 +203,6 @@ boost::optional<const ConsoleInterface::String_t&> ConsoleInterface::getCommandD
         return boost::none;
     }
 }
-
 
 Command::Result ConsoleInterface::helpCommand(const Command::ArgumentList_t& args, ConsoleInterface& console, AbstractModeManager&)
 {

@@ -1221,7 +1221,7 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
         if(!seat->getIsDebuggingVision())
             continue;
 
-        seat->displaySeatVisualDebug(true);
+        seat->refreshSeatVisualDebug();
     }
 
     // We send to each seat the list of tiles he has vision on
@@ -2673,13 +2673,14 @@ void GameMap::consoleToggleCreatureVisualDebug(const std::string& creatureName)
         creature->stopComputeVisualDebugEntities();
 }
 
-void GameMap::consoleDisplaySeatVisualDebug(int seatId, bool enable)
+void GameMap::consoleToggleSeatVisualDebug(int seatId)
 {
     Seat* seat = getSeatById(seatId);
     if(seat == nullptr)
         return;
 
-    seat->displaySeatVisualDebug(enable);
+    seat->toggleSeatVisualDebug();
+    seat->refreshSeatVisualDebug();
 }
 
 void GameMap::consoleSetLevelCreature(const std::string& creatureName, uint32_t level)

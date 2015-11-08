@@ -74,7 +74,7 @@ Command::Result testCommand(const Command::ArgumentList_t& args, MockConsole& co
 BOOST_AUTO_TEST_CASE(test_Command)
 {
     auto t = TestModeManager::ModeType::GAME;
-    Command c(testCommand,"descr",{t});
+    Command c(testCommand,Command::cStubServer,"descr",{t});
     BOOST_CHECK(c.isAllowedInMode(t));
 }
 
@@ -96,45 +96,46 @@ BOOST_AUTO_TEST_CASE(test_ConsoleInterface)
                                         }
                                         return Command::Result::SUCCESS;
                                     },
+                                 Command::cStubServer,
                                  {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR}
-
             )
         );
     }
     BOOST_CHECK(interface.addCommand("aliasedcommand",
                          "aliased command desciption",
                          testCommand,
+                         Command::cStubServer,
                          {ModeManager::ModeType::GAME},
                          {"aliasedcmd",
                          "alsdcmd"}));
 
     unsigned int count = 0;
     //Check that scrolling up or down without a history does not do anything
-    BOOST_CHECK(interface.scrollCommandHistoryPositionDown() == false);
-    BOOST_CHECK(interface.scrollCommandHistoryPositionUp("text") == false);
+    BOOST_CHECK(!interface.scrollCommandHistoryPositionDown());
+    BOOST_CHECK(!interface.scrollCommandHistoryPositionUp("text"));
     //try executing commands
-    BOOST_CHECK(interface.tryExecuteCommand("help",mt, modeManager) == Command::Result::SUCCESS); ++count;
-    interface.tryExecuteCommand("test0",mt, modeManager); ++count;
-    interface.tryExecuteCommand("test1",mt, modeManager); ++count;
-    interface.tryExecuteCommand("test1 123 abc",mt, modeManager); ++count;
-    BOOST_CHECK(interface.tryExecuteCommand("aliasedcommand", TestModeManager::ModeType::EDITOR, modeManager) == Command::Result::WRONG_MODE); ++count;
-    BOOST_CHECK(interface.tryExecuteCommand("aliasedcommand 1",mt, modeManager) == Command::Result::SUCCESS); ++count;
-    BOOST_CHECK(interface.tryExecuteCommand("aliasedcmd argument1",mt, modeManager) == Command::Result::INVALID_ARGUMENT); ++count;
-    BOOST_CHECK(interface.tryExecuteCommand("aliasedcmd 184467440737095516100",mt, modeManager) == Command::Result::INVALID_ARGUMENT); ++count;
-    interface.tryExecuteCommand("alsdcmd argument1",mt, modeManager); ++count;
+    BOOST_CHECK(interface.tryExecuteClientCommand("help",mt, modeManager) == Command::Result::SUCCESS); ++count;
+    interface.tryExecuteClientCommand("test0",mt, modeManager); ++count;
+    interface.tryExecuteClientCommand("test1",mt, modeManager); ++count;
+    interface.tryExecuteClientCommand("test1 123 abc",mt, modeManager); ++count;
+    BOOST_CHECK(interface.tryExecuteClientCommand("aliasedcommand", TestModeManager::ModeType::EDITOR, modeManager) == Command::Result::WRONG_MODE); ++count;
+    BOOST_CHECK(interface.tryExecuteClientCommand("aliasedcommand 1",mt, modeManager) == Command::Result::SUCCESS); ++count;
+    BOOST_CHECK(interface.tryExecuteClientCommand("aliasedcmd argument1",mt, modeManager) == Command::Result::INVALID_ARGUMENT); ++count;
+    BOOST_CHECK(interface.tryExecuteClientCommand("aliasedcmd 184467440737095516100",mt, modeManager) == Command::Result::INVALID_ARGUMENT); ++count;
+    interface.tryExecuteClientCommand("alsdcmd argument1",mt, modeManager); ++count;
     //Test command completion
-    BOOST_CHECK(interface.tryCompleteCommand("alia") == false);
+    BOOST_CHECK(!interface.tryCompleteCommand("alia"));
     auto result = interface.tryCompleteCommand("aliasedco");
     BOOST_CHECK(result);
     BOOST_CHECK((*result).compare("aliasedcommand") == 0);
     //More scrolling tests
-    BOOST_CHECK(interface.scrollCommandHistoryPositionDown() == false);
+    BOOST_CHECK(!interface.scrollCommandHistoryPositionDown());
     BOOST_CHECK((*interface.scrollCommandHistoryPositionUp("commandPrompt")).compare("alsdcmd argument1") == 0);
     BOOST_CHECK((*interface.scrollCommandHistoryPositionDown()).compare("not commandPrompt") != 0);
-    BOOST_CHECK(interface.scrollCommandHistoryPositionDown() == false);
+    BOOST_CHECK(!interface.scrollCommandHistoryPositionDown());
 
     //Check command history, we should be at the bottom now:
-    BOOST_CHECK(interface.scrollCommandHistoryPositionDown() == false);
+    BOOST_CHECK(!interface.scrollCommandHistoryPositionDown());
     unsigned int test_count = 0;
     while(true)
     {

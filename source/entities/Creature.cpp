@@ -4155,9 +4155,16 @@ void Creature::drop(const Ogre::Vector3& v)
         if(!carryable.empty())
         {
             // We look for the most important entity to carry
-            // DAN_TEST TODO
-            GameEntity* entity = carryable[0];
-            pushAction(CreatureActionType::grabEntity, false, true, true, entity, nullptr, nullptr);
+            GameEntity* entityToCarry = carryable[0];
+            for(GameEntity* entity : carryable)
+            {
+                if(entity->getEntityCarryType(this) <= entityToCarry->getEntityCarryType(this))
+                    continue;
+
+                entityToCarry = entity;
+            }
+
+            pushAction(CreatureActionType::grabEntity, false, true, true, entityToCarry, nullptr, nullptr);
             return;
         }
 

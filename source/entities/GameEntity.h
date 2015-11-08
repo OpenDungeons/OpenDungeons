@@ -45,8 +45,7 @@ class Player;
 class Seat;
 class Tile;
 
-//! This enum is used to know how carryable entities should be prioritized from lowest
-//! to highest
+//! This enum is used to know how carryable entities should be prioritized from lowest to highest
 enum class EntityCarryType
 {
     notCarryable,

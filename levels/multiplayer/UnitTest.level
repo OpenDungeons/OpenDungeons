@@ -1,0 +1,276 @@
+OpenDungeons_Version:0.7.0  # The version of OpenDungeons which created this file (for compatibility reasons).
+
+[Info]
+Name	\[Test\] Unit test map
+Description	Test map for unit tests
+Music	Searching_yd.ogg
+FightMusic	TheDarkAmulet_MP.ogg
+[/Info]
+
+[Seats]
+[Seat]
+seatId	1
+teamId	1
+player	Human
+faction	Choice
+startingX	10
+startingY	10
+colorId	1
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	2
+teamId	2
+player	Choice
+faction	Choice
+startingX	10
+startingY	40
+colorId	2
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	3
+teamId	3
+player	Choice
+faction	Choice
+startingX	10
+startingY	40
+colorId	3
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+[/ResearchPending]
+[/Seat]
+[/Seats]
+
+[Goals]
+# goalName	arguments
+KillAllEnemies	NULL
+ClaimNTiles	40
++ 1
+ClaimNTiles	60
+MineNGold	20
++ 1
+MineNGold	50
++ 1
+MineNGold	100
+ProtectDungeonTemple	NULL
+[/Goals]
+
+[Tiles]
+# Map Size
+10 # MapSizeX
+20 # MapSizeY
+# posX	posY	type	fullness	seatId(optional)
+1	1	1	0	1
+1	2	1	0	1
+1	3	1	0	1
+1	4	2	100
+1	6	1	0	0
+1	7	1	0	0
+1	8	1	0	0
+1	10	1	0	1
+1	11	1	0	1
+1	12	1	0	1
+1	13	1	0	1
+2	1	1	0	1
+2	2	1	0	1
+2	3	1	0	1
+2	4	2	100
+2	6	1	0	0
+2	7	1	0	0
+2	8	1	0	0
+2	10	1	0	1
+2	11	1	0	1
+2	12	1	0	1
+2	13	1	0	1
+3	1	1	0	1
+3	2	1	0	1
+3	3	1	0	1
+3	4	2	100
+3	6	1	0	0
+3	7	1	0	0
+3	8	1	0	0
+3	10	1	0	1
+3	11	1	0	1
+3	12	1	0	1
+3	13	1	0	1
+4	10	1	0	1
+4	11	1	0	1
+4	12	1	0	1
+4	13	1	0	1
+5	10	1	0	1
+5	11	1	0	1
+5	12	1	0	1
+5	13	1	0	1
+6	1	1	0	2
+6	2	1	0	2
+6	3	1	0	2
+6	4	2	100
+6	6	1	0	0
+6	7	1	0	0
+6	8	1	0	0
+6	10	1	0	1
+6	11	1	0	1
+6	12	1	0	1
+6	13	1	0	1
+7	1	1	0	2
+7	2	1	0	2
+7	3	1	0	2
+7	4	2	100
+7	6	1	0	0
+7	7	1	0	0
+7	8	1	0	0
+7	10	1	0	1
+7	11	1	0	1
+7	12	1	0	1
+7	13	1	0	1
+8	1	1	0	2
+8	2	1	0	2
+8	3	1	0	2
+8	4	2	100
+8	6	1	0	0
+8	7	1	0	0
+8	8	1	0	0
+8	10	1	0	1
+8	11	1	0	1
+8	12	1	0	1
+8	13	1	0	1
+[/Tiles]
+
+[Rooms]
+# typeRoom	name	seatId	numTiles		Subsequent Lines: tileX	tileY
+[Room]
+4	Portal_4	0	9
+1	6
+1	7
+1	8
+2	6
+2	7
+2	8
+3	6
+3	7
+3	8
+9	5
+[/Room]
+[Room]
+4	Portal_5	0	9
+6	6
+6	7
+6	8
+7	6
+7	7
+7	8
+8	6
+8	7
+8	8
+9	5
+[/Room]
+[Room]
+1	DungeonTemple_1	1	9
+1	1
+1	2
+1	3
+2	1
+2	2
+2	3
+3	1
+3	2
+3	3
+[/Room]
+[Room]
+1	DungeonTemple_2	2	9
+6	1
+6	2
+6	3
+7	1
+7	2
+7	3
+8	1
+8	2
+8	3
+[/Room]
+[/Rooms]
+
+[Traps]
+# typeTrap	name	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
+[/Traps]
+
+[Lights]
+# posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
+12	7	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
+[/Lights]
+
+[CreatureDefinitions]
+[/CreatureDefinitions]
+
+[EquipmentDefinitions]
+[/EquipmentDefinitions]
+
+[Creatures]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+[/Creatures]
+
+[Spells]
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
+[/Spells]
+
+[CraftedTraps]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
+[/CraftedTraps]
+
+[ResearchEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchPoints	PosX	PosY	PosZ
+[/ResearchEntity]
+
+[GiftBoxEntity]
+# GiftBoxType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
+[/GiftBoxEntity]
+
+[Missiles]
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	speed	optionalData
+[/Missiles]
+
+[TreasuryObject]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value
+[/TreasuryObject]
+
+[Chickens]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ
+[/Chickens]
