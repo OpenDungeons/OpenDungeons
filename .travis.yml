@@ -56,6 +56,6 @@ before_install:
   - sudo cp -r SFML-2.3.1/* /usr/
   - cd $HOME_DIR
 script:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake . -DCMAKE_BUILD_TYPE=Release && make && sudo make install; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake . -DOD_BUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release && make && sudo make install; fi
 
 cache: apt
