@@ -57,6 +57,6 @@ before_install:
   - cd $HOME_DIR
 script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake . -DOD_BUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release && make && sudo make install; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sh scripts/unix/run_unit_tests.sh; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then ./scripts/unix/run_unit_tests.sh; fi
 
 cache: apt
