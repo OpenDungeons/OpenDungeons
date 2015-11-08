@@ -41,7 +41,14 @@ ODClientTest::ODClientTest(const std::vector<PlayerInfo>& players) :
 bool ODClientTest::connect(const std::string& host, const int port, uint32_t timeout, const std::string& outputReplayFilename)
 {
     if(!ODSocketClient::connect(host, port, timeout, outputReplayFilename))
-        return false;
+    {
+        OD_LOG_INF("Couldn't connect to server right away. Sleeping a bit before retry");
+        // Units tests are supposed to be launched in parallel with OD exe. If we fail, we retry after
+        // a small sleep 5 seconds to make sure the server had time to launch
+        sf::sleep(sf::milliseconds(5000));
+        if(!ODSocketClient::connect(host, port, timeout, outputReplayFilename))
+            return false;
+    }
 
     // Send a hello request to start the conversation with the server
     ODPacket packSend;
