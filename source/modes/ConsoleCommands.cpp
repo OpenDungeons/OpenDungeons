@@ -417,9 +417,9 @@ Command::Result cListMeshAnims(const Command::ArgumentList_t& args, ConsoleInter
     return Command::Result::SUCCESS;
 }
 
-Command::Result cSrvUnlockResearches(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
+Command::Result cSrvUnlockSkills(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {
-    gameMap.consoleAskUnlockResearches();
+    gameMap.consoleAskUnlockSkills();
     return Command::Result::SUCCESS;
 }
 
@@ -628,11 +628,11 @@ void addConsoleCommands(ConsoleInterface& cl)
                    },
                    Command::cStubServer,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
-    cl.addCommand("unlockresearches",
-                   "Unlock all researches for every seats\n"
-                   "unlockresearches",
+    cl.addCommand("unlockskills",
+                   "Unlock all skills for every seats\n"
+                   "unlockskills",
                    cSendCmdToServer,
-                   cSrvUnlockResearches,
+                   cSrvUnlockSkills,
                    {AbstractModeManager::ModeType::GAME});
 
 }

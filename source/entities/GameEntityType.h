@@ -39,7 +39,7 @@ enum class GameEntityType
     missileObject,
     persistentObject,
     trapEntity,
-    researchEntity,
+    skillEntity,
     giftBoxEntity
 };
 

@@ -31,7 +31,7 @@ class ODPacket;
 
 enum class GiftBoxType
 {
-    research,
+    skill,
     nbTypes
 };
 std::ostream& operator<<(std::ostream& os, const GiftBoxType& type);

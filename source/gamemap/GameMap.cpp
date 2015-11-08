@@ -32,7 +32,7 @@
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
 #include "game/Player.h"
-#include "game/Research.h"
+#include "game/Skill.h"
 #include "game/Seat.h"
 #include "gamemap/MapLoader.h"
 #include "gamemap/Pathfinding.h"
@@ -2611,7 +2611,7 @@ GameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
         case GameEntityType::smallSpiderEntity:
         case GameEntityType::trapEntity:
         case GameEntityType::treasuryObject:
-        case GameEntityType::researchEntity:
+        case GameEntityType::skillEntity:
         case GameEntityType::giftBoxEntity:
             return getRenderedMovableEntity(entityName);
 
@@ -2697,20 +2697,20 @@ void GameMap::consoleAskToggleFOW()
     mIsFOWActivated = !mIsFOWActivated;
 }
 
-void GameMap::consoleAskUnlockResearches()
+void GameMap::consoleAskUnlockSkills()
 {
     for(Seat* seat : getSeats())
     {
-        for(uint32_t i = 0; i < static_cast<uint32_t>(ResearchType::countResearch); ++i)
+        for(uint32_t i = 0; i < static_cast<uint32_t>(SkillType::countSkill); ++i)
         {
-            ResearchType research = static_cast<ResearchType>(i);
-            if(research == ResearchType::nullResearchType)
+            SkillType skill = static_cast<SkillType>(i);
+            if(skill == SkillType::nullSkillType)
                 continue;
 
-            if(seat->isResearchDone(research))
+            if(seat->isSkillDone(skill))
                 continue;
 
-            seat->addResearch(research);
+            seat->addSkill(skill);
         }
     }
 }

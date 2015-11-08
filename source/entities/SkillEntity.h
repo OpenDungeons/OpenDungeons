@@ -29,35 +29,35 @@ class GameMap;
 class Tile;
 class ODPacket;
 
-class ResearchEntity: public RenderedMovableEntity
+class SkillEntity: public RenderedMovableEntity
 {
 public:
-    ResearchEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, int32_t researchPoints);
-    ResearchEntity(GameMap* gameMap, bool isOnServerMap);
+    SkillEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, int32_t skillPoints);
+    SkillEntity(GameMap* gameMap, bool isOnServerMap);
 
     virtual GameEntityType getObjectType() const override
-    { return GameEntityType::researchEntity; }
+    { return GameEntityType::skillEntity; }
 
     virtual const Ogre::Vector3& getScale() const override;
 
-    inline int32_t getResearchPoints() const
-    { return mResearchPoints; }
+    inline int32_t getSkillPoints() const
+    { return mSkillPoints; }
 
     virtual EntityCarryType getEntityCarryType(Creature* carrier) override
-    { return EntityCarryType::researchEntity; }
+    { return EntityCarryType::skillEntity; }
 
     virtual void notifyEntityCarryOn(Creature* carrier) override;
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position) override;
 
-    static ResearchEntity* getResearchEntityFromStream(GameMap* gameMap, std::istream& is);
-    static ResearchEntity* getResearchEntityFromPacket(GameMap* gameMap, ODPacket& is);
-    static std::string getResearchEntityStreamFormat();
+    static SkillEntity* getSkillEntityFromStream(GameMap* gameMap, std::istream& is);
+    static SkillEntity* getSkillEntityFromPacket(GameMap* gameMap, ODPacket& is);
+    static std::string getSkillEntityStreamFormat();
 protected:
     void exportToStream(std::ostream& os) const override;
     bool importFromStream(std::istream& is) override;
 
 private:
-    int32_t mResearchPoints;
+    int32_t mSkillPoints;
 };
 
 #endif // RESEARCHENTITY_H

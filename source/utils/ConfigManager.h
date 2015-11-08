@@ -26,7 +26,7 @@
 class CreatureDefinition;
 class Weapon;
 class SpawnCondition;
-class Research;
+class Skill;
 class TileSet;
 class TileSetValue;
 
@@ -180,7 +180,7 @@ public:
     int32_t getSpellConfigInt32(const std::string& param) const;
     double getSpellConfigDouble(const std::string& param) const;
 
-    int32_t getResearchPoints(const std::string& res) const;
+    int32_t getSkillPoints(const std::string& res) const;
 
     inline const CreatureDefinition* getCreatureDefinitionDefaultWorker() const
     { return mCreatureDefinitionDefaultWorker; }
@@ -243,7 +243,7 @@ private:
     bool loadRooms(const std::string& fileName);
     bool loadTraps(const std::string& fileName);
     bool loadSpellConfig(const std::string& fileName);
-    bool loadResearches(const std::string& fileName);
+    bool loadSkills(const std::string& fileName);
     bool loadTilesets(const std::string& fileName);
     bool loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues);
 
@@ -266,7 +266,7 @@ private:
     std::string mFilenameRooms;
     std::string mFilenameTraps;
     std::string mFilenameSpells;
-    std::string mFilenameResearches;
+    std::string mFilenameSkills;
     std::string mFilenameTilesets;
     std::string mFilenameUserCfg;
     uint32_t mNetworkPort;
@@ -301,7 +301,7 @@ private:
     std::map<const std::string, std::string> mRoomsConfig;
     std::map<const std::string, std::string> mTrapsConfig;
     std::map<const std::string, std::string> mSpellConfig;
-    std::map<const std::string, int32_t> mResearchPoints;
+    std::map<const std::string, int32_t> mSkillPoints;
 
     //! \brief Default definition for the editor. At map loading, it will spawn a creature from
     //! the default seat worker depending on seat faction

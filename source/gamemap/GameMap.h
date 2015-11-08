@@ -449,7 +449,7 @@ public:
     void consoleToggleSeatVisualDebug(int seatId);
     void consoleSetLevelCreature(const std::string& creatureName, uint32_t level);
     void consoleAskToggleFOW();
-    void consoleAskUnlockResearches();
+    void consoleAskUnlockSkills();
 
     //! \brief This functions create unique names. They check that there
     //! is no entity with the same name before returning

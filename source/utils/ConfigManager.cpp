@@ -20,7 +20,7 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
-#include "game/Research.h"
+#include "game/Skill.h"
 #include "gamemap/TileSet.h"
 #include "spawnconditions/SpawnCondition.h"
 #include "utils/Helper.h"
@@ -112,10 +112,10 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
         OD_LOG_ERR("Couldn't read loadSpellConfig");
         exit(1);
     }
-    fileName = configPath + mFilenameResearches;
-    if(!loadResearches(fileName))
+    fileName = configPath + mFilenameSkills;
+    if(!loadSkills(fileName))
     {
-        OD_LOG_ERR("Couldn't read loadResearches");
+        OD_LOG_ERR("Couldn't read loadSkills");
         exit(1);
     }
     fileName = configPath + mFilenameTilesets;
@@ -305,9 +305,9 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
             mFilenameSpells = fileName;
             filesOk |= 0x40;
         }
-        else if(type == "Researches")
+        else if(type == "Skills")
         {
-            mFilenameResearches = fileName;
+            mFilenameSkills = fileName;
             filesOk |= 0x080;
         }
         else if(type == "Tilesets")
@@ -996,9 +996,9 @@ bool ConfigManager::loadSpellConfig(const std::string& fileName)
     return true;
 }
 
-bool ConfigManager::loadResearches(const std::string& fileName)
+bool ConfigManager::loadSkills(const std::string& fileName)
 {
-    OD_LOG_INF("Load Researches file: " + fileName);
+    OD_LOG_INF("Load Skills file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
@@ -1009,9 +1009,9 @@ bool ConfigManager::loadResearches(const std::string& fileName)
     std::string nextParam;
     // Read in the creature class descriptions
     defFile >> nextParam;
-    if (nextParam != "[Researches]")
+    if (nextParam != "[Skills]")
     {
-        OD_LOG_ERR("Invalid Researches start format. Line was " + nextParam);
+        OD_LOG_ERR("Invalid Skills start format. Line was " + nextParam);
         return false;
     }
 
@@ -1020,10 +1020,10 @@ bool ConfigManager::loadResearches(const std::string& fileName)
         if(!(defFile >> nextParam))
             break;
 
-        if (nextParam == "[/Researches]")
+        if (nextParam == "[/Skills]")
             break;
 
-        defFile >> mResearchPoints[nextParam];
+        defFile >> mSkillPoints[nextParam];
     }
     return true;
 }
@@ -1495,15 +1495,15 @@ double ConfigManager::getSpellConfigDouble(const std::string& param) const
     return Helper::toDouble(mSpellConfig.at(param));
 }
 
-int32_t ConfigManager::getResearchPoints(const std::string& res) const
+int32_t ConfigManager::getSkillPoints(const std::string& res) const
 {
-    if(mResearchPoints.count(res) <= 0)
+    if(mSkillPoints.count(res) <= 0)
     {
         OD_LOG_ERR("Unknown parameter res=" + res);
         return 0.0;
     }
 
-    return mResearchPoints.at(res);
+    return mSkillPoints.at(res);
 }
 
 const CreatureDefinition* ConfigManager::getCreatureDefinition(const std::string& name) const

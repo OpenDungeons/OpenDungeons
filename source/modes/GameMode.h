@@ -31,14 +31,14 @@ class Window;
 }
 
 enum class SpellType;
-enum class ResearchType;
+enum class SkillType;
 
-//! \brief utility class to store and display the current research completion. To make clearer
-//! if it fills up or down, we fill it smoothly each time the player opens the research tree
-class ResearchCurrentCompletion
+//! \brief utility class to store and display the current skill completion. To make clearer
+//! if it fills up or down, we fill it smoothly each time the player opens the skill tree
+class SkillCurrentCompletion
 {
 public:
-    ResearchCurrentCompletion()
+    SkillCurrentCompletion()
     {
         resetValue();
     }
@@ -140,14 +140,14 @@ class GameMode final : public GameEditorModeBase, public InputCommand
     //! \brief Synchronize settings displayed in the menu with settings in the seat
     void syncPlayerSettings();
 
-    //! \brief Shows/hides/toggles the Research window
-    bool showResearchWindow(const CEGUI::EventArgs& = {});
-    bool hideResearchWindow(const CEGUI::EventArgs& = {});
-    bool toggleResearchWindow(const CEGUI::EventArgs& = {});
-    bool applyResearchWindow(const CEGUI::EventArgs& = {});
-    bool unselectAllResearchWindow(const CEGUI::EventArgs& = {});
-    bool autoFillResearchWindow(const CEGUI::EventArgs& = {});
-    void closeResearchWindow(bool saveResearch);
+    //! \brief Shows/hides/toggles the Skill window
+    bool showSkillWindow(const CEGUI::EventArgs& = {});
+    bool hideSkillWindow(const CEGUI::EventArgs& = {});
+    bool toggleSkillWindow(const CEGUI::EventArgs& = {});
+    bool applySkillWindow(const CEGUI::EventArgs& = {});
+    bool unselectAllSkillWindow(const CEGUI::EventArgs& = {});
+    bool autoFillSkillWindow(const CEGUI::EventArgs& = {});
+    void closeSkillWindow(bool saveSkill);
 
     //! \brief Shows/hides/toggles the options window
     bool showOptionsWindow(const CEGUI::EventArgs& = {});
@@ -166,22 +166,22 @@ class GameMode final : public GameEditorModeBase, public InputCommand
 
     void displayText(const Ogre::ColourValue& txtColour, const std::string& txt) override;
 
-    //! \brief Called when the research window is displayed. This function will call the Seat to get
-    //! the current research tree and update it as the player clicks on the research buttons by calling
-    //! researchButtonTreeClicked
-    void resetResearchTree();
-    //! \brief Called when the player clicks a research in the research tree. Note that resetResearchTree
-    //! should be called before calling researchButtonTreeClicked
+    //! \brief Called when the skill window is displayed. This function will call the Seat to get
+    //! the current skill tree and update it as the player clicks on the skill buttons by calling
+    //! skillButtonTreeClicked
+    void resetSkillTree();
+    //! \brief Called when the player clicks a skill in the skill tree. Note that resetSkillTree
+    //! should be called before calling skillButtonTreeClicked
     //! Returns true if the pending list have been changed and false otherwise
-    bool researchButtonTreeClicked(ResearchType type);
-    //! \brief Called when the player closes the research tree. If apply is true, the changes
+    bool skillButtonTreeClicked(SkillType type);
+    //! \brief Called when the player closes the skill tree. If apply is true, the changes
     //! should be sent to the server. If false, the changes should be canceled.
-    void endResearchTree(bool apply);
+    void endSkillTree(bool apply);
 
     //! \brief Called at each frame. It checks if the Gui should be refreshed (for example,
-    //! if a research is done) and, if yes, refreshes accordingly.
+    //! if a skill is done) and, if yes, refreshes accordingly.
     //! \param forceRefresh Refresh the gui even if no changes was declared by the local player Seat.
-    void refreshGuiResearch(bool forceRefresh = false);
+    void refreshGuiSkill(bool forceRefresh = false);
 
     //! \brief Called at each frame. Updates spell cooldowns.
     void refreshSpellButtonCoolDowns();
@@ -192,7 +192,7 @@ protected:
     //! \brief The different Game Options Menu handlers
     bool showQuitMenuFromOptions(const CEGUI::EventArgs& e = {});
     bool showObjectivesFromOptions(const CEGUI::EventArgs& e = {});
-    bool showResearchFromOptions(const CEGUI::EventArgs& e = {});
+    bool showSkillFromOptions(const CEGUI::EventArgs& e = {});
     bool saveGame(const CEGUI::EventArgs& e = {});
     bool showSettingsFromOptions(const CEGUI::EventArgs& e = {});
 
@@ -216,16 +216,16 @@ private:
     //! \brief The settings window.
     SettingsWindow mSettings;
 
-    //! \brief Researches pending (Client side). This is copied from the seat for temporary changes while the
-    //! player clicks on the research tree window
-    std::vector<ResearchType> mResearchPending;
+    //! \brief Skills pending (Client side). This is copied from the seat for temporary changes while the
+    //! player clicks on the skill tree window
+    std::vector<SkillType> mSkillPending;
 
-    ResearchCurrentCompletion mResearchCurrentCompletion;
+    SkillCurrentCompletion mSkillCurrentCompletion;
 
-    bool mIsResearchWindowOpen;
+    bool mIsSkillWindowOpen;
 
-    ResearchType mCurrentResearchType;
-    float mCurrentResearchProgress;
+    SkillType mCurrentSkillType;
+    float mCurrentSkillProgress;
 
     //! \brief Seats playing the game
     std::vector<int> mSeatIds;
@@ -237,10 +237,10 @@ private:
     //! It will handle the potential mouse wheel logic
     void handleMouseWheel(const OIS::MouseEvent& arg);
 
-    //! \brief Set the state of the given research button accordingly to the research type given.
-    //! \note: Called by refreshGuiResearch() for each researchType.
-    void refreshResearchButtonState(const std::string& researchButton, const std::string& castButton,
-        const std::string& researchProgressBar, ResearchType resType);
+    //! \brief Set the state of the given skill button accordingly to the skill type given.
+    //! \note: Called by refreshGuiSkill() for each skillType.
+    void refreshSkillButtonState(const std::string& skillButton, const std::string& castButton,
+        const std::string& skillProgressBar, SkillType resType);
 
     //! \brief Tells whether the latest mouse click was made on a relevant CEGUI widget,
     //! and thus, the game should ignore it.

@@ -19,17 +19,17 @@ colorId	1
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 trapCannon
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
 roomTrainingHall
 spellCallToWar
 trapDoorWooden
@@ -39,7 +39,7 @@ roomCrypt
 trapBoulder
 spellCreatureHeal
 spellCreatureExplosion
-[/ResearchPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	2
@@ -52,17 +52,17 @@ colorId	2
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 trapCannon
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
 roomTrainingHall
 spellCallToWar
 trapDoorWooden
@@ -70,7 +70,7 @@ trapSpike
 roomWorkshop
 roomCrypt
 trapBoulder
-[/ResearchPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	3
@@ -83,12 +83,12 @@ colorId	3
 gold	0
 goldMined	0
 mana	0
-[ResearchDone]
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
-[/ResearchPending]
+[SkillDone]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
+[/SkillPending]
 [/Seat]
 [/Seats]
 
@@ -2220,7 +2220,7 @@ BigKnight	12
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 1	DefaultWorker1	Kobold.mesh	26	4	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
@@ -2232,9 +2232,9 @@ BigKnight	12
 # SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
 [/CraftedTraps]
 
-[ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchPoints	PosX	PosY	PosZ
-[/ResearchEntity]
+[SkillEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	skillPoints	PosX	PosY	PosZ
+[/SkillEntity]
 
 [GiftBoxEntity]
 # GiftBoxType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData

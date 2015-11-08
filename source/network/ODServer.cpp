@@ -23,8 +23,8 @@
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
 #include "game/Player.h"
-#include "game/Research.h"
-#include "game/ResearchManager.h"
+#include "game/Skill.h"
+#include "game/SkillManager.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/MapLoader.h"
@@ -1200,7 +1200,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // We check if the room is available. It is not normal to receive a message
             // asking to build an unbuildable room since the client should only display
             // available rooms
-            if(!ResearchManager::isRoomAvailable(type, player->getSeat()))
+            if(!SkillManager::isRoomAvailable(type, player->getSeat()))
             {
                 OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
                     + " asked to build a room not available: " + RoomManager::getRoomNameFromRoomType(type));
@@ -1246,7 +1246,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // We check if the trap is available. It is not normal to receive a message
             // asking to build an unbuildable trap since the client should only display
             // available rooms
-            if(!ResearchManager::isTrapAvailable(type, player->getSeat()))
+            if(!SkillManager::isTrapAvailable(type, player->getSeat()))
             {
                 OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
                     + " asked to build a trap not available: " + TrapManager::getTrapNameFromTrapType(type));
@@ -1287,7 +1287,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // We check if the spell is available. It is not normal to receive a message
             // asking to cast an uncastable spell since the client should only display
             // available spells
-            if(!ResearchManager::isSpellAvailable(spellType, player->getSeat()))
+            if(!SkillManager::isSpellAvailable(spellType, player->getSeat()))
             {
                 OD_LOG_WRN("player " + player->getNick()
                     + " asked to cast a spell not available: " + SpellManager::getSpellNameFromSpellType(spellType));
@@ -1672,21 +1672,21 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotificationType::askSetResearchTree:
+        case ClientNotificationType::askSetSkillTree:
         {
             Player* player = clientSocket->getPlayer();
             uint32_t nbItems;
             OD_ASSERT_TRUE(packetReceived >> nbItems);
-            std::vector<ResearchType> researches;
+            std::vector<SkillType> skills;
             while(nbItems > 0)
             {
                 nbItems--;
-                ResearchType research;
-                OD_ASSERT_TRUE(packetReceived >> research);
-                researches.push_back(research);
+                SkillType skill;
+                OD_ASSERT_TRUE(packetReceived >> skill);
+                skills.push_back(skill);
             }
 
-            player->getSeat()->setResearchTree(researches);
+            player->getSeat()->setSkillTree(skills);
             break;
         }
 

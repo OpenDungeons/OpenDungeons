@@ -110,7 +110,7 @@ private:
 
     //! \brief Refreshes the gui buttons. It will be called at level loading only since
     //! it shouldn't change in the editor
-    void refreshGuiResearch();
+    void refreshGuiSkill();
 
     //! \brief Updates the flag icon color when switching seats.
     void updateFlagColor();

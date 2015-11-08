@@ -69,8 +69,8 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "askPickupFighter";
         case ClientNotificationType::askCastSpell:
             return "askCastSpell";
-        case ClientNotificationType::askSetResearchTree:
-            return "askSetResearchTree";
+        case ClientNotificationType::askSetSkillTree:
+            return "askSetSkillTree";
         case ClientNotificationType::askSetPlayerSettings:
             return "askSetPlayerSettings";
         case ClientNotificationType::askSaveMap:

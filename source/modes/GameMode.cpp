@@ -21,8 +21,8 @@
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
-#include "game/Research.h"
-#include "game/ResearchManager.h"
+#include "game/Skill.h"
+#include "game/SkillManager.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
@@ -71,9 +71,9 @@ GameMode::GameMode(ModeManager *modeManager):
     mDigSetBool(false),
     mIndexEvent(0),
     mSettings(SettingsWindow(mRootWindow)),
-    mIsResearchWindowOpen(false),
-    mCurrentResearchType(ResearchType::nullResearchType),
-    mCurrentResearchProgress(0.0)
+    mIsSkillWindowOpen(false),
+    mCurrentSkillType(SkillType::nullSkillType),
+    mCurrentSkillProgress(0.0)
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
@@ -130,41 +130,41 @@ GameMode::GameMode(ModeManager *modeManager):
         )
     );
 
-    // The research tree window
+    // The skill tree window
     addEventConnection(
-        guiSheet->getChild("ResearchButton")->subscribeEvent(
+        guiSheet->getChild("SkillButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::toggleResearchWindow, this)
+            CEGUI::Event::Subscriber(&GameMode::toggleSkillWindow, this)
         )
     );
     addEventConnection(
-        guiSheet->getChild("ResearchTreeWindow/__auto_closebutton__")->subscribeEvent(
+        guiSheet->getChild("SkillTreeWindow/__auto_closebutton__")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::hideResearchWindow, this)
+            CEGUI::Event::Subscriber(&GameMode::hideSkillWindow, this)
         )
     );
     addEventConnection(
-        guiSheet->getChild("ResearchTreeWindow/AutoFill")->subscribeEvent(
+        guiSheet->getChild("SkillTreeWindow/AutoFill")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::autoFillResearchWindow, this)
+            CEGUI::Event::Subscriber(&GameMode::autoFillSkillWindow, this)
         )
     );
     addEventConnection(
-        guiSheet->getChild("ResearchTreeWindow/UnselectAll")->subscribeEvent(
+        guiSheet->getChild("SkillTreeWindow/UnselectAll")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::unselectAllResearchWindow, this)
+            CEGUI::Event::Subscriber(&GameMode::unselectAllSkillWindow, this)
         )
     );
     addEventConnection(
-        guiSheet->getChild("ResearchTreeWindow/CancelButton")->subscribeEvent(
+        guiSheet->getChild("SkillTreeWindow/CancelButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::hideResearchWindow, this)
+            CEGUI::Event::Subscriber(&GameMode::hideSkillWindow, this)
         )
     );
     addEventConnection(
-        guiSheet->getChild("ResearchTreeWindow/ApplyButton")->subscribeEvent(
+        guiSheet->getChild("SkillTreeWindow/ApplyButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::applyResearchWindow, this)
+            CEGUI::Event::Subscriber(&GameMode::applySkillWindow, this)
         )
     );
 
@@ -188,9 +188,9 @@ GameMode::GameMode(ModeManager *modeManager):
         )
     );
     addEventConnection(
-        guiSheet->getChild("GameOptionsWindow/ResearchButton")->subscribeEvent(
+        guiSheet->getChild("GameOptionsWindow/SkillButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::showResearchFromOptions, this)
+            CEGUI::Event::Subscriber(&GameMode::showSkillFromOptions, this)
         )
     );
     CEGUI::Window* saveGameButtonWindow = guiSheet->getChild("GameOptionsWindow/SaveGameButton");
@@ -253,7 +253,7 @@ GameMode::GameMode(ModeManager *modeManager):
     // Set the help window text
     setHelpWindowText();
 
-    ResearchManager::connectResearches(this, mRootWindow);
+    SkillManager::connectSkills(this, mRootWindow);
 
     syncTabButtonTooltips(Gui::MAIN_TABCONTROL);
 }
@@ -308,7 +308,7 @@ void GameMode::activate()
     guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
     guiSheet->getChild("ObjectivesWindow")->hide();
     guiSheet->getChild("PlayerSettingsWindow")->hide();
-    guiSheet->getChild("ResearchTreeWindow")->hide();
+    guiSheet->getChild("SkillTreeWindow")->hide();
     guiSheet->getChild("SettingsWindow")->hide();
     guiSheet->getChild("GameOptionsWindow")->hide();
     guiSheet->getChild("GameChatWindow/GameChatEditBox")->hide();
@@ -334,7 +334,7 @@ void GameMode::activate()
     }
 
     // Update available options
-    refreshGuiResearch(true);
+    refreshGuiSkill(true);
 
     syncPlayerSettings();
 }
@@ -793,7 +793,7 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         break;
 
     case OIS::KC_F4:
-        toggleResearchWindow();
+        toggleSkillWindow();
         break;
 
     case OIS::KC_F5:
@@ -1086,7 +1086,7 @@ void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
 {
     GameEditorModeBase::onFrameStarted(evt);
 
-    refreshGuiResearch();
+    refreshGuiSkill();
     refreshSpellButtonCoolDowns();
 
     Player* player = mGameMap->getLocalPlayer();
@@ -1097,20 +1097,20 @@ void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
     }
     player->frameStarted(evt.timeSinceLastFrame);
 
-    if((mResearchCurrentCompletion.mProgressBar != nullptr) &&
-       (mResearchCurrentCompletion.mCompletenessDisplayed < mResearchCurrentCompletion.mCompleteness))
+    if((mSkillCurrentCompletion.mProgressBar != nullptr) &&
+       (mSkillCurrentCompletion.mCompletenessDisplayed < mSkillCurrentCompletion.mCompleteness))
     {
         const float completeTime = 3.0f;
-        // We update current research completeness. Because the required amount of research
-        // may be pretty high between the lowest and highest researches, we cannot fill it
-        // linearly according to this amount (it would be too fast for cheap researches or
+        // We update current skill completeness. Because the required amount of skill
+        // may be pretty high between the lowest and highest skills, we cannot fill it
+        // linearly according to this amount (it would be too fast for cheap skills or
         // too slow for expensive ones).
-        // We want to fill it so that a 100% research is filled in 'completeTime' seconds
+        // We want to fill it so that a 100% skill is filled in 'completeTime' seconds
         float progress = evt.timeSinceLastFrame / completeTime;
-        mResearchCurrentCompletion.mCompletenessDisplayed = std::min(mResearchCurrentCompletion.mCompleteness,
-            mResearchCurrentCompletion.mCompletenessDisplayed + progress);
+        mSkillCurrentCompletion.mCompletenessDisplayed = std::min(mSkillCurrentCompletion.mCompleteness,
+            mSkillCurrentCompletion.mCompletenessDisplayed + progress);
 
-        mResearchCurrentCompletion.mProgressBar->setProgress(mResearchCurrentCompletion.mCompletenessDisplayed);
+        mSkillCurrentCompletion.mProgressBar->setProgress(mSkillCurrentCompletion.mCompletenessDisplayed);
     }
 }
 
@@ -1240,50 +1240,50 @@ void GameMode::syncPlayerSettings()
     cbKoCreatures->setSelected(localPlayerSeat->getKoCreatures());
 }
 
-bool GameMode::showResearchWindow(const CEGUI::EventArgs&)
+bool GameMode::showSkillWindow(const CEGUI::EventArgs&)
 {
-    resetResearchTree();
-    mRootWindow->getChild("ResearchTreeWindow")->show();
+    resetSkillTree();
+    mRootWindow->getChild("SkillTreeWindow")->show();
     return true;
 }
 
-bool GameMode::hideResearchWindow(const CEGUI::EventArgs&)
+bool GameMode::hideSkillWindow(const CEGUI::EventArgs&)
 {
-    closeResearchWindow(false);
+    closeSkillWindow(false);
     return true;
 }
 
-bool GameMode::unselectAllResearchWindow(const CEGUI::EventArgs&)
+bool GameMode::unselectAllSkillWindow(const CEGUI::EventArgs&)
 {
-    mResearchPending.clear();
-    mResearchCurrentCompletion.resetValue();
-    refreshGuiResearch(true);
+    mSkillPending.clear();
+    mSkillCurrentCompletion.resetValue();
+    refreshGuiSkill(true);
     return true;
 }
 
-bool GameMode::applyResearchWindow(const CEGUI::EventArgs& e)
+bool GameMode::applySkillWindow(const CEGUI::EventArgs& e)
 {
-    closeResearchWindow(true);
+    closeSkillWindow(true);
     return true;
 }
 
-void GameMode::closeResearchWindow(bool saveResearch)
+void GameMode::closeSkillWindow(bool saveSkill)
 {
-    endResearchTree(saveResearch);
-    mRootWindow->getChild("ResearchTreeWindow")->hide();
+    endSkillTree(saveSkill);
+    mRootWindow->getChild("SkillTreeWindow")->hide();
 }
 
-bool GameMode::toggleResearchWindow(const CEGUI::EventArgs& e)
+bool GameMode::toggleSkillWindow(const CEGUI::EventArgs& e)
 {
-    CEGUI::Window* research = mRootWindow->getChild("ResearchTreeWindow");
+    CEGUI::Window* skill = mRootWindow->getChild("SkillTreeWindow");
 
-    if (research->isVisible())
+    if (skill->isVisible())
     {
-        closeResearchWindow(false);
+        closeSkillWindow(false);
     }
     else
     {
-        showResearchWindow(e);
+        showSkillWindow(e);
     }
     return true;
 }
@@ -1325,10 +1325,10 @@ bool GameMode::showObjectivesFromOptions(const CEGUI::EventArgs& /*e*/)
     return true;
 }
 
-bool GameMode::showResearchFromOptions(const CEGUI::EventArgs& /*e*/)
+bool GameMode::showSkillFromOptions(const CEGUI::EventArgs& /*e*/)
 {
     mRootWindow->getChild("GameOptionsWindow")->hide();
-    showResearchWindow();
+    showSkillWindow();
     return true;
 }
 
@@ -1411,9 +1411,9 @@ void GameMode::setHelpWindowText()
         << "dirt and gold tiles for digging and mining." << std::endl
         << "  - Build rooms on claimed tiles. Building rooms costs gold, so make sure to have at least one treasury tile "
         << "in place (thanks to your evil tricks, the first tile is free!) so that your workers can store the gold they mine." << std::endl
-        << "Be sure to build a dormitory and a hatchery to fulfill your creatures' lowest needs, and a library to research "
+        << "Be sure to build a dormitory and a hatchery to fulfill your creatures' lowest needs, and a library to skill "
         << "new buildings, spells and traps. Varied buildings, wealth and great dungeons will attract more powerful creatures." << std::endl
-        << "  - Use the Research Manager (F4) to set the priority for the various skills that can be uncovered at the library."
+        << "  - Use the Skill Manager (F4) to set the priority for the various skills that can be uncovered at the library."
         << "Make sure to have intelligent creatures always at work at your library - if you can find any among your dumb minions!" << std::endl
         << "  - Once you have a workshop, set traps to protect your dungeon - your creatures will then craft them at the workshop." << std::endl
         << "  - Use spells to macro-manage your creatures more efficiently." << std::endl << std::endl;
@@ -1428,30 +1428,30 @@ void GameMode::setHelpWindowText()
     textWindow->setText(reinterpret_cast<const CEGUI::utf8*>(txt.str().c_str()));
 }
 
-void GameMode::refreshResearchButtonState(const std::string& researchButtonName, const std::string& castButtonName,
-        const std::string& researchProgressBarName, ResearchType resType)
+void GameMode::refreshSkillButtonState(const std::string& skillButtonName, const std::string& castButtonName,
+        const std::string& skillProgressBarName, SkillType resType)
 {
-    // Determine the widget name and button accordingly to the ResearchType given
+    // Determine the widget name and button accordingly to the SkillType given
     Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
-    bool isDone = localPlayerSeat->isResearchDone(resType);
+    bool isDone = localPlayerSeat->isSkillDone(resType);
     bool isAllowed = true;
     uint32_t queueNumber = 0;
     if(!isDone)
     {
-        const std::vector<ResearchType>& researchNotAllowed = localPlayerSeat->getResearchNotAllowed();
-        if(std::find(researchNotAllowed.begin(), researchNotAllowed.end(), resType) != researchNotAllowed.end())
+        const std::vector<SkillType>& skillNotAllowed = localPlayerSeat->getSkillNotAllowed();
+        if(std::find(skillNotAllowed.begin(), skillNotAllowed.end(), resType) != skillNotAllowed.end())
         {
-            // Research is not allowed
+            // Skill is not allowed
             isAllowed = false;
         }
         else
         {
-            // If we are currently changing the research window, we display the temporary
+            // If we are currently changing the skill window, we display the temporary
             // modified pending list
-            if(mIsResearchWindowOpen)
+            if(mIsSkillWindowOpen)
             {
                 uint32_t cpt = 1;
-                for (ResearchType pendingRes : mResearchPending)
+                for (SkillType pendingRes : mSkillPending)
                 {
                     if (pendingRes == resType)
                     {
@@ -1463,7 +1463,7 @@ void GameMode::refreshResearchButtonState(const std::string& researchButtonName,
             }
             else
             {
-                queueNumber = localPlayerSeat->isResearchPending(resType);
+                queueNumber = localPlayerSeat->isSkillPending(resType);
             }
         }
     }
@@ -1473,127 +1473,127 @@ void GameMode::refreshResearchButtonState(const std::string& researchButtonName,
     const std::string abortIcon = "OpenDungeonsIcons/AbortIcon";
     const std::string workIcon = "OpenDungeonsIcons/CogIcon";
 
-    float curResearchProgress;
-    ResearchType curResType;
-    if(!localPlayerSeat->getCurrentResearchProgress(curResType, curResearchProgress))
+    float curSkillProgress;
+    SkillType curResType;
+    if(!localPlayerSeat->getCurrentSkillProgress(curResType, curSkillProgress))
     {
-        curResType = ResearchType::nullResearchType;
+        curResType = SkillType::nullSkillType;
     }
 
-    // We show/hide the icons depending on available researches
+    // We show/hide the icons depending on available skills
     CEGUI::Window* guiSheet = mRootWindow;
-    CEGUI::Window* skillsWindow = guiSheet->getChild("ResearchTreeWindow/Skills");
+    CEGUI::Window* skillsWindow = guiSheet->getChild("SkillTreeWindow/Skills");
 
-    CEGUI::Window* researchButton = skillsWindow->getChild(researchButtonName);
-    CEGUI::ProgressBar* researchProgressBar =
-        static_cast<CEGUI::ProgressBar*>(skillsWindow->getChild(researchProgressBarName));
+    CEGUI::Window* skillButton = skillsWindow->getChild(skillButtonName);
+    CEGUI::ProgressBar* skillProgressBar =
+        static_cast<CEGUI::ProgressBar*>(skillsWindow->getChild(skillProgressBarName));
     if(isDone)
     {
         guiSheet->getChild(castButtonName)->show();
-        researchButton->setText("");
-        researchButton->setProperty("StateImage", okIcon);
-        researchButton->setProperty("StateImageColour", "FF00BB00");
-        researchButton->setEnabled(false);
-        researchProgressBar->hide();
+        skillButton->setText("");
+        skillButton->setProperty("StateImage", okIcon);
+        skillButton->setProperty("StateImageColour", "FF00BB00");
+        skillButton->setEnabled(false);
+        skillProgressBar->hide();
     }
     else if(!isAllowed)
     {
         guiSheet->getChild(castButtonName)->show();
-        researchButton->setText("");
-        researchButton->setProperty("StateImage", abortIcon);
-        researchButton->setProperty("StateImageColour", "FFBB0000");
-        researchButton->setEnabled(false);
-        researchProgressBar->hide();
+        skillButton->setText("");
+        skillButton->setProperty("StateImage", abortIcon);
+        skillButton->setProperty("StateImageColour", "FFBB0000");
+        skillButton->setEnabled(false);
+        skillProgressBar->hide();
     }
     else if(resType == curResType)
     {
-        // The skill is not available but research is being done
+        // The skill is not available but skill is being done
         guiSheet->getChild(castButtonName)->hide();
         if(queueNumber == 0)
-            researchButton->setText("");
+            skillButton->setText("");
         else
-            researchButton->setText(Helper::toString(queueNumber));
+            skillButton->setText(Helper::toString(queueNumber));
 
-        researchButton->setProperty("StateImage", workIcon);
-        researchButton->setProperty("StateImageColour", "FF888800");
-        researchButton->setEnabled(true);
-        if (curResearchProgress > 0.0f)
+        skillButton->setProperty("StateImage", workIcon);
+        skillButton->setProperty("StateImageColour", "FF888800");
+        skillButton->setEnabled(true);
+        if (curSkillProgress > 0.0f)
         {
-            // We reload the values is the current research changed or if its value changed
-            researchProgressBar->show();
-            if((mResearchCurrentCompletion.mProgressBar != researchProgressBar) ||
-               (mResearchCurrentCompletion.mCompleteness != curResearchProgress))
+            // We reload the values is the current skill changed or if its value changed
+            skillProgressBar->show();
+            if((mSkillCurrentCompletion.mProgressBar != skillProgressBar) ||
+               (mSkillCurrentCompletion.mCompleteness != curSkillProgress))
             {
-                mResearchCurrentCompletion.setValue(researchProgressBar, curResearchProgress);
-                researchProgressBar->setProgress(0);
+                mSkillCurrentCompletion.setValue(skillProgressBar, curSkillProgress);
+                skillProgressBar->setProgress(0);
             }
         }
         else
         {
-            researchProgressBar->hide();
+            skillProgressBar->hide();
         }
     }
     else if (queueNumber >= 1)
     {
-        // The skill is not available but research is pending
+        // The skill is not available but skill is pending
         guiSheet->getChild(castButtonName)->hide();
-        researchButton->setText(Helper::toString(queueNumber));
-        researchButton->setProperty("StateImage", pendingIcon);
-        researchButton->setProperty("StateImageColour", "FFFFFFFF");
-        researchButton->setEnabled(true);
-        researchProgressBar->hide();
+        skillButton->setText(Helper::toString(queueNumber));
+        skillButton->setProperty("StateImage", pendingIcon);
+        skillButton->setProperty("StateImageColour", "FFFFFFFF");
+        skillButton->setEnabled(true);
+        skillProgressBar->hide();
     }
     else
     {
-        // The skill is not available and research is not pending
+        // The skill is not available and skill is not pending
         guiSheet->getChild(castButtonName)->hide();
-        researchButton->setText("");
-        researchButton->setProperty("StateImage", "");
-        researchButton->setEnabled(true);
-        researchProgressBar->hide();
+        skillButton->setText("");
+        skillButton->setProperty("StateImage", "");
+        skillButton->setEnabled(true);
+        skillProgressBar->hide();
     }
 }
 
-void GameMode::refreshGuiResearch(bool forceRefresh)
+void GameMode::refreshGuiSkill(bool forceRefresh)
 {
     Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
 
-    // If the percentage or the pending research changed, we force refresh
-    float curResearchProgress;
-    ResearchType curResType;
-    if(localPlayerSeat->getCurrentResearchProgress(curResType, curResearchProgress) &&
-       ((mCurrentResearchType != curResType) ||
-        (mCurrentResearchProgress != curResearchProgress)))
+    // If the percentage or the pending skill changed, we force refresh
+    float curSkillProgress;
+    SkillType curResType;
+    if(localPlayerSeat->getCurrentSkillProgress(curResType, curSkillProgress) &&
+       ((mCurrentSkillType != curResType) ||
+        (mCurrentSkillProgress != curSkillProgress)))
     {
         forceRefresh = true;
     }
 
-    if(!forceRefresh && !localPlayerSeat->getGuiResearchNeedsRefresh())
+    if(!forceRefresh && !localPlayerSeat->getGuiSkillNeedsRefresh())
         return;
 
-    if(mIsResearchWindowOpen && localPlayerSeat->getGuiResearchNeedsRefresh())
+    if(mIsSkillWindowOpen && localPlayerSeat->getGuiSkillNeedsRefresh())
     {
         // We check if the temporary current pending list changed.
-        for(auto it = mResearchPending.begin(); it != mResearchPending.end();)
+        for(auto it = mSkillPending.begin(); it != mSkillPending.end();)
         {
-            ResearchType resType = *it;
-            if(!localPlayerSeat->isResearchDone(resType))
+            SkillType resType = *it;
+            if(!localPlayerSeat->isSkillDone(resType))
             {
                 ++it;
                 continue;
             }
 
-            it = mResearchPending.erase(it);
+            it = mSkillPending.erase(it);
         }
     }
 
-    localPlayerSeat->guiResearchRefreshed();
+    localPlayerSeat->guiSkillRefreshed();
 
-    // We show/hide each icon depending on available researches
-    ResearchManager::listAllResearches([this](const std::string& researchButtonName, const std::string& castButtonName,
-        const std::string& researchProgressBarName, ResearchType resType)
+    // We show/hide each icon depending on available skills
+    SkillManager::listAllSkills([this](const std::string& skillButtonName, const std::string& castButtonName,
+        const std::string& skillProgressBarName, SkillType resType)
     {
-        refreshResearchButtonState(researchButtonName, castButtonName, researchProgressBarName, resType);
+        refreshSkillButtonState(skillButtonName, castButtonName, skillProgressBarName, resType);
     });
 }
 
@@ -1606,8 +1606,8 @@ void GameMode::refreshSpellButtonCoolDowns()
         return;
     }
 
-    // We show/hide each icon depending on available researches
-    ResearchManager::listAllSpellsProgressBars([this, player](SpellType spellType, const std::string& castProgressBarName)
+    // We show/hide each icon depending on available skills
+    SkillManager::listAllSpellsProgressBars([this, player](SpellType spellType, const std::string& castProgressBarName)
     {
         CEGUI::ProgressBar* progressBar = static_cast<CEGUI::ProgressBar*>(mRootWindow->getChild(castProgressBarName));
         float progress = player->getSpellCooldownSmooth(spellType);
@@ -1738,102 +1738,102 @@ void GameMode::handlePlayerActionSelectTile()
     mPlayerSelection.setCurrentAction(SelectedAction::none);
 }
 
-void GameMode::resetResearchTree()
+void GameMode::resetSkillTree()
 {
-    mResearchPending = mGameMap->getLocalPlayer()->getSeat()->getResearchPending();
-    mResearchCurrentCompletion.resetValue();
-    mIsResearchWindowOpen = true;
+    mSkillPending = mGameMap->getLocalPlayer()->getSeat()->getSkillPending();
+    mSkillCurrentCompletion.resetValue();
+    mIsSkillWindowOpen = true;
 }
 
-bool GameMode::researchButtonTreeClicked(ResearchType type)
+bool GameMode::skillButtonTreeClicked(SkillType type)
 {
-    // If the research is already done or not allowed, nothing to do
-    const std::vector<ResearchType>& researchDone = mGameMap->getLocalPlayer()->getSeat()->getResearchDone();
-    if(std::find(researchDone.begin(), researchDone.end(), type) != researchDone.end())
+    // If the skill is already done or not allowed, nothing to do
+    const std::vector<SkillType>& skillDone = mGameMap->getLocalPlayer()->getSeat()->getSkillDone();
+    if(std::find(skillDone.begin(), skillDone.end(), type) != skillDone.end())
         return false;
-    const std::vector<ResearchType>& researchNotAllowed = mGameMap->getLocalPlayer()->getSeat()->getResearchNotAllowed();
-    if(std::find(researchNotAllowed.begin(), researchNotAllowed.end(), type) != researchNotAllowed.end())
+    const std::vector<SkillType>& skillNotAllowed = mGameMap->getLocalPlayer()->getSeat()->getSkillNotAllowed();
+    if(std::find(skillNotAllowed.begin(), skillNotAllowed.end(), type) != skillNotAllowed.end())
         return false;
 
-    auto it = std::find(mResearchPending.begin(), mResearchPending.end(), type);
-    if(it != mResearchPending.end())
+    auto it = std::find(mSkillPending.begin(), mSkillPending.end(), type);
+    if(it != mSkillPending.end())
     {
-        // The research is pending. We remove it as well as all its dependencies
-        mResearchPending.erase(it);
+        // The skill is pending. We remove it as well as all its dependencies
+        mSkillPending.erase(it);
 
-        for(it = mResearchPending.begin(); it != mResearchPending.end();)
+        for(it = mSkillPending.begin(); it != mSkillPending.end();)
         {
-            ResearchType pendingType = *it;
-            const Research* research = ResearchManager::getResearch(pendingType);
-            if(research == nullptr)
+            SkillType pendingType = *it;
+            const Skill* skill = SkillManager::getSkill(pendingType);
+            if(skill == nullptr)
             {
-                OD_LOG_ERR("null research pendingType=" + Helper::toString(static_cast<uint32_t>(pendingType)));
+                OD_LOG_ERR("null skill pendingType=" + Helper::toString(static_cast<uint32_t>(pendingType)));
                 continue;
             }
 
-            if(!research->dependsOn(type))
+            if(!skill->dependsOn(type))
             {
                 ++it;
                 continue;
             }
-            it = mResearchPending.erase(it);
+            it = mSkillPending.erase(it);
         }
         return true;
     }
 
-    std::vector<ResearchType> researchToAdd;
+    std::vector<SkillType> skillToAdd;
 
-    // The research is not pending. We need to check availability to all its dependencies and
+    // The skill is not pending. We need to check availability to all its dependencies and
     // add them at the end of the list if all are available/done
-    const Research* research = ResearchManager::getResearch(type);
-    std::vector<ResearchType> dependencies;
-    research->buildDependencies(researchDone, dependencies);
+    const Skill* skill = SkillManager::getSkill(type);
+    std::vector<SkillType> dependencies;
+    skill->buildDependencies(skillDone, dependencies);
 
-    // We check if one of the dependencies is not available. If not, we cannot research
-    for(ResearchType researchType : dependencies)
+    // We check if one of the dependencies is not available. If not, we cannot skill
+    for(SkillType skillType : dependencies)
     {
-        if(std::find(researchNotAllowed.begin(), researchNotAllowed.end(), researchType) != researchNotAllowed.end())
+        if(std::find(skillNotAllowed.begin(), skillNotAllowed.end(), skillType) != skillNotAllowed.end())
             return false;
 
-        if(std::find(mResearchPending.begin(), mResearchPending.end(), researchType) != mResearchPending.end())
+        if(std::find(mSkillPending.begin(), mSkillPending.end(), skillType) != mSkillPending.end())
             continue;
 
-        researchToAdd.push_back(researchType);
+        skillToAdd.push_back(skillType);
     }
 
-    for(ResearchType researchType : researchToAdd)
-        mResearchPending.push_back(researchType);
+    for(SkillType skillType : skillToAdd)
+        mSkillPending.push_back(skillType);
 
     return true;
 }
 
-bool GameMode::autoFillResearchWindow(const CEGUI::EventArgs&)
+bool GameMode::autoFillSkillWindow(const CEGUI::EventArgs&)
 {
-    ResearchManager::buildRandomPendingResearchesForSeat(mResearchPending,
+    SkillManager::buildRandomPendingSkillsForSeat(mSkillPending,
         mGameMap->getLocalPlayer()->getSeat());
-    refreshGuiResearch(true);
+    refreshGuiSkill(true);
     return true;
 }
 
-void GameMode::endResearchTree(bool apply)
+void GameMode::endSkillTree(bool apply)
 {
     if(apply)
     {
-        uint32_t nbItems = static_cast<uint32_t>(mResearchPending.size());
+        uint32_t nbItems = static_cast<uint32_t>(mSkillPending.size());
         ClientNotification *clientNotification = new ClientNotification(
-            ClientNotificationType::askSetResearchTree);
+            ClientNotificationType::askSetSkillTree);
         clientNotification->mPacket << nbItems;
-        for(const ResearchType& type : mResearchPending)
+        for(const SkillType& type : mSkillPending)
         {
             clientNotification->mPacket << type;
         }
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
 
-    mResearchPending.clear();
-    mResearchCurrentCompletion.resetValue();
-    mIsResearchWindowOpen = false;
-    refreshGuiResearch(true);
+    mSkillPending.clear();
+    mSkillCurrentCompletion.resetValue();
+    mIsSkillWindowOpen = false;
+    refreshGuiSkill(true);
 }
 
 void GameMode::buildPlayerSettingsWindow()

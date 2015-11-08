@@ -15,14 +15,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "entities/ResearchEntity.h"
+#include "entities/SkillEntity.h"
 
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 
 #include "network/ODPacket.h"
 
-#include "game/Research.h"
+#include "game/Skill.h"
 
 #include "gamemap/GameMap.h"
 
@@ -40,62 +40,62 @@ const std::string EMPTY_STRING;
 
 const Ogre::Vector3 SCALE(0.5,0.5,0.5);
 
-ResearchEntity::ResearchEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, int32_t researchPoints) :
+SkillEntity::SkillEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, int32_t skillPoints) :
     RenderedMovableEntity(gameMap, isOnServerMap, libraryName, "Grimoire", 0.0f, false, 1.0f),
-    mResearchPoints(researchPoints)
+    mSkillPoints(skillPoints)
 {
     mPrevAnimationState = "Loop";
     mPrevAnimationStateLoop = true;
 }
 
-ResearchEntity::ResearchEntity(GameMap* gameMap, bool isOnServerMap) :
+SkillEntity::SkillEntity(GameMap* gameMap, bool isOnServerMap) :
     RenderedMovableEntity(gameMap, isOnServerMap)
 {
 }
 
-const Ogre::Vector3& ResearchEntity::getScale() const
+const Ogre::Vector3& SkillEntity::getScale() const
 {
     return SCALE;
 }
 
-void ResearchEntity::notifyEntityCarryOn(Creature* carrier)
+void SkillEntity::notifyEntityCarryOn(Creature* carrier)
 {
     removeEntityFromPositionTile();
     setSeat(carrier->getSeat());
 }
 
-void ResearchEntity::notifyEntityCarryOff(const Ogre::Vector3& position)
+void SkillEntity::notifyEntityCarryOff(const Ogre::Vector3& position)
 {
     mPosition = position;
     addEntityToPositionTile();
 }
 
-ResearchEntity* ResearchEntity::getResearchEntityFromStream(GameMap* gameMap, std::istream& is)
+SkillEntity* SkillEntity::getSkillEntityFromStream(GameMap* gameMap, std::istream& is)
 {
-    ResearchEntity* obj = new ResearchEntity(gameMap, true);
+    SkillEntity* obj = new SkillEntity(gameMap, true);
     obj->importFromStream(is);
     return obj;
 }
 
-ResearchEntity* ResearchEntity::getResearchEntityFromPacket(GameMap* gameMap, ODPacket& is)
+SkillEntity* SkillEntity::getSkillEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    ResearchEntity* obj = new ResearchEntity(gameMap, false);
+    SkillEntity* obj = new SkillEntity(gameMap, false);
     obj->importFromPacket(is);
     return obj;
 }
 
-void ResearchEntity::exportToStream(std::ostream& os) const
+void SkillEntity::exportToStream(std::ostream& os) const
 {
     RenderedMovableEntity::exportToStream(os);
-    os << mResearchPoints << "\t";
+    os << mSkillPoints << "\t";
     os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
 }
 
-bool ResearchEntity::importFromStream(std::istream& is)
+bool SkillEntity::importFromStream(std::istream& is)
 {
     if(!RenderedMovableEntity::importFromStream(is))
         return false;
-    if(!(is >> mResearchPoints))
+    if(!(is >> mSkillPoints))
         return false;
     if(!(is >> mPosition.x >> mPosition.y >> mPosition.z))
         return false;
@@ -103,13 +103,13 @@ bool ResearchEntity::importFromStream(std::istream& is)
     return true;
 }
 
-std::string ResearchEntity::getResearchEntityStreamFormat()
+std::string SkillEntity::getSkillEntityStreamFormat()
 {
     std::string format = RenderedMovableEntity::getRenderedMovableEntityStreamFormat();
     if(!format.empty())
         format += "\t";
 
-    format += "researchPoints\tPosX\tPosY\tPosZ";
+    format += "skillPoints\tPosX\tPosY\tPosZ";
 
     return format;
 }

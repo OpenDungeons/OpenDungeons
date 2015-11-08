@@ -20,7 +20,7 @@
 #include "spells/Spell.h"
 #include "ODApplication.h"
 #include "game/Player.h"
-#include "game/Research.h"
+#include "game/Skill.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "modes/InputCommand.h"

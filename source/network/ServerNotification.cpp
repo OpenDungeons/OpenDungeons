@@ -102,10 +102,10 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "carryEntity";
         case ServerNotificationType::releaseCarriedEntity:
             return "releaseCarriedEntity";
-        case ServerNotificationType::researchTree:
-            return "researchTree";
-        case ServerNotificationType::researchesDone:
-            return "researchesDone";
+        case ServerNotificationType::skillTree:
+            return "skillTree";
+        case ServerNotificationType::skillsDone:
+            return "skillsDone";
         case ServerNotificationType::setPlayerSettings:
             return "setPlayerSettings";
         case ServerNotificationType::setSpellCooldown:

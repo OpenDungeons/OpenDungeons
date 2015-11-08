@@ -20,10 +20,10 @@
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/RenderedMovableEntity.h"
-#include "entities/ResearchEntity.h"
+#include "entities/SkillEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
-#include "game/Research.h"
+#include "game/Skill.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "rooms/RoomManager.h"
@@ -74,7 +74,7 @@ const Ogre::Real OFFSET_SPOT = 0.3;
 
 RoomLibrary::RoomLibrary(GameMap* gameMap) :
     Room(gameMap),
-    mResearchPoints(0)
+    mSkillPoints(0)
 {
     setMeshName("Library");
 }
@@ -86,7 +86,7 @@ RenderedMovableEntity* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace plac
         case ActiveSpotPlace::activeSpotCenter:
         {
             RoomLibraryTileData* roomLibraryTileData = static_cast<RoomLibraryTileData*>(mTileData[tile]);
-            roomLibraryTileData->mCanHaveResearchEntity = false;
+            roomLibraryTileData->mCanHaveSkillEntity = false;
 
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
@@ -169,11 +169,11 @@ bool RoomLibrary::hasOpenCreatureSpot(Creature* c)
     if(getSeat()->getPlayer() == nullptr)
         return false;
 
-    if(!getSeat()->isResearching())
+    if(!getSeat()->isSkilling())
         return false;
 
     // We accept all creatures as soon as there are free active spots
-    uint32_t nbItems = countResearchItemsOnRoom();
+    uint32_t nbItems = countSkillItemsOnRoom();
     if(nbItems >= (getNumActiveSpots() - mCreaturesSpots.size()))
         return false;
 
@@ -242,7 +242,7 @@ void RoomLibrary::doUpkeep()
         return;
 
     // If there is nothing to do, we remove the working creatures if any
-    if(!getSeat()->isResearching())
+    if(!getSeat()->isSkilling())
     {
         if(mCreaturesSpots.empty())
             return;
@@ -261,7 +261,7 @@ void RoomLibrary::doUpkeep()
         return;
     }
 
-    int32_t researchEntityPoints = ConfigManager::getSingleton().getRoomConfigInt32("LibraryResearchPointsBook");
+    int32_t skillEntityPoints = ConfigManager::getSingleton().getRoomConfigInt32("LibrarySkillPointsBook");
     for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
     {
         Creature* creature = p.first;
@@ -311,13 +311,13 @@ void RoomLibrary::doUpkeep()
                 creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMin"),
                     ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMax")));
 
-                // We check if we have enough points to create a research entity
-                mResearchPoints += pointsEarned;
-                if(mResearchPoints < researchEntityPoints)
+                // We check if we have enough points to create a skill entity
+                mSkillPoints += pointsEarned;
+                if(mSkillPoints < skillEntityPoints)
                     continue;
 
-                mResearchPoints -= researchEntityPoints;
-                // We check if there is an empty tile to release the researchEntity
+                mSkillPoints -= skillEntityPoints;
+                // We check if there is an empty tile to release the skillEntity
                 Tile* spawnTile = checkIfAvailableSpot();
                 if(spawnTile == nullptr)
                 {
@@ -325,17 +325,17 @@ void RoomLibrary::doUpkeep()
                     return;
                 }
 
-                ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), true, getName(), researchEntityPoints);
-                researchEntity->setSeat(getSeat());
-                researchEntity->addToGameMap();
+                SkillEntity* skillEntity = new SkillEntity(getGameMap(), true, getName(), skillEntityPoints);
+                skillEntity->setSeat(getSeat());
+                skillEntity->addToGameMap();
                 Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(spawnTile->getX()), static_cast<Ogre::Real>(spawnTile->getY()), static_cast<Ogre::Real>(0.0));
-                researchEntity->createMesh();
-                researchEntity->setPosition(spawnPosition);
+                skillEntity->createMesh();
+                skillEntity->setPosition(spawnPosition);
             }
         }
     }
 
-    uint32_t nbItems = countResearchItemsOnRoom();
+    uint32_t nbItems = countSkillItemsOnRoom();
     if(nbItems > (getNumActiveSpots() - mCreaturesSpots.size()))
     {
         // There is no available space. We remove a creature working here if there is one.
@@ -352,12 +352,12 @@ void RoomLibrary::doUpkeep()
     }
 }
 
-uint32_t RoomLibrary::countResearchItemsOnRoom()
+uint32_t RoomLibrary::countSkillItemsOnRoom()
 {
     uint32_t nbItems = 0;
     for(Tile* t : mCoveredTiles)
     {
-        nbItems += t->countEntitiesOnTile(GameEntityType::researchEntity);
+        nbItems += t->countEntitiesOnTile(GameEntityType::skillEntity);
     }
 
     return nbItems;
@@ -368,11 +368,11 @@ Tile* RoomLibrary::checkIfAvailableSpot()
     for(std::pair<Tile* const, TileData*>& p : mTileData)
     {
         RoomLibraryTileData* roomLibraryTileData = static_cast<RoomLibraryTileData*>(p.second);
-        if(!roomLibraryTileData->mCanHaveResearchEntity)
+        if(!roomLibraryTileData->mCanHaveSkillEntity)
             continue;
 
         // If the tile contains no item, we can add a new one
-        uint32_t nbItems = p.first->countEntitiesOnTile(GameEntityType::researchEntity);
+        uint32_t nbItems = p.first->countEntitiesOnTile(GameEntityType::skillEntity);
         if(nbItems > 0)
             continue;
 
@@ -440,14 +440,14 @@ bool RoomLibrary::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 void RoomLibrary::exportToStream(std::ostream& os) const
 {
     Room::exportToStream(os);
-    os << mResearchPoints << "\n";
+    os << mSkillPoints << "\n";
 }
 
 bool RoomLibrary::importFromStream(std::istream& is)
 {
     if(!Room::importFromStream(is))
         return false;
-    if(!(is >> mResearchPoints))
+    if(!(is >> mSkillPoints))
         return false;
 
     return true;

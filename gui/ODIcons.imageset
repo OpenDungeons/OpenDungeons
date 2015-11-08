@@ -10,7 +10,7 @@
     <Image height="32" name="AbortIcon" width="32" xPos="256" yPos="0" />
     <Image height="32" name="CheckIcon" width="32" xPos="288" yPos="0" />
     <Image height="32" name="ObjectivesIcon" width="32" xPos="320" yPos="0" />
-    <Image height="32" name="ResearchIcon" width="32" xPos="352" yPos="0" />
+    <Image height="32" name="SkillIcon" width="32" xPos="352" yPos="0" />
     <Image height="32" name="SeatIcon" width="32" xPos="384" yPos="0" />
     <Image height="32" name="CogIcon" width="32" xPos="416" yPos="0" />
     <Image height="32" name="HourglassIcon" width="32" xPos="448" yPos="0" />

@@ -30,7 +30,7 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
 #include "entities/Tile.h"
-#include "game/ResearchManager.h"
+#include "game/SkillManager.h"
 #include "game/Seat.h"
 #include "traps/TrapManager.h"
 #include "game/Player.h"
@@ -201,7 +201,7 @@ void EditorMode::activate()
     Player* player = mGameMap->getLocalPlayer();
     getModeManager().getInputManager().mSeatIdSelected = player->getSeat()->getId();
 
-    refreshGuiResearch();
+    refreshGuiSkill();
 
     mGameMap->setGamePaused(false);
 }
@@ -941,13 +941,13 @@ bool EditorMode::onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/)
     return true;
 }
 
-void EditorMode::refreshGuiResearch()
+void EditorMode::refreshGuiSkill()
 {
-    // We show/hide the icons depending on available researches
+    // We show/hide the icons depending on available skills
     CEGUI::Window* guiSheet = mRootWindow;
 
-    ResearchManager::listAllResearches([&](const std::string& researchButtonName, const std::string& castButtonName,
-        const std::string& researchProgressBarName, ResearchType resType)
+    SkillManager::listAllSkills([&](const std::string& skillButtonName, const std::string& castButtonName,
+        const std::string& skillProgressBarName, SkillType resType)
     {
         guiSheet->getChild(castButtonName)->show();
     });
@@ -1041,7 +1041,7 @@ void EditorMode::checkInputCommand()
             TrapManager::checkSellTrapTilesEditor(mGameMap, inputManager, *this);
             return;
         case SelectedAction::castSpell:
-            // TODO: create research entity with corresponding spell
+            // TODO: create skill entity with corresponding spell
             return;
         default:
             return;

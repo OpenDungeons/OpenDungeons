@@ -22,7 +22,7 @@
 #include "entities/Creature.h"
 #include "entities/GiftBoxEntity.h"
 #include "entities/PersistentObject.h"
-#include "entities/ResearchEntity.h"
+#include "entities/SkillEntity.h"
 #include "entities/Tile.h"
 #include "rooms/RoomManager.h"
 #include "utils/LogManager.h"
@@ -132,7 +132,7 @@ bool RoomDungeonTemple::hasCarryEntitySpot(GameEntity* carriedEntity)
     switch(carriedEntity->getObjectType())
     {
         case GameEntityType::giftBoxEntity:
-        case GameEntityType::researchEntity:
+        case GameEntityType::skillEntity:
             return true;
         default:
             return false;
@@ -144,7 +144,7 @@ Tile* RoomDungeonTemple::askSpotForCarriedEntity(GameEntity* carriedEntity)
     switch(carriedEntity->getObjectType())
     {
         case GameEntityType::giftBoxEntity:
-        case GameEntityType::researchEntity:
+        case GameEntityType::skillEntity:
             return getCentralTile();
         default:
             OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
@@ -175,14 +175,14 @@ void RoomDungeonTemple::notifyCarryingStateChanged(Creature* carrier, GameEntity
             giftBox->deleteYourself();
             return;
         }
-        case GameEntityType::researchEntity:
+        case GameEntityType::skillEntity:
         {
-            // We notify the player that the research is now available and we delete the researchEntity
-            ResearchEntity* researchEntity = static_cast<ResearchEntity*>(carriedEntity);
-            getSeat()->addResearchPoints(researchEntity->getResearchPoints());
-            researchEntity->removeEntityFromPositionTile();
-            researchEntity->removeFromGameMap();
-            researchEntity->deleteYourself();
+            // We notify the player that the skill is now available and we delete the skillEntity
+            SkillEntity* skillEntity = static_cast<SkillEntity*>(carriedEntity);
+            getSeat()->addSkillPoints(skillEntity->getSkillPoints());
+            skillEntity->removeEntityFromPositionTile();
+            skillEntity->removeFromGameMap();
+            skillEntity->deleteYourself();
             return;
         }
         default:

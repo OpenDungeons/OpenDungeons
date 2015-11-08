@@ -26,7 +26,7 @@
 #include "entities/MissileObject.h"
 #include "entities/PersistentObject.h"
 #include "entities/RenderedMovableEntity.h"
-#include "entities/ResearchEntity.h"
+#include "entities/SkillEntity.h"
 #include "entities/SmallSpiderEntity.h"
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
@@ -107,9 +107,9 @@ GameEntity* getGameEntityFromStream(GameMap* gameMap, GameEntityType type, std::
             entity = TreasuryObject::getTreasuryObjectFromStream(gameMap, is);
             break;
         }
-        case GameEntityType::researchEntity:
+        case GameEntityType::skillEntity:
         {
-            entity = ResearchEntity::getResearchEntityFromStream(gameMap, is);
+            entity = SkillEntity::getSkillEntityFromStream(gameMap, is);
             break;
         }
         case GameEntityType::giftBoxEntity:
@@ -196,9 +196,9 @@ GameEntity* getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
             entity = TreasuryObject::getTreasuryObjectFromPacket(gameMap, is);
             break;
         }
-        case GameEntityType::researchEntity:
+        case GameEntityType::skillEntity:
         {
-            entity = ResearchEntity::getResearchEntityFromPacket(gameMap, is);
+            entity = SkillEntity::getSkillEntityFromPacket(gameMap, is);
             break;
         }
         case GameEntityType::giftBoxEntity:

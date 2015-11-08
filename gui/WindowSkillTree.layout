@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout version="4" >
-    <Window type="OD/FrameWindow" name="ResearchTreeWindow" >
+    <Window type="OD/FrameWindow" name="SkillTreeWindow" >
         <Property name="Area" value="{{0.5,-305},{0.5,-196},{0.5,305},{0.5,196}}" />
-        <Property name="Text" value="Research Tree" />
+        <Property name="Text" value="Skill Tree" />
         <Property name="SizingEnabled" value="False" />
         <Window type="OD/StaticImage" name="Skills" >
             <Property name="Area" value="{{0,20},{0,35},{1,-20},{1,-60}}" />
@@ -417,22 +417,22 @@
         <Window type="OD/Button" name="AutoFill" >
             <Property name="Area" value="{{0,20},{1,-50},{0,120},{1,-20}}" />
             <Property name="Text" value="Auto Fill" />
-            <Property name="TooltipText" value="Randomly fills the pending research tree" />
+            <Property name="TooltipText" value="Randomly fills the pending skill tree" />
         </Window>
         <Window type="OD/Button" name="UnselectAll" >
             <Property name="Area" value="{{0,130},{1,-50},{0,250},{1,-20}}" />
             <Property name="Text" value="Unselect All" />
-            <Property name="TooltipText" value="Unselect all pending researches in the tree" />
+            <Property name="TooltipText" value="Unselect all pending skills in the tree" />
         </Window>
         <Window type="OD/Button" name="CancelButton" >
             <Property name="Area" value="{{1,-190},{1,-50},{1,-110},{1,-20}}" />
             <Property name="Text" value="Cancel" />
-            <Property name="TooltipText" value="Do not save modifications to the research tree" />
+            <Property name="TooltipText" value="Do not save modifications to the skill tree" />
         </Window>
         <Window type="OD/Button" name="ApplyButton" >
             <Property name="Area" value="{{1,-100},{1,-50},{1,-20},{1,-20}}" />
             <Property name="Text" value="Apply" />
-            <Property name="TooltipText" value="Save modifications to the research tree" />
+            <Property name="TooltipText" value="Save modifications to the skill tree" />
         </Window>
     </Window>
 </GUILayout>

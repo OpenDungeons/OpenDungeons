@@ -22,11 +22,11 @@
 
 #include "network/ODPacket.h"
 
-#include "game/Research.h"
+#include "game/Skill.h"
 
 #include "gamemap/GameMap.h"
 
-#include "giftboxes/GiftBoxResearch.h"
+#include "giftboxes/GiftBoxSkill.h"
 
 #include "traps/Trap.h"
 #include "traps/TrapBoulder.h"
@@ -79,8 +79,8 @@ GiftBoxEntity* GiftBoxEntity::getGiftBoxEntityFromStream(GameMap* gameMap, std::
     GiftBoxEntity* entity;
     switch(type)
     {
-        case GiftBoxType::research:
-            entity = new GiftBoxResearch(gameMap, true);
+        case GiftBoxType::skill:
+            entity = new GiftBoxSkill(gameMap, true);
             break;
 
         default:

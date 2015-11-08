@@ -11,10 +11,10 @@
             <Property name="Text" value="Objectives (F3)" />
             <Property name="TooltipText" value="View the current game objectives." />
         </Window>
-        <Window type="OD/IconButton" name="ResearchButton" >
+        <Window type="OD/IconButton" name="SkillButton" >
             <Property name="Area" value="{{0.5,-80},{0,83},{0.5,80},{0,116}}" />
-            <Property name="IconImage" value="OpenDungeonsIcons/ResearchIcon" />
-            <Property name="Text" value="Research (F4)" />
+            <Property name="IconImage" value="OpenDungeonsIcons/SkillIcon" />
+            <Property name="Text" value="Skill (F4)" />
         </Window>
         <Window type="OD/IconButton" name="SaveGameButton" >
             <Property name="Area" value="{{0.5,-80},{0,136},{0.5,80},{0,169}}" />

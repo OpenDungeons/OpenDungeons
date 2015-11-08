@@ -18,7 +18,7 @@
 #include "GameEditorModeBase.h"
 
 #include "GameEditorModeConsole.h"
-#include "game/ResearchManager.h"
+#include "game/SkillManager.h"
 #include "gamemap/GameMap.h"
 #include "network/ChatEventMessage.h"
 #include "render/Gui.h"
@@ -110,7 +110,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     );
 
     // Connect gui buttons (Rooms, traps, spells)
-    ResearchManager::connectGuiButtons(this, mRootWindow, mPlayerSelection);
+    SkillManager::connectGuiButtons(this, mRootWindow, mPlayerSelection);
 
     // Creature buttons
     connectGuiAction(Gui::BUTTON_CREATURE_WORKER, AbstractApplicationMode::GuiAction::ButtonPressedCreatureWorker);

@@ -108,11 +108,11 @@
             <Property name="ClippedByParent" value="False" />
             <Property name="Visible" value="True" />
         </Window>
-        <Window type="OD/ImageButton" name="ResearchButton" >
+        <Window type="OD/ImageButton" name="SkillButton" >
             <Property name="Area" value="{{1,-232},{1,-202},{1,-202},{1,-172}}" />
-            <Property name="ButtonImage" value="OpenDungeonsIcons/ResearchIcon" />
+            <Property name="ButtonImage" value="OpenDungeonsIcons/SkillIcon" />
             <Property name="AlwaysOnTop" value="True" />
-            <Property name="TooltipText" value="Research (F4)" />
+            <Property name="TooltipText" value="Skill (F4)" />
             <Property name="ClippedByParent" value="False" />
             <Property name="Visible" value="True" />
         </Window>
@@ -149,7 +149,7 @@
         <LayoutImport type="DefaultWindow" filename="WindowQuit.layout" name="QuitMenuImport" />
         <LayoutImport type="DefaultWindow" filename="WindowPlayerSettings.layout" name="PlayerSettingsWindowImport" />
         <LayoutImport type="DefaultWindow" filename="WindowObjectives.layout" name="ObjectivesWindowImport" />
-        <LayoutImport type="DefaultWindow" filename="WindowResearchTree.layout" name="ResearchTreeWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowSkillTree.layout" name="SkillTreeWindowImport" />
         <LayoutImport type="DefaultWindow" filename="WindowGameOptions.layout" name="GameOptionsMenuImport" />
         <LayoutImport type="DefaultWindow" filename="WindowEvent.layout" name="EventWindowImport" />
         <LayoutImport type="DefaultWindow" filename="WindowChat.layout" name="ChatWindowImport" />

@@ -28,7 +28,7 @@ class Creature;
 class GameMap;
 class GameEntity;
 class ODPacket;
-class Research;
+class Skill;
 class Seat;
 class Tile;
 
@@ -169,9 +169,9 @@ public:
     //! the place where the fight is happening and player is the Player actually fighting
     void notifyTeamFighting(Player* player, Tile* tile);
 
-    //! \brief Notify the player that they are not research anything
+    //! \brief Notify the player that they are not skill anything
     //! Should be called on the server game map for human players only
-    void notifyNoResearchInQueue();
+    void notifyNoSkillInQueue();
 
     //! \brief Notify the player that he has no worker
     void notifyNoWorker();
@@ -244,8 +244,8 @@ private:
     bool mIsHuman;
 
     //! \brief This counter tells for how much time is left before considering
-    //! the player should be notified again that he has not queued a research.
-    float mNoResearchInQueueTime;
+    //! the player should be notified again that he has not queued a skill.
+    float mNoSkillInQueueTime;
 
     //! \brief This counter tells for how much time is left before considering
     //! the player should be notified again that he has no worker.

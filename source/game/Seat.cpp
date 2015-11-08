@@ -21,8 +21,8 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
-#include "game/Research.h"
-#include "game/ResearchManager.h"
+#include "game/Skill.h"
+#include "game/SkillManager.h"
 #include "gamemap/GameMap.h"
 #include "goals/Goal.h"
 #include "network/ODServer.h"
@@ -80,11 +80,11 @@ Seat::Seat(GameMap* gameMap) :
     mTeamIndex(0),
     mNbRooms(std::vector<uint32_t>(static_cast<uint32_t>(RoomType::nbRooms), 0)),
     mIsDebuggingVision(false),
-    mResearchPoints(0),
-    mCurrentResearchType(ResearchType::nullResearchType),
-    mCurrentResearchProgress(0.0f),
-    mCurrentResearch(nullptr),
-    mGuiResearchNeedsRefresh(false),
+    mSkillPoints(0),
+    mCurrentSkillType(SkillType::nullSkillType),
+    mCurrentSkillProgress(0.0f),
+    mCurrentSkill(nullptr),
+    mGuiSkillNeedsRefresh(false),
     mConfigPlayerId(-1),
     mConfigTeamId(-1),
     mConfigFactionIndex(-1),
@@ -358,8 +358,8 @@ void Seat::refreshFromSeat(Seat* s)
     mNumCreaturesWorkers = s->mNumCreaturesWorkers;
     mHasGoalsChanged = s->mHasGoalsChanged;
     mNbRooms = s->mNbRooms;
-    mCurrentResearchType = s->mCurrentResearchType;
-    mCurrentResearchProgress = s->mCurrentResearchProgress;
+    mCurrentSkillType = s->mCurrentSkillType;
+    mCurrentSkillProgress = s->mCurrentSkillProgress;
 }
 
 bool Seat::takeMana(double mana)
@@ -470,12 +470,12 @@ void Seat::initSeat()
 
     // We use a temporary vector to allow the corresponding functions to check the vector validity
     // and reject its content if it is not valid
-    std::vector<ResearchType> researches = mResearchDone;
-    mResearchDone.clear();
-    setResearchesDone(researches);
-    researches = mResearchPending;
-    mResearchPending.clear();
-    setResearchTree(researches);
+    std::vector<SkillType> skills = mSkillDone;
+    mSkillDone.clear();
+    setSkillsDone(skills);
+    skills = mSkillPending;
+    mSkillPending.clear();
+    setSkillTree(skills);
 
     // We restore the tiles if any
     if(!mTilesStateLoaded.empty())
@@ -1015,102 +1015,102 @@ bool Seat::importSeatFromStream(std::istream& is)
 
     mColorValue = ConfigManager::getSingleton().getColorFromId(mColorId);
 
-    uint32_t nbResearch = static_cast<uint32_t>(ResearchType::countResearch);
+    uint32_t nbSkill = static_cast<uint32_t>(SkillType::countSkill);
     OD_ASSERT_TRUE(is >> str);
-    if(str != "[ResearchDone]")
+    if(str != "[SkillDone]")
     {
-        OD_LOG_INF("WARNING: expected [ResearchDone] and read " + str);
+        OD_LOG_INF("WARNING: expected [SkillDone] and read " + str);
         return false;
     }
     while(true)
     {
         OD_ASSERT_TRUE(is >> str);
-        if(str == "[/ResearchDone]")
+        if(str == "[/SkillDone]")
             break;
 
-        for(uint32_t i = 0; i < nbResearch; ++i)
+        for(uint32_t i = 0; i < nbSkill; ++i)
         {
-            ResearchType type = static_cast<ResearchType>(i);
-            if(type == ResearchType::nullResearchType)
+            SkillType type = static_cast<SkillType>(i);
+            if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Research::researchTypeToString(type)) != 0)
+            if(str.compare(Skill::skillTypeToString(type)) != 0)
                 continue;
 
-            if(std::find(mResearchDone.begin(), mResearchDone.end(), type) != mResearchDone.end())
+            if(std::find(mSkillDone.begin(), mSkillDone.end(), type) != mSkillDone.end())
                 break;
 
-            // We found a valid research
-            mResearchDone.push_back(type);
+            // We found a valid skill
+            mSkillDone.push_back(type);
 
             break;
         }
     }
 
     OD_ASSERT_TRUE(is >> str);
-    if(str != "[ResearchNotAllowed]")
+    if(str != "[SkillNotAllowed]")
     {
-        OD_LOG_INF("WARNING: expected [ResearchNotAllowed] and read " + str);
+        OD_LOG_INF("WARNING: expected [SkillNotAllowed] and read " + str);
         return false;
     }
 
     while(true)
     {
         OD_ASSERT_TRUE(is >> str);
-        if(str == "[/ResearchNotAllowed]")
+        if(str == "[/SkillNotAllowed]")
             break;
 
-        for(uint32_t i = 0; i < nbResearch; ++i)
+        for(uint32_t i = 0; i < nbSkill; ++i)
         {
-            ResearchType type = static_cast<ResearchType>(i);
-            if(type == ResearchType::nullResearchType)
+            SkillType type = static_cast<SkillType>(i);
+            if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Research::researchTypeToString(type)) != 0)
+            if(str.compare(Skill::skillTypeToString(type)) != 0)
                 continue;
 
-            // We do not allow a research to be done and not allowed
-            if(std::find(mResearchDone.begin(), mResearchDone.end(), type) != mResearchDone.end())
+            // We do not allow a skill to be done and not allowed
+            if(std::find(mSkillDone.begin(), mSkillDone.end(), type) != mSkillDone.end())
                 break;
-            if(std::find(mResearchNotAllowed.begin(), mResearchNotAllowed.end(), type) != mResearchNotAllowed.end())
+            if(std::find(mSkillNotAllowed.begin(), mSkillNotAllowed.end(), type) != mSkillNotAllowed.end())
                 break;
 
-            // We found a valid research
-            mResearchNotAllowed.push_back(type);
+            // We found a valid skill
+            mSkillNotAllowed.push_back(type);
 
             break;
         }
     }
 
     OD_ASSERT_TRUE(is >> str);
-    if(str != "[ResearchPending]")
+    if(str != "[SkillPending]")
     {
-        OD_LOG_INF("WARNING: expected [ResearchPending] and read " + str);
+        OD_LOG_INF("WARNING: expected [SkillPending] and read " + str);
         return false;
     }
 
     while(true)
     {
         OD_ASSERT_TRUE(is >> str);
-        if(str == "[/ResearchPending]")
+        if(str == "[/SkillPending]")
             break;
 
-        for(uint32_t i = 0; i < nbResearch; ++i)
+        for(uint32_t i = 0; i < nbSkill; ++i)
         {
-            ResearchType type = static_cast<ResearchType>(i);
-            if(type == ResearchType::nullResearchType)
+            SkillType type = static_cast<SkillType>(i);
+            if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Research::researchTypeToString(type)) != 0)
+            if(str.compare(Skill::skillTypeToString(type)) != 0)
                 continue;
 
-            // We do not allow researches already done or not allowed
-            if(std::find(mResearchDone.begin(), mResearchDone.end(), type) != mResearchDone.end())
+            // We do not allow skills already done or not allowed
+            if(std::find(mSkillDone.begin(), mSkillDone.end(), type) != mSkillDone.end())
                 break;
-            if(std::find(mResearchNotAllowed.begin(), mResearchNotAllowed.end(), type) != mResearchNotAllowed.end())
+            if(std::find(mSkillNotAllowed.begin(), mSkillNotAllowed.end(), type) != mSkillNotAllowed.end())
                 break;
-            if(std::find(mResearchPending.begin(), mResearchPending.end(), type) != mResearchPending.end())
+            if(std::find(mSkillPending.begin(), mSkillPending.end(), type) != mSkillPending.end())
                 break;
 
-            // We found a valid research
-            mResearchPending.push_back(type);
+            // We found a valid skill
+            mSkillPending.push_back(type);
         }
     }
 
@@ -1248,26 +1248,26 @@ bool Seat::exportSeatToStream(std::ostream& os) const
     os << mMana;
     os << std::endl;
 
-    os << "[ResearchDone]" << std::endl;
-    for(ResearchType type : mResearchDone)
+    os << "[SkillDone]" << std::endl;
+    for(SkillType type : mSkillDone)
     {
-        os << Research::researchTypeToString(type) << std::endl;
+        os << Skill::skillTypeToString(type) << std::endl;
     }
-    os << "[/ResearchDone]" << std::endl;
+    os << "[/SkillDone]" << std::endl;
 
-    os << "[ResearchNotAllowed]" << std::endl;
-    for(ResearchType type : mResearchNotAllowed)
+    os << "[SkillNotAllowed]" << std::endl;
+    for(SkillType type : mSkillNotAllowed)
     {
-        os << Research::researchTypeToString(type) << std::endl;
+        os << Skill::skillTypeToString(type) << std::endl;
     }
-    os << "[/ResearchNotAllowed]" << std::endl;
+    os << "[/SkillNotAllowed]" << std::endl;
 
-    os << "[ResearchPending]" << std::endl;
-    for(ResearchType type : mResearchPending)
+    os << "[SkillPending]" << std::endl;
+    for(SkillType type : mSkillPending)
     {
-        os << Research::researchTypeToString(type) << std::endl;
+        os << Skill::skillTypeToString(type) << std::endl;
     }
-    os << "[/ResearchPending]" << std::endl;
+    os << "[/SkillPending]" << std::endl;
 
     // In editor mode, we don't save tile states
     if(mGameMap->isInEditorMode())
@@ -1337,14 +1337,14 @@ void Seat::exportTilesVisualInitialStates(TileVisual tileVisual, std::ostream& o
     os << "[/" + Tile::tileVisualToString(tileVisual) + "]" << std::endl;
 }
 
-bool Seat::addResearch(ResearchType type)
+bool Seat::addSkill(SkillType type)
 {
-    if(std::find(mResearchDone.begin(), mResearchDone.end(), type) != mResearchDone.end())
+    if(std::find(mSkillDone.begin(), mSkillDone.end(), type) != mSkillDone.end())
         return false;
 
-    std::vector<ResearchType> researchDone = mResearchDone;
-    researchDone.push_back(type);
-    setResearchesDone(researchDone);
+    std::vector<SkillType> skillDone = mSkillDone;
+    skillDone.push_back(type);
+    setSkillsDone(skillDone);
 
     // Tells the player a new room/trap/spell is available.
     if(getPlayer() != nullptr && getPlayer()->getIsHuman())
@@ -1352,29 +1352,29 @@ bool Seat::addResearch(ResearchType type)
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::chatServer, getPlayer());
 
-        std::string msg = Research::researchTypeToPlayerVisibleString(type) + " is now available.";
-        serverNotification->mPacket << msg << EventShortNoticeType::aboutResearches;
+        std::string msg = Skill::skillTypeToPlayerVisibleString(type) + " is now available.";
+        serverNotification->mPacket << msg << EventShortNoticeType::aboutSkills;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
     return true;
 }
 
-bool Seat::isResearchDone(ResearchType type) const
+bool Seat::isSkillDone(SkillType type) const
 {
-    for(ResearchType researchDone : mResearchDone)
+    for(SkillType skillDone : mSkillDone)
     {
-        if(researchDone == type)
+        if(skillDone == type)
             return true;
     }
 
     return false;
 }
 
-uint32_t Seat::isResearchPending(ResearchType resType) const
+uint32_t Seat::isSkillPending(SkillType resType) const
 {
     uint32_t queueNumber = 1;
-    for (ResearchType pendingRes : mResearchPending)
+    for (SkillType pendingRes : mSkillPending)
     {
         if (pendingRes == resType)
             return queueNumber;
@@ -1383,62 +1383,62 @@ uint32_t Seat::isResearchPending(ResearchType resType) const
     return 0;
 }
 
-ResearchType Seat::getFirstResearchPending() const
+SkillType Seat::getFirstSkillPending() const
 {
-    if(mResearchPending.empty())
-        return ResearchType::nullResearchType;
+    if(mSkillPending.empty())
+        return SkillType::nullSkillType;
 
-    return mResearchPending.at(0);
+    return mSkillPending.at(0);
 }
 
-void Seat::addResearchPoints(int32_t points)
+void Seat::addSkillPoints(int32_t points)
 {
-    // Even if we are not searching anything, we allow to bring back a research book if
+    // Even if we are not searching anything, we allow to bring back a skill book if
     // we find any
-    mResearchPoints += points;
-    if(mCurrentResearch == nullptr)
+    mSkillPoints += points;
+    if(mCurrentSkill == nullptr)
     {
-        mCurrentResearchType = ResearchType::nullResearchType;
+        mCurrentSkillType = SkillType::nullSkillType;
         return;
     }
 
-    if(mResearchPoints < mCurrentResearch->getNeededResearchPoints())
+    if(mSkillPoints < mCurrentSkill->getNeededSkillPoints())
     {
-        mCurrentResearchType = mCurrentResearch->getType();
-        mCurrentResearchProgress = static_cast<float>(mResearchPoints) / static_cast<float>(mCurrentResearch->getNeededResearchPoints());
+        mCurrentSkillType = mCurrentSkill->getType();
+        mCurrentSkillProgress = static_cast<float>(mSkillPoints) / static_cast<float>(mCurrentSkill->getNeededSkillPoints());
         return;
     }
 
-    // The current research is complete. We add it to the available research list
-    mResearchPoints -= mCurrentResearch->getNeededResearchPoints();
-    addResearch(mCurrentResearch->getType());
+    // The current skill is complete. We add it to the available skill list
+    mSkillPoints -= mCurrentSkill->getNeededSkillPoints();
+    addSkill(mCurrentSkill->getType());
 
-    // We set the next research
-    setNextResearch(mCurrentResearch->getType());
+    // We set the next skill
+    setNextSkill(mCurrentSkill->getType());
 }
 
-bool Seat::getCurrentResearchProgress(ResearchType& type, float& progress) const
+bool Seat::getCurrentSkillProgress(SkillType& type, float& progress) const
 {
-    if(mCurrentResearchType == ResearchType::nullResearchType)
+    if(mCurrentSkillType == SkillType::nullSkillType)
         return false;
 
-    type = mCurrentResearchType;
-    progress = mCurrentResearchProgress;
+    type = mCurrentSkillType;
+    progress = mCurrentSkillProgress;
     return true;
 }
 
-void Seat::setNextResearch(ResearchType researchedType)
+void Seat::setNextSkill(SkillType skilledType)
 {
     if(!mGameMap->isServerGameMap())
         return;
 
-    mCurrentResearch = nullptr;
-    if(mResearchPending.empty())
+    mCurrentSkill = nullptr;
+    if(mSkillPending.empty())
     {
-        mCurrentResearchType = ResearchType::nullResearchType;
+        mCurrentSkillType = SkillType::nullSkillType;
 
-        // Notify the player that no research is in the queue if there are still available researches
-        if(ResearchManager::isAllResearchesDoneForSeat(this))
+        // Notify the player that no skill is in the queue if there are still available skills
+        if(SkillManager::isAllSkillsDoneForSeat(this))
             return;
 
         if(getPlayer() == nullptr)
@@ -1448,55 +1448,55 @@ void Seat::setNextResearch(ResearchType researchedType)
         if(getNbRooms(RoomType::library) <= 0)
             return;
 
-        getPlayer()->notifyNoResearchInQueue();
+        getPlayer()->notifyNoSkillInQueue();
         return;
     }
 
-    // We search for the first pending research we don't own a corresponding ResearchEntity
-    ResearchType researchType = ResearchType::nullResearchType;
-    for(ResearchType pending : mResearchPending)
+    // We search for the first pending skill we don't own a corresponding SkillEntity
+    SkillType skillType = SkillType::nullSkillType;
+    for(SkillType pending : mSkillPending)
     {
-        if(pending == researchedType)
+        if(pending == skilledType)
             continue;
 
-        researchType = pending;
+        skillType = pending;
 
-        if(researchType != ResearchType::nullResearchType)
+        if(skillType != SkillType::nullSkillType)
             break;
     }
 
-    if(researchType == ResearchType::nullResearchType)
+    if(skillType == SkillType::nullSkillType)
     {
-        mCurrentResearchType = ResearchType::nullResearchType;
+        mCurrentSkillType = SkillType::nullSkillType;
         return;
     }
 
-    // We have found a fitting research. We retrieve the corresponding Research
+    // We have found a fitting skill. We retrieve the corresponding Skill
     // object and start working on that
-    mCurrentResearch = ResearchManager::getResearch(researchType);
-    if(mCurrentResearch == nullptr)
+    mCurrentSkill = SkillManager::getSkill(skillType);
+    if(mCurrentSkill == nullptr)
     {
-        mCurrentResearchType = ResearchType::nullResearchType;
+        mCurrentSkillType = SkillType::nullSkillType;
         return;
     }
 
-    mCurrentResearchType = mCurrentResearch->getType();
-    mCurrentResearchProgress = static_cast<float>(mResearchPoints) / static_cast<float>(mCurrentResearch->getNeededResearchPoints());
+    mCurrentSkillType = mCurrentSkill->getType();
+    mCurrentSkillProgress = static_cast<float>(mSkillPoints) / static_cast<float>(mCurrentSkill->getNeededSkillPoints());
 }
 
-void Seat::setResearchesDone(const std::vector<ResearchType>& researches)
+void Seat::setSkillsDone(const std::vector<SkillType>& skills)
 {
-    mResearchDone = researches;
-    // We remove the researches done from the pending researches (if it was there,
-    // which may not be true if the research list changed after creating the
-    // researchEntity for example)
-    for(ResearchType type : researches)
+    mSkillDone = skills;
+    // We remove the skills done from the pending skills (if it was there,
+    // which may not be true if the skill list changed after creating the
+    // skillEntity for example)
+    for(SkillType type : skills)
     {
-        auto research = std::find(mResearchPending.begin(), mResearchPending.end(), type);
-        if(research == mResearchPending.end())
+        auto skill = std::find(mSkillPending.begin(), mSkillPending.end(), type);
+        if(skill == mSkillPending.end())
             continue;
 
-        mResearchPending.erase(research);
+        mSkillPending.erase(skill);
     }
 
     if(mGameMap->isServerGameMap())
@@ -1505,85 +1505,85 @@ void Seat::setResearchesDone(const std::vector<ResearchType>& researches)
         {
             // We notify the client
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotificationType::researchesDone, getPlayer());
+                ServerNotificationType::skillsDone, getPlayer());
 
-            uint32_t nbItems = mResearchDone.size();
+            uint32_t nbItems = mSkillDone.size();
             serverNotification->mPacket << nbItems;
-            for(ResearchType research : mResearchDone)
-                serverNotification->mPacket << research;
+            for(SkillType skill : mSkillDone)
+                serverNotification->mPacket << skill;
 
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }
     else
     {
-        // We notify the mode that the available researches changed. This way, it will
+        // We notify the mode that the available skills changed. This way, it will
         // be able to update the UI as needed
-        mGuiResearchNeedsRefresh = true;
+        mGuiSkillNeedsRefresh = true;
     }
 }
 
-void Seat::setResearchTree(const std::vector<ResearchType>& researches)
+void Seat::setSkillTree(const std::vector<SkillType>& skills)
 {
     if(mGameMap->isServerGameMap())
     {
-        // We check if all the researches in the vector are allowed. If not, we don't update the list
-        std::vector<ResearchType> researchesDoneInTree = mResearchDone;
-        for(ResearchType researchType : researches)
+        // We check if all the skills in the vector are allowed. If not, we don't update the list
+        std::vector<SkillType> skillsDoneInTree = mSkillDone;
+        for(SkillType skillType : skills)
         {
-            // We check if the research is allowed
-            if(std::find(mResearchNotAllowed.begin(), mResearchNotAllowed.end(), researchType) != mResearchNotAllowed.end())
+            // We check if the skill is allowed
+            if(std::find(mSkillNotAllowed.begin(), mSkillNotAllowed.end(), skillType) != mSkillNotAllowed.end())
             {
-                // Invalid research. This might be allowed in the gui to enter invalid
+                // Invalid skill. This might be allowed in the gui to enter invalid
                 // values. In this case, we should remove the assert
-                OD_LOG_ERR("Unallowed research: " + Research::researchTypeToString(researchType));
+                OD_LOG_ERR("Unallowed skill: " + Skill::skillTypeToString(skillType));
                 return;
             }
-            const Research* research = ResearchManager::getResearch(researchType);
-            if(research == nullptr)
+            const Skill* skill = SkillManager::getSkill(skillType);
+            if(skill == nullptr)
             {
-                // We found an unknown research
-                OD_LOG_ERR("Unknown research: " + Research::researchTypeToString(researchType));
+                // We found an unknown skill
+                OD_LOG_ERR("Unknown skill: " + Skill::skillTypeToString(skillType));
                 return;
             }
 
-            if(!research->canBeResearched(researchesDoneInTree))
+            if(!skill->canBeSkilled(skillsDoneInTree))
             {
-                // Invalid research. This might happen if the level has a research pending with a non researchable dependency.
-                // In this case, we don't use the research tree
-                OD_LOG_ERR("Unallowed research: " + Research::researchTypeToString(researchType));
+                // Invalid skill. This might happen if the level has a skill pending with a non skillable dependency.
+                // In this case, we don't use the skill tree
+                OD_LOG_ERR("Unallowed skill: " + Skill::skillTypeToString(skillType));
                 return;
             }
 
-            // This research is valid. We add it in the list and we check if the next one also is
-            researchesDoneInTree.push_back(researchType);
+            // This skill is valid. We add it in the list and we check if the next one also is
+            skillsDoneInTree.push_back(skillType);
         }
 
-        mResearchPending = researches;
+        mSkillPending = skills;
         if((getPlayer() != nullptr) && getPlayer()->getIsHuman())
         {
             // We notify the client
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotificationType::researchTree, getPlayer());
+                ServerNotificationType::skillTree, getPlayer());
 
-            uint32_t nbItems = mResearchPending.size();
+            uint32_t nbItems = mSkillPending.size();
             serverNotification->mPacket << nbItems;
-            for(ResearchType research : mResearchPending)
-                serverNotification->mPacket << research;
+            for(SkillType skill : mSkillPending)
+                serverNotification->mPacket << skill;
 
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
 
-        // We start working on the research tree
-        setNextResearch(ResearchType::nullResearchType);
+        // We start working on the skill tree
+        setNextSkill(SkillType::nullSkillType);
     }
     else
     {
-        // On client side, no need to check if the research tree is allowed
-        mResearchPending = researches;
+        // On client side, no need to check if the skill tree is allowed
+        mSkillPending = skills;
 
         // Makes the client gui update.
-        mGuiResearchNeedsRefresh = true;
+        mGuiSkillNeedsRefresh = true;
     }
 }
 
@@ -1947,17 +1947,17 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
     {
         os << nbRooms;
     }
-    os << s->mCurrentResearchType;
-    os << s->mCurrentResearchProgress;
+    os << s->mCurrentSkillType;
+    os << s->mCurrentSkillProgress;
     uint32_t nb;
     nb  = s->mAvailableTeamIds.size();
     os << nb;
     for(int teamId : s->mAvailableTeamIds)
         os << teamId;
 
-    nb = s->mResearchNotAllowed.size();
+    nb = s->mSkillNotAllowed.size();
     os << nb;
-    for(ResearchType resType : s->mResearchNotAllowed)
+    for(SkillType resType : s->mSkillNotAllowed)
         os << resType;
 
     return os;
@@ -1977,8 +1977,8 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     {
         is >> nbRooms;
     }
-    is >> s->mCurrentResearchType;
-    is >> s->mCurrentResearchProgress;
+    is >> s->mCurrentSkillType;
+    is >> s->mCurrentSkillProgress;
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
     uint32_t nb;
     is >> nb;
@@ -1994,9 +1994,9 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     while(nb > 0)
     {
         --nb;
-        ResearchType resType;
+        SkillType resType;
         is >> resType;
-        s->mResearchNotAllowed.push_back(resType);
+        s->mSkillNotAllowed.push_back(resType);
     }
 
     return is;

@@ -31,11 +31,11 @@
 #include "entities/TreasuryObject.h"
 #include "entities/Weapon.h"
 #include "game/Player.h"
-#include "game/Research.h"
+#include "game/Skill.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
-#include "giftboxes/GiftBoxResearch.h"
+#include "giftboxes/GiftBoxSkill.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
@@ -157,7 +157,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
-    mResearchTypeDropDeath   (ResearchType::nullResearchType),
+    mSkillTypeDropDeath   (SkillType::nullSkillType),
     mWeaponDropDeath         ("none"),
     mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
@@ -236,7 +236,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
-    mResearchTypeDropDeath   (ResearchType::nullResearchType),
+    mSkillTypeDropDeath   (SkillType::nullSkillType),
     mWeaponDropDeath         ("none"),
     mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
@@ -353,7 +353,7 @@ std::string Creature::getCreatureStreamFormat()
         format += "\t";
 
     format += "ClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentWakefulness"
-            "\tCurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon\tCarriedResearch\tCarriedWeapon"
+            "\tCurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon\tCarriedSkill\tCarriedWeapon"
             "\tNbCreatureEffects\tN*CreatureEffects";
 
     return format;
@@ -381,7 +381,7 @@ void Creature::exportToStream(std::ostream& os) const
     else
         os << "\tnone";
 
-    os << "\t" << mResearchTypeDropDeath;
+    os << "\t" << mSkillTypeDropDeath;
 
     os << "\t" << mWeaponDropDeath;
 
@@ -440,7 +440,7 @@ bool Creature::importFromStream(std::istream& is)
         }
     }
 
-    if(!(is >> mResearchTypeDropDeath))
+    if(!(is >> mSkillTypeDropDeath))
         return false;
     if(!(is >> mWeaponDropDeath))
         return false;
@@ -759,16 +759,16 @@ void Creature::dropCarriedEquipment()
         mGoldCarried = 0;
     }
 
-    if(mResearchTypeDropDeath != ResearchType::nullResearchType)
+    if(mSkillTypeDropDeath != SkillType::nullSkillType)
     {
-        GiftBoxResearch* researchEntity = new GiftBoxResearch(getGameMap(), getIsOnServerMap(),
-            "DroppedBy" + getName(), mResearchTypeDropDeath);
-        researchEntity->addToGameMap();
+        GiftBoxSkill* skillEntity = new GiftBoxSkill(getGameMap(), getIsOnServerMap(),
+            "DroppedBy" + getName(), mSkillTypeDropDeath);
+        skillEntity->addToGameMap();
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
                                     static_cast<Ogre::Real>(myTile->getY()), 0.0f);
-        researchEntity->createMesh();
-        researchEntity->setPosition(spawnPosition);
-        mResearchTypeDropDeath = ResearchType::nullResearchType;
+        skillEntity->createMesh();
+        skillEntity->setPosition(spawnPosition);
+        mSkillTypeDropDeath = SkillType::nullSkillType;
     }
 
     // TODO: drop weapon when available
