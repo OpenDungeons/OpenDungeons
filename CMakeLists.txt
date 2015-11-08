@@ -499,6 +499,10 @@ set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1 1.55.0)
 
 set(OD_BOOST_COMPONENTS system filesystem locale program_options thread)
 
+if(BUILD_TESTING AND OD_BUILD_TESTING)
+    set(OD_BOOST_COMPONENTS ${OD_BOOST_COMPONENTS} unit_test_framework)
+endif()
+
 if(WIN32 AND ${OGRE_FOUND})
     # On windows we can try to use boost from the Ogre SDK instead
     set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${ENV_OGRE_HOME}/boost_1_44/lib)
@@ -509,16 +513,13 @@ if(WIN32 AND ${OGRE_FOUND})
     set(OD_BOOST_LIB_DIRS  ${ENV_OGRE_HOME}/boost_1_44/lib)
     set(OD_BOOST_INCLUDE_DIRS ${ENV_OGRE_HOME}/boost_1_44)
 
-    find_package(Boost)
+    find_package(Boost REQUIRED COMPONENTS ${OD_BOOST_COMPONENTS})
     if(Boost_FOUND)
         set(OD_BOOST_LIB_DIRS  ${Boost_INCLUDE_DIRS}/stage/lib)
         set(OD_BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
     endif()
-endif()
-
-if(MINGW OR UNIX)
-    # We need to specify the compiler here that Ogre used to compile boost
-    find_package(Boost REQUIRED COMPONENTS ${OD_BOOST_COMPONENTS} OPTIONAL_COMPONENTS unit_test_framework)
+else()
+    find_package(Boost REQUIRED COMPONENTS ${OD_BOOST_COMPONENTS})
 endif()
 
 ##################################

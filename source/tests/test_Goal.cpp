@@ -22,10 +22,10 @@
 #include "utils/LogManager.h"
 #include "utils/LogSinkConsole.h"
 
-struct GameMap
+class GameMap
 {
 };
-struct Seat
+class Seat
 {
 };
 
