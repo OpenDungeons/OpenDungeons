@@ -1954,7 +1954,7 @@ bool GameMap::withdrawFromTreasuries(int gold, Seat* seat)
 
         int goldTaken = room->withdrawGold(goldStillNeeded);
         goldStillNeeded -= goldTaken;
-        if(goldTaken <= 0)
+        if(goldStillNeeded <= 0)
             break;
     }
 
