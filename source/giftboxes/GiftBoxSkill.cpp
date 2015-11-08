@@ -15,9 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "giftboxes/GiftBoxResearch.h"
+#include "giftboxes/GiftBoxSkill.h"
 
-#include "game/Research.h"
+#include "game/Skill.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "utils/Helper.h"
@@ -25,37 +25,37 @@
 
 #include <iostream>
 
-GiftBoxResearch::GiftBoxResearch(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, ResearchType researchType) :
-    GiftBoxEntity(gameMap, isOnServerMap, baseName, "MysteryBox", GiftBoxType::research),
-    mResearchType(researchType)
+GiftBoxSkill::GiftBoxSkill(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, SkillType skillType) :
+    GiftBoxEntity(gameMap, isOnServerMap, baseName, "MysteryBox", GiftBoxType::skill),
+    mSkillType(skillType)
 {
     mPrevAnimationState = "Loop";
     mPrevAnimationStateLoop = true;
 }
 
-GiftBoxResearch::GiftBoxResearch(GameMap* gameMap, bool isOnServerMap) :
+GiftBoxSkill::GiftBoxSkill(GameMap* gameMap, bool isOnServerMap) :
     GiftBoxEntity(gameMap, isOnServerMap),
-    mResearchType(ResearchType::nullResearchType)
+    mSkillType(SkillType::nullSkillType)
 {
 }
 
-void GiftBoxResearch::exportToStream(std::ostream& os) const
+void GiftBoxSkill::exportToStream(std::ostream& os) const
 {
     GiftBoxEntity::exportToStream(os);
-    os << mResearchType << "\t";
+    os << mSkillType << "\t";
 }
 
-bool GiftBoxResearch::importFromStream(std::istream& is)
+bool GiftBoxSkill::importFromStream(std::istream& is)
 {
     if(!GiftBoxEntity::importFromStream(is))
         return false;
-    if(!(is >> mResearchType))
+    if(!(is >> mSkillType))
         return false;
 
     return true;
 }
 
-void GiftBoxResearch::applyEffect()
+void GiftBoxSkill::applyEffect()
 {
     if(getSeat() == nullptr)
     {
@@ -63,5 +63,5 @@ void GiftBoxResearch::applyEffect()
         return;
     }
 
-    getSeat()->addResearch(mResearchType);
+    getSeat()->addSkill(mSkillType);
 }

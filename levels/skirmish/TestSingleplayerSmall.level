@@ -19,7 +19,7 @@ colorId	1
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
@@ -29,12 +29,12 @@ trapCannon
 spellSummonWorker
 spellCreatureHeal
 spellCreatureExplosion
-[/ResearchDone]
-[ResearchNotAllowed]
+[/SkillDone]
+[SkillNotAllowed]
 trapSpike
-[/ResearchNotAllowed]
-[ResearchPending]
-[/ResearchPending]
+[/SkillNotAllowed]
+[SkillPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	2
@@ -47,17 +47,17 @@ colorId	2
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 trapCannon
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
 spellCallToWar
 spellCreatureHeal
 spellCreatureExplosion
@@ -67,7 +67,7 @@ spellCreatureHaste
 roomCrypt
 trapDoorWooden
 trapSpike
-[/ResearchPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	3
@@ -80,18 +80,18 @@ colorId	3
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 trapCannon
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
-[/ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	4
@@ -104,18 +104,18 @@ colorId	4
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 trapCannon
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
-[/ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
+[/SkillPending]
 [/Seat]
 [/Seats]
 
@@ -1526,7 +1526,7 @@ DwarfWorker	1
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 1	DefaultWorker1	Kobold.mesh	11	11	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 2	DefaultWorker2	Kobold.mesh	12	39	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 1	BigKnight1	BigKnight	7	7	0	BigKnight	1	0	10	100	0	0	Longsword	none	0	none	0
@@ -1561,9 +1561,9 @@ DwarfWorker	1
 # SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
 [/CraftedTraps]
 
-[ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchPoints	PosX	PosY	PosZ
-[/ResearchEntity]
+[SkillEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	skillPoints	PosX	PosY	PosZ
+[/SkillEntity]
 
 [GiftBoxEntity]
 # GiftBoxType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData

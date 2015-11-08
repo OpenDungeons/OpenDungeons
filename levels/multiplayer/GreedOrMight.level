@@ -19,16 +19,16 @@ colorId	1
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
 roomTrainingHall
 spellCallToWar
 roomWorkshop
@@ -39,7 +39,7 @@ roomCrypt
 trapBoulder
 spellCreatureHeal
 spellCreatureExplosion
-[/ResearchPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	2
@@ -52,16 +52,16 @@ colorId	2
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
 roomTrainingHall
 spellCallToWar
 roomWorkshop
@@ -70,7 +70,7 @@ trapCannon
 trapSpike
 roomCrypt
 trapBoulder
-[/ResearchPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	3
@@ -83,16 +83,16 @@ colorId	3
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
 roomTrainingHall
 spellCallToWar
 roomWorkshop
@@ -101,7 +101,7 @@ trapCannon
 trapSpike
 roomCrypt
 trapBoulder
-[/ResearchPending]
+[/SkillPending]
 [/Seat]
 [/Seats]
 
@@ -2372,7 +2372,7 @@ MineNGold	50
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 0	BossDragon1	BossDragon	62	14	0	BossDragon	4	0	max	100	0	0	none	none	0	none	0
 0	BossDragon2	BossDragon	40	68	0	BossDragon	3	0	max	100	0	0	none	none	0	none	0
 0	BossDragon3	BossDragon	33	65	0	BossDragon	3	0	max	100	0	0	none	none	0	none	0
@@ -2387,9 +2387,9 @@ MineNGold	50
 # SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
 [/CraftedTraps]
 
-[ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchPoints	PosX	PosY	PosZ
-[/ResearchEntity]
+[SkillEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	skillPoints	PosX	PosY	PosZ
+[/SkillEntity]
 
 [GiftBoxEntity]
 # GiftBoxType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData

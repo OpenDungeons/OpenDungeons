@@ -33,11 +33,11 @@ class ODPacket;
 class GameMap;
 class CreatureDefinition;
 class Player;
-class Research;
+class Skill;
 class Seat;
 class Tile;
 
-enum class ResearchType;
+enum class SkillType;
 enum class SpellType;
 enum class RoomType;
 enum class TileVisual;
@@ -220,14 +220,14 @@ public:
     inline void setPlayerType(const std::string& playerType)
     { mPlayerType = playerType; }
 
-    inline const std::vector<ResearchType>& getResearchDone() const
-    { return mResearchDone; }
+    inline const std::vector<SkillType>& getSkillDone() const
+    { return mSkillDone; }
 
-    inline const std::vector<ResearchType>& getResearchPending() const
-    { return mResearchPending; }
+    inline const std::vector<SkillType>& getSkillPending() const
+    { return mSkillPending; }
 
-    inline const std::vector<ResearchType>& getResearchNotAllowed() const
-    { return mResearchNotAllowed; }
+    inline const std::vector<SkillType>& getSkillNotAllowed() const
+    { return mSkillNotAllowed; }
 
     void setPlayer(Player* player);
 
@@ -280,47 +280,47 @@ public:
 
     void computeSeatBeginTurn();
 
-    //! \brief Gets whether a research is being done
-    bool isResearching() const
-    { return mCurrentResearch != nullptr; }
+    //! \brief Gets whether a skill is being done
+    bool isSkilling() const
+    { return mCurrentSkill != nullptr; }
 
-    //! \brief Gets the current type and percentage of research done. (0.0f-1.0f).
-    //! Returns true if a research is in progress and false otherwise
-    bool getCurrentResearchProgress(ResearchType& type, float& progress) const;
+    //! \brief Gets the current type and percentage of skill done. (0.0f-1.0f).
+    //! Returns true if a skill is in progress and false otherwise
+    bool getCurrentSkillProgress(SkillType& type, float& progress) const;
 
-    //! \brief Tells whether the given research type is in the pending queue.
-    //! \return The number of the pending research in the research queue or 0 if not there.
-    uint32_t isResearchPending(ResearchType resType) const;
+    //! \brief Tells whether the given skill type is in the pending queue.
+    //! \return The number of the pending skill in the skill queue or 0 if not there.
+    uint32_t isSkillPending(SkillType resType) const;
 
-    ResearchType getFirstResearchPending() const;
+    SkillType getFirstSkillPending() const;
 
-    //! \brief Returns true if the given ResearchType is already done for this player. False
+    //! \brief Returns true if the given SkillType is already done for this player. False
     //! otherwise
-    bool isResearchDone(ResearchType type) const;
+    bool isSkillDone(SkillType type) const;
 
-    //! \brief Called when the research entity reaches its destination. From there, the
-    //! researched thing is available
+    //! \brief Called when the skill entity reaches its destination. From there, the
+    //! skilled thing is available
     //! Returns true if the type was inserted and false otherwise
-    bool addResearch(ResearchType type);
+    bool addSkill(SkillType type);
 
     //! \brief Server side function. Called when a fresh grimoire is brought to the dungeon
-    //! temple. When enough points are gathered, the corresponding research will become available
-    void addResearchPoints(int32_t points);
+    //! temple. When enough points are gathered, the corresponding skill will become available
+    void addSkillPoints(int32_t points);
 
-    //! \brief Used on both client and server side. On server side, the research tree's validity
-    //! will be checked. If ok, it will be sent to the client. If not, the research tree will not
-    //! be changed. Note that the order of the research matters as the first researches in the
+    //! \brief Used on both client and server side. On server side, the skill tree's validity
+    //! will be checked. If ok, it will be sent to the client. If not, the skill tree will not
+    //! be changed. Note that the order of the skill matters as the first skills in the
     //! given vector can needed for the next ones
-    void setResearchTree(const std::vector<ResearchType>& researches);
+    void setSkillTree(const std::vector<SkillType>& skills);
 
     //! \brief Used on both client and server side
-    void setResearchesDone(const std::vector<ResearchType>& researches);
+    void setSkillsDone(const std::vector<SkillType>& skills);
 
-    inline bool getGuiResearchNeedsRefresh() const
-    { return mGuiResearchNeedsRefresh; }
+    inline bool getGuiSkillNeedsRefresh() const
+    { return mGuiSkillNeedsRefresh; }
 
-    inline void guiResearchRefreshed()
-    { mGuiResearchNeedsRefresh = false; }
+    inline void guiSkillRefreshed()
+    { mGuiSkillNeedsRefresh = false; }
 
     //! Called when a tile is notified to the seat player. That allows to save the state
     //! Used on server side only
@@ -466,28 +466,28 @@ private:
 
     bool mIsDebuggingVision;
 
-    //! \brief Counter for research points
-    int32_t mResearchPoints;
+    //! \brief Counter for skill points
+    int32_t mSkillPoints;
 
-    //! \brief Progress for current research. Allows to display the progressbar on the client side
-    ResearchType mCurrentResearchType;
-    float mCurrentResearchProgress;
+    //! \brief Progress for current skill. Allows to display the progressbar on the client side
+    SkillType mCurrentSkillType;
+    float mCurrentSkillProgress;
 
-    //! \brief Currently researched Research. This pointer is external and should not be deleted
-    const Research* mCurrentResearch;
+    //! \brief Currently researched Skill. This pointer is external and should not be deleted
+    const Skill* mCurrentSkill;
 
-    //! \brief true when the Research tree Gui needs to be refreshed. Used by the game mode
+    //! \brief true when the Skill tree Gui needs to be refreshed. Used by the game mode
     //! to know when to update its corresponding window.
-    bool mGuiResearchNeedsRefresh;
+    bool mGuiSkillNeedsRefresh;
 
-    //! \brief Researches already done. This is used on both client and server side and should be updated
-    std::vector<ResearchType> mResearchDone;
+    //! \brief Skills already done. This is used on both client and server side and should be updated
+    std::vector<SkillType> mSkillDone;
 
-    //! \brief Researches pending. Used on both client and server side and should be updated.
-    std::vector<ResearchType> mResearchPending;
+    //! \brief Skills pending. Used on both client and server side and should be updated.
+    std::vector<SkillType> mSkillPending;
 
-    //! \brief Researches not allowed. Used on server side only
-    std::vector<ResearchType> mResearchNotAllowed;
+    //! \brief Skills not allowed. Used on server side only
+    std::vector<SkillType> mSkillNotAllowed;
 
     //! \brief During seat configuration, we save temporary player id here
     int32_t mConfigPlayerId;
@@ -497,10 +497,10 @@ private:
     //! \brief Should the creatures fight to death or ko enemy creatures
     bool mKoCreatures;
 
-    //! \brief Server side function. Sets mCurrentResearch to the first entry in mResearchPending. If the pending
-    //! list in empty, mCurrentResearch will be set to null
-    //! researchedType is the currently researched type if any (nullResearchType if none)
-    void setNextResearch(ResearchType researchedType);
+    //! \brief Server side function. Sets mCurrentSkill to the first entry in mSkillPending. If the pending
+    //! list in empty, mCurrentSkill will be set to null
+    //! researchedType is the currently researched type if any (nullSkillType if none)
+    void setNextSkill(SkillType researchedType);
 
     //! Fills mTilesStateLoaded with the tiles of the given tileVisual is the given istream.
     //! Returns 0 if the seat end tile has been reached, 1 if the read success and -1 if there is an error

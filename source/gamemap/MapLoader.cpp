@@ -33,7 +33,7 @@
 #include "entities/GiftBoxEntity.h"
 #include "entities/MapLight.h"
 #include "entities/MissileObject.h"
-#include "entities/ResearchEntity.h"
+#include "entities/SkillEntity.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
 #include "entities/Weapon.h"
@@ -485,9 +485,9 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         return false;
     }
 
-    if(!readGameEntity(gameMap, "ResearchEntity", GameEntityType::researchEntity, levelFile))
+    if(!readGameEntity(gameMap, "SkillEntity", GameEntityType::skillEntity, levelFile))
     {
-        OD_LOG_WRN("Invalid ResearchEntity section");
+        OD_LOG_WRN("Invalid SkillEntity section");
         return false;
     }
 
@@ -715,17 +715,17 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     }
     levelFile << "[/CraftedTraps]" << std::endl;
 
-    levelFile << "\n[ResearchEntity]\n";
-    levelFile << "# " << ResearchEntity::getResearchEntityStreamFormat() << "\n";
+    levelFile << "\n[SkillEntity]\n";
+    levelFile << "# " << SkillEntity::getSkillEntityStreamFormat() << "\n";
     for (RenderedMovableEntity* rendered : rendereds)
     {
-        if(rendered->getObjectType() != GameEntityType::researchEntity)
+        if(rendered->getObjectType() != GameEntityType::skillEntity)
             continue;
 
         GameEntity::exportToStream(rendered, levelFile);
         levelFile << std::endl;
     }
-    levelFile << "[/ResearchEntity]" << std::endl;
+    levelFile << "[/SkillEntity]" << std::endl;
 
     levelFile << "\n[GiftBoxEntity]\n";
     levelFile << "# " << GiftBoxEntity::getGiftBoxEntityStreamFormat() << "\n";

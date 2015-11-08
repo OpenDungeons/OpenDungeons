@@ -67,8 +67,8 @@ std::string EventMessage::getMessageAsString()
             eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/CreaturesIcon'] [colour='FF11AA22']";
             break;
         default:
-        case EventShortNoticeType::aboutResearches:
-            eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/ResearchIcon'] [colour='FFEEEE00']";
+        case EventShortNoticeType::aboutSkills:
+            eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/SkillIcon'] [colour='FFEEEE00']";
             break;
         case EventShortNoticeType::aboutObjectives:
             eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/ObjectivesIcon'] [colour='FF0000EE']";

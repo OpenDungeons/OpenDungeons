@@ -19,17 +19,17 @@ colorId	1
 gold	1000
 goldMined	0
 mana	2000
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
-[/ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	2
@@ -42,17 +42,17 @@ colorId	2
 gold	1000
 goldMined	0
 mana	200
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
-[/ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	3
@@ -65,17 +65,17 @@ colorId	3
 gold	1000
 goldMined	0
 mana	2000
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
-[/ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	4
@@ -88,17 +88,17 @@ colorId	4
 gold	1000
 goldMined	0
 mana	2000
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
-[/ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	5
@@ -111,12 +111,12 @@ colorId	5
 gold	1000
 goldMined	0
 mana	2000
-[ResearchDone]
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
-[/ResearchPending]
+[SkillDone]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
+[/SkillPending]
 [/Seat]
 [/Seats]
 
@@ -2171,7 +2171,7 @@ BigKnight	5
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 0	Goblin2	Goblin.mesh	11	27	0	Goblin	3	0	max	100	0	0	none	none	0	none	0
 0	Goblin3	Goblin.mesh	49	29	0	Goblin	3	0	max	100	0	0	none	none	0	none	0
 0	LizardMan4	Lizardman.mesh	47	30	0	LizardMan	3	0	max	100	0	0	none	none	0	none	0
@@ -2226,9 +2226,9 @@ BigKnight	5
 # SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
 [/CraftedTraps]
 
-[ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchPoints	PosX	PosY	PosZ
-[/ResearchEntity]
+[SkillEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	skillPoints	PosX	PosY	PosZ
+[/SkillEntity]
 
 [GiftBoxEntity]
 # GiftBoxType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData

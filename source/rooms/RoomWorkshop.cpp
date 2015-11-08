@@ -451,7 +451,7 @@ Tile* RoomWorkshop::checkIfAvailableSpot()
         if(!roomWorkshopTileData->mCanHaveCraftedTrap)
             continue;
 
-        uint32_t nbItems = p.first->countEntitiesOnTile(GameEntityType::researchEntity);
+        uint32_t nbItems = p.first->countEntitiesOnTile(GameEntityType::skillEntity);
         if(nbItems > 0)
             continue;
 

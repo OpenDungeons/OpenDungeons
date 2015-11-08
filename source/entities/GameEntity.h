@@ -50,7 +50,7 @@ enum class EntityCarryType
 {
     notCarryable,
     corpse,
-    researchEntity,
+    skillEntity,
     craftedTrap,
     giftBox,
     gold,

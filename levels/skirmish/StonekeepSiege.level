@@ -19,16 +19,16 @@ colorId	1
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
 roomTrainingHall
 spellCallToWar
 roomWorkshop
@@ -39,7 +39,7 @@ roomCrypt
 trapBoulder
 spellCreatureHeal
 spellCreatureExplosion
-[/ResearchPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	2
@@ -52,16 +52,16 @@ colorId	2
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
 roomTrainingHall
 spellCallToWar
 roomWorkshop
@@ -70,7 +70,7 @@ trapCannon
 trapSpike
 roomCrypt
 trapBoulder
-[/ResearchPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	3
@@ -83,16 +83,16 @@ colorId	3
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
 roomTrainingHall
 spellCallToWar
 roomWorkshop
@@ -101,7 +101,7 @@ trapCannon
 trapSpike
 roomCrypt
 trapBoulder
-[/ResearchPending]
+[/SkillPending]
 [/Seat]
 [Seat]
 seatId	4
@@ -114,16 +114,16 @@ colorId	4
 gold	1000
 goldMined	100
 mana	500
-[ResearchDone]
+[SkillDone]
 roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
 roomTrainingHall
 spellCallToWar
 roomWorkshop
@@ -132,7 +132,7 @@ trapCannon
 trapSpike
 roomCrypt
 trapBoulder
-[/ResearchPending]
+[/SkillPending]
 [/Seat]
 [/Seats]
 
@@ -4147,7 +4147,7 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 1	Kobold90	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none	0	none	0
 1	Kobold91	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none	0	none	0
 2	Kobold92	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none	0	none	0
@@ -4200,9 +4200,9 @@ ProtectDungeonTemple	NULL
 # SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
 [/CraftedTraps]
 
-[ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchPoints	PosX	PosY	PosZ
-[/ResearchEntity]
+[SkillEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	skillPoints	PosX	PosY	PosZ
+[/SkillEntity]
 
 [GiftBoxEntity]
 # GiftBoxType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData

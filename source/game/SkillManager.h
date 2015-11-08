@@ -23,9 +23,9 @@
 #include <string>
 #include <vector>
 
-class Research;
+class Skill;
 
-enum class ResearchType;
+enum class SkillType;
 enum class RoomType;
 enum class SpellType;
 enum class TrapType;
@@ -40,8 +40,8 @@ namespace CEGUI
 class Window;
 };
 
-//! \brief Each research is in one of these families
-enum class ResearchFamily
+//! \brief Each skill is in one of these families
+enum class SkillFamily
 {
     rooms,
     traps,
@@ -49,14 +49,14 @@ enum class ResearchFamily
     nb
 };
 
-//! \brief Local class that will be used to store Research data and link it to the gui
-class ResearchDef;
+//! \brief Local class that will be used to store Skill data and link it to the gui
+class SkillDef;
 
-class ResearchManager
+class SkillManager
 {
 public:
-    ResearchManager();
-    virtual ~ResearchManager();
+    SkillManager();
+    virtual ~SkillManager();
 
     //! \brief Checks if the given room is available for the given seat. This check
     //! should be done on server side to avoid cheating
@@ -70,43 +70,43 @@ public:
     //! should be done on server side to avoid cheating
     static bool isTrapAvailable(TrapType type, const Seat* seat);
 
-    //! \brief Checks if the given seat has already researched all the allowed researches
-    static bool isAllResearchesDoneForSeat(const Seat* seat);
+    //! \brief Checks if the given seat has already researched all the allowed skills
+    static bool isAllSkillsDoneForSeat(const Seat* seat);
 
-    //! \brief Builds randomly a pending research list for the given seat. Note that the
+    //! \brief Builds randomly a pending skill list for the given seat. Note that the
     //! given pending vector may not be empty. In this case, it will be filled by the
-    //! not already selected researches
+    //! not already selected skills
     //! Note that this function will only use the seat for knowing already done or not allowed
-    //! researches, not the currently pending ones. If they are to be used, researches should
+    //! skills, not the currently pending ones. If they are to be used, skills should
     //! be initialized with them
-    static void buildRandomPendingResearchesForSeat(std::vector<ResearchType>& researches,
+    static void buildRandomPendingSkillsForSeat(std::vector<SkillType>& skills,
         const Seat* seat);
 
-    static const Research* getResearch(ResearchType resType);
+    static const Skill* getSkill(SkillType resType);
 
-    //! \brief Lists all the researches and calls the given function for each one with parameters:
-    //! - Gui research button name
+    //! \brief Lists all the skills and calls the given function for each one with parameters:
+    //! - Gui skill button name
     //! - Gui use button name
-    //! - Gui research button progressbar name
-    //! - The corresponding research type
-    static void listAllResearches(const std::function<void(const std::string&, const std::string&,
-        const std::string&, ResearchType)>& func);
+    //! - Gui skill button progressbar name
+    //! - The corresponding skill type
+    static void listAllSkills(const std::function<void(const std::string&, const std::string&,
+        const std::string&, SkillType)>& func);
 
-    //! \brief Lists all the researches and calls the given function for each one with parameters:
+    //! \brief Lists all the skills and calls the given function for each one with parameters:
     //! - SpellType
     //! - Gui use button progressbar name
     static void listAllSpellsProgressBars(const std::function<void(SpellType spellType, const std::string&)>& func);
 
-    static void connectResearches(GameMode* mode, CEGUI::Window* rootWindow);
+    static void connectSkills(GameMode* mode, CEGUI::Window* rootWindow);
 
     static void connectGuiButtons(GameEditorModeBase* mode, CEGUI::Window* rootWindow, PlayerSelection& playerSelection);
 
 private:
-    //! \brief Allowed researches
-    std::vector<const ResearchDef*> mResearches;
+    //! \brief Allowed skills
+    std::vector<const SkillDef*> mSkills;
 
-    //! \brief Allows to map each family room/trap/spell to the corresponding ResearchType
-    std::vector<std::vector<ResearchType>> mResearchesFamily;
+    //! \brief Allows to map each family room/trap/spell to the corresponding SkillType
+    std::vector<std::vector<SkillType>> mSkillsFamily;
 };
 
 #endif // RESEARCHMANAGER_H

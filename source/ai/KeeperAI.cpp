@@ -20,7 +20,7 @@
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
-#include "game/ResearchManager.h"
+#include "game/SkillManager.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "rooms/Room.h"
@@ -498,11 +498,11 @@ bool KeeperAI::lookForGold()
 bool KeeperAI::buildMostNeededRoom()
 {
     uint32_t nbDormitory = 0;
-    if(ResearchManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()))
+    if(SkillManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::dormitory, mPlayer.getSeat());
         nbDormitory = rooms.size();
-        if(ResearchManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()) && nbDormitory == 0)
+        if(SkillManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()) && nbDormitory == 0)
         {
             std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
                 mRoomPosY + mRoomSize - 1, &mPlayer);
@@ -516,7 +516,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(ResearchManager::isRoomAvailable(RoomType::treasury, mPlayer.getSeat()))
+    if(SkillManager::isRoomAvailable(RoomType::treasury, mPlayer.getSeat()))
     {
         int totalStorage = 0;
         int totalGold = 0;
@@ -544,7 +544,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(ResearchManager::isRoomAvailable(RoomType::hatchery, mPlayer.getSeat()))
+    if(SkillManager::isRoomAvailable(RoomType::hatchery, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::hatchery, mPlayer.getSeat());
         if(rooms.empty())
@@ -561,7 +561,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(ResearchManager::isRoomAvailable(RoomType::trainingHall, mPlayer.getSeat()))
+    if(SkillManager::isRoomAvailable(RoomType::trainingHall, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::trainingHall, mPlayer.getSeat());
         if(rooms.empty())
@@ -578,7 +578,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(ResearchManager::isRoomAvailable(RoomType::workshop, mPlayer.getSeat()))
+    if(SkillManager::isRoomAvailable(RoomType::workshop, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::workshop, mPlayer.getSeat());
         if(rooms.empty())
@@ -595,7 +595,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(ResearchManager::isRoomAvailable(RoomType::library, mPlayer.getSeat()))
+    if(SkillManager::isRoomAvailable(RoomType::library, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::library, mPlayer.getSeat());
         if(rooms.empty())
@@ -612,7 +612,7 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(ResearchManager::isRoomAvailable(RoomType::crypt, mPlayer.getSeat()))
+    if(SkillManager::isRoomAvailable(RoomType::crypt, mPlayer.getSeat()))
     {
         std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::crypt, mPlayer.getSeat());
         if(rooms.empty())
@@ -630,7 +630,7 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // Once we have done all the basic buildings, we go for another dormitory
-    if(ResearchManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()) && nbDormitory == 1)
+    if(SkillManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()) && nbDormitory == 1)
     {
         std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
             mRoomPosY + mRoomSize - 1, &mPlayer);
@@ -907,9 +907,9 @@ bool KeeperAI::handleHungryCreatures()
 void KeeperAI::handleFirstTurn()
 {
     Seat* seat = mPlayer.getSeat();
-    // We set the researches. We start with pending researches to not modify research
+    // We set the skills to research. We start with pending skills to not modify research
     // order if it was already set in the level
-    std::vector<ResearchType> researches = seat->getResearchPending();
-    ResearchManager::buildRandomPendingResearchesForSeat(researches, seat);
-    seat->setResearchTree(researches);
+    std::vector<SkillType> skills = seat->getSkillPending();
+    SkillManager::buildRandomPendingSkillsForSeat(skills, seat);
+    seat->setSkillTree(skills);
 }

@@ -34,7 +34,7 @@ enum class EventShortNoticeType : int32_t
     genericGameInfo,
     majorGameEvent,
     aboutCreatures,
-    aboutResearches,
+    aboutSkills,
     aboutObjectives
 };
 

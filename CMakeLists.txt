@@ -327,7 +327,7 @@ set(OD_SOURCEFILES
     ${SRC}/entities/MovableGameEntity.cpp
     ${SRC}/entities/PersistentObject.cpp
     ${SRC}/entities/RenderedMovableEntity.cpp
-    ${SRC}/entities/ResearchEntity.cpp
+    ${SRC}/entities/SkillEntity.cpp
     ${SRC}/entities/SmallSpiderEntity.cpp
     ${SRC}/entities/Tile.cpp
     ${SRC}/entities/TrapEntity.cpp
@@ -336,8 +336,8 @@ set(OD_SOURCEFILES
 
     ${SRC}/game/Player.cpp
     ${SRC}/game/PlayerSelection.cpp
-    ${SRC}/game/Research.cpp
-    ${SRC}/game/ResearchManager.cpp
+    ${SRC}/game/Skill.cpp
+    ${SRC}/game/SkillManager.cpp
     ${SRC}/game/Seat.cpp
 
     ${SRC}/gamemap/GameMap.cpp
@@ -347,7 +347,7 @@ set(OD_SOURCEFILES
     ${SRC}/gamemap/TileContainer.cpp
     ${SRC}/gamemap/TileSet.cpp
 
-    ${SRC}/giftboxes/GiftBoxResearch.cpp
+    ${SRC}/giftboxes/GiftBoxSkill.cpp
 
     ${SRC}/goals/Goal.cpp
     ${SRC}/goals/GoalClaimNTiles.cpp

@@ -23,19 +23,19 @@
 
 class Tile;
 
-enum class ResearchType;
+enum class SkillType;
 
 class RoomLibraryTileData : public TileData
 {
 public:
     RoomLibraryTileData() :
         TileData(),
-        mCanHaveResearchEntity(true)
+        mCanHaveSkillEntity(true)
     {}
 
     RoomLibraryTileData(const RoomLibraryTileData* roomLibraryTileData) :
         TileData(roomLibraryTileData),
-        mCanHaveResearchEntity(roomLibraryTileData->mCanHaveResearchEntity)
+        mCanHaveSkillEntity(roomLibraryTileData->mCanHaveSkillEntity)
     {}
 
     virtual ~RoomLibraryTileData()
@@ -44,7 +44,7 @@ public:
     virtual RoomLibraryTileData* cloneTileData() const override
     { return new RoomLibraryTileData(this); }
 
-    bool mCanHaveResearchEntity;
+    bool mCanHaveSkillEntity;
 };
 
 class RoomLibrary: public Room
@@ -79,13 +79,13 @@ protected:
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
     //!\brief checks how many items are on the library
-    uint32_t countResearchItemsOnRoom();
+    uint32_t countSkillItemsOnRoom();
     Tile* checkIfAvailableSpot();
     void getCreatureWantedPos(Creature* creature, Tile* tileSpot,
         Ogre::Real& wantedX, Ogre::Real& wantedY);
     std::vector<Tile*> mUnusedSpots;
     std::map<Creature*,Tile*> mCreaturesSpots;
-    int32_t mResearchPoints;
+    int32_t mSkillPoints;
 };
 
 #endif // ROOMLIBRARY_H

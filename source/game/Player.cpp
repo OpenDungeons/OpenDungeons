@@ -20,7 +20,7 @@
 #include "entities/Creature.h"
 #include "entities/CreatureAction.h"
 #include "entities/Tile.h"
-#include "game/ResearchManager.h"
+#include "game/SkillManager.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
@@ -46,7 +46,7 @@ const float BATTLE_TIME_COUNT = 10.0f;
 //! Note that the distance is squared (100 would mean 10 tiles)
 const int MIN_DIST_EVENT_SQUARED = 100;
 
-//! \brief The number of seconds the local player will not be notified again if the research queue is empty
+//! \brief The number of seconds the local player will not be notified again if the skill queue is empty
 const float NO_RESEARCH_TIME_COUNT = 60.0f;
 
 //! \brief The number of seconds the local player will not be notified again if he has no worker
@@ -60,7 +60,7 @@ Player::Player(GameMap* gameMap, int32_t id) :
     mGameMap(gameMap),
     mSeat(nullptr),
     mIsHuman(false),
-    mNoResearchInQueueTime(0.0f),
+    mNoSkillInQueueTime(0.0f),
     mNoWorkerTime(0.0f),
     mNoTreasuryAvailableTime(0.0f),
     mHasLost(false),
@@ -431,13 +431,13 @@ void Player::notifyTeamFighting(Player* player, Tile* tile)
     fireEvents();
 }
 
-void Player::notifyNoResearchInQueue()
+void Player::notifyNoSkillInQueue()
 {
-    if(mNoResearchInQueueTime == 0.0f)
+    if(mNoSkillInQueueTime == 0.0f)
     {
-        mNoResearchInQueueTime = NO_RESEARCH_TIME_COUNT;
+        mNoSkillInQueueTime = NO_RESEARCH_TIME_COUNT;
 
-        std::string chatMsg = "Your research queue is empty, while there are still skills that could be unlocked.";
+        std::string chatMsg = "Your skill queue is empty, while there are still skills that could be unlocked.";
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::chatServer, this);
         serverNotification->mPacket << chatMsg << EventShortNoticeType::genericGameInfo;
@@ -626,19 +626,19 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
-    // Do not notify research queue empty if no library
+    // Do not notify skill queue empty if no library
     if(getIsHuman() &&
        (getSeat()->getNbRooms(RoomType::library) > 0))
     {
-        if(mNoResearchInQueueTime > timeSinceLastUpkeep)
-            mNoResearchInQueueTime -= timeSinceLastUpkeep;
+        if(mNoSkillInQueueTime > timeSinceLastUpkeep)
+            mNoSkillInQueueTime -= timeSinceLastUpkeep;
         else
         {
-            mNoResearchInQueueTime = 0.0f;
+            mNoSkillInQueueTime = 0.0f;
 
-            // Reprint the warning if there is still no research being done
-            if(getSeat() != nullptr && !getSeat()->isResearching() && !ResearchManager::isAllResearchesDoneForSeat(getSeat()))
-                notifyNoResearchInQueue();
+            // Reprint the warning if there is still no skill being done
+            if(getSeat() != nullptr && !getSeat()->isSkilling() && !SkillManager::isAllSkillsDoneForSeat(getSeat()))
+                notifyNoSkillInQueue();
         }
     }
 

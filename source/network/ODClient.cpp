@@ -25,7 +25,7 @@
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
 #include "game/Player.h"
-#include "game/Research.h"
+#include "game/Skill.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "modes/GameMode.h"
@@ -866,37 +866,37 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
             break;
         }
 
-        case ServerNotificationType::researchTree:
+        case ServerNotificationType::skillTree:
         {
             uint32_t nbItems;
             OD_ASSERT_TRUE(packetReceived >> nbItems);
-            std::vector<ResearchType> researches;
+            std::vector<SkillType> skills;
             while(nbItems > 0)
             {
                 nbItems--;
-                ResearchType research;
-                OD_ASSERT_TRUE(packetReceived >> research);
-                researches.push_back(research);
+                SkillType skill;
+                OD_ASSERT_TRUE(packetReceived >> skill);
+                skills.push_back(skill);
             }
 
-            getPlayer()->getSeat()->setResearchTree(researches);
+            getPlayer()->getSeat()->setSkillTree(skills);
             break;
         }
 
-        case ServerNotificationType::researchesDone:
+        case ServerNotificationType::skillsDone:
         {
             uint32_t nbItems;
             OD_ASSERT_TRUE(packetReceived >> nbItems);
-            std::vector<ResearchType> researches;
+            std::vector<SkillType> skills;
             while(nbItems > 0)
             {
                 nbItems--;
-                ResearchType research;
-                OD_ASSERT_TRUE(packetReceived >> research);
-                researches.push_back(research);
+                SkillType skill;
+                OD_ASSERT_TRUE(packetReceived >> skill);
+                skills.push_back(skill);
             }
 
-            getPlayer()->getSeat()->setResearchesDone(researches);
+            getPlayer()->getSeat()->setSkillsDone(skills);
             break;
         }
 

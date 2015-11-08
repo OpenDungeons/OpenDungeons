@@ -23,13 +23,13 @@
 #include <string>
 #include <iosfwd>
 
-enum class ResearchType;
+enum class SkillType;
 
-class GiftBoxResearch: public GiftBoxEntity
+class GiftBoxSkill: public GiftBoxEntity
 {
 public:
-    GiftBoxResearch(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, ResearchType researchType);
-    GiftBoxResearch(GameMap* gameMap, bool isOnServerMap);
+    GiftBoxSkill(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, SkillType skillType);
+    GiftBoxSkill(GameMap* gameMap, bool isOnServerMap);
 
     virtual void applyEffect();
 
@@ -38,7 +38,7 @@ protected:
     virtual bool importFromStream(std::istream& is) override;
 
 private:
-    ResearchType mResearchType;
+    SkillType mSkillType;
 };
 
 #endif // GIFTBOXRESEARCH_H

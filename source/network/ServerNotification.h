@@ -77,8 +77,8 @@ enum class ServerNotificationType
     carryEntity,
     releaseCarriedEntity,
 
-    researchTree,
-    researchesDone,
+    skillTree,
+    skillsDone,
 
     setPlayerSettings,
 
