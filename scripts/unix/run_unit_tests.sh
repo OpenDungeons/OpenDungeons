@@ -6,7 +6,7 @@ UNIT_TESTS="ConsoleInterface Random Goal ODPacket Pathfinding LaunchGame"
 
 if [ ! -x $(pwd)/${OD_BINARY} ]; then
     echo "Can't find the ${OD_BINARY} binary in the current directory, aborting."
-    exit 0
+    exit 1
 fi
 
 TESTS_PASSED=""
@@ -31,3 +31,7 @@ echo -e "\n#####################################"
 echo "The following tests were PASSED: ${TESTS_PASSED}"
 echo "The following tests were FAILED: ${TESTS_FAILED}"
 echo -e "#####################################\n"
+
+if [ ! -z ${TESTS_FAILED} ]; then
+    exit 2
+fi
