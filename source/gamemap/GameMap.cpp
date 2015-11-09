@@ -33,6 +33,7 @@
 #include "entities/Weapon.h"
 #include "game/Player.h"
 #include "game/Skill.h"
+#include "game/SkillType.h"
 #include "game/Seat.h"
 #include "gamemap/MapLoader.h"
 #include "gamemap/Pathfinding.h"

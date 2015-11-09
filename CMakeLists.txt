@@ -338,6 +338,7 @@ set(OD_SOURCEFILES
     ${SRC}/game/PlayerSelection.cpp
     ${SRC}/game/Skill.cpp
     ${SRC}/game/SkillManager.cpp
+    ${SRC}/game/SkillType.cpp
     ${SRC}/game/Seat.cpp
 
     ${SRC}/gamemap/GameMap.cpp

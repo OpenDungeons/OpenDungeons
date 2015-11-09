@@ -23,6 +23,7 @@
 #include "game/Player.h"
 #include "game/Skill.h"
 #include "game/SkillManager.h"
+#include "game/SkillType.h"
 #include "gamemap/GameMap.h"
 #include "goals/Goal.h"
 #include "network/ODServer.h"
@@ -1033,7 +1034,7 @@ bool Seat::importSeatFromStream(std::istream& is)
             SkillType type = static_cast<SkillType>(i);
             if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Skill::skillTypeToString(type)) != 0)
+            if(str.compare(Skills::skillTypeToString(type)) != 0)
                 continue;
 
             if(std::find(mSkillDone.begin(), mSkillDone.end(), type) != mSkillDone.end())
@@ -1064,7 +1065,7 @@ bool Seat::importSeatFromStream(std::istream& is)
             SkillType type = static_cast<SkillType>(i);
             if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Skill::skillTypeToString(type)) != 0)
+            if(str.compare(Skills::skillTypeToString(type)) != 0)
                 continue;
 
             // We do not allow a skill to be done and not allowed
@@ -1098,7 +1099,7 @@ bool Seat::importSeatFromStream(std::istream& is)
             SkillType type = static_cast<SkillType>(i);
             if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Skill::skillTypeToString(type)) != 0)
+            if(str.compare(Skills::skillTypeToString(type)) != 0)
                 continue;
 
             // We do not allow skills already done or not allowed
@@ -1251,21 +1252,21 @@ bool Seat::exportSeatToStream(std::ostream& os) const
     os << "[SkillDone]" << std::endl;
     for(SkillType type : mSkillDone)
     {
-        os << Skill::skillTypeToString(type) << std::endl;
+        os << Skills::skillTypeToString(type) << std::endl;
     }
     os << "[/SkillDone]" << std::endl;
 
     os << "[SkillNotAllowed]" << std::endl;
     for(SkillType type : mSkillNotAllowed)
     {
-        os << Skill::skillTypeToString(type) << std::endl;
+        os << Skills::skillTypeToString(type) << std::endl;
     }
     os << "[/SkillNotAllowed]" << std::endl;
 
     os << "[SkillPending]" << std::endl;
     for(SkillType type : mSkillPending)
     {
-        os << Skill::skillTypeToString(type) << std::endl;
+        os << Skills::skillTypeToString(type) << std::endl;
     }
     os << "[/SkillPending]" << std::endl;
 
@@ -1352,7 +1353,7 @@ bool Seat::addSkill(SkillType type)
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::chatServer, getPlayer());
 
-        std::string msg = Skill::skillTypeToPlayerVisibleString(type) + " is now available.";
+        std::string msg = Skills::skillTypeToPlayerVisibleString(type) + " is now available.";
         serverNotification->mPacket << msg << EventShortNoticeType::aboutSkills;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
@@ -1536,14 +1537,14 @@ void Seat::setSkillTree(const std::vector<SkillType>& skills)
             {
                 // Invalid skill. This might be allowed in the gui to enter invalid
                 // values. In this case, we should remove the assert
-                OD_LOG_ERR("Unallowed skill: " + Skill::skillTypeToString(skillType));
+                OD_LOG_ERR("Unallowed skill: " + Skills::skillTypeToString(skillType));
                 return;
             }
             const Skill* skill = SkillManager::getSkill(skillType);
             if(skill == nullptr)
             {
                 // We found an unknown skill
-                OD_LOG_ERR("Unknown skill: " + Skill::skillTypeToString(skillType));
+                OD_LOG_ERR("Unknown skill: " + Skills::skillTypeToString(skillType));
                 return;
             }
 
@@ -1551,7 +1552,7 @@ void Seat::setSkillTree(const std::vector<SkillType>& skills)
             {
                 // Invalid skill. This might happen if the level has a skill pending with a non skillable dependency.
                 // In this case, we don't use the skill tree
-                OD_LOG_ERR("Unallowed skill: " + Skill::skillTypeToString(skillType));
+                OD_LOG_ERR("Unallowed skill: " + Skills::skillTypeToString(skillType));
                 return;
             }
 

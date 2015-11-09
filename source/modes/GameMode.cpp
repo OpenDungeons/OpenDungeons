@@ -24,6 +24,7 @@
 #include "game/Skill.h"
 #include "game/SkillManager.h"
 #include "game/Seat.h"
+#include "game/SkillType.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
 #include "modes/GameEditorModeConsole.h"
