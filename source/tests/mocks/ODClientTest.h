@@ -23,28 +23,45 @@
 
 #include <string>
 
+class SeatData;
+
 class PlayerInfo
 {
 public:
+    PlayerInfo() :
+        mPlayerId(-1),
+        mWantedSeatId(-1),
+        mWantedTeamId(-1),
+        mWantedFactionIndex(-1),
+        mIsHuman(false),
+        mSeat(nullptr)
+    {}
+
     std::string mNick;
-    int32_t mId;
-    int mSeatId;
-    int32_t mTeamId;
-    int32_t mFactionIndex;
+    int32_t mPlayerId;
+    int mWantedSeatId;
+    int32_t mWantedTeamId;
+    int32_t mWantedFactionIndex;
     bool mIsHuman;
+    SeatData* mSeat;
+    std::string mGoals;
 };
 
 class ODClientTest : public ODSocketClient
 {
 public:
-    ODClientTest(const std::vector<PlayerInfo>& players);
+    ODClientTest(const std::vector<PlayerInfo>& players, uint32_t indexLocalPlayer);
 
-    virtual ~ODClientTest()
-    {}
+    virtual ~ODClientTest();
 
     bool connect(const std::string& host, const int port, uint32_t timeout, const std::string& outputReplayFilename) override;
 
     void runFor(int32_t timeInMillis);
+
+    const std::vector<SeatData*>& getSeats() const
+    { return mSeats; }
+
+    SeatData* getLocalSeat() const;
 
     // Allows to check that the server correctly launched and sent new turns
     int64_t mTurnNum;
@@ -56,6 +73,8 @@ private:
     bool mIsActivated;
     bool mIsGameModeStarted;
     std::vector<PlayerInfo> mPlayers;
+    std::vector<SeatData*> mSeats;
+    uint32_t mLocalPlayerIndex;
 };
 
 #endif // ODCLIENTTEST_H

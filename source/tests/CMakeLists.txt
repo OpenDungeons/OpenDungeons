@@ -41,6 +41,8 @@ add_boost_test(Pathfinding
 add_boost_test(LaunchGame
         SOURCES
         ${SRC}/tests/mocks/ODClientTest.cpp
+        ${SRC}/game/SeatData.cpp
+        ${SRC}/game/SkillType.cpp
         ${SRC}/network/ClientNotification.cpp
         ${SRC}/network/ODPacket.cpp
         ${SRC}/network/ODSocketClient.cpp

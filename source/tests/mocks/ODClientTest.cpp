@@ -17,6 +17,7 @@
 
 #include "ODClientTest.h"
 
+#include "game/SeatData.h"
 #include "network/ClientNotification.h"
 #include "network/ServerMode.h"
 #include "network/ServerNotification.h"
@@ -30,12 +31,24 @@ static const std::string OD_VERSION_STR = OD_VERSION;
 static const std::string OD_VERSION_STR = "undefined";
 #endif
 
-ODClientTest::ODClientTest(const std::vector<PlayerInfo>& players) :
+ODClientTest::ODClientTest(const std::vector<PlayerInfo>& players, uint32_t indexLocalPlayer) :
     mTurnNum(0),
     mIsActivated(false),
     mIsGameModeStarted(false),
-    mPlayers(players)
+    mPlayers(players),
+    mLocalPlayerIndex(indexLocalPlayer)
 {
+    BOOST_CHECK(!players.empty());
+    BOOST_CHECK(indexLocalPlayer < mPlayers.size());
+    OD_LOG_INF("Local player is nick=" + mPlayers[mLocalPlayerIndex].mNick + ", id=" + Helper::toString(mPlayers[mLocalPlayerIndex].mPlayerId) + ", seatId=" + Helper::toString(mPlayers[mLocalPlayerIndex].mWantedSeatId));
+}
+
+ODClientTest::~ODClientTest()
+{
+    for(SeatData* seat : mSeats)
+        delete seat;
+
+    mSeats.clear();
 }
 
 bool ODClientTest::connect(const std::string& host, const int port, uint32_t timeout, const std::string& outputReplayFilename)
@@ -93,6 +106,22 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
             BOOST_CHECK(packetReceived >> str);
             OD_LOG_INF("level tileset=" + (str.empty() ? "default" : str));
 
+            uint32_t nb;
+            // We read the seats
+            BOOST_CHECK(mSeats.empty());
+            BOOST_CHECK(packetReceived >> nb);
+            while(nb > 0)
+            {
+                --nb;
+                SeatData* seat = new SeatData;
+                seat->importFromPacket(packetReceived);
+                mSeats.push_back(seat);
+                OD_LOG_INF("Read seat id=" + Helper::toString(seat->getId()));
+            }
+
+            // We expect to have as many seats as players (+ rogue seat)
+            BOOST_CHECK(mSeats.size() == (mPlayers.size() + 1));
+
             // We do not read the following data as it would imply to embed creature definitions
             // and many other stuff
             ODPacket packSend;
@@ -145,15 +174,15 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
             for(PlayerInfo& player : mPlayers)
             {
                 BOOST_CHECK(packetReceived >> seatIdPacket);
-                BOOST_CHECK(player.mSeatId == seatIdPacket);
+                BOOST_CHECK(player.mWantedSeatId == seatIdPacket);
                 BOOST_CHECK(packetReceived >> isSelected);
                 isConfigured &= isSelected;
                 if(isSelected)
                 {
                     int32_t factionIndex;
                     BOOST_CHECK(packetReceived >> factionIndex);
-                    OD_LOG_INF("seat id=" + Helper::toString(player.mSeatId) + ", factionIndex=" + Helper::toString(factionIndex));
-                    BOOST_CHECK(player.mFactionIndex == factionIndex);
+                    OD_LOG_INF("wantedseat id=" + Helper::toString(player.mWantedSeatId) + ", factionIndex=" + Helper::toString(factionIndex));
+                    BOOST_CHECK(player.mWantedFactionIndex == factionIndex);
                 }
 
                 BOOST_CHECK(packetReceived >> isSelected);
@@ -162,8 +191,8 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
                 {
                     int32_t playerId;
                     BOOST_CHECK(packetReceived >> playerId);
-                    OD_LOG_INF("seat id=" + Helper::toString(player.mSeatId) + ", playerId=" + Helper::toString(playerId));
-                    BOOST_CHECK(player.mId == playerId);
+                    OD_LOG_INF("seat id=" + Helper::toString(player.mWantedSeatId) + ", playerId=" + Helper::toString(playerId));
+                    BOOST_CHECK(player.mPlayerId == playerId);
                 }
 
                 BOOST_CHECK(packetReceived >> isSelected);
@@ -172,8 +201,8 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
                 {
                     int32_t teamId;
                     BOOST_CHECK(packetReceived >> teamId);
-                    OD_LOG_INF("seat id=" + Helper::toString(player.mSeatId) + ", teamId=" + Helper::toString(teamId));
-                    BOOST_CHECK(player.mTeamId == teamId);
+                    OD_LOG_INF("wantedseat id=" + Helper::toString(player.mWantedSeatId) + ", teamId=" + Helper::toString(teamId));
+                    BOOST_CHECK(player.mWantedTeamId == teamId);
                 }
             }
 
@@ -194,10 +223,10 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
             // Faction index should be 0 for every seat
             for(PlayerInfo& player : mPlayers)
             {
-                packSend << player.mSeatId;
-                packSend << true << player.mFactionIndex;
-                packSend << true << player.mId;
-                packSend << true << player.mTeamId;
+                packSend << player.mWantedSeatId;
+                packSend << true << player.mWantedFactionIndex;
+                packSend << true << player.mPlayerId;
+                packSend << true << player.mWantedTeamId;
             }
             send(packSend);
             return true;
@@ -233,13 +262,13 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
 
                     // If the player is already set, we check the id is still good
                     isPLayerFound = true;
-                    if(player.mId != -1)
+                    if(player.mPlayerId != -1)
                     {
-                        BOOST_CHECK(player.mId == id);
+                        BOOST_CHECK(player.mPlayerId == id);
                     }
                     else
                     {
-                        player.mId = id;
+                        player.mPlayerId = id;
                     }
                     break;
                 }
@@ -305,9 +334,22 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
                 {
                     BOOST_CHECK(player.mNick == nick);
                 }
-                BOOST_CHECK(player.mId == playerId);
-                BOOST_CHECK(player.mSeatId == seatId);
-                BOOST_CHECK(player.mTeamId == teamId);
+                BOOST_CHECK(player.mPlayerId == playerId);
+                BOOST_CHECK(player.mWantedSeatId == seatId);
+                BOOST_CHECK(player.mWantedTeamId == teamId);
+            }
+
+            // We set the players seats
+            for(PlayerInfo& player : mPlayers)
+            {
+                for(SeatData* seat : mSeats)
+                {
+                    if(seat->getId() != player.mWantedSeatId)
+                        continue;
+
+                    player.mSeat = seat;
+                }
+                BOOST_CHECK(player.mSeat != nullptr);
             }
             return true;
         }
@@ -326,12 +368,18 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
         case ServerNotificationType::turnStarted:
         {
             BOOST_CHECK(mIsGameModeStarted);
-            OD_ASSERT_TRUE(packetReceived >> mTurnNum);
+            BOOST_CHECK(packetReceived >> mTurnNum);
             OD_LOG_INF("turnNum=" + Helper::toString(mTurnNum));
             ODPacket packSend;
             packSend << ClientNotificationType::ackNewTurn << mTurnNum;
             send(packSend);
             return true;
+        }
+        case ServerNotificationType::refreshPlayerSeat:
+        {
+            BOOST_CHECK(mPlayers[mLocalPlayerIndex].mSeat->importFromPacketForUpdate(packetReceived));
+            BOOST_CHECK(packetReceived >> mPlayers[mLocalPlayerIndex].mGoals);
+            break;
         }
         default:
         {
@@ -339,6 +387,23 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
         }
     }
     return false;
+}
+
+SeatData* ODClientTest::getLocalSeat() const
+{
+    if(mLocalPlayerIndex >= mPlayers.size())
+    {
+        BOOST_CHECK(false);
+        return nullptr;
+    }
+
+    if(mPlayers[mLocalPlayerIndex].mSeat == nullptr)
+    {
+        BOOST_CHECK(false);
+        return nullptr;
+    }
+
+    return mPlayers[mLocalPlayerIndex].mSeat;
 }
 
 void ODClientTest::runFor(int32_t timeInMillis)
