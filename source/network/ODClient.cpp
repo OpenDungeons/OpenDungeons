@@ -111,6 +111,20 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
             gameMap->setTileSetName(str);
 
             int32_t nb;
+            // Seats
+            OD_ASSERT_TRUE(packetReceived >> nb);
+            while(nb > 0)
+            {
+                --nb;
+                Seat* seat = new Seat(gameMap);
+                OD_ASSERT_TRUE(seat->importFromPacket(packetReceived));
+                if(!gameMap->addSeat(seat))
+                {
+                    OD_LOG_ERR("Couldn't add seat id=" + Helper::toString(seat->getId()));
+                    delete seat;
+                }
+            }
+
             // Creature definitions
             OD_ASSERT_TRUE(packetReceived >> nb);
             while(nb > 0)
@@ -129,20 +143,6 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
                 Weapon* def = new Weapon();
                 OD_ASSERT_TRUE(packetReceived >> def);
                 gameMap->addWeapon(def);
-            }
-
-            // Seats
-            OD_ASSERT_TRUE(packetReceived >> nb);
-            while(nb > 0)
-            {
-                --nb;
-                Seat* seat = new Seat(gameMap);
-                OD_ASSERT_TRUE(seat->importFromPacket(packetReceived));
-                if(!gameMap->addSeat(seat))
-                {
-                    OD_LOG_ERR("Couldn't add seat id=" + Helper::toString(seat->getId()));
-                    delete seat;
-                }
             }
 
             // Tiles

@@ -63,27 +63,11 @@ TileStateNotified::TileStateNotified():
 Seat::Seat(GameMap* gameMap) :
     mGameMap(gameMap),
     mPlayer(nullptr),
-    mTeamId(-1),
-    mMana(1000),
-    mManaDelta(0),
-    mStartingX(0),
-    mStartingY(0),
     mGoldMined(0),
-    mNumCreaturesFighters(0),
-    mNumCreaturesFightersMax(0),
-    mNumCreaturesWorkers(0),
     mDefaultWorkerClass(nullptr),
-    mNumClaimedTiles(0),
-    mHasGoalsChanged(true),
-    mGold(0),
-    mGoldMax(0),
-    mId(-1),
     mTeamIndex(0),
-    mNbRooms(std::vector<uint32_t>(static_cast<uint32_t>(RoomType::nbRooms), 0)),
     mIsDebuggingVision(false),
     mSkillPoints(0),
-    mCurrentSkillType(SkillType::nullSkillType),
-    mCurrentSkillProgress(0.0f),
     mCurrentSkill(nullptr),
     mGuiSkillNeedsRefresh(false),
     mConfigPlayerId(-1),
@@ -91,15 +75,6 @@ Seat::Seat(GameMap* gameMap) :
     mConfigFactionIndex(-1),
     mKoCreatures(false)
 {
-}
-
-void Seat::setTeamId(int teamId)
-{
-    OD_ASSERT_TRUE_MSG(std::find(mAvailableTeamIds.begin(), mAvailableTeamIds.end(),
-        teamId) != mAvailableTeamIds.end(), "Unknown team id=" + Helper::toString(teamId)
-        + ", for seat id=" + Helper::toString(getId()));
-    OD_ASSERT_TRUE_MSG(teamId != 0 || isRogueSeat(), "Invalid rogue team id for seat id=" + Helper::toString(getId()));
-    mTeamId = teamId;
 }
 
 void Seat::addGoal(Goal* g)
@@ -158,21 +133,6 @@ Goal* Seat::getFailedGoal(unsigned int index)
     return mFailedGoals[index];
 }
 
-unsigned int Seat::getNumClaimedTiles() const
-{
-    return mNumClaimedTiles;
-}
-
-void Seat::setNumClaimedTiles(const unsigned int& num)
-{
-    mNumClaimedTiles = num;
-}
-
-void Seat::incrementNumClaimedTiles()
-{
-    ++mNumClaimedTiles;
-}
-
 unsigned int Seat::checkAllCompletedGoals()
 {
     // Loop over the goals vector and move any goals that have been met to the completed goals vector.
@@ -187,7 +147,7 @@ unsigned int Seat::checkAllCompletedGoals()
             currentGoal = mCompletedGoals.erase(currentGoal);
 
             //Signal that the list of goals has changed.
-            goalsHasChanged();
+            mHasGoalsChanged = true;
         }
         else
         {
@@ -199,7 +159,7 @@ unsigned int Seat::checkAllCompletedGoals()
                 currentGoal = mCompletedGoals.erase(currentGoal);
 
                 //Signal that the list of goals has changed.
-                goalsHasChanged();
+                mHasGoalsChanged = true;
             }
             else
             {
@@ -209,22 +169,6 @@ unsigned int Seat::checkAllCompletedGoals()
     }
 
     return numCompletedGoals();
-}
-
-bool Seat::getHasGoalsChanged()
-{
-    return mHasGoalsChanged;
-}
-
-void Seat::resetGoalsChanged()
-{
-    mHasGoalsChanged = false;
-}
-
-void Seat::goalsHasChanged()
-{
-    //Not locking here as this is supposed to be called from a function that already locks.
-    mHasGoalsChanged = true;
 }
 
 bool Seat::isAlliedSeat(const Seat *seat) const
@@ -353,18 +297,6 @@ bool Seat::takeMana(double mana)
 
     mMana -= mana;
     return true;
-}
-
-uint32_t Seat::getNbRooms(RoomType roomType) const
-{
-    uint32_t index = static_cast<uint32_t>(roomType);
-    if(index >= mNbRooms.size())
-    {
-        OD_LOG_ERR("wrong index=" + Helper::toString(index) + ", size=" + Helper::toString(mNbRooms.size()));
-        return 0;
-    }
-
-    return mNbRooms.at(index);
 }
 
 bool Seat::sortForMapSave(Seat* s1, Seat* s2)
@@ -585,7 +517,7 @@ unsigned int Seat::checkAllGoals()
 
             currentGoal = mUncompleteGoals.erase(currentGoal);
 
-            goalsHasChanged();
+            mHasGoalsChanged = true;
 
             // Tells the player an objective has been met.
             if(mGameMap->getTurnNumber() > 5 && getPlayer() != nullptr && getPlayer()->getIsHuman())
@@ -609,7 +541,7 @@ unsigned int Seat::checkAllGoals()
                     goalsToAdd.push_back(goal->getFailureSubGoal(i));
 
                 currentGoal = mUncompleteGoals.erase(currentGoal);
-                goalsHasChanged();
+                mHasGoalsChanged = true;
 
                 // Tells the player an objective has been failed.
                 if(mGameMap->getTurnNumber() > 5 && getPlayer() != nullptr && getPlayer()->getIsHuman())
@@ -1355,12 +1287,12 @@ bool Seat::isSkillDone(SkillType type) const
     return false;
 }
 
-uint32_t Seat::isSkillPending(SkillType resType) const
+uint32_t Seat::isSkillPending(SkillType skillType) const
 {
     uint32_t queueNumber = 1;
-    for (SkillType pendingRes : mSkillPending)
+    for (SkillType pending : mSkillPending)
     {
-        if (pendingRes == resType)
+        if (pending == skillType)
             return queueNumber;
         ++queueNumber;
     }
@@ -1915,113 +1847,6 @@ const CreatureDefinition* Seat::getNextFighterClassToSpawn(const GameMap& gameMa
     // It is not normal to come here
     OD_LOG_ERR("seatId=" + Helper::toString(getId()));
     return nullptr;
-}
-
-void Seat::exportToPacket(ODPacket& os) const
-{
-    os << mId << mTeamId << mPlayerType << mFaction << mStartingX
-       << mStartingY;
-    os << mColorId;
-    os << mGold << mGoldMax;
-    os << mMana << mManaDelta << mNumClaimedTiles;
-    os << mNumCreaturesFighters << mNumCreaturesFightersMax;
-    os << mNumCreaturesWorkers;
-    os << mHasGoalsChanged;
-    for(const uint32_t& nbRooms : mNbRooms)
-    {
-        os << nbRooms;
-    }
-    os << mCurrentSkillType;
-    os << mCurrentSkillProgress;
-    uint32_t nb;
-    nb  = mAvailableTeamIds.size();
-    os << nb;
-    for(int teamId : mAvailableTeamIds)
-        os << teamId;
-
-    nb = mSkillNotAllowed.size();
-    os << nb;
-    for(SkillType resType : mSkillNotAllowed)
-        os << resType;
-}
-
-bool Seat::importFromPacket(ODPacket& is)
-{
-    is >> mId >> mTeamId >> mPlayerType;
-    is >> mFaction >> mStartingX >> mStartingY;
-    is >> mColorId;
-    is >> mGold >> mGoldMax;
-    is >> mMana >> mManaDelta >> mNumClaimedTiles;
-    is >> mNumCreaturesFighters >> mNumCreaturesFightersMax;
-    is >> mNumCreaturesWorkers;
-    is >> mHasGoalsChanged;
-    for(uint32_t& nbRooms : mNbRooms)
-    {
-        is >> nbRooms;
-    }
-    is >> mCurrentSkillType;
-    is >> mCurrentSkillProgress;
-    mColorValue = ConfigManager::getSingleton().getColorFromId(mColorId);
-    uint32_t nb;
-    is >> nb;
-    while(nb > 0)
-    {
-        --nb;
-        int teamId;
-        is >> teamId;
-        mAvailableTeamIds.push_back(teamId);
-    }
-
-    is >> nb;
-    while(nb > 0)
-    {
-        --nb;
-        SkillType resType;
-        is >> resType;
-        mSkillNotAllowed.push_back(resType);
-    }
-
-    return is;
-}
-
-bool Seat::importFromPacketForUpdate(ODPacket& is)
-{
-    OD_ASSERT_TRUE(is >> mGold);
-    OD_ASSERT_TRUE(is >> mGoldMax);
-    OD_ASSERT_TRUE(is >> mMana);
-    OD_ASSERT_TRUE(is >> mManaDelta);
-    OD_ASSERT_TRUE(is >> mNumClaimedTiles);
-    OD_ASSERT_TRUE(is >> mNumCreaturesFighters);
-    OD_ASSERT_TRUE(is >> mNumCreaturesFightersMax);
-    OD_ASSERT_TRUE(is >> mNumCreaturesWorkers);
-    OD_ASSERT_TRUE(is >> mHasGoalsChanged);
-    for(uint32_t& nbRooms : mNbRooms)
-    {
-        OD_ASSERT_TRUE(is >> nbRooms);
-    }
-    OD_ASSERT_TRUE(is >> mCurrentSkillType);
-    OD_ASSERT_TRUE(is >> mCurrentSkillProgress);
-    return true;
-}
-
-void Seat::exportToPacketForUpdate(ODPacket& os) const
-{
-    // We only refresh data that changes over time (gold, mana, ...)
-    os << mGold;
-    os << mGoldMax;
-    os << mMana;
-    os << mManaDelta;
-    os << mNumClaimedTiles;
-    os << mNumCreaturesFighters;
-    os << mNumCreaturesFightersMax;
-    os << mNumCreaturesWorkers;
-    os << mHasGoalsChanged;
-    for(const uint32_t& nbRooms : mNbRooms)
-    {
-        os << nbRooms;
-    }
-    os << mCurrentSkillType;
-    os << mCurrentSkillProgress;
 }
 
 int Seat::readTilesVisualInitialStates(TileVisual tileVisual, std::istream& is)

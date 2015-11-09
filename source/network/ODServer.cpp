@@ -627,6 +627,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             packet << gameMap->getTileSetName();
 
             int32_t nb;
+            // Seats
+            const std::vector<Seat*>& seats = gameMap->getSeats();
+            nb = seats.size();
+            packet << nb;
+            for(Seat* seat : seats)
+                seat->exportToPacket(packet);
+
             // Creature definitions
             nb = gameMap->numClassDescriptions();
             packet << nb;
@@ -644,13 +651,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 const Weapon* def = gameMap->getWeapon(i);
                 packet << def;
             }
-
-            // Seats
-            const std::vector<Seat*>& seats = gameMap->getSeats();
-            nb = seats.size();
-            packet << nb;
-            for(Seat* seat : seats)
-                seat->exportToPacket(packet);
 
             // Tiles
             std::vector<Tile*> goldTiles;

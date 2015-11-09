@@ -18,6 +18,7 @@
 #ifndef SEAT_H
 #define SEAT_H
 
+#include "game/SeatData.h"
 
 #include <OgreVector3.h>
 #include <OgreColourValue.h>
@@ -57,7 +58,7 @@ public:
     Building* mBuilding;
 };
 
-class Seat
+class Seat : public SeatData
 {
 public:
     friend class GameMap;
@@ -109,44 +110,23 @@ public:
     //! \brief A simple accessor function to allow for looping over the goals failed by this seat.
     Goal* getFailedGoal(unsigned int index);
 
-    unsigned int getNumClaimedTiles() const;
-    void setNumClaimedTiles(const unsigned int& num);
-
-    //! \brief Increment the number of claimed tiles by 1.
-    void incrementNumClaimedTiles();
-
     /** \brief See if the goals has changed since we last checked.
      *  For use with the goal window, to avoid having to update it on every frame.
      */
-    bool getHasGoalsChanged();
+    inline bool getHasGoalsChanged() const
+    { return mHasGoalsChanged; }
 
-    void resetGoalsChanged();
-
-    inline int getTeamId() const
-    { return mTeamId; }
+    inline void resetGoalsChanged()
+    { mHasGoalsChanged = false; }
 
     inline bool isRogueSeat() const
     { return mId == 0; }
-
-    void setTeamId(int teamId);
-
-    inline const std::vector<int>& getAvailableTeamIds() const
-    { return mAvailableTeamIds; }
-
-    inline int getId() const
-    { return mId; }
 
     inline uint32_t getTeamIndex() const
     { return mTeamIndex; }
 
     inline void setTeamIndex(uint32_t index)
     { mTeamIndex = index; }
-
-    inline const std::string& getFaction() const
-    { return mFaction; }
-
-    inline void setFaction(const std::string& faction)
-    { mFaction = faction; }
 
     inline int32_t getConfigPlayerId() const
     { return mConfigPlayerId; }
@@ -166,35 +146,14 @@ public:
     inline void setConfigFactionIndex(int32_t configFactionIndex)
     { mConfigFactionIndex = configFactionIndex; }
 
-    inline const std::string& getColorId() const
-    { return mColorId; }
-
     inline const Ogre::ColourValue& getColorValue() const
     { return mColorValue; }
 
-    inline int getGold() const
-    { return mGold; }
-
-    inline int getGoldMax() const
-    { return mGoldMax; }
+    inline void setColorValue(const Ogre::ColourValue& colorValue)
+    { mColorValue = colorValue; }
 
     inline int getGoldMined() const
     { return mGoldMined; }
-
-    inline double getMana() const
-    { return mMana; }
-
-    inline double getManaDelta() const
-    { return mManaDelta; }
-
-    inline int getNumCreaturesFighters() const
-    { return mNumCreaturesFighters; }
-
-    inline int getNumCreaturesFightersMax() const
-    { return mNumCreaturesFightersMax; }
-
-    inline int getNumCreaturesWorkers() const
-    { return mNumCreaturesWorkers; }
 
     inline bool getKoCreatures() const
     { return mKoCreatures; }
@@ -210,22 +169,11 @@ public:
     inline bool getIsDebuggingVision()
     { return mIsDebuggingVision; }
 
-    uint32_t getNbRooms(RoomType roomType) const;
-
-    inline const std::string& getPlayerType() const
-    { return mPlayerType; }
-
-    inline void setPlayerType(const std::string& playerType)
-    { mPlayerType = playerType; }
-
     inline const std::vector<SkillType>& getSkillDone() const
     { return mSkillDone; }
 
     inline const std::vector<SkillType>& getSkillPending() const
     { return mSkillPending; }
-
-    inline const std::vector<SkillType>& getSkillNotAllowed() const
-    { return mSkillNotAllowed; }
 
     void setPlayer(Player* player);
 
@@ -288,7 +236,7 @@ public:
 
     //! \brief Tells whether the given skill type is in the pending queue.
     //! \return The number of the pending skill in the skill queue or 0 if not there.
-    uint32_t isSkillPending(SkillType resType) const;
+    uint32_t isSkillPending(SkillType skillType) const;
 
     SkillType getFirstSkillPending() const;
 
@@ -353,12 +301,6 @@ public:
 
     static Seat* createRogueSeat(GameMap* gameMap);
 
-    //! \brief functions to transfert Seat data through network
-    bool importFromPacket(ODPacket& is);
-    void exportToPacket(ODPacket& os) const;
-    bool importFromPacketForUpdate(ODPacket& is);
-    void exportToPacketForUpdate(ODPacket& os) const;
-
     bool importSeatFromStream(std::istream& is);
     bool exportSeatToStream(std::ostream& os) const;
     static void loadFromLine(const std::string& line, Seat *s);
@@ -372,43 +314,16 @@ public:
     static const std::string PLAYER_FACTION_CHOICE;
 
 private:
-    void goalsHasChanged();
-
     //! \brief The game map this seat belongs to
     GameMap* mGameMap;
 
     //! \brief The player sitting on this seat
     Player* mPlayer;
 
-    //! \brief The team id of the player sitting in this seat.
-    int mTeamId;
-
-    //! \brief The type of player (can be Human or AI).
-    std::string mPlayerType;
-
-    //! \brief The name of the faction that this seat is playing as (can be Keeper or Hero).
-    std::string mFaction;
-
-    //! \brief The amount of 'keeper mana' the player has.
-    double mMana;
-
-    //! \brief The amount of 'keeper mana' the player gains/loses per turn, updated in GameMap::doTurn().
-    double mManaDelta;
-
-    //! \brief The starting camera location (in tile coordinates) of this seat.
-    int mStartingX;
-    int mStartingY;
-
     //! \brief The total amount of gold coins mined by workers under this seat's control.
     int mGoldMined;
 
-    //! \brief The number of living creatures fighters under this seat's control
-    int mNumCreaturesFighters;
-    int mNumCreaturesFightersMax;
-    int mNumCreaturesWorkers;
-
     //! \brief The actual color that this color index translates into.
-    std::string mColorId;
     Ogre::ColourValue mColorValue;
 
     //! \brief Currently unmet goals, the first Seat to empty this wins.
@@ -419,9 +334,6 @@ private:
 
     //! \brief Currently failed goals which cannot possibly be met in the future.
     std::vector<Goal*> mFailedGoals;
-
-    //! \brief Team ids this seat can use defined in the level file.
-    std::vector<int> mAvailableTeamIds;
 
     //! \brief Contains all the seats allied with the current one, not including it. Used on server side only.
     std::vector<Seat*> mAlliedSeats;
@@ -443,36 +355,14 @@ private:
 
     std::vector<Tile*> mVisualDebugEntityTiles;
 
-    //! \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn().
-    unsigned int mNumClaimedTiles;
-
-    bool mHasGoalsChanged;
-
-    //! \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart.
-    int mGold;
-
-    //! \brief The total amount of gold coins that the keeper treasuries can have.
-    int mGoldMax;
-
-    //! \brief The seat id. Allows to identify this seat. Must be unique per level file.
-    int mId;
-
     //! \brief Index of the team in the gamemap (from 0 to N). Must be set when the seat is added to the gamemap
     //! and never changed after
     uint32_t mTeamIndex;
-
-    //! \brief The number of rooms the player owns (room index being room type).
-    //! Useful to display the first free tile on client side for example
-    std::vector<uint32_t> mNbRooms;
 
     bool mIsDebuggingVision;
 
     //! \brief Counter for skill points
     int32_t mSkillPoints;
-
-    //! \brief Progress for current skill. Allows to display the progressbar on the client side
-    SkillType mCurrentSkillType;
-    float mCurrentSkillProgress;
 
     //! \brief Currently researched Skill. This pointer is external and should not be deleted
     const Skill* mCurrentSkill;
@@ -486,9 +376,6 @@ private:
 
     //! \brief Skills pending. Used on both client and server side and should be updated.
     std::vector<SkillType> mSkillPending;
-
-    //! \brief Skills not allowed. Used on server side only
-    std::vector<SkillType> mSkillNotAllowed;
 
     //! \brief During seat configuration, we save temporary player id here
     int32_t mConfigPlayerId;
