@@ -17,6 +17,7 @@
 
 #include "mocks/ODClientTest.h"
 
+#include "game/SeatData.h"
 #include "utils/LogManager.h"
 #include "utils/LogSinkConsole.h"
 
@@ -26,8 +27,8 @@
 class ODClientLaunchGame : public ODClientTest
 {
 public:
-    ODClientLaunchGame(const std::vector<PlayerInfo>& players) :
-        ODClientTest(players)
+    ODClientLaunchGame(const std::vector<PlayerInfo>& players, uint32_t indexLocalPlayer) :
+        ODClientTest(players, indexLocalPlayer)
     {}
 };
 
@@ -41,19 +42,20 @@ BOOST_AUTO_TEST_CASE(test_LaunchGame)
     int seatId = 1;
     // We know we have team id = 1, 2
     int32_t teamId = 1;
+    // The first player is the local one
     for(uint32_t i = 0; i < 1; ++i)
     {
         PlayerInfo player;
         player.mNick = "PlayerStub" + Helper::toString(seatId);
-        player.mSeatId = seatId;
-        player.mTeamId = teamId;
+        player.mWantedSeatId = seatId;
+        player.mWantedTeamId = teamId;
         player.mIsHuman = true;
         // The player id will be set by the server
-        player.mId = -1;
+        player.mPlayerId = -1;
         // We take faction index 0 for every player (keeper faction)
-        player.mFactionIndex = 0;
+        player.mWantedFactionIndex = 0;
         players.push_back(player);
-        OD_LOG_INF("Adding player nick=" + player.mNick + ", id=" + Helper::toString(player.mId) + ", seatId=" + Helper::toString(player.mSeatId));
+        OD_LOG_INF("Adding player nick=" + player.mNick + ", id=" + Helper::toString(player.mPlayerId) + ", seatId=" + Helper::toString(player.mWantedSeatId));
 
         ++seatId;
         ++teamId;
@@ -63,19 +65,26 @@ BOOST_AUTO_TEST_CASE(test_LaunchGame)
     for(uint32_t i = 0; i < 2; ++i)
     {
         PlayerInfo playerAi;
-        playerAi.mId = 0;
-        playerAi.mSeatId = seatId;
-        playerAi.mTeamId = teamId;
-        playerAi.mFactionIndex = 0;
+        playerAi.mPlayerId = 0;
+        playerAi.mWantedSeatId = seatId;
+        playerAi.mWantedTeamId = teamId;
+        playerAi.mWantedFactionIndex = 0;
         playerAi.mIsHuman = false;
         players.push_back(playerAi);
-        OD_LOG_INF("Adding ai player id=" + Helper::toString(playerAi.mId) + ", seatId=" + Helper::toString(playerAi.mSeatId));
+        OD_LOG_INF("Adding ai player id=" + Helper::toString(playerAi.mPlayerId) + ", seatId=" + Helper::toString(playerAi.mWantedSeatId));
 
         ++seatId;
         ++teamId;
     }
 
-    ODClientLaunchGame client(players);
+    uint32_t indexPlayer = 0;
+    if(indexPlayer >= players.size())
+    {
+        BOOST_CHECK(false);
+        return;
+    }
+
+    ODClientLaunchGame client(players, indexPlayer);
     BOOST_CHECK(client.connect("localhost", 32222, 10, "test_LaunchGameReplay"));
 
     BOOST_CHECK(client.isConnected());
@@ -87,4 +96,17 @@ BOOST_AUTO_TEST_CASE(test_LaunchGame)
     // We expect to have reached at least turn 10
     OD_LOG_INF("turnNum=" + Helper::toString(client.mTurnNum));
     BOOST_CHECK(client.mTurnNum > 10);
+
+    if(client.getLocalSeat() == nullptr)
+    {
+        BOOST_CHECK(false);
+        return;
+    }
+    // We check that gold for local player is 0 (no treasury) and that we have more mana than at game start
+    SeatData& seatLocal = *client.getLocalSeat();
+    BOOST_CHECK(seatLocal.getGold() == 0);
+    OD_LOG_INF("gold local player=" + Helper::toString(seatLocal.getGold()));
+    BOOST_CHECK(seatLocal.getMana() > 500);
+    OD_LOG_INF("mana local player=" + Helper::toString(seatLocal.getMana()));
+
 }

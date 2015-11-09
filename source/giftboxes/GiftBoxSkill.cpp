@@ -18,6 +18,7 @@
 #include "giftboxes/GiftBoxSkill.h"
 
 #include "game/Skill.h"
+#include "game/SkillType.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "utils/Helper.h"

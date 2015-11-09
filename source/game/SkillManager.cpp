@@ -19,6 +19,7 @@
 
 #include "game/Skill.h"
 #include "game/Seat.h"
+#include "game/SkillType.h"
 #include "modes/GameEditorModeBase.h"
 #include "modes/GameMode.h"
 #include "render/Gui.h"
@@ -268,7 +269,7 @@ SkillManager::SkillManager() :
     // Lvl 1 skills
     resType = SkillType::roomTrainingHall;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, emptyDepends);
     def = new SkillDefRoom("AttackSkills/", "TrainingHallButton", skill, RoomType::trainingHall);
     def->mapSkill(mSkillsFamily);
@@ -277,7 +278,7 @@ SkillManager::SkillManager() :
 
     resType = SkillType::roomBridgeWooden;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, emptyDepends);
     def = new SkillDefRoom("AttackSkills/", "WoodenBridgeButton", skill, RoomType::bridgeWooden);
     def->mapSkill(mSkillsFamily);
@@ -287,7 +288,7 @@ SkillManager::SkillManager() :
     // Lvl 2 skills
     resType = SkillType::spellCallToWar;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl1depends);
     def = new SkillDefSpell("AttackSkills/", "CallToWarButton", skill, SpellType::callToWar);
     def->mapSkill(mSkillsFamily);
@@ -297,7 +298,7 @@ SkillManager::SkillManager() :
     // CreatureExplosion depends on Training Hall
     resType = SkillType::spellCreatureExplosion;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl1depends);
     def = new SkillDefSpell("AttackSkills/", "CreatureExplosionButton", skill, SpellType::creatureExplosion);
     def->mapSkill(mSkillsFamily);
@@ -306,7 +307,7 @@ SkillManager::SkillManager() :
 
     resType = SkillType::roomPrison;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl1depends);
     def = new SkillDefRoom("AttackSkills/", "PrisonButton", skill, RoomType::prison);
     def->mapSkill(mSkillsFamily);
@@ -316,7 +317,7 @@ SkillManager::SkillManager() :
     // Lvl 3 skills
     resType = SkillType::roomBridgeStone;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl2depends);
     def = new SkillDefRoom("AttackSkills/", "StoneBridgeButton", skill, RoomType::bridgeStone);
     def->mapSkill(mSkillsFamily);
@@ -355,7 +356,7 @@ SkillManager::SkillManager() :
     // Lvl 2 skills
     resType = SkillType::roomWorkshop;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl1depends);
     def = new SkillDefRoom("TacticSkills/", "WorkshopButton", skill, RoomType::workshop);
     def->mapSkill(mSkillsFamily);
@@ -364,7 +365,7 @@ SkillManager::SkillManager() :
 
     resType = SkillType::trapDoorWooden;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl1depends);
     def = new SkillDefTrap("TacticSkills/", "WoodenDoorTrapButton", skill, TrapType::doorWooden);
     def->mapSkill(mSkillsFamily);
@@ -374,7 +375,7 @@ SkillManager::SkillManager() :
     // Lvl 3 skills
     resType = SkillType::trapCannon;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl2depends);
     def = new SkillDefTrap("TacticSkills/", "CannonButton", skill, TrapType::cannon);
     def->mapSkill(mSkillsFamily);
@@ -383,7 +384,7 @@ SkillManager::SkillManager() :
 
     resType = SkillType::trapSpike;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl2depends);
     def = new SkillDefTrap("TacticSkills/", "SpikeTrapButton", skill, TrapType::spike);
     def->mapSkill(mSkillsFamily);
@@ -393,7 +394,7 @@ SkillManager::SkillManager() :
     // Lvl 4 research
     resType = SkillType::trapBoulder;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl3depends);
     def = new SkillDefTrap("TacticSkills/", "BoulderTrapButton", skill, TrapType::boulder);
     def->mapSkill(mSkillsFamily);
@@ -424,7 +425,7 @@ SkillManager::SkillManager() :
     // Lvl 2 skills
     resType = SkillType::roomCrypt;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl1depends);
     def = new SkillDefRoom("MagicSkills/", "CryptButton", skill, RoomType::crypt);
     def->mapSkill(mSkillsFamily);
@@ -434,7 +435,7 @@ SkillManager::SkillManager() :
     // Lvl 2 skills
     resType = SkillType::spellCreatureHeal;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl1depends);
     def = new SkillDefSpell("MagicSkills/", "CreatureHealButton", skill, SpellType::creatureHeal);
     def->mapSkill(mSkillsFamily);
@@ -444,7 +445,7 @@ SkillManager::SkillManager() :
     // Lvl 3 skills
     resType = SkillType::spellCreatureHaste;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl2depends);
     def = new SkillDefSpell("MagicSkills/", "CreatureHasteButton", skill, SpellType::creatureHaste);
     def->mapSkill(mSkillsFamily);
@@ -453,7 +454,7 @@ SkillManager::SkillManager() :
 
     resType = SkillType::spellCreatureDefense;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl2depends);
     def = new SkillDefSpell("MagicSkills/", "CreatureDefenseButton", skill, SpellType::creatureDefense);
     def->mapSkill(mSkillsFamily);
@@ -462,7 +463,7 @@ SkillManager::SkillManager() :
 
     resType = SkillType::spellCreatureSlow;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl2depends);
     def = new SkillDefSpell("MagicSkills/", "CreatureSlowButton", skill, SpellType::creatureSlow);
     def->mapSkill(mSkillsFamily);
@@ -472,7 +473,7 @@ SkillManager::SkillManager() :
     // Lvl 4 skills
     resType = SkillType::spellCreatureStrength;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl3depends);
     def = new SkillDefSpell("MagicSkills/", "CreatureStrengthButton", skill, SpellType::creatureStrength);
     def->mapSkill(mSkillsFamily);
@@ -481,7 +482,7 @@ SkillManager::SkillManager() :
 
     resType = SkillType::spellCreatureWeak;
     index = static_cast<uint32_t>(resType);
-    points = ConfigManager::getSingleton().getSkillPoints(Skill::skillTypeToString(resType));
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::skillTypeToString(resType));
     skill = new Skill(resType, points, lvl3depends);
     def = new SkillDefSpell("MagicSkills/", "CreatureWeakButton", skill, SpellType::creatureWeak);
     def->mapSkill(mSkillsFamily);

@@ -1,12 +1,12 @@
 include(BoostTestTargets)
 
-add_boost_test(Random
+add_boost_test(00-Random
         SOURCES
         test_Random.cpp
         ${SRC}/utils/Random.h
         ${SRC}/utils/Random.cpp)
 
-add_boost_test(ODPacket
+add_boost_test(00-ODPacket
         SOURCES
         test_ODPacket.cpp
         ${SRC}/network/ODPacket.h
@@ -14,7 +14,7 @@ add_boost_test(ODPacket
         LIBRARIES
         ${SFML_LIBRARIES})
 
-add_boost_test(ConsoleInterface
+add_boost_test(00-ConsoleInterface
         SOURCES
         test_ConsoleInterface.cpp
         ${SRC}/modes/AbstractModeManager.h
@@ -23,7 +23,7 @@ add_boost_test(ConsoleInterface
         ${SRC}/modes/Command.h
         ${SRC}/modes/Command.cpp)
 
-add_boost_test(Goal
+add_boost_test(00-Goal
         SOURCES
         test_Goal.cpp
         ${SRC}/goals/Goal.cpp
@@ -34,13 +34,15 @@ add_boost_test(Goal
         ${Boost_FILESYSTEM_LIBRARY_RELEASE}
         ${Boost_SYSTEM_LIBRARY_RELEASE})
 
-add_boost_test(Pathfinding
+add_boost_test(00-Pathfinding
         SOURCES
         test_Pathfinding.cpp)
 
-add_boost_test(LaunchGame
+add_boost_test(aa-LaunchGame
         SOURCES
         ${SRC}/tests/mocks/ODClientTest.cpp
+        ${SRC}/game/SeatData.cpp
+        ${SRC}/game/SkillType.cpp
         ${SRC}/network/ClientNotification.cpp
         ${SRC}/network/ODPacket.cpp
         ${SRC}/network/ODSocketClient.cpp

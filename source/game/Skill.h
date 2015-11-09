@@ -25,47 +25,7 @@
 class ODPacket;
 class Player;
 
-enum class SkillType
-{
-    nullSkillType,
-
-    // Rooms
-    roomTreasury,
-    roomDormitory,
-    roomHatchery,
-    roomTrainingHall,
-    roomLibrary,
-    roomWorkshop,
-    roomCrypt,
-    roomPrison,
-    roomBridgeWooden,
-    roomBridgeStone,
-
-    // Traps
-    trapBoulder,
-    trapCannon,
-    trapSpike,
-    trapDoorWooden,
-
-    // Spells
-    spellSummonWorker,
-    spellCallToWar,
-    spellCreatureDefense,
-    spellCreatureExplosion,
-    spellCreatureHaste,
-    spellCreatureHeal,
-    spellCreatureSlow,
-    spellCreatureStrength,
-    spellCreatureWeak,
-
-    // This should be the last
-    countSkill
-};
-
-ODPacket& operator<<(ODPacket& os, const SkillType& type);
-ODPacket& operator>>(ODPacket& is, SkillType& type);
-std::ostream& operator<<(std::ostream& os, const SkillType& type);
-std::istream& operator>>(std::istream& is, SkillType& type);
+enum class SkillType;
 
 class Skill
 {
@@ -98,11 +58,6 @@ public:
     //! \brief Returns true if the skill is or depends on the given type and false otherwise
     bool dependsOn(SkillType type) const;
 
-    //! \brief The skill name as used in level files.
-    static std::string skillTypeToString(SkillType type);
-
-    //! \brief The skill name as seen in game events.
-    static std::string skillTypeToPlayerVisibleString(SkillType type);
 private:
     SkillType mType;
 

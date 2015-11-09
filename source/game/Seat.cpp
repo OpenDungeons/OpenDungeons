@@ -23,6 +23,7 @@
 #include "game/Player.h"
 #include "game/Skill.h"
 #include "game/SkillManager.h"
+#include "game/SkillType.h"
 #include "gamemap/GameMap.h"
 #include "goals/Goal.h"
 #include "network/ODServer.h"
@@ -62,27 +63,11 @@ TileStateNotified::TileStateNotified():
 Seat::Seat(GameMap* gameMap) :
     mGameMap(gameMap),
     mPlayer(nullptr),
-    mTeamId(-1),
-    mMana(1000),
-    mManaDelta(0),
-    mStartingX(0),
-    mStartingY(0),
     mGoldMined(0),
-    mNumCreaturesFighters(0),
-    mNumCreaturesFightersMax(0),
-    mNumCreaturesWorkers(0),
     mDefaultWorkerClass(nullptr),
-    mNumClaimedTiles(0),
-    mHasGoalsChanged(true),
-    mGold(0),
-    mGoldMax(0),
-    mId(-1),
     mTeamIndex(0),
-    mNbRooms(std::vector<uint32_t>(static_cast<uint32_t>(RoomType::nbRooms), 0)),
     mIsDebuggingVision(false),
     mSkillPoints(0),
-    mCurrentSkillType(SkillType::nullSkillType),
-    mCurrentSkillProgress(0.0f),
     mCurrentSkill(nullptr),
     mGuiSkillNeedsRefresh(false),
     mConfigPlayerId(-1),
@@ -90,15 +75,6 @@ Seat::Seat(GameMap* gameMap) :
     mConfigFactionIndex(-1),
     mKoCreatures(false)
 {
-}
-
-void Seat::setTeamId(int teamId)
-{
-    OD_ASSERT_TRUE_MSG(std::find(mAvailableTeamIds.begin(), mAvailableTeamIds.end(),
-        teamId) != mAvailableTeamIds.end(), "Unknown team id=" + Helper::toString(teamId)
-        + ", for seat id=" + Helper::toString(getId()));
-    OD_ASSERT_TRUE_MSG(teamId != 0 || isRogueSeat(), "Invalid rogue team id for seat id=" + Helper::toString(getId()));
-    mTeamId = teamId;
 }
 
 void Seat::addGoal(Goal* g)
@@ -157,21 +133,6 @@ Goal* Seat::getFailedGoal(unsigned int index)
     return mFailedGoals[index];
 }
 
-unsigned int Seat::getNumClaimedTiles() const
-{
-    return mNumClaimedTiles;
-}
-
-void Seat::setNumClaimedTiles(const unsigned int& num)
-{
-    mNumClaimedTiles = num;
-}
-
-void Seat::incrementNumClaimedTiles()
-{
-    ++mNumClaimedTiles;
-}
-
 unsigned int Seat::checkAllCompletedGoals()
 {
     // Loop over the goals vector and move any goals that have been met to the completed goals vector.
@@ -186,7 +147,7 @@ unsigned int Seat::checkAllCompletedGoals()
             currentGoal = mCompletedGoals.erase(currentGoal);
 
             //Signal that the list of goals has changed.
-            goalsHasChanged();
+            mHasGoalsChanged = true;
         }
         else
         {
@@ -198,7 +159,7 @@ unsigned int Seat::checkAllCompletedGoals()
                 currentGoal = mCompletedGoals.erase(currentGoal);
 
                 //Signal that the list of goals has changed.
-                goalsHasChanged();
+                mHasGoalsChanged = true;
             }
             else
             {
@@ -208,22 +169,6 @@ unsigned int Seat::checkAllCompletedGoals()
     }
 
     return numCompletedGoals();
-}
-
-bool Seat::getHasGoalsChanged()
-{
-    return mHasGoalsChanged;
-}
-
-void Seat::resetGoalsChanged()
-{
-    mHasGoalsChanged = false;
-}
-
-void Seat::goalsHasChanged()
-{
-    //Not locking here as this is supposed to be called from a function that already locks.
-    mHasGoalsChanged = true;
 }
 
 bool Seat::isAlliedSeat(const Seat *seat) const
@@ -345,23 +290,6 @@ const std::string Seat::getFactionFromLine(const std::string& line)
     return std::string();
 }
 
-void Seat::refreshFromSeat(Seat* s)
-{
-    // We only refresh data that changes over time (gold, mana, ...)
-    mGold = s->mGold;
-    mGoldMax = s->mGoldMax;
-    mMana = s->mMana;
-    mManaDelta = s->mManaDelta;
-    mNumClaimedTiles = s->mNumClaimedTiles;
-    mNumCreaturesFighters = s->mNumCreaturesFighters;
-    mNumCreaturesFightersMax = s->mNumCreaturesFightersMax;
-    mNumCreaturesWorkers = s->mNumCreaturesWorkers;
-    mHasGoalsChanged = s->mHasGoalsChanged;
-    mNbRooms = s->mNbRooms;
-    mCurrentSkillType = s->mCurrentSkillType;
-    mCurrentSkillProgress = s->mCurrentSkillProgress;
-}
-
 bool Seat::takeMana(double mana)
 {
     if(mana > mMana)
@@ -369,18 +297,6 @@ bool Seat::takeMana(double mana)
 
     mMana -= mana;
     return true;
-}
-
-uint32_t Seat::getNbRooms(RoomType roomType) const
-{
-    uint32_t index = static_cast<uint32_t>(roomType);
-    if(index >= mNbRooms.size())
-    {
-        OD_LOG_ERR("wrong index=" + Helper::toString(index) + ", size=" + Helper::toString(mNbRooms.size()));
-        return 0;
-    }
-
-    return mNbRooms.at(index);
 }
 
 bool Seat::sortForMapSave(Seat* s1, Seat* s2)
@@ -601,7 +517,7 @@ unsigned int Seat::checkAllGoals()
 
             currentGoal = mUncompleteGoals.erase(currentGoal);
 
-            goalsHasChanged();
+            mHasGoalsChanged = true;
 
             // Tells the player an objective has been met.
             if(mGameMap->getTurnNumber() > 5 && getPlayer() != nullptr && getPlayer()->getIsHuman())
@@ -625,7 +541,7 @@ unsigned int Seat::checkAllGoals()
                     goalsToAdd.push_back(goal->getFailureSubGoal(i));
 
                 currentGoal = mUncompleteGoals.erase(currentGoal);
-                goalsHasChanged();
+                mHasGoalsChanged = true;
 
                 // Tells the player an objective has been failed.
                 if(mGameMap->getTurnNumber() > 5 && getPlayer() != nullptr && getPlayer()->getIsHuman())
@@ -1033,7 +949,7 @@ bool Seat::importSeatFromStream(std::istream& is)
             SkillType type = static_cast<SkillType>(i);
             if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Skill::skillTypeToString(type)) != 0)
+            if(str.compare(Skills::skillTypeToString(type)) != 0)
                 continue;
 
             if(std::find(mSkillDone.begin(), mSkillDone.end(), type) != mSkillDone.end())
@@ -1064,7 +980,7 @@ bool Seat::importSeatFromStream(std::istream& is)
             SkillType type = static_cast<SkillType>(i);
             if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Skill::skillTypeToString(type)) != 0)
+            if(str.compare(Skills::skillTypeToString(type)) != 0)
                 continue;
 
             // We do not allow a skill to be done and not allowed
@@ -1098,7 +1014,7 @@ bool Seat::importSeatFromStream(std::istream& is)
             SkillType type = static_cast<SkillType>(i);
             if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Skill::skillTypeToString(type)) != 0)
+            if(str.compare(Skills::skillTypeToString(type)) != 0)
                 continue;
 
             // We do not allow skills already done or not allowed
@@ -1251,21 +1167,21 @@ bool Seat::exportSeatToStream(std::ostream& os) const
     os << "[SkillDone]" << std::endl;
     for(SkillType type : mSkillDone)
     {
-        os << Skill::skillTypeToString(type) << std::endl;
+        os << Skills::skillTypeToString(type) << std::endl;
     }
     os << "[/SkillDone]" << std::endl;
 
     os << "[SkillNotAllowed]" << std::endl;
     for(SkillType type : mSkillNotAllowed)
     {
-        os << Skill::skillTypeToString(type) << std::endl;
+        os << Skills::skillTypeToString(type) << std::endl;
     }
     os << "[/SkillNotAllowed]" << std::endl;
 
     os << "[SkillPending]" << std::endl;
     for(SkillType type : mSkillPending)
     {
-        os << Skill::skillTypeToString(type) << std::endl;
+        os << Skills::skillTypeToString(type) << std::endl;
     }
     os << "[/SkillPending]" << std::endl;
 
@@ -1352,7 +1268,7 @@ bool Seat::addSkill(SkillType type)
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::chatServer, getPlayer());
 
-        std::string msg = Skill::skillTypeToPlayerVisibleString(type) + " is now available.";
+        std::string msg = Skills::skillTypeToPlayerVisibleString(type) + " is now available.";
         serverNotification->mPacket << msg << EventShortNoticeType::aboutSkills;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
@@ -1371,12 +1287,12 @@ bool Seat::isSkillDone(SkillType type) const
     return false;
 }
 
-uint32_t Seat::isSkillPending(SkillType resType) const
+uint32_t Seat::isSkillPending(SkillType skillType) const
 {
     uint32_t queueNumber = 1;
-    for (SkillType pendingRes : mSkillPending)
+    for (SkillType pending : mSkillPending)
     {
-        if (pendingRes == resType)
+        if (pending == skillType)
             return queueNumber;
         ++queueNumber;
     }
@@ -1536,14 +1452,14 @@ void Seat::setSkillTree(const std::vector<SkillType>& skills)
             {
                 // Invalid skill. This might be allowed in the gui to enter invalid
                 // values. In this case, we should remove the assert
-                OD_LOG_ERR("Unallowed skill: " + Skill::skillTypeToString(skillType));
+                OD_LOG_ERR("Unallowed skill: " + Skills::skillTypeToString(skillType));
                 return;
             }
             const Skill* skill = SkillManager::getSkill(skillType);
             if(skill == nullptr)
             {
                 // We found an unknown skill
-                OD_LOG_ERR("Unknown skill: " + Skill::skillTypeToString(skillType));
+                OD_LOG_ERR("Unknown skill: " + Skills::skillTypeToString(skillType));
                 return;
             }
 
@@ -1551,7 +1467,7 @@ void Seat::setSkillTree(const std::vector<SkillType>& skills)
             {
                 // Invalid skill. This might happen if the level has a skill pending with a non skillable dependency.
                 // In this case, we don't use the skill tree
-                OD_LOG_ERR("Unallowed skill: " + Skill::skillTypeToString(skillType));
+                OD_LOG_ERR("Unallowed skill: " + Skills::skillTypeToString(skillType));
                 return;
             }
 
@@ -1931,75 +1847,6 @@ const CreatureDefinition* Seat::getNextFighterClassToSpawn(const GameMap& gameMa
     // It is not normal to come here
     OD_LOG_ERR("seatId=" + Helper::toString(getId()));
     return nullptr;
-}
-
-ODPacket& operator<<(ODPacket& os, Seat *s)
-{
-    os << s->mId << s->mTeamId << s->mPlayerType << s->mFaction << s->mStartingX
-       << s->mStartingY;
-    os << s->mColorId;
-    os << s->mGold << s->mGoldMax;
-    os << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
-    os << s->mNumCreaturesFighters << s->mNumCreaturesFightersMax;
-    os << s->mNumCreaturesWorkers;
-    os << s->mHasGoalsChanged;
-    for(const uint32_t& nbRooms : s->mNbRooms)
-    {
-        os << nbRooms;
-    }
-    os << s->mCurrentSkillType;
-    os << s->mCurrentSkillProgress;
-    uint32_t nb;
-    nb  = s->mAvailableTeamIds.size();
-    os << nb;
-    for(int teamId : s->mAvailableTeamIds)
-        os << teamId;
-
-    nb = s->mSkillNotAllowed.size();
-    os << nb;
-    for(SkillType resType : s->mSkillNotAllowed)
-        os << resType;
-
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, Seat *s)
-{
-    is >> s->mId >> s->mTeamId >> s->mPlayerType;
-    is >> s->mFaction >> s->mStartingX >> s->mStartingY;
-    is >> s->mColorId;
-    is >> s->mGold >> s->mGoldMax;
-    is >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
-    is >> s->mNumCreaturesFighters >> s->mNumCreaturesFightersMax;
-    is >> s->mNumCreaturesWorkers;
-    is >> s->mHasGoalsChanged;
-    for(uint32_t& nbRooms : s->mNbRooms)
-    {
-        is >> nbRooms;
-    }
-    is >> s->mCurrentSkillType;
-    is >> s->mCurrentSkillProgress;
-    s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
-    uint32_t nb;
-    is >> nb;
-    while(nb > 0)
-    {
-        --nb;
-        int teamId;
-        is >> teamId;
-        s->mAvailableTeamIds.push_back(teamId);
-    }
-
-    is >> nb;
-    while(nb > 0)
-    {
-        --nb;
-        SkillType resType;
-        is >> resType;
-        s->mSkillNotAllowed.push_back(resType);
-    }
-
-    return is;
 }
 
 int Seat::readTilesVisualInitialStates(TileVisual tileVisual, std::istream& is)
