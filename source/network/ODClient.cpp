@@ -137,7 +137,7 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
             {
                 --nb;
                 Seat* seat = new Seat(gameMap);
-                OD_ASSERT_TRUE(packetReceived >> seat);
+                OD_ASSERT_TRUE(seat->importFromPacket(packetReceived));
                 if(!gameMap->addSeat(seat))
                 {
                     OD_LOG_ERR("Couldn't add seat id=" + Helper::toString(seat->getId()));
@@ -573,10 +573,10 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
 
         case ServerNotificationType::refreshPlayerSeat:
         {
-            Seat tmpSeat(gameMap);
             std::string goalsString;
-            OD_ASSERT_TRUE(packetReceived >> &tmpSeat >> goalsString);
-            getPlayer()->getSeat()->refreshFromSeat(&tmpSeat);
+            OD_ASSERT_TRUE(getPlayer()->getSeat()->importFromPacketForUpdate(packetReceived));
+            OD_ASSERT_TRUE(packetReceived >> goalsString);
+
             refreshMainUI(goalsString);
             break;
         }

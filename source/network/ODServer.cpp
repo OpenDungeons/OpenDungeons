@@ -302,7 +302,8 @@ void ODServer::startNewTurn(double timeSinceLastTurn)
             ServerNotificationType::refreshPlayerSeat, player);
         std::string goals = gameMap->getGoalsStringForPlayer(player);
         Seat* seat = player->getSeat();
-        serverNotification->mPacket << seat << goals;
+        seat->exportToPacketForUpdate(serverNotification->mPacket);
+        serverNotification->mPacket << goals;
         ODServer::getSingleton().queueServerNotification(serverNotification);
 
         // Here, the creature list is pulled. It could be possible that the creature dies before the stat window is
@@ -649,9 +650,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             nb = seats.size();
             packet << nb;
             for(Seat* seat : seats)
-            {
-                packet << seat;
-            }
+                seat->exportToPacket(packet);
 
             // Tiles
             std::vector<Tile*> goldTiles;

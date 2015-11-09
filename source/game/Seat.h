@@ -122,8 +122,6 @@ public:
 
     void resetGoalsChanged();
 
-    void refreshFromSeat(Seat* s);
-
     inline int getTeamId() const
     { return mTeamId; }
 
@@ -355,8 +353,11 @@ public:
 
     static Seat* createRogueSeat(GameMap* gameMap);
 
-    friend ODPacket& operator<<(ODPacket& os, Seat *s);
-    friend ODPacket& operator>>(ODPacket& is, Seat *s);
+    //! \brief functions to transfert Seat data through network
+    bool importFromPacket(ODPacket& is);
+    void exportToPacket(ODPacket& os) const;
+    bool importFromPacketForUpdate(ODPacket& is);
+    void exportToPacketForUpdate(ODPacket& os) const;
 
     bool importSeatFromStream(std::istream& is);
     bool exportSeatToStream(std::ostream& os) const;

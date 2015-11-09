@@ -346,23 +346,6 @@ const std::string Seat::getFactionFromLine(const std::string& line)
     return std::string();
 }
 
-void Seat::refreshFromSeat(Seat* s)
-{
-    // We only refresh data that changes over time (gold, mana, ...)
-    mGold = s->mGold;
-    mGoldMax = s->mGoldMax;
-    mMana = s->mMana;
-    mManaDelta = s->mManaDelta;
-    mNumClaimedTiles = s->mNumClaimedTiles;
-    mNumCreaturesFighters = s->mNumCreaturesFighters;
-    mNumCreaturesFightersMax = s->mNumCreaturesFightersMax;
-    mNumCreaturesWorkers = s->mNumCreaturesWorkers;
-    mHasGoalsChanged = s->mHasGoalsChanged;
-    mNbRooms = s->mNbRooms;
-    mCurrentSkillType = s->mCurrentSkillType;
-    mCurrentSkillProgress = s->mCurrentSkillProgress;
-}
-
 bool Seat::takeMana(double mana)
 {
     if(mana > mMana)
@@ -1934,53 +1917,51 @@ const CreatureDefinition* Seat::getNextFighterClassToSpawn(const GameMap& gameMa
     return nullptr;
 }
 
-ODPacket& operator<<(ODPacket& os, Seat *s)
+void Seat::exportToPacket(ODPacket& os) const
 {
-    os << s->mId << s->mTeamId << s->mPlayerType << s->mFaction << s->mStartingX
-       << s->mStartingY;
-    os << s->mColorId;
-    os << s->mGold << s->mGoldMax;
-    os << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
-    os << s->mNumCreaturesFighters << s->mNumCreaturesFightersMax;
-    os << s->mNumCreaturesWorkers;
-    os << s->mHasGoalsChanged;
-    for(const uint32_t& nbRooms : s->mNbRooms)
+    os << mId << mTeamId << mPlayerType << mFaction << mStartingX
+       << mStartingY;
+    os << mColorId;
+    os << mGold << mGoldMax;
+    os << mMana << mManaDelta << mNumClaimedTiles;
+    os << mNumCreaturesFighters << mNumCreaturesFightersMax;
+    os << mNumCreaturesWorkers;
+    os << mHasGoalsChanged;
+    for(const uint32_t& nbRooms : mNbRooms)
     {
         os << nbRooms;
     }
-    os << s->mCurrentSkillType;
-    os << s->mCurrentSkillProgress;
+    os << mCurrentSkillType;
+    os << mCurrentSkillProgress;
     uint32_t nb;
-    nb  = s->mAvailableTeamIds.size();
+    nb  = mAvailableTeamIds.size();
     os << nb;
-    for(int teamId : s->mAvailableTeamIds)
+    for(int teamId : mAvailableTeamIds)
         os << teamId;
 
-    nb = s->mSkillNotAllowed.size();
+    nb = mSkillNotAllowed.size();
     os << nb;
-    for(SkillType resType : s->mSkillNotAllowed)
+    for(SkillType resType : mSkillNotAllowed)
         os << resType;
-
-    return os;
 }
 
-ODPacket& operator>>(ODPacket& is, Seat *s)
+bool Seat::importFromPacket(ODPacket& is)
 {
-    is >> s->mId >> s->mTeamId >> s->mPlayerType;
-    is >> s->mFaction >> s->mStartingX >> s->mStartingY;
-    is >> s->mColorId;
-    is >> s->mGold >> s->mGoldMax;
-    is >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
-    is >> s->mNumCreaturesFighters >> s->mNumCreaturesFightersMax;
-    is >> s->mNumCreaturesWorkers;
-    is >> s->mHasGoalsChanged;
-    for(uint32_t& nbRooms : s->mNbRooms)
+    is >> mId >> mTeamId >> mPlayerType;
+    is >> mFaction >> mStartingX >> mStartingY;
+    is >> mColorId;
+    is >> mGold >> mGoldMax;
+    is >> mMana >> mManaDelta >> mNumClaimedTiles;
+    is >> mNumCreaturesFighters >> mNumCreaturesFightersMax;
+    is >> mNumCreaturesWorkers;
+    is >> mHasGoalsChanged;
+    for(uint32_t& nbRooms : mNbRooms)
     {
         is >> nbRooms;
     }
-    is >> s->mCurrentSkillType;
-    is >> s->mCurrentSkillProgress;
-    s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
+    is >> mCurrentSkillType;
+    is >> mCurrentSkillProgress;
+    mColorValue = ConfigManager::getSingleton().getColorFromId(mColorId);
     uint32_t nb;
     is >> nb;
     while(nb > 0)
@@ -1988,7 +1969,7 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
         --nb;
         int teamId;
         is >> teamId;
-        s->mAvailableTeamIds.push_back(teamId);
+        mAvailableTeamIds.push_back(teamId);
     }
 
     is >> nb;
@@ -1997,10 +1978,50 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
         --nb;
         SkillType resType;
         is >> resType;
-        s->mSkillNotAllowed.push_back(resType);
+        mSkillNotAllowed.push_back(resType);
     }
 
     return is;
+}
+
+bool Seat::importFromPacketForUpdate(ODPacket& is)
+{
+    OD_ASSERT_TRUE(is >> mGold);
+    OD_ASSERT_TRUE(is >> mGoldMax);
+    OD_ASSERT_TRUE(is >> mMana);
+    OD_ASSERT_TRUE(is >> mManaDelta);
+    OD_ASSERT_TRUE(is >> mNumClaimedTiles);
+    OD_ASSERT_TRUE(is >> mNumCreaturesFighters);
+    OD_ASSERT_TRUE(is >> mNumCreaturesFightersMax);
+    OD_ASSERT_TRUE(is >> mNumCreaturesWorkers);
+    OD_ASSERT_TRUE(is >> mHasGoalsChanged);
+    for(uint32_t& nbRooms : mNbRooms)
+    {
+        OD_ASSERT_TRUE(is >> nbRooms);
+    }
+    OD_ASSERT_TRUE(is >> mCurrentSkillType);
+    OD_ASSERT_TRUE(is >> mCurrentSkillProgress);
+    return true;
+}
+
+void Seat::exportToPacketForUpdate(ODPacket& os) const
+{
+    // We only refresh data that changes over time (gold, mana, ...)
+    os << mGold;
+    os << mGoldMax;
+    os << mMana;
+    os << mManaDelta;
+    os << mNumClaimedTiles;
+    os << mNumCreaturesFighters;
+    os << mNumCreaturesFightersMax;
+    os << mNumCreaturesWorkers;
+    os << mHasGoalsChanged;
+    for(const uint32_t& nbRooms : mNbRooms)
+    {
+        os << nbRooms;
+    }
+    os << mCurrentSkillType;
+    os << mCurrentSkillProgress;
 }
 
 int Seat::readTilesVisualInitialStates(TileVisual tileVisual, std::istream& is)
