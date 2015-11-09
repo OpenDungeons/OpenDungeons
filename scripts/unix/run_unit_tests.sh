@@ -15,9 +15,9 @@ TESTS_FAILED=""
 for test in ${UNIT_TESTS}; do
     echo -e "\n### Unit test: ${test}\n"
 
-    if [ "${test}" == "LaunchGame" ]; then
-        ./${OD_BINARY} --server UnitTest.level --port 32222 --log srvLog.txt &
-    fi
+    # if [ "${test}" == "LaunchGame" ]; then
+    #     ./${OD_BINARY} --server UnitTest.level --port 32222 --log srvLog.txt &
+    # fi
     ./boosttest-source_tests-${test}
 
     if [ $? == 0 ]; then
