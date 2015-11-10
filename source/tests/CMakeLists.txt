@@ -56,7 +56,8 @@ add_boost_test(aa-LaunchGame
         LIBRARIES
         ${SFML_LIBRARIES}
         ${Boost_FILESYSTEM_LIBRARY_RELEASE}
-        ${Boost_SYSTEM_LIBRARY_RELEASE})
+        ${Boost_SYSTEM_LIBRARY_RELEASE}
+        ${OGRE_LIBRARIES})
 
 add_boost_test(aa-TestCreatures
         SOURCES
@@ -76,7 +77,8 @@ add_boost_test(aa-TestCreatures
         LIBRARIES
         ${SFML_LIBRARIES}
         ${Boost_FILESYSTEM_LIBRARY_RELEASE}
-        ${Boost_SYSTEM_LIBRARY_RELEASE})
+        ${Boost_SYSTEM_LIBRARY_RELEASE}
+        ${OGRE_LIBRARIES})
 
 add_boost_test(aa-TestRooms
         SOURCES
@@ -97,4 +99,5 @@ add_boost_test(aa-TestRooms
         LIBRARIES
         ${SFML_LIBRARIES}
         ${Boost_FILESYSTEM_LIBRARY_RELEASE}
-        ${Boost_SYSTEM_LIBRARY_RELEASE})
+        ${Boost_SYSTEM_LIBRARY_RELEASE}
+        ${OGRE_LIBRARIES})
