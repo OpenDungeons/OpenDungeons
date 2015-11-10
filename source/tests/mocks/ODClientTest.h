@@ -58,6 +58,8 @@ public:
 
     void runFor(int32_t timeInMillis);
 
+    void sendConsoleCmd(const std::string& cmd);
+
     const std::vector<SeatData*>& getSeats() const
     { return mSeats; }
 
@@ -68,6 +70,15 @@ public:
 
 protected:
     bool processMessage(ServerNotificationType cmd, ODPacket& packetReceived) override;
+    virtual void handleTurnStarted(int64_t turnNum)
+    {}
+    virtual void handleSetAnimationState(const std::string& entityName, const std::string& animState,
+        bool loop, bool shouldSetWalkDirection, const Ogre::Vector3& walkDirection)
+    {}
+
+    //! \brief This boolean can be used in the handle* functions to stop the processing loop
+    //! before the end of the timeout
+    bool mContinueLoop;
 
 private:
     bool mIsActivated;
