@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(test_Creatures)
     BOOST_CHECK(!client.mResultTest);
 
     // We add another creature of another seat. We expect to fight
-    cmd = "addcreature 0 Wyvern3 Wyvern 3 12 0 Wyvern 1 0 max 100 0 0 none none 4 none 0";
+    cmd = "addcreature 0 Wyvern3 Wyvern 3 12 0 Wyvern 15 0 max 100 0 0 none none 4 none 0";
     client.sendConsoleCmd(cmd);
 
     // We expect them not to fight

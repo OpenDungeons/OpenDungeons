@@ -75,6 +75,14 @@ bool ODClientTest::connect(const std::string& host, const int port, uint32_t tim
     return true;
 }
 
+void ODClientTest::disconnect(bool keepReplay)
+{
+    ODSocketClient::disconnect(keepReplay);
+
+    // We wait for the server to terminate so that if a server is launched after this one, it doesn't collapse
+    sf::sleep(sf::milliseconds(5000));
+}
+
 bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetReceived)
 {
     OD_LOG_INF("ServerNotificationType=" + ServerNotification::typeString(cmd));

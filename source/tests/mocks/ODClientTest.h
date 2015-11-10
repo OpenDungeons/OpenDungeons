@@ -55,6 +55,7 @@ public:
     virtual ~ODClientTest();
 
     bool connect(const std::string& host, const int port, uint32_t timeout, const std::string& outputReplayFilename) override;
+    void disconnect(bool keepReplay) override;
 
     void runFor(int32_t timeInMillis);
 
