@@ -12,6 +12,7 @@
 #include "render/ODFrameListener.h"
 #include "render/RenderManager.h"
 #include "rooms/Room.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -155,10 +156,17 @@ Command::Result cSrvAddCreature(const Command::ArgumentList_t& args, ConsoleInte
         return Command::Result::INVALID_ARGUMENT;
     }
 
-    std::stringstream ss(boost::algorithm::join(args, " "));
+    // We remove the first argument (the console command)
+    Command::ArgumentList_t tmp = args;
+    tmp.erase(tmp.begin());
+    std::string str = boost::algorithm::join(tmp, "\t");
+    std::stringstream ss(str);
     Creature* creature = Creature::getCreatureFromStream(&gameMap, ss);
-    creature->createMesh();
     creature->addToGameMap();
+    //Set up definition for creature. This was previously done in createMesh for some reason.
+    creature->setupDefinition(gameMap, *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
+    //Set position to update info on what tile the creature is in.
+    creature->setPosition(creature->getPosition());
 
     return Command::Result::SUCCESS;
 }
@@ -510,7 +518,7 @@ void addConsoleCommands(ConsoleInterface& cl)
                   Command::cStubServer,
                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("addcreature",
-                  "this seems to currently be broken",
+                  "Adds a new creature according to following parameters",
                   cSendCmdToServer,
                   cSrvAddCreature,
                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});

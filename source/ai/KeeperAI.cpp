@@ -18,6 +18,7 @@
 #include "ai/KeeperAI.h"
 
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/SkillManager.h"
@@ -703,7 +704,21 @@ void KeeperAI::handleDefense()
         if(tile == nullptr)
             continue;
 
-        Creature* creatureToDrop = mGameMap.getFighterToPickupBySeat(seat);
+        // We look for a healthy creature not already fighting
+        Creature* creatureToDrop = nullptr;
+        for(Creature* creature2 : mGameMap.getCreaturesBySeat(seat))
+        {
+            if(creature2->getDefinition()->isWorker())
+                continue;
+            if(creature2->getHP() < (creature2->getMaxHp() * 0.5))
+                continue;
+            if(creature2->isActionInList(CreatureActionType::fight))
+                continue;
+            if((creatureToDrop != nullptr) && (creatureToDrop->getLevel() >= creature2->getLevel()))
+                continue;
+
+            creatureToDrop = creature2;
+        }
         if(creatureToDrop == nullptr)
             continue;
 

@@ -25,6 +25,8 @@
 
 #include <BoostTestTargetConfig.h>
 
+#include <boost/algorithm/string.hpp>
+
 #ifdef OD_VERSION
 static const std::string OD_VERSION_STR = OD_VERSION;
 #else
@@ -33,6 +35,7 @@ static const std::string OD_VERSION_STR = "undefined";
 
 ODClientTest::ODClientTest(const std::vector<PlayerInfo>& players, uint32_t indexLocalPlayer) :
     mTurnNum(0),
+    mContinueLoop(true),
     mIsActivated(false),
     mIsGameModeStarted(false),
     mPlayers(players),
@@ -70,6 +73,14 @@ bool ODClientTest::connect(const std::string& host, const int port, uint32_t tim
     send(packSend);
 
     return true;
+}
+
+void ODClientTest::disconnect(bool keepReplay)
+{
+    ODSocketClient::disconnect(keepReplay);
+
+    // We wait for the server to terminate so that if a server is launched after this one, it doesn't collapse
+    sf::sleep(sf::milliseconds(5000));
 }
 
 bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetReceived)
@@ -143,8 +154,8 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
             }
 
             ODPacket packSend;
-            // Local player is the first one
-            PlayerInfo& player = mPlayers[0];
+            // We send the local player info
+            PlayerInfo& player = mPlayers[mLocalPlayerIndex];
             packSend << ClientNotificationType::setNick << player.mNick;
             send(packSend);
 
@@ -370,6 +381,8 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
             BOOST_CHECK(mIsGameModeStarted);
             BOOST_CHECK(packetReceived >> mTurnNum);
             OD_LOG_INF("turnNum=" + Helper::toString(mTurnNum));
+            handleTurnStarted(mTurnNum);
+
             ODPacket packSend;
             packSend << ClientNotificationType::ackNewTurn << mTurnNum;
             send(packSend);
@@ -379,6 +392,24 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
         {
             BOOST_CHECK(mPlayers[mLocalPlayerIndex].mSeat->importFromPacketForUpdate(packetReceived));
             BOOST_CHECK(packetReceived >> mPlayers[mLocalPlayerIndex].mGoals);
+            break;
+        }
+        case ServerNotificationType::setObjectAnimationState:
+        {
+            std::string entityName;
+            std::string animState;
+            bool loop;
+            bool shouldSetWalkDirection;
+            Ogre::Vector3 walkDirection(0, 0, 0);
+            BOOST_CHECK(packetReceived >> entityName >> animState
+                >> loop >> shouldSetWalkDirection);
+
+            if(shouldSetWalkDirection)
+            {
+                BOOST_CHECK(packetReceived >> walkDirection);
+            }
+
+            handleSetAnimationState(entityName, animState, loop, shouldSetWalkDirection, walkDirection);
             break;
         }
         default:
@@ -411,10 +442,29 @@ void ODClientTest::runFor(int32_t timeInMillis)
     if(!isConnected())
         return;
 
+    mContinueLoop = true;
+
     sf::Clock clock;
-    while(clock.getElapsedTime().asMilliseconds() < timeInMillis)
+    while(mContinueLoop &&
+          (clock.getElapsedTime().asMilliseconds() < timeInMillis))
     {
         processClientSocketMessages();
         sf::sleep(sf::milliseconds(100));
     }
+}
+
+void ODClientTest::sendConsoleCmd(const std::string& cmd)
+{
+    std::vector<std::string> tokens;
+    boost::algorithm::split(tokens,
+        cmd, boost::algorithm::is_space(),
+        boost::algorithm::token_compress_on);
+    uint32_t nb = tokens.size();
+
+    ODPacket packSend;
+    packSend << ClientNotificationType::askExecuteConsoleCommand << nb;
+    for(const std::string& token : tokens)
+        packSend << token;
+
+    send(packSend);
 }

@@ -56,4 +56,48 @@ add_boost_test(aa-LaunchGame
         LIBRARIES
         ${SFML_LIBRARIES}
         ${Boost_FILESYSTEM_LIBRARY_RELEASE}
-        ${Boost_SYSTEM_LIBRARY_RELEASE})
+        ${Boost_SYSTEM_LIBRARY_RELEASE}
+        ${OGRE_LIBRARIES})
+
+add_boost_test(aa-TestCreatures
+        SOURCES
+        ${SRC}/tests/mocks/ODClientTest.cpp
+        ${SRC}/game/SeatData.cpp
+        ${SRC}/game/SkillType.cpp
+        ${SRC}/network/ClientNotification.cpp
+        ${SRC}/network/ODPacket.cpp
+        ${SRC}/network/ODSocketClient.cpp
+        ${SRC}/network/ODSocketServer.cpp
+        ${SRC}/network/ServerMode.cpp
+        ${SRC}/network/ServerNotification.cpp
+        ${SRC}/utils/Helper.cpp
+        ${SRC}/utils/LogManager.cpp
+        ${SRC}/utils/LogSinkConsole.cpp
+        test_Creatures.cpp
+        LIBRARIES
+        ${SFML_LIBRARIES}
+        ${Boost_FILESYSTEM_LIBRARY_RELEASE}
+        ${Boost_SYSTEM_LIBRARY_RELEASE}
+        ${OGRE_LIBRARIES})
+
+add_boost_test(aa-TestRooms
+        SOURCES
+        ${SRC}/tests/mocks/ODClientTest.cpp
+        ${SRC}/game/SeatData.cpp
+        ${SRC}/game/SkillType.cpp
+        ${SRC}/network/ClientNotification.cpp
+        ${SRC}/network/ODPacket.cpp
+        ${SRC}/network/ODSocketClient.cpp
+        ${SRC}/network/ODSocketServer.cpp
+        ${SRC}/network/ServerMode.cpp
+        ${SRC}/network/ServerNotification.cpp
+        ${SRC}/rooms/RoomType.cpp
+        ${SRC}/utils/Helper.cpp
+        ${SRC}/utils/LogManager.cpp
+        ${SRC}/utils/LogSinkConsole.cpp
+        test_Rooms.cpp
+        LIBRARIES
+        ${SFML_LIBRARIES}
+        ${Boost_FILESYSTEM_LIBRARY_RELEASE}
+        ${Boost_SYSTEM_LIBRARY_RELEASE}
+        ${OGRE_LIBRARIES})
