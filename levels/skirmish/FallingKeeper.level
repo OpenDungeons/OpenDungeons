@@ -2221,7 +2221,7 @@ BigKnight	12
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
-1	DefaultWorker1	Kobold.mesh	26	4	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
+1	DefaultWorker1	Kobold.mesh	26	4	0	DefaultWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
 [/Creatures]
 
 [Spells]

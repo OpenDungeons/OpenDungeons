@@ -2312,8 +2312,8 @@ MineNGold	50
     MeshScaleY	0.8
     MeshScaleZ	0.8
     BedMeshName	DragonBed
-    BedDimX	2
-    BedDimY	2
+    BedDim	1	1
+    BedPos	1	1	0	-1
     MinHP	35
     HP/Level	10
     Heal/Turn	0.5
@@ -2335,10 +2335,13 @@ MineNGold	50
     PhysicalDef/Level	0.3
     MagicalDefense	4
     MagicalDef/Level	0
-    WeakCoef	0.3
+    ElementDefense	1.5
+    ElementDef/Level	0.1
+    FightIdleDist	1
     FeeBase	0
     FeePerLevel	0
     SleepHeal	1
+    TurnsStunDropped	0
     WeaponSpawnL	none
     WeaponSpawnL	none
     SoundFamilyPickup	Default/Pickup
@@ -2373,10 +2376,10 @@ MineNGold	50
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
-0	BossDragon1	BossDragon	62	14	0	BossDragon	4	0	max	100	0	0	none	none	0	none	0
-0	BossDragon2	BossDragon	40	68	0	BossDragon	3	0	max	100	0	0	none	none	0	none	0
-0	BossDragon3	BossDragon	33	65	0	BossDragon	3	0	max	100	0	0	none	none	0	none	0
-0	BossDragon4	BossDragon	9	14	0	BossDragon	4	0	max	100	0	0	none	none	0	none	0
+0	BossDragon1	BossDragon	62	14	0	BossDragon	4	0	max	100	0	0	none	none	nullSkillType	none	0
+0	BossDragon2	BossDragon	40	68	0	BossDragon	3	0	max	100	0	0	none	none	nullSkillType	none	0
+0	BossDragon3	BossDragon	33	65	0	BossDragon	3	0	max	100	0	0	none	none	nullSkillType	none	0
+0	BossDragon4	BossDragon	9	14	0	BossDragon	4	0	max	100	0	0	none	none	nullSkillType	none	0
 [/Creatures]
 
 [Spells]

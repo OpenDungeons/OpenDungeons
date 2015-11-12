@@ -158,7 +158,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
-    mSkillTypeDropDeath   (SkillType::nullSkillType),
+    mSkillTypeDropDeath      (SkillType::nullSkillType),
     mWeaponDropDeath         ("none"),
     mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
@@ -237,7 +237,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
-    mSkillTypeDropDeath   (SkillType::nullSkillType),
+    mSkillTypeDropDeath      (SkillType::nullSkillType),
     mWeaponDropDeath         ("none"),
     mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
@@ -382,7 +382,7 @@ void Creature::exportToStream(std::ostream& os) const
     else
         os << "\tnone";
 
-    os << "\t" << mSkillTypeDropDeath;
+    os << "\t" << Skills::toString(mSkillTypeDropDeath);
 
     os << "\t" << mWeaponDropDeath;
 
@@ -441,8 +441,10 @@ bool Creature::importFromStream(std::istream& is)
         }
     }
 
-    if(!(is >> mSkillTypeDropDeath))
+    if(!(is >> tempString))
         return false;
+    mSkillTypeDropDeath = Skills::fromString(tempString);
+
     if(!(is >> mWeaponDropDeath))
         return false;
 

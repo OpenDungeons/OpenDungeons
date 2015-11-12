@@ -605,7 +605,7 @@ private:
     int32_t         mGoldCarried;
 
     //! Skill type that will be dropped when the creature dies
-    SkillType    mSkillTypeDropDeath;
+    SkillType       mSkillTypeDropDeath;
 
     //! Weapon that will be dropped when the creature dies
     std::string     mWeaponDropDeath;

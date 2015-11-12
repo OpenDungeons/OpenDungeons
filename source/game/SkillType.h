@@ -29,25 +29,24 @@ enum class SkillType
     nullSkillType,
 
     // Rooms
-    roomTreasury,
+    roomBridgeStone,
+    roomBridgeWooden,
+    roomCrypt,
     roomDormitory,
     roomHatchery,
-    roomTrainingHall,
     roomLibrary,
-    roomWorkshop,
-    roomCrypt,
     roomPrison,
-    roomBridgeWooden,
-    roomBridgeStone,
+    roomTrainingHall,
+    roomTreasury,
+    roomWorkshop,
 
     // Traps
     trapBoulder,
     trapCannon,
-    trapSpike,
     trapDoorWooden,
+    trapSpike,
 
     // Spells
-    spellSummonWorker,
     spellCallToWar,
     spellCreatureDefense,
     spellCreatureExplosion,
@@ -56,6 +55,7 @@ enum class SkillType
     spellCreatureSlow,
     spellCreatureStrength,
     spellCreatureWeak,
+    spellSummonWorker,
 
     // This should be the last
     countSkill
@@ -69,7 +69,10 @@ std::istream& operator>>(std::istream& is, SkillType& type);
 namespace Skills
 {
     //! \brief The skill name as used in level files.
-    std::string skillTypeToString(SkillType type);
+    std::string toString(SkillType type);
+
+    //! \brief The skill type from its string representation.
+    SkillType fromString(const std::string& type);
 
     //! \brief The skill name as seen in game events.
     std::string skillTypeToPlayerVisibleString(SkillType type);

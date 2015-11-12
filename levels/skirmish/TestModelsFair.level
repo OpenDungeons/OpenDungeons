@@ -1170,35 +1170,35 @@ Wizard26	11	4	0
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
-1	DefaultWorker2	Kobold.mesh	18	28	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
-1	DwarfWorker5	Dwarf1.mesh	21	28	0	DwarfWorker	1	0	max	100	0	0	none	none	0	none	0
-1	Wyvern6	Wyvern.mesh	24	28	0	Wyvern	1	0	max	100	0	0	none	none	0	none	0
-1	Dragon7	Dragon.mesh	27	28	0	Dragon	1	0	max	100	0	0	none	none	0	none	0
-1	Orc8	Orc.mesh	18	25	0	Orc	1	0	max	100	0	0	none	none	0	none	0
-1	Kreatur9	Kreatur.mesh	21	25	0	Kreatur	1	0	max	100	0	0	none	none	0	none	0
-1	Goblin10	Goblin.mesh	24	25	0	Goblin	1	0	max	100	0	0	none	none	0	none	0
-1	PitDemon11	PitDemon.mesh	27	25	0	PitDemon	1	0	max	100	0	0	none	none	0	none	0
-1	Spider12	Spider.mesh	18	22	0	Spider	1	0	max	100	0	0	none	none	0	none	0
-1	TentacleAlbine13	TentacleAlbine.mesh	21	22	0	TentacleAlbine	1	0	max	100	0	0	none	none	0	none	0
-1	TentacleGreen14	TentacleGreen.mesh	24	22	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
-1	Troll15	Troll.mesh	27	22	0	Troll	1	0	max	100	0	0	none	none	0	none	0
-1	LizardMan16	Lizardman.mesh	21	19	0	LizardMan	1	0	max	100	0	0	none	none	0	none	0
-1	CaveHornet17	CaveHornet.mesh	24	19	0	CaveHornet	1	0	max	100	0	0	none	none	0	none	0
-1	Scarab18	Scarab.mesh	27	19	0	Scarab	1	0	max	100	0	0	none	none	0	none	0
-1	Slime19	Slime.mesh	21	16	0	Slime	1	0	max	100	0	0	none	none	0	none	0
-1	Gnome20	Gnome.mesh	24	16	0	Gnome	1	0	max	100	0	0	none	none	0	none	0
-1	Adventurer21	Adventurer.mesh	27	16	0	Adventurer	1	0	max	100	0	0	Longsword	none	0	none	0
-1	Dwarf122	Dwarf1.mesh	21	13	0	Dwarf1	1	0	max	100	0	0	none	none	0	none	0
-1	Dwarf223	Dwarf2.mesh	24	13	0	Dwarf2	1	0	max	100	0	0	none	Sabre	0	none	0
-1	Knight24	Knight.mesh	27	13	0	Knight	1	0	max	100	0	0	RustyShield	RustySword	0	none	0
-1	Wizard26	Wizard.mesh	24	33	0	Wizard	1	0	max	100	0	0	none	Staff	0	none	0
-1	RunelordDwarf27	RunelordDwarf.mesh	25	31	0	RunelordDwarf	1	0	max	100	0	0	none	Roundshield	0	none	0
-1	BigKnight28	Knight.mesh	22	31	0	BigKnight	1	0	max	100	0	0	RustyShield	RustySword	0	none	0
-1	Defender29	Defender.mesh	19	31	0	Defender	1	0	max	100	0	0	none	none	0	none	0
-0	Adventurer1	Adventurer.mesh	1	35	0	Adventurer	1	0	max	100	0	0	none	none	0	none	0
-1	Roach1	Roach.mesh	28	31	0	Roach	1	0	max	100	0	0	none	none	0	none	0
-1	Lich2	lich.mesh	21	33	0	Lich	1	0	max	100	0	0	none	none	0	none	0
-1	Skeleton3	skeleton.mesh	19	33	0	Skeleton	1	0	max	100	0	0	none	none	0	none	0
+1	DefaultWorker2	Kobold.mesh	18	28	0	DefaultWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	DwarfWorker5	Dwarf1.mesh	21	28	0	DwarfWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Wyvern6	Wyvern.mesh	24	28	0	Wyvern	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Dragon7	Dragon.mesh	27	28	0	Dragon	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Orc8	Orc.mesh	18	25	0	Orc	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Kreatur9	Kreatur.mesh	21	25	0	Kreatur	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Goblin10	Goblin.mesh	24	25	0	Goblin	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	PitDemon11	PitDemon.mesh	27	25	0	PitDemon	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Spider12	Spider.mesh	18	22	0	Spider	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	TentacleAlbine13	TentacleAlbine.mesh	21	22	0	TentacleAlbine	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	TentacleGreen14	TentacleGreen.mesh	24	22	0	TentacleGreen	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Troll15	Troll.mesh	27	22	0	Troll	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	LizardMan16	Lizardman.mesh	21	19	0	LizardMan	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	CaveHornet17	CaveHornet.mesh	24	19	0	CaveHornet	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Scarab18	Scarab.mesh	27	19	0	Scarab	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Slime19	Slime.mesh	21	16	0	Slime	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Gnome20	Gnome.mesh	24	16	0	Gnome	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Adventurer21	Adventurer.mesh	27	16	0	Adventurer	1	0	max	100	0	0	Longsword	none	nullSkillType	none	0
+1	Dwarf122	Dwarf1.mesh	21	13	0	Dwarf1	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Dwarf223	Dwarf2.mesh	24	13	0	Dwarf2	1	0	max	100	0	0	none	Sabre	nullSkillType	none	0
+1	Knight24	Knight.mesh	27	13	0	Knight	1	0	max	100	0	0	RustyShield	RustySword	nullSkillType	none	0
+1	Wizard26	Wizard.mesh	24	33	0	Wizard	1	0	max	100	0	0	none	Staff	nullSkillType	none	0
+1	RunelordDwarf27	RunelordDwarf.mesh	25	31	0	RunelordDwarf	1	0	max	100	0	0	none	Roundshield	nullSkillType	none	0
+1	BigKnight28	Knight.mesh	22	31	0	BigKnight	1	0	max	100	0	0	RustyShield	RustySword	nullSkillType	none	0
+1	Defender29	Defender.mesh	19	31	0	Defender	1	0	max	100	0	0	none	none	nullSkillType	none	0
+0	Adventurer1	Adventurer.mesh	1	35	0	Adventurer	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Roach1	Roach.mesh	28	31	0	Roach	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Lich2	lich.mesh	21	33	0	Lich	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Skeleton3	skeleton.mesh	19	33	0	Skeleton	1	0	max	100	0	0	none	none	nullSkillType	none	0
 [/Creatures]
 
 [Spells]
