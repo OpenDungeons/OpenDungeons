@@ -548,6 +548,9 @@ int RoomManager::costPerTile(RoomType t)
     case RoomType::bridgeStone:
         return ConfigManager::getSingleton().getRoomConfigInt32("StoneBridgeCostPerTile");
 
+    case RoomType::arena:
+        return ConfigManager::getSingleton().getRoomConfigInt32("ArenaCostPerTile");
+
     default:
         return 0;
     }

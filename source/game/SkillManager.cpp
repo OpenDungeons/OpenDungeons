@@ -324,6 +324,15 @@ SkillManager::SkillManager() :
     mSkills[index] = def;
     lvl3depends.push_back(skill);
 
+    resType = SkillType::roomArena;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::toString(resType));
+    skill = new Skill(resType, points, lvl2depends);
+    def = new SkillDefRoom("AttackSkills/", "ArenaButton", skill, RoomType::arena);
+    def->mapSkill(mSkillsFamily);
+    mSkills[index] = def;
+    lvl3depends.push_back(skill);
+
     // Tech Skills
     lvl1depends.clear();
     lvl2depends.clear();

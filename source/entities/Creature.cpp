@@ -1082,6 +1082,7 @@ void Creature::doUpkeep()
                     break;
 
                 case CreatureActionType::fight:
+                case CreatureActionType::fightArena:
                     loopBack = handleFightAction(topActionItem);
                     break;
 
@@ -2604,7 +2605,7 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
                (skillData != nullptr))
             {
                 // We can attack
-                bool ko = getSeat()->getKoCreatures();
+                bool ko = (getSeat()->getKoCreatures() || (actionItem.mType == CreatureActionType::fightArena));
                 pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData, ko);
                 return true;
             }
@@ -2642,7 +2643,7 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
                (skillData != nullptr))
             {
                 // We can attack
-                bool ko = getSeat()->getKoCreatures();
+                bool ko = (getSeat()->getKoCreatures() || (actionItem.mType == CreatureActionType::fightArena));
                 pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData, ko);
                 return true;
             }
@@ -2763,7 +2764,7 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
         int skillRangeMaxInt = static_cast<int>(skillRangeMax);
         int skillRangeMaxIntSquared = skillRangeMaxInt * skillRangeMaxInt;
         int bestScoreAttack = -1;
-        std::vector<Tile*> tiles = getGameMap()->visibleTiles(tileAttackCheck->getX(), tileAttackCheck->getY(), skillRangeMaxInt);
+        std::vector<Tile*> tiles = getAccessibleVisibleTiles(tileAttackCheck, skillRangeMaxInt);
         for(Tile* tile : tiles)
         {
             if(tile->isFullTile())
@@ -2805,7 +2806,7 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
         int bestScoreFlee = -1;
         int32_t fightIdleDist = getDefinition()->getFightIdleDist();
         Tile* fleeTile = nullptr;
-        std::vector<Tile*> tiles = getGameMap()->visibleTiles(tileEntityFlee->getX(), tileEntityFlee->getY(), fightIdleDist);
+        std::vector<Tile*> tiles = getAccessibleVisibleTiles(tileEntityFlee, fightIdleDist);
         int32_t fightIdleDistSquared = fightIdleDist * fightIdleDist;
         for(Tile* tile : tiles)
         {
@@ -5062,4 +5063,60 @@ void Creature::setStrengthModifier(double modifier)
 void Creature::clearStrengthModifier()
 {
     setStrengthModifier(1.0);
+}
+
+std::vector<Tile*> Creature::getAccessibleVisibleTiles(Tile* center, int radius) const
+{
+    // If we are fighting in the arena, the accessible tiles are the arena
+    if(!isActionInList(CreatureActionType::fightArena))
+        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
+
+    // We check if we are in the arena
+    Tile* myTile = getPositionTile();
+    if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName() + ", position=" + Helper::toString(getPosition()));
+        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
+    }
+
+    Room* room = myTile->getCoveringRoom();
+    if(room == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName() + ", not on an arena tile=" + Tile::displayAsString(myTile));
+        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
+    }
+    if(room->getType() != RoomType::arena)
+    {
+        OD_LOG_ERR("name=" + getName() + ", not on an arena tile=" + Tile::displayAsString(myTile) + ", room=" + room->getName());
+        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
+    }
+
+    float radiusSquared = radius * radius;
+    std::vector<Tile*> allowedTiles;
+    for(Tile* tile : room->getCoveredTiles())
+    {
+        float dist = Pathfinding::squaredDistanceTile(*center, *tile);
+        if(dist > radiusSquared)
+            continue;
+
+        allowedTiles.push_back(tile);
+    }
+
+    return allowedTiles;
+}
+
+void Creature::fightInArena(Creature& opponent)
+{
+    pushAction(CreatureActionType::fightArena, false, true, false, &opponent);
+}
+
+bool Creature::isWarmup() const
+{
+    for(const CreatureSkillData& skillData : mSkillData)
+    {
+        if(skillData.mWarmup > 0)
+            return true;
+    }
+
+    return false;
 }

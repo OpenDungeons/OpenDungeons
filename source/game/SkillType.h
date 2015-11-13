@@ -29,6 +29,7 @@ enum class SkillType
     nullSkillType,
 
     // Rooms
+    roomArena,
     roomBridgeStone,
     roomBridgeWooden,
     roomCrypt,

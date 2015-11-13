@@ -112,6 +112,9 @@ std::string CreatureAction::toString(CreatureActionType actionType)
     case CreatureActionType::fight:
         return "fight";
 
+    case CreatureActionType::fightArena:
+        return "fightArena";
+
     case CreatureActionType::searchTileToDig:
         return "searchTileToDig";
 

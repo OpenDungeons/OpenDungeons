@@ -522,6 +522,10 @@ public:
     inline double getModifierStrength() const
     { return mModifierStrength; }
 
+    void fightInArena(Creature& opponent);
+
+    bool isWarmup() const;
+
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
@@ -833,6 +837,8 @@ private:
     void computeCreatureOverlayHealthValue();
 
     void computeCreatureOverlayMoodValue();
+
+    std::vector<Tile*> getAccessibleVisibleTiles(Tile* center, int radius) const;
 };
 
 #endif // CREATURE_H

@@ -43,6 +43,8 @@ std::string toString(SkillType type)
     {
         case SkillType::nullSkillType:
             return "nullSkillType";
+        case SkillType::roomArena:
+            return "roomArena";
         case SkillType::roomBridgeStone:
             return "roomBridgeStone";
         case SkillType::roomBridgeWooden:
@@ -100,6 +102,8 @@ std::string skillTypeToPlayerVisibleString(SkillType type)
     {
         case SkillType::nullSkillType:
             return "No Skill type";
+        case SkillType::roomArena:
+            return "The Arena Room";
         case SkillType::roomBridgeStone:
             return "The Stone Bridge Room";
         case SkillType::roomBridgeWooden:

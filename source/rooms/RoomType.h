@@ -38,6 +38,7 @@ enum class RoomType
     prison,
     bridgeWooden,
     bridgeStone,
+    arena,
     nbRooms     // Must be the last in this enum
 };
 

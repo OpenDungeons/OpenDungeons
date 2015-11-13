@@ -30,6 +30,7 @@ enum class CreatureActionType
 {
     walkToTile, // Calculate a path to the tile and follow it each turn.
     fight, // When seeing enemy objects, the creature might decide to fight
+    fightArena, // Fight in arena
     searchTileToDig, // (worker only) Searches a tile to dig
     digTile, // (worker only) Digs a tile
     searchGroundTileToClaim, // (worker only) Searches a ground tile to claim
