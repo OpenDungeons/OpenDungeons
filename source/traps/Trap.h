@@ -222,6 +222,8 @@ public:
 
     static bool sortForMapSave(Trap* t1, Trap* t2);
 
+    static bool importTrapFromStream(Trap& trap, std::istream& is);
+
 protected:
     virtual void exportHeadersToStream(std::ostream& os) const override;
     virtual void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const override;

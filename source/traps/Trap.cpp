@@ -852,3 +852,8 @@ bool Trap::shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
 
     return true;
 }
+
+bool Trap::importTrapFromStream(Trap& trap, std::istream& is)
+{
+    return trap.importFromStream(is);
+}
