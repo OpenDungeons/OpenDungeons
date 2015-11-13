@@ -18,6 +18,7 @@
 #include "rooms/RoomArena.h"
 
 #include "entities/Creature.h"
+#include "entities/Tile.h"
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
 #include "rooms/RoomManager.h"
@@ -28,6 +29,8 @@
 const std::string RoomArenaName = "Arena";
 const std::string RoomArenaNameDisplay = "Arena room";
 const RoomType RoomArena::mRoomType = RoomType::arena;
+
+static const Ogre::Real OFFSET_DUMMY = 0.3;
 
 namespace
 {
@@ -261,6 +264,46 @@ void RoomArena::doUpkeep()
     {
         mCreatureFighting2->fightInArena(*mCreatureFighting1);
     }
+}
+
+RenderedMovableEntity* RoomArena::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+{
+    Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
+    Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
+    switch(place)
+    {
+        case ActiveSpotPlace::activeSpotCenter:
+        {
+            return nullptr;
+        }
+        case ActiveSpotPlace::activeSpotLeft:
+        {
+            x -= OFFSET_DUMMY;
+            std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 90.0, false);
+        }
+        case ActiveSpotPlace::activeSpotRight:
+        {
+            x += OFFSET_DUMMY;
+            std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 270.0, false);
+        }
+        case ActiveSpotPlace::activeSpotTop:
+        {
+            y += OFFSET_DUMMY;
+            std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 0.0, false);
+        }
+        case ActiveSpotPlace::activeSpotBottom:
+        {
+            y -= OFFSET_DUMMY;
+            std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 180.0, false);
+        }
+        default:
+            break;
+    }
+    return nullptr;
 }
 
 void RoomArena::exportToStream(std::ostream& os) const
