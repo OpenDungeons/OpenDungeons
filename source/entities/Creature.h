@@ -295,7 +295,8 @@ public:
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
     double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
-        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense) override;
+        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense,
+        bool ko) override;
 
     //! \brief Conform: AttackableObject - Adds experience to this creature.
     void receiveExp(double experience);
@@ -362,8 +363,6 @@ public:
     //! \brief sets the strength modifier (coef)
     void setStrengthModifier(double modifier);
     void clearStrengthModifier();
-
-    virtual bool shouldKoAttackedCreature(const Creature& creature) const override;
 
     virtual double getAnimationSpeedFactor() const override
     { return mSpeedModifier; }
@@ -445,7 +444,7 @@ public:
     //! - popCurrentIfPush: If true and the given action is pushed, before pushing, the current action will be popped
     //! - forcePush: If true, the action will be pushed even if it has already been tried
     //! - forceAction: If true, the action is forced (the creature won't stop doing it until too tired/nothing to do)
-    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* entity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr);
+    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* entity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr, bool b = false);
     void popAction();
 
     inline double getWakefulness() const

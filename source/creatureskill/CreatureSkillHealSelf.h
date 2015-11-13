@@ -47,7 +47,7 @@ public:
     virtual bool tryUseSupport(GameMap& gameMap, Creature* creature) const override;
 
     virtual bool tryUseFight(GameMap& gameMap, Creature* creature, float range,
-        GameEntity* attackedObject, Tile* attackedTile) const override
+        GameEntity* attackedObject, Tile* attackedTile, bool ko) const override
     { return false; }
 
     virtual CreatureSkillHealSelf* clone() const override;

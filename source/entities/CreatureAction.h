@@ -54,7 +54,8 @@ enum class CreatureActionType
 class CreatureAction : public GameEntityListener
 {
 public:
-    CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* entity, Tile* tile, CreatureSkillData* creatureSkillData);
+    CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* entity, Tile* tile,
+        CreatureSkillData* creatureSkillData, bool b);
     virtual ~CreatureAction();
 
     inline const CreatureActionType getType() const
@@ -84,6 +85,9 @@ public:
     inline Tile* getTile() const
     { return mTile; }
 
+    inline bool getBool() const
+    { return mBool; }
+
     inline CreatureSkillData* getCreatureSkillData() const
     { return mCreatureSkillData; }
 
@@ -103,6 +107,7 @@ private:
     GameEntity* mEntity;
     Tile* mTile;
     CreatureSkillData* mCreatureSkillData;
+    bool mBool;
     //! Number of turns the action is in the creature pending actions
     int32_t mNbTurns;
     //! Number of turns the action is the one active

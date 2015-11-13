@@ -109,6 +109,7 @@ public:
         mEntity(action.getEntity()),
         mTile(action.getTile()),
         mCreatureSkillData(action.getCreatureSkillData()),
+        mBool(action.getBool()),
         mNbTurns(action.getNbTurns()),
         mNbTurnsActive(action.getNbTurnsActive())
     {
@@ -119,6 +120,7 @@ public:
     GameEntity* const mEntity;
     Tile* const mTile;
     CreatureSkillData* const mCreatureSkillData;
+    const bool mBool;
     const int32_t mNbTurns;
     const int32_t mNbTurnsActive;
 };
@@ -2502,7 +2504,7 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
 
     // We use the skill
     actionItem.mCreatureSkillData->mSkill->tryUseFight(*getGameMap(), this, range,
-        actionItem.mEntity, actionItem.mTile);
+        actionItem.mEntity, actionItem.mTile, actionItem.mBool);
     actionItem.mCreatureSkillData->mWarmup = actionItem.mCreatureSkillData->mSkill->getWarmupNbTurns();
     actionItem.mCreatureSkillData->mCooldown = actionItem.mCreatureSkillData->mSkill->getCooldownNbTurns();
 
@@ -2527,9 +2529,26 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
     std::vector<GameEntity*> enemyPrioritaryTargets;
     std::vector<GameEntity*> enemySecondaryTargets;
     // If we have a particular target, we attack it. Otherwise, we search for one
-    if((actionItem.mEntity != nullptr) &&
-       (actionItem.mEntity->getHP(nullptr) > 0))
+    if(actionItem.mEntity != nullptr)
     {
+        if(actionItem.mEntity->getHP(nullptr) <= 0)
+        {
+            popAction();
+            return true;
+        }
+        Tile* enemyTile = actionItem.mEntity->getPositionTile();
+        if(enemyTile == nullptr)
+        {
+            OD_LOG_ERR("name=" + getName() + ", enemy=" + actionItem.mEntity->getName() + ", enemyPos=" + Helper::toString(actionItem.mEntity->getPosition()));
+            popAction();
+            return true;
+        }
+        if(!actionItem.mEntity->isAttackable(enemyTile, getSeat()))
+        {
+            popAction();
+            return true;
+        }
+
         enemyPrioritaryTargets.push_back(actionItem.mEntity);
     }
     else
@@ -2585,7 +2604,8 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
                (skillData != nullptr))
             {
                 // We can attack
-                pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData);
+                bool ko = getSeat()->getKoCreatures();
+                pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData, ko);
                 return true;
             }
 
@@ -2622,7 +2642,8 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
                (skillData != nullptr))
             {
                 // We can attack
-                pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData);
+                bool ko = getSeat()->getKoCreatures();
+                pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData, ko);
                 return true;
             }
 
@@ -3864,7 +3885,8 @@ std::string Creature::getStatsText()
 }
 
 double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
-        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense)
+        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense,
+        bool ko)
 {
     mNbTurnsWithoutBattle = 0;
     if(!ignorePhysicalDefense)
@@ -3879,8 +3901,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
     {
         // If the attacking entity is a creature and its seat is configured to KO creatures
         // instead of killing, we KO
-        if((attacker != nullptr) &&
-           (attacker->shouldKoAttackedCreature(*this)))
+        if(ko)
         {
             mHp = 1.0;
             mKoTurnCounter = -ConfigManager::getSingleton().getNbTurnsKoCreatureAttacked();
@@ -3959,7 +3980,8 @@ void Creature::clearActionQueue()
         releaseCarriedEntity();
 }
 
-bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* entity, Tile* tile, CreatureSkillData* skillData)
+bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* entity, Tile* tile,
+        CreatureSkillData* skillData, bool b)
 {
     if(std::find(mActionTry.begin(), mActionTry.end(), actionType) == mActionTry.end())
     {
@@ -3974,7 +3996,7 @@ bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, 
     if(popCurrentIfPush && !mActionQueue.empty())
         mActionQueue.pop_front();
 
-    mActionQueue.emplace_front(*this, actionType, forceAction, entity, tile, skillData);
+    mActionQueue.emplace_front(*this, actionType, forceAction, entity, tile, skillData, b);
     return true;
 }
 
@@ -5040,9 +5062,4 @@ void Creature::setStrengthModifier(double modifier)
 void Creature::clearStrengthModifier()
 {
     setStrengthModifier(1.0);
-}
-
-bool Creature::shouldKoAttackedCreature(const Creature& creature) const
-{
-    return getSeat()->getKoCreatures();
 }

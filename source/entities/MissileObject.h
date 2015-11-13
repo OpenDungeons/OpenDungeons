@@ -100,7 +100,8 @@ public:
     virtual bool notifyPickedUp(GameEntity* entity) override;
     virtual bool notifyDropped(GameEntity* entity) override;
 
-    virtual bool shouldKoAttackedCreature(const Creature& creature) const override;
+    bool getKoEnemyCreature() const
+    { return mKoEnemyCreature; }
 
     static std::string getMissileObjectStreamFormat();
 

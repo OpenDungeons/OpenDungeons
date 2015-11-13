@@ -624,7 +624,6 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
             switch(action.getType())
             {
                 case CreatureActionType::fight:
-                case CreatureActionType::attackObject:
                 case CreatureActionType::flee:
                     isIdle = false;
                     isFighting = true;

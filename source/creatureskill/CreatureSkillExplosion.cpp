@@ -67,7 +67,7 @@ bool CreatureSkillExplosion::canBeUsedBy(const Creature* creature) const
 }
 
 bool CreatureSkillExplosion::tryUseFight(GameMap& gameMap, Creature* creature, float range,
-        GameEntity* attackedObject, Tile* attackedTile) const
+        GameEntity* attackedObject, Tile* attackedTile, bool ko) const
 {
     if(attackedObject->getObjectType() != GameEntityType::creature)
     {

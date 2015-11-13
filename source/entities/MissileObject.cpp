@@ -222,11 +222,6 @@ bool MissileObject::computeDestination(const Ogre::Vector3& position, double mov
     return true;
 }
 
-bool MissileObject::shouldKoAttackedCreature(const Creature& creature) const
-{
-    return mKoEnemyCreature;
-}
-
 bool MissileObject::notifyDead(GameEntity* entity)
 {
     if(entity == mEntityTarget)
