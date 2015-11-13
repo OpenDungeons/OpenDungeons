@@ -51,19 +51,36 @@ class RoomPortalFactory : public RoomFactory
     { return RoomPortalNameDisplay; }
 
     virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomPortal::checkBuildRoom(gameMap, inputManager, inputCommand); }
+    {
+        // Not buildable on game mode
+    }
 
     virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
-    { return RoomPortal::buildRoom(gameMap, player, packet); }
+    {
+        // Not buildable on game mode
+        return false;
+    }
 
     virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomPortal::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+    {
+        return Room::checkBuildRoomDefaultEditor(gameMap, RoomPortal::mRoomType, inputManager, inputCommand);
+    }
 
     virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
-    { return RoomPortal::buildRoomEditor(gameMap, packet); }
+    {
+        RoomPortal* room = new RoomPortal(gameMap);
+        return Room::buildRoomDefaultEditor(gameMap, room, packet);
+    }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
-    { return RoomPortal::getRoomFromStream(gameMap, is); }
+    {
+        RoomPortal* room = new RoomPortal(gameMap);
+        if(!Room::importRoomFromStream(*room, is))
+        {
+            OD_LOG_ERR("Error while building a room from the stream");
+        }
+        return room;
+    }
 };
 
 // Register the factory
@@ -302,33 +319,4 @@ void RoomPortal::restoreInitialEntityState()
         mPortalObject->notifyRemoveAsked();
 
     Room::restoreInitialEntityState();
-}
-
-void RoomPortal::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    // Not buildable on game mode
-}
-
-bool RoomPortal::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
-{
-    // Not buildable on game mode
-    return false;
-}
-
-void RoomPortal::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    return checkBuildRoomDefaultEditor(gameMap, RoomType::portal, inputManager, inputCommand);
-}
-
-bool RoomPortal::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
-{
-    RoomPortal* room = new RoomPortal(gameMap);
-    return buildRoomDefaultEditor(gameMap, room, packet);
-}
-
-Room* RoomPortal::getRoomFromStream(GameMap* gameMap, std::istream& is)
-{
-    RoomPortal* room = new RoomPortal(gameMap);
-    room->importFromStream(is);
-    return room;
 }

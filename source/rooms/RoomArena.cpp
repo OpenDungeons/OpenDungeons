@@ -43,19 +43,45 @@ class RoomArenaFactory : public RoomFactory
     { return RoomArenaNameDisplay; }
 
     virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomArena::checkBuildRoom(gameMap, inputManager, inputCommand); }
+    {
+        Room::checkBuildRoomDefault(gameMap, RoomArena::mRoomType, inputManager, inputCommand);
+    }
 
     virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
-    { return RoomArena::buildRoom(gameMap, player, packet); }
+    {
+        std::vector<Tile*> tiles;
+        if(!Room::getRoomTilesDefault(tiles, gameMap, player, packet))
+            return false;
+
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomArena::mRoomType);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        RoomArena* room = new RoomArena(gameMap);
+        return room->buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+    }
 
     virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomArena::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+    {
+        Room::checkBuildRoomDefaultEditor(gameMap, RoomArena::mRoomType, inputManager, inputCommand);
+    }
 
     virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
-    { return RoomArena::buildRoomEditor(gameMap, packet); }
+    {
+        RoomArena* room = new RoomArena(gameMap);
+        return Room::buildRoomDefaultEditor(gameMap, room, packet);
+    }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
-    { return RoomArena::getRoomFromStream(gameMap, is); }
+    {
+        RoomArena* room = new RoomArena(gameMap);
+        if(!Room::importRoomFromStream(*room, is))
+        {
+            OD_LOG_ERR("Error while building a room from the stream");
+        }
+        return room;
+    }
 };
 
 // Register the factory
@@ -241,53 +267,15 @@ bool RoomArena::importFromStream(std::istream& is)
     return true;
 }
 
-void RoomArena::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefault(gameMap, RoomType::arena, inputManager, inputCommand);
-}
-
-bool RoomArena::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
-{
-    std::vector<Tile*> tiles;
-    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
-        return false;
-
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::arena);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomArena* room = new RoomArena(gameMap);
-    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
-}
-
-void RoomArena::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefaultEditor(gameMap, RoomType::arena, inputManager, inputCommand);
-}
-
-bool RoomArena::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
-{
-    RoomArena* room = new RoomArena(gameMap);
-    return buildRoomDefaultEditor(gameMap, room, packet);
-}
-
 bool RoomArena::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
 {
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::arena);
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomArena::mRoomType);
     int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
     if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
         return false;
 
     RoomArena* room = new RoomArena(gameMap);
     return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
-}
-
-Room* RoomArena::getRoomFromStream(GameMap* gameMap, std::istream& is)
-{
-    RoomArena* room = new RoomArena(gameMap);
-    room->importFromStream(is);
-    return room;
 }
 
 std::string RoomArena::getListenerName() const

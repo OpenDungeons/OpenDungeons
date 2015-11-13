@@ -38,12 +38,7 @@ public:
     void removeCreatureUsingRoom(Creature* c) override;
     void doUpkeep() override;
 
-    static void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    static bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet);
-    static void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
     static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
-    static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
 
     std::string getListenerName() const override;
     bool notifyDead(GameEntity* entity) override;

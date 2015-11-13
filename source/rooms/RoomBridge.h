@@ -58,13 +58,12 @@ public:
     virtual void absorbRoom(Room *r) override;
     virtual bool removeCoveredTile(Tile* t) override;
 
-protected:
     static void checkBuildBridge(RoomType type, GameMap* gameMap, Seat* seat, const InputManager& inputManager,
         InputCommand& inputCommand, const std::vector<TileVisual>& allowedTilesVisual, bool isEditor);
-
     static bool readBridgeFromPacket(std::vector<Tile*>& tiles, GameMap* gameMap, Seat* seat,
         const std::vector<TileVisual>& allowedTilesVisual, ODPacket& packet, bool isEditor);
 
+protected:
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;
 

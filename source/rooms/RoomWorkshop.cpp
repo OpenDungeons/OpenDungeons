@@ -51,19 +51,45 @@ class RoomWorkshopFactory : public RoomFactory
     { return RoomWorkshopNameDisplay; }
 
     virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomWorkshop::checkBuildRoom(gameMap, inputManager, inputCommand); }
+    {
+        Room::checkBuildRoomDefault(gameMap, RoomWorkshop::mRoomType, inputManager, inputCommand);
+    }
 
     virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
-    { return RoomWorkshop::buildRoom(gameMap, player, packet); }
+    {
+        std::vector<Tile*> tiles;
+        if(!Room::getRoomTilesDefault(tiles, gameMap, player, packet))
+            return false;
+
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomWorkshop::mRoomType);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        RoomWorkshop* room = new RoomWorkshop(gameMap);
+        return Room::buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+    }
 
     virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomWorkshop::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+    {
+        Room::checkBuildRoomDefaultEditor(gameMap, RoomWorkshop::mRoomType, inputManager, inputCommand);
+    }
 
     virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
-    { return RoomWorkshop::buildRoomEditor(gameMap, packet); }
+    {
+        RoomWorkshop* room = new RoomWorkshop(gameMap);
+        return Room::buildRoomDefaultEditor(gameMap, room, packet);
+    }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
-    { return RoomWorkshop::getRoomFromStream(gameMap, is); }
+    {
+        RoomWorkshop* room = new RoomWorkshop(gameMap);
+        if(!Room::importRoomFromStream(*room, is))
+        {
+            OD_LOG_ERR("Error while building a room from the stream");
+        }
+        return room;
+    }
 };
 
 // Register the factory
@@ -494,26 +520,6 @@ RoomWorkshopTileData* RoomWorkshop::createTileData(Tile* tile)
     return new RoomWorkshopTileData;
 }
 
-void RoomWorkshop::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefault(gameMap, RoomType::workshop, inputManager, inputCommand);
-}
-
-bool RoomWorkshop::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
-{
-    std::vector<Tile*> tiles;
-    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
-        return false;
-
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::workshop);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomWorkshop* room = new RoomWorkshop(gameMap);
-    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
-}
-
 bool RoomWorkshop::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
 {
     int32_t pricePerTarget = RoomManager::costPerTile(RoomType::crypt);
@@ -523,22 +529,4 @@ bool RoomWorkshop::buildRoomOnTiles(GameMap* gameMap, Player* player, const std:
 
     RoomWorkshop* room = new RoomWorkshop(gameMap);
     return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
-}
-
-void RoomWorkshop::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefaultEditor(gameMap, RoomType::workshop, inputManager, inputCommand);
-}
-
-bool RoomWorkshop::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
-{
-    RoomWorkshop* room = new RoomWorkshop(gameMap);
-    return buildRoomDefaultEditor(gameMap, room, packet);
-}
-
-Room* RoomWorkshop::getRoomFromStream(GameMap* gameMap, std::istream& is)
-{
-    RoomWorkshop* room = new RoomWorkshop(gameMap);
-    room->importFromStream(is);
-    return room;
 }

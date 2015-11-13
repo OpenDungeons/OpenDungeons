@@ -38,12 +38,6 @@ public:
 
     virtual void restoreInitialEntityState() override;
 
-    static void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    static bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet);
-    static void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
-    static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
-
     static const RoomType mRoomType;
 
 protected:

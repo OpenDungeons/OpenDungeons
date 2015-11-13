@@ -50,19 +50,45 @@ class RoomLibraryFactory : public RoomFactory
     { return RoomLibraryNameDisplay; }
 
     virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomLibrary::checkBuildRoom(gameMap, inputManager, inputCommand); }
+    {
+        Room::checkBuildRoomDefault(gameMap, RoomLibrary::mRoomType, inputManager, inputCommand);
+    }
 
     virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
-    { return RoomLibrary::buildRoom(gameMap, player, packet); }
+    {
+        std::vector<Tile*> tiles;
+        if(!Room::getRoomTilesDefault(tiles, gameMap, player, packet))
+            return false;
+
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomLibrary::mRoomType);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        RoomLibrary* room = new RoomLibrary(gameMap);
+        return Room::buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+    }
 
     virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomLibrary::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+    {
+        Room::checkBuildRoomDefaultEditor(gameMap, RoomLibrary::mRoomType, inputManager, inputCommand);
+    }
 
     virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
-    { return RoomLibrary::buildRoomEditor(gameMap, packet); }
+    {
+        RoomLibrary* room = new RoomLibrary(gameMap);
+        return Room::buildRoomDefaultEditor(gameMap, room, packet);
+    }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
-    { return RoomLibrary::getRoomFromStream(gameMap, is); }
+    {
+        RoomLibrary* room = new RoomLibrary(gameMap);
+        if(!Room::importRoomFromStream(*room, is))
+        {
+            OD_LOG_ERR("Error while building a room from the stream");
+        }
+        return room;
+    }
 };
 
 // Register the factory
@@ -395,46 +421,15 @@ RoomLibraryTileData* RoomLibrary::createTileData(Tile* tile)
     return new RoomLibraryTileData;
 }
 
-void RoomLibrary::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefault(gameMap, RoomType::library, inputManager, inputCommand);
-}
-
-bool RoomLibrary::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
-{
-    std::vector<Tile*> tiles;
-    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
-        return false;
-
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::library);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomLibrary* room = new RoomLibrary(gameMap);
-    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
-}
-
 bool RoomLibrary::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
 {
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::library);
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomLibrary::mRoomType);
     int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
     if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
         return false;
 
     RoomLibrary* room = new RoomLibrary(gameMap);
     return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
-}
-
-void RoomLibrary::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefaultEditor(gameMap, RoomType::library, inputManager, inputCommand);
-}
-
-bool RoomLibrary::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
-{
-    RoomLibrary* room = new RoomLibrary(gameMap);
-    return buildRoomDefaultEditor(gameMap, room, packet);
 }
 
 void RoomLibrary::exportToStream(std::ostream& os) const
@@ -451,11 +446,4 @@ bool RoomLibrary::importFromStream(std::istream& is)
         return false;
 
     return true;
-}
-
-Room* RoomLibrary::getRoomFromStream(GameMap* gameMap, std::istream& is)
-{
-    RoomLibrary* room = new RoomLibrary(gameMap);
-    room->importFromStream(is);
-    return room;
 }

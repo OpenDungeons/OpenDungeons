@@ -900,3 +900,8 @@ bool Room::buildRoomDefaultEditor(GameMap* gameMap, Room* room, ODPacket& packet
 
     return buildRoomDefault(gameMap, room, seatRoom, tiles);
 }
+
+bool Room::importRoomFromStream(Room& room, std::istream& is)
+{
+    return room.importFromStream(is);
+}

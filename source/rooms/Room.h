@@ -120,6 +120,8 @@ public:
     virtual int withdrawGold(int gold)
     { return 0; }
 
+    static bool importRoomFromStream(Room& room, std::istream& is);
+
 protected:
     /*! \brief Exports the headers needed to recreate the Room. It allows to extend Room as much as wanted.
      * The content of the Room will be exported by exportToPacket.
