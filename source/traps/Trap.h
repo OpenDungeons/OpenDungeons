@@ -208,18 +208,6 @@ public:
 
     static std::string getTrapStreamFormat();
 
-    static std::string formatBuildTrap(TrapType type, uint32_t price);
-
-    //! \brief Computes the trap cost by checking the buildable tiles according to the given inputManager
-    //! and updates the inputCommand with (price/buildable tiles)
-    //! Note that traps that use checkBuildTrapDefault should also use buildTrapDefault and vice-versa
-    //! to make sure everything works if the data sent/received are changed
-    static void checkBuildTrapDefault(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand);
-    static bool getTrapTilesDefault(std::vector<Tile*>& tiles, GameMap* gameMap, Player* player, ODPacket& packet);
-    static bool buildTrapDefault(GameMap* gameMap, Trap* trap, Seat* seat, const std::vector<Tile*>& tiles);
-    static void checkBuildTrapDefaultEditor(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand);
-    static bool buildTrapDefaultEditor(GameMap* gameMap, Trap* trap, ODPacket& packet);
-
     static bool sortForMapSave(Trap* t1, Trap* t2);
 
     static bool importTrapFromStream(Trap& trap, std::istream& is);

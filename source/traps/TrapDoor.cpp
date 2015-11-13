@@ -69,12 +69,12 @@ class TrapDoorFactory : public TrapFactory
         {
             if(playerGold < pricePerTarget)
             {
-                std::string txt = Trap::formatBuildTrap(type, pricePerTarget);
+                std::string txt = formatBuildTrap(type, pricePerTarget);
                 inputCommand.displayText(Ogre::ColourValue::Red, txt);
             }
             else
             {
-                std::string txt = Trap::formatBuildTrap(type, pricePerTarget);
+                std::string txt = formatBuildTrap(type, pricePerTarget);
                 inputCommand.displayText(Ogre::ColourValue::White, txt);
             }
             inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
@@ -94,12 +94,12 @@ class TrapDoorFactory : public TrapFactory
             }
             else if(playerGold < pricePerTarget)
             {
-                std::string txt = Trap::formatBuildTrap(type, pricePerTarget);
+                std::string txt = formatBuildTrap(type, pricePerTarget);
                 inputCommand.displayText(Ogre::ColourValue::Red, txt);
             }
             else
             {
-                std::string txt = Trap::formatBuildTrap(type, pricePerTarget);
+                std::string txt = formatBuildTrap(type, pricePerTarget);
                 inputCommand.displayText(Ogre::ColourValue::White, txt);
             }
             return;
@@ -137,7 +137,7 @@ class TrapDoorFactory : public TrapFactory
         TrapDoor* trap = new TrapDoor(gameMap);
         std::vector<Tile*> tiles;
         tiles.push_back(tile);
-        return Trap::buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
+        return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
     }
 
     virtual void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
@@ -234,7 +234,7 @@ class TrapDoorFactory : public TrapFactory
         std::vector<Tile*> tiles;
         tiles.push_back(tile);
         TrapDoor* trap = new TrapDoor(gameMap);
-        return Trap::buildTrapDefault(gameMap, trap, seatTrap, tiles);
+        return buildTrapDefault(gameMap, trap, seatTrap, tiles);
     }
 
     Trap* getTrapFromStream(GameMap* gameMap, std::istream& is) const override
@@ -245,6 +245,20 @@ class TrapDoorFactory : public TrapFactory
             OD_LOG_ERR("Error while building a trap from the stream");
         }
         return trap;
+    }
+
+    bool buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        if(tiles.size() != 1)
+            return false;
+
+        int32_t pricePerTarget = TrapManager::costPerTile(TrapType::spike);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        TrapDoor* trap = new TrapDoor(gameMap);
+        return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
     }
 };
 
@@ -355,19 +369,6 @@ void TrapDoor::changeDoorState(DoorEntity* doorEntity, Tile* tile, bool locked)
         return;
 
     getGameMap()->doorLock(tile, getSeat(), locked);
-}
-
-bool TrapDoor::buildTrapOnTile(GameMap* gameMap, Player* player, Tile* tile)
-{
-    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::doorWooden);
-    int32_t price = pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    std::vector<Tile*> tiles;
-    tiles.push_back(tile);
-    TrapDoor* trap = new TrapDoor(gameMap);
-    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
 }
 
 bool TrapDoor::canDoorBeOnTile(GameMap* gameMap, Tile* tile)

@@ -44,8 +44,6 @@ public:
 
     virtual TrapEntity* getTrapEntity(Tile* tile);
 
-    static bool buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
-
     static const TrapType mTrapType;
 
 private:

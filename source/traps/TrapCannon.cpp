@@ -46,15 +46,15 @@ class TrapCannonFactory : public TrapFactory
     const std::string& getNameReadable() const override
     { return TrapCannonNameDisplay; }
 
-    virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
-        Trap::checkBuildTrapDefault(gameMap, TrapType::cannon, inputManager, inputCommand);
+        checkBuildTrapDefault(gameMap, TrapType::cannon, inputManager, inputCommand);
     }
 
-    virtual bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const
+    bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const override
     {
         std::vector<Tile*> tiles;
-        if(!Trap::getTrapTilesDefault(tiles, gameMap, player, packet))
+        if(!getTrapTilesDefault(tiles, gameMap, player, packet))
             return false;
 
         int32_t pricePerTarget = TrapManager::costPerTile(TrapType::cannon);
@@ -63,18 +63,18 @@ class TrapCannonFactory : public TrapFactory
             return false;
 
         TrapCannon* trap = new TrapCannon(gameMap);
-        return Trap::buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
+        return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
     }
 
-    virtual void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
-        Trap::checkBuildTrapDefaultEditor(gameMap, TrapType::cannon, inputManager, inputCommand);
+        checkBuildTrapDefaultEditor(gameMap, TrapType::cannon, inputManager, inputCommand);
     }
 
-    virtual bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const
+    bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const override
     {
         TrapCannon* trap = new TrapCannon(gameMap);
-        return Trap::buildTrapDefaultEditor(gameMap, trap, packet);
+        return buildTrapDefaultEditor(gameMap, trap, packet);
     }
 
     Trap* getTrapFromStream(GameMap* gameMap, std::istream& is) const override
@@ -85,6 +85,17 @@ class TrapCannonFactory : public TrapFactory
             OD_LOG_ERR("Error while building a trap from the stream");
         }
         return trap;
+    }
+
+    bool buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        int32_t pricePerTarget = TrapManager::costPerTile(TrapType::cannon);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        TrapCannon* trap = new TrapCannon(gameMap);
+        return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
     }
 };
 
@@ -149,15 +160,4 @@ bool TrapCannon::shoot(Tile* tile)
 TrapEntity* TrapCannon::getTrapEntity(Tile* tile)
 {
     return new TrapEntity(getGameMap(), true, getName(), MESH_CANON, tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
-}
-
-bool TrapCannon::buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
-{
-    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::cannon);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    TrapCannon* trap = new TrapCannon(gameMap);
-    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
 }
