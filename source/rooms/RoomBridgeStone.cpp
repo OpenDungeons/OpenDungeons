@@ -34,7 +34,7 @@ static const std::vector<TileVisual> allowedTilesVisual = {TileVisual::waterGrou
 
 namespace
 {
-class RoomBridgeStoneFactory : public RoomFactory
+class RoomBridgeStoneFactory : public BridgeRoomFactory
 {
     RoomType getRoomType() const override
     { return RoomBridgeStone::mRoomType; }
@@ -45,22 +45,22 @@ class RoomBridgeStoneFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomBridgeStoneNameDisplay; }
 
-    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         Player* player = gameMap->getLocalPlayer();
-        RoomBridge::checkBuildBridge(RoomBridgeStone::mRoomType, gameMap, player->getSeat(), inputManager, inputCommand, allowedTilesVisual, false);
+        checkBuildBridge(RoomBridgeStone::mRoomType, gameMap, player->getSeat(), inputManager, inputCommand, allowedTilesVisual, false);
     }
 
-    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const override
     {
         std::vector<Tile*> tiles;
-        if(!RoomBridge::readBridgeFromPacket(tiles, gameMap, player->getSeat(), allowedTilesVisual, packet, false))
+        if(!readBridgeFromPacket(tiles, gameMap, player->getSeat(), allowedTilesVisual, packet, false))
             return false;
 
-        return RoomBridgeStone::buildRoomOnTiles(gameMap, player, tiles);
+        return buildRoomOnTiles(gameMap, player, tiles);
     }
 
-    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         Seat* seatRoom = gameMap->getSeatById(inputManager.mSeatIdSelected);
         if(seatRoom == nullptr)
@@ -69,10 +69,10 @@ class RoomBridgeStoneFactory : public RoomFactory
             return;
         }
 
-        RoomBridge::checkBuildBridge(RoomBridgeStone::mRoomType, gameMap, seatRoom, inputManager, inputCommand, allowedTilesVisual, true);
+        checkBuildBridge(RoomBridgeStone::mRoomType, gameMap, seatRoom, inputManager, inputCommand, allowedTilesVisual, true);
     }
 
-    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const override
     {
         int32_t seatId;
         OD_ASSERT_TRUE(packet >> seatId);
@@ -84,11 +84,11 @@ class RoomBridgeStoneFactory : public RoomFactory
         }
 
         std::vector<Tile*> tiles;
-        if(!RoomBridge::readBridgeFromPacket(tiles, gameMap, seatRoom, allowedTilesVisual, packet, true))
+        if(!readBridgeFromPacket(tiles, gameMap, seatRoom, allowedTilesVisual, packet, true))
             return false;
 
         RoomBridgeStone* room = new RoomBridgeStone(gameMap);
-        return Room::buildRoomDefault(gameMap, room, seatRoom, tiles);
+        return buildRoomDefault(gameMap, room, seatRoom, tiles);
     }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
@@ -99,6 +99,17 @@ class RoomBridgeStoneFactory : public RoomFactory
             OD_LOG_ERR("Error while building a room from the stream");
         }
         return room;
+    }
+
+    bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomBridgeStone::mRoomType);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        RoomBridgeStone* room = new RoomBridgeStone(gameMap);
+        return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
     }
 };
 
@@ -301,15 +312,4 @@ void RoomBridgeStone::updateFloodFillTileRemoved(Seat* seat, Tile* tile)
         }
         getGameMap()->changeFloodFillConnectedTiles(neigh, seat, colorsToChange, newColors, nullptr);
     }
-}
-
-bool RoomBridgeStone::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
-{
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomBridgeStone::mRoomType);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomBridgeStone* room = new RoomBridgeStone(gameMap);
-    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
 }

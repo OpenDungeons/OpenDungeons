@@ -38,8 +38,6 @@ public:
     void removeCreatureUsingRoom(Creature* c) override;
     void doUpkeep() override;
 
-    static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
-
     std::string getListenerName() const override;
     bool notifyDead(GameEntity* entity) override;
     bool notifyRemovedFromGameMap(GameEntity* entity) override;

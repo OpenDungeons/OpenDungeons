@@ -47,15 +47,15 @@ class RoomCryptFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomCryptNameDisplay; }
 
-    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
-        Room::checkBuildRoomDefault(gameMap, RoomCrypt::mRoomType, inputManager, inputCommand);
+        checkBuildRoomDefault(gameMap, RoomCrypt::mRoomType, inputManager, inputCommand);
     }
 
-    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const override
     {
         std::vector<Tile*> tiles;
-        if(!Room::getRoomTilesDefault(tiles, gameMap, player, packet))
+        if(!getRoomTilesDefault(tiles, gameMap, player, packet))
             return false;
 
         int32_t pricePerTarget = RoomManager::costPerTile(RoomCrypt::mRoomType);
@@ -64,18 +64,18 @@ class RoomCryptFactory : public RoomFactory
             return false;
 
         RoomCrypt* room = new RoomCrypt(gameMap);
-        return Room::buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+        return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
     }
 
-    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
-        Room::checkBuildRoomDefaultEditor(gameMap, RoomCrypt::mRoomType, inputManager, inputCommand);
+        checkBuildRoomDefaultEditor(gameMap, RoomCrypt::mRoomType, inputManager, inputCommand);
     }
 
-    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const override
     {
         RoomCrypt* room = new RoomCrypt(gameMap);
-        return Room::buildRoomDefaultEditor(gameMap, room, packet);
+        return buildRoomDefaultEditor(gameMap, room, packet);
     }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
@@ -86,6 +86,17 @@ class RoomCryptFactory : public RoomFactory
             OD_LOG_ERR("Error while building a room from the stream");
         }
         return room;
+    }
+
+    bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomCrypt::mRoomType);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        RoomCrypt* room = new RoomCrypt(gameMap);
+        return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
     }
 };
 
@@ -362,15 +373,4 @@ bool RoomCrypt::importFromStream(std::istream& is)
         return false;
 
     return true;
-}
-
-bool RoomCrypt::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
-{
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomCrypt::mRoomType);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomCrypt* room = new RoomCrypt(gameMap);
-    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
 }

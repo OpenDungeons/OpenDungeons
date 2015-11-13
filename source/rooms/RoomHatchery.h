@@ -37,8 +37,6 @@ public:
     virtual void doUpkeep();
     virtual bool hasOpenCreatureSpot(Creature* c);
 
-    static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
-
     static const RoomType mRoomType;
 
 protected:

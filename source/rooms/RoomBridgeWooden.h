@@ -31,8 +31,6 @@ public:
     virtual RoomType getType() const override
     { return mRoomType; }
 
-    static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
-
     static const RoomType mRoomType;
 
 protected:

@@ -48,15 +48,15 @@ class RoomPrisonFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomPrisonNameDisplay; }
 
-    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
-        Room::checkBuildRoomDefault(gameMap, RoomPrison::mRoomType, inputManager, inputCommand);
+        checkBuildRoomDefault(gameMap, RoomPrison::mRoomType, inputManager, inputCommand);
     }
 
-    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const override
     {
         std::vector<Tile*> tiles;
-        if(!Room::getRoomTilesDefault(tiles, gameMap, player, packet))
+        if(!getRoomTilesDefault(tiles, gameMap, player, packet))
             return false;
 
         int32_t pricePerTarget = RoomManager::costPerTile(RoomPrison::mRoomType);
@@ -65,18 +65,18 @@ class RoomPrisonFactory : public RoomFactory
             return false;
 
         RoomPrison* room = new RoomPrison(gameMap);
-        return Room::buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+        return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
     }
 
-    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
-        Room::checkBuildRoomDefaultEditor(gameMap, RoomPrison::mRoomType, inputManager, inputCommand);
+        checkBuildRoomDefaultEditor(gameMap, RoomPrison::mRoomType, inputManager, inputCommand);
     }
 
-    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const override
     {
         RoomPrison* room = new RoomPrison(gameMap);
-        return Room::buildRoomDefaultEditor(gameMap, room, packet);
+        return buildRoomDefaultEditor(gameMap, room, packet);
     }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
@@ -87,6 +87,17 @@ class RoomPrisonFactory : public RoomFactory
             OD_LOG_ERR("Error while building a room from the stream");
         }
         return room;
+    }
+
+    bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomPrison::mRoomType);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        RoomPrison* room = new RoomPrison(gameMap);
+        return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
     }
 };
 
@@ -338,15 +349,4 @@ void RoomPrison::actionPrisoner(Creature* creature)
     std::vector<Ogre::Vector3> path;
     path.push_back(v);
     creature->setWalkPath(EntityAnimation::flee_anim, EntityAnimation::idle_anim, true, path);
-}
-
-bool RoomPrison::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
-{
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomPrison::mRoomType);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomPrison* room = new RoomPrison(gameMap);
-    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
 }

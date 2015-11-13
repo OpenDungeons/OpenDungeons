@@ -45,8 +45,6 @@ public:
     Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
 
-    static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
-
     static const RoomType mRoomType;
 
 protected:

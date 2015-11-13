@@ -69,8 +69,6 @@ public:
     virtual int depositGold(int gold, Tile *tile) override;
     virtual int withdrawGold(int gold) override;
 
-    static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
-
     static int32_t getRoomCostForPlayer(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
 
     static const RoomType mRoomType;

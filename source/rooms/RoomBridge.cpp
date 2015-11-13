@@ -31,113 +31,8 @@
 
 const double CLAIMED_VALUE_PER_TILE = 1.0;
 
-RoomBridge::RoomBridge(GameMap* gameMap) :
-    Room(gameMap),
-    mClaimedValue(0)
-{
-}
-
-const Ogre::Vector3& RoomBridge::getScale() const
-{
-    static const Ogre::Vector3 SCALE(1.0,1.0,1.0);
-    return SCALE;
-}
-
-void RoomBridge::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
-{
-    Room::setupRoom(name, seat, tiles);
-
-    mClaimedValue = static_cast<double>(tiles.size()) * CLAIMED_VALUE_PER_TILE;
-
-    for(Seat* s : getGameMap()->getSeats())
-        updateFloodFillPathCreated(s, tiles);
-}
-
-void RoomBridge::restoreInitialEntityState()
-{
-    Room::restoreInitialEntityState();
-
-    for(Seat* s : getGameMap()->getSeats())
-        updateFloodFillPathCreated(s, getCoveredTiles());
-}
-
-void RoomBridge::exportToStream(std::ostream& os) const
-{
-    Room::exportToStream(os);
-
-    os << mClaimedValue << "\n";
-}
-
-bool RoomBridge::importFromStream(std::istream& is)
-{
-    if(!Room::importFromStream(is))
-        return false;
-
-    if(!(is >> mClaimedValue))
-        return false;
-
-    return true;
-}
-
-void RoomBridge::absorbRoom(Room *r)
-{
-    if(r->getType() != getType())
-    {
-        OD_LOG_ERR("Trying to merge incompatible rooms: " + getName() + ", type=" + RoomManager::getRoomNameFromRoomType(getType()) + ", with " + r->getName() + ", type=" + RoomManager::getRoomNameFromRoomType(r->getType()));
-        return;
-    }
-    RoomBridge* oldRoom = static_cast<RoomBridge*>(r);
-    mClaimedValue += oldRoom->mClaimedValue;
-
-    Room::absorbRoom(r);
-}
-
-bool RoomBridge::removeCoveredTile(Tile* t)
-{
-    if(!Room::removeCoveredTile(t))
-        return false;
-
-    if(mClaimedValue > CLAIMED_VALUE_PER_TILE)
-        mClaimedValue -= CLAIMED_VALUE_PER_TILE;
-
-    for(Seat* seat : getGameMap()->getSeats())
-        updateFloodFillTileRemoved(seat, t);
-
-    return true;
-}
-
-bool RoomBridge::isClaimable(Seat* seat) const
-{
-    return !getSeat()->isAlliedSeat(seat);
-}
-
-void RoomBridge::claimForSeat(Seat* seat, Tile* tile, double danceRate)
-{
-    if(mClaimedValue > danceRate)
-    {
-        mClaimedValue -= danceRate;
-        return;
-    }
-
-    mClaimedValue = static_cast<double>(numCoveredTiles());
-    setSeat(seat);
-
-    for(Tile* tile : mCoveredTiles)
-        tile->claimTile(seat);
-
-    // We check if by claiming this bridge, we created a bigger one (can happen
-    // if a player builds a bridge next to another one's)
-    checkForRoomAbsorbtion();
-    updateActiveSpots();
-}
-
-double RoomBridge::getCreatureSpeed(const Creature* creature, Tile* tile) const
-{
-    return creature->getMoveSpeedGround();
-}
-
-void RoomBridge::checkBuildBridge(RoomType type, GameMap* gameMap, Seat* seat, const InputManager& inputManager,
-    InputCommand& inputCommand, const std::vector<TileVisual>& allowedTilesVisual, bool isEditor)
+void BridgeRoomFactory::checkBuildBridge(RoomType type, GameMap* gameMap, Seat* seat, const InputManager& inputManager,
+    InputCommand& inputCommand, const std::vector<TileVisual>& allowedTilesVisual, bool isEditor) const
 {
     if(isEditor)
     {
@@ -309,8 +204,8 @@ void RoomBridge::checkBuildBridge(RoomType type, GameMap* gameMap, Seat* seat, c
     ODClient::getSingleton().queueClientNotification(clientNotification);
 }
 
-bool RoomBridge::readBridgeFromPacket(std::vector<Tile*>& tiles, GameMap* gameMap, Seat* seat,
-    const std::vector<TileVisual>& allowedTilesVisual, ODPacket& packet, bool isEditor)
+bool BridgeRoomFactory::readBridgeFromPacket(std::vector<Tile*>& tiles, GameMap* gameMap, Seat* seat,
+    const std::vector<TileVisual>& allowedTilesVisual, ODPacket& packet, bool isEditor) const
 {
     // Note that here, we expect the client to have filled requested tiles in a correct
     // order: the first tile must be next to a claimed tile, the second next to the first
@@ -370,4 +265,109 @@ bool RoomBridge::readBridgeFromPacket(std::vector<Tile*>& tiles, GameMap* gameMa
     }
 
     return true;
+}
+
+RoomBridge::RoomBridge(GameMap* gameMap) :
+    Room(gameMap),
+    mClaimedValue(0)
+{
+}
+
+const Ogre::Vector3& RoomBridge::getScale() const
+{
+    static const Ogre::Vector3 SCALE(1.0,1.0,1.0);
+    return SCALE;
+}
+
+void RoomBridge::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
+{
+    Room::setupRoom(name, seat, tiles);
+
+    mClaimedValue = static_cast<double>(tiles.size()) * CLAIMED_VALUE_PER_TILE;
+
+    for(Seat* s : getGameMap()->getSeats())
+        updateFloodFillPathCreated(s, tiles);
+}
+
+void RoomBridge::restoreInitialEntityState()
+{
+    Room::restoreInitialEntityState();
+
+    for(Seat* s : getGameMap()->getSeats())
+        updateFloodFillPathCreated(s, getCoveredTiles());
+}
+
+void RoomBridge::exportToStream(std::ostream& os) const
+{
+    Room::exportToStream(os);
+
+    os << mClaimedValue << "\n";
+}
+
+bool RoomBridge::importFromStream(std::istream& is)
+{
+    if(!Room::importFromStream(is))
+        return false;
+
+    if(!(is >> mClaimedValue))
+        return false;
+
+    return true;
+}
+
+void RoomBridge::absorbRoom(Room *r)
+{
+    if(r->getType() != getType())
+    {
+        OD_LOG_ERR("Trying to merge incompatible rooms: " + getName() + ", type=" + RoomManager::getRoomNameFromRoomType(getType()) + ", with " + r->getName() + ", type=" + RoomManager::getRoomNameFromRoomType(r->getType()));
+        return;
+    }
+    RoomBridge* oldRoom = static_cast<RoomBridge*>(r);
+    mClaimedValue += oldRoom->mClaimedValue;
+
+    Room::absorbRoom(r);
+}
+
+bool RoomBridge::removeCoveredTile(Tile* t)
+{
+    if(!Room::removeCoveredTile(t))
+        return false;
+
+    if(mClaimedValue > CLAIMED_VALUE_PER_TILE)
+        mClaimedValue -= CLAIMED_VALUE_PER_TILE;
+
+    for(Seat* seat : getGameMap()->getSeats())
+        updateFloodFillTileRemoved(seat, t);
+
+    return true;
+}
+
+bool RoomBridge::isClaimable(Seat* seat) const
+{
+    return !getSeat()->isAlliedSeat(seat);
+}
+
+void RoomBridge::claimForSeat(Seat* seat, Tile* tile, double danceRate)
+{
+    if(mClaimedValue > danceRate)
+    {
+        mClaimedValue -= danceRate;
+        return;
+    }
+
+    mClaimedValue = static_cast<double>(numCoveredTiles());
+    setSeat(seat);
+
+    for(Tile* tile : mCoveredTiles)
+        tile->claimTile(seat);
+
+    // We check if by claiming this bridge, we created a bigger one (can happen
+    // if a player builds a bridge next to another one's)
+    checkForRoomAbsorbtion();
+    updateActiveSpots();
+}
+
+double RoomBridge::getCreatureSpeed(const Creature* creature, Tile* tile) const
+{
+    return creature->getMoveSpeedGround();
 }

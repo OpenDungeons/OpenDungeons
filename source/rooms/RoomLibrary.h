@@ -61,8 +61,6 @@ public:
     virtual void removeCreatureUsingRoom(Creature* c) override;
     virtual void absorbRoom(Room *r) override;
 
-    static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
-
     static const RoomType mRoomType;
 
 protected:

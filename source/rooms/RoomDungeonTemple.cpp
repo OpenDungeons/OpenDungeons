@@ -44,26 +44,32 @@ class RoomDungeonTempleFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomDungeonTempleNameDisplay; }
 
-    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         // Not buildable in game mode
     }
 
-    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const override
     {
         // Not buildable in game mode
         return false;
     }
 
-    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
     {
-        Room::checkBuildRoomDefaultEditor(gameMap, RoomDungeonTemple::mRoomType, inputManager, inputCommand);
+        // Not buildable in game mode
+        return false;
     }
 
-    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
+    void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildRoomDefaultEditor(gameMap, RoomDungeonTemple::mRoomType, inputManager, inputCommand);
+    }
+
+    bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const override
     {
         RoomDungeonTemple* room = new RoomDungeonTemple(gameMap);
-        return Room::buildRoomDefaultEditor(gameMap, room, packet);
+        return buildRoomDefaultEditor(gameMap, room, packet);
     }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override

@@ -25,15 +25,8 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "rooms/Room.h"
-#include "rooms/RoomCrypt.h"
-#include "rooms/RoomDormitory.h"
-#include "rooms/RoomHatchery.h"
-#include "rooms/RoomLibrary.h"
 #include "rooms/RoomManager.h"
-#include "rooms/RoomTrainingHall.h"
-#include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
-#include "rooms/RoomWorkshop.h"
 #include "spells/SpellSummonWorker.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -149,7 +142,7 @@ bool KeeperAI::checkTreasury()
                     std::vector<Tile*> tiles;
                     tiles.push_back(neigh);
 
-                    if(!RoomTreasury::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
+                    if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::treasury, &mPlayer, tiles))
                         return false;
 
                     return true;
@@ -259,7 +252,7 @@ bool KeeperAI::checkTreasury()
     std::vector<Tile*> tiles;
     tiles.push_back(firstAvailableTile);
 
-    if(!RoomTreasury::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
+    if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::treasury, &mPlayer, tiles))
         return false;
 
     return true;
@@ -510,7 +503,7 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            if(!RoomDormitory::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
+            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::dormitory, &mPlayer, tiles))
                 return false;
 
             return true;
@@ -538,7 +531,7 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            if(!RoomTreasury::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
+            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::treasury, &mPlayer, tiles))
                 return false;
 
             return true;
@@ -555,7 +548,7 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            if(!RoomHatchery::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
+            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::hatchery, &mPlayer, tiles))
                 return false;
 
             return true;
@@ -572,7 +565,7 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            if(!RoomTrainingHall::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
+            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::trainingHall, &mPlayer, tiles))
                 return false;
 
             return true;
@@ -589,7 +582,7 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            if(!RoomWorkshop::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
+            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::workshop, &mPlayer, tiles))
                 return false;
 
             return true;
@@ -606,7 +599,7 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            if(!RoomLibrary::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
+            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::library, &mPlayer, tiles))
                 return false;
 
             return true;
@@ -623,7 +616,7 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            if(!RoomCrypt::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
+            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::crypt, &mPlayer, tiles))
                 return false;
 
             return true;
@@ -638,7 +631,7 @@ bool KeeperAI::buildMostNeededRoom()
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
-        if(!RoomDormitory::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
+        if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::dormitory, &mPlayer, tiles))
             return false;
 
         return true;

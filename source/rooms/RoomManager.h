@@ -28,7 +28,9 @@ class InputCommand;
 class InputManager;
 class ODPacket;
 class Player;
+class Seat;
 class Room;
+class Tile;
 
 enum class RoomType;
 
@@ -48,6 +50,19 @@ public:
     virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const = 0;
     virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const = 0;
     virtual Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const = 0;
+    virtual bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const = 0;
+
+    std::string formatBuildRoom(RoomType type, uint32_t price) const;
+    //! \brief Computes the room cost by checking the buildable tiles according to the given inputManager
+    //! and updates the inputCommand with (price/buildable tiles)
+    //! Note that rooms that use checkBuildRoomDefault should also use buildRoomDefault and vice-versa
+    //! to make sure everything works if the data sent/received are changed
+    void checkBuildRoomDefault(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand) const;
+    bool getRoomTilesDefault(std::vector<Tile*>& tiles, GameMap* gameMap, Player* player, ODPacket& packet) const;
+    bool buildRoomDefault(GameMap* gameMap, Room* room, Seat* seat, const std::vector<Tile*>& tiles) const;
+    void checkBuildRoomDefaultEditor(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand) const;
+    bool buildRoomDefaultEditor(GameMap* gameMap, Room* room, ODPacket& packet) const;
+
 };
 
 class RoomManager
@@ -77,6 +92,9 @@ public:
 
     //! \brief Constructs a room according to the data in the stream
     static Room* getRoomFromStream(GameMap* gameMap, std::istream &is);
+
+    //! \brief Used by AI for building rooms
+    static bool buildRoomOnTiles(GameMap* gameMap, RoomType type, Player* player, const std::vector<Tile*>& tiles);
 
     //! \brief Gets the room identification name
     static const std::string& getRoomNameFromRoomType(RoomType type);
