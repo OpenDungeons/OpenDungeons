@@ -102,6 +102,7 @@ textures/
 -> AdventurerBed.png                   PantherOne              CC0                     http://opengameart.org/content/tent-pack
 -> Adventurer.png
 -> Anvil*.png                          Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
+-> Arena*.png                          Yughues, qubodup        CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771, http://opengameart.org/content/bloody-scratched-skin
 -> BedBlanket.png
 -> BedWood.png
 -> Black.png                           Public domain, too simple to be licensed
@@ -220,6 +221,7 @@ Name                                   Author                  License          
 Adventurer.*                           Danimal                 CC-BY-SA 3.0
 AdventurerBed.mesh                     PantherOne              CC0                     http://opengameart.org/content/tent-pack
 Anvil.mesh                             Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
+Arena.mesh                             Danimal, hwoarangmy     CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 Bed.mesh                               Clint Bellanger         CC0                     http://opengameart.org/content/bed-low-poly
 Bookcase.mesh                          Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Bookshelf.mesh                         Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
