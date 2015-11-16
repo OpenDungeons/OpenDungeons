@@ -50,6 +50,19 @@ public:
     virtual void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const = 0;
     virtual bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const = 0;
     virtual Trap* getTrapFromStream(GameMap* gameMap, std::istream& is) const = 0;
+    virtual bool buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const = 0;
+
+    std::string formatBuildTrap(TrapType type, uint32_t price) const;
+
+    //! \brief Computes the trap cost by checking the buildable tiles according to the given inputManager
+    //! and updates the inputCommand with (price/buildable tiles)
+    //! Note that traps that use checkBuildTrapDefault should also use buildTrapDefault and vice-versa
+    //! to make sure everything works if the data sent/received are changed
+    void checkBuildTrapDefault(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand) const;
+    bool getTrapTilesDefault(std::vector<Tile*>& tiles, GameMap* gameMap, Player* player, ODPacket& packet) const;
+    bool buildTrapDefault(GameMap* gameMap, Trap* trap, Seat* seat, const std::vector<Tile*>& tiles) const;
+    void checkBuildTrapDefaultEditor(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand) const;
+    bool buildTrapDefaultEditor(GameMap* gameMap, Trap* trap, ODPacket& packet) const;
 };
 
 class TrapManager
@@ -76,6 +89,8 @@ public:
     //! \brief Same as previous functions but for EditorMode
     static void checkBuildTrapEditor(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildTrapEditor(GameMap* gameMap, TrapType type, ODPacket& packet);
+    static bool buildTrapOnTiles(GameMap* gameMap, TrapType type, Player* player, const std::vector<Tile*>& tiles);
+
 
     /*! \brief Exports the headers needed to recreate the Trap. It allows to extend Traps as much as wanted.
      * The content of the Trap will be exported by exportToStream.

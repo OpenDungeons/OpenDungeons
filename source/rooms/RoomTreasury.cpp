@@ -53,20 +53,175 @@ class RoomTreasuryFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomTreasuryNameDisplay; }
 
-    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomTreasury::checkBuildRoom(gameMap, inputManager, inputCommand); }
+    void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        Player* player = gameMap->getLocalPlayer();
+        int nbTreasuries = player->getSeat()->getNbRooms(RoomTreasury::mRoomType);
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomTreasury::mRoomType);
+        int32_t playerGold = static_cast<int32_t>(player->getSeat()->getGold());
+        if(inputManager.mCommandState == InputCommandState::infoOnly)
+        {
+            // First treasury tile is free
+            if(nbTreasuries <= 0)
+                pricePerTarget = 0;
 
-    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
-    { return RoomTreasury::buildRoom(gameMap, player, packet); }
+            if(playerGold < pricePerTarget)
+            {
+                std::string txt = formatBuildRoom(RoomTreasury::mRoomType, pricePerTarget);
+                inputCommand.displayText(Ogre::ColourValue::Red, txt);
+            }
+            else
+            {
+                std::string txt = formatBuildRoom(RoomTreasury::mRoomType, pricePerTarget);
+                inputCommand.displayText(Ogre::ColourValue::White, txt);
+            }
+            inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+                inputManager.mYPos);
+            return;
+        }
 
-    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomTreasury::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+        std::vector<Tile*> buildableTiles = gameMap->getBuildableTilesForPlayerInArea(inputManager.mXPos,
+            inputManager.mYPos, inputManager.mLStartDragX, inputManager.mLStartDragY, player);
 
-    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
-    { return RoomTreasury::buildRoomEditor(gameMap, packet); }
+        inputCommand.selectTiles(buildableTiles);
+
+        if(buildableTiles.empty())
+        {
+            std::string txt = formatBuildRoom(RoomTreasury::mRoomType, 0);
+            inputCommand.displayText(Ogre::ColourValue::White, txt);
+            return;
+        }
+
+        int32_t priceTotal = static_cast<int32_t>(buildableTiles.size()) * pricePerTarget;
+        // First treasury tile is free
+        if(nbTreasuries <= 0)
+            priceTotal -= pricePerTarget;
+
+        if(playerGold < priceTotal)
+        {
+            std::string txt = formatBuildRoom(RoomTreasury::mRoomType, priceTotal);
+            inputCommand.displayText(Ogre::ColourValue::Red, txt);
+            return;
+        }
+
+        std::string txt = formatBuildRoom(RoomTreasury::mRoomType, priceTotal);
+        inputCommand.displayText(Ogre::ColourValue::White, txt);
+
+        if(inputManager.mCommandState != InputCommandState::validated)
+            return;
+
+        ClientNotification *clientNotification = RoomManager::createRoomClientNotification(RoomTreasury::mRoomType);
+        uint32_t nbTiles = buildableTiles.size();
+        clientNotification->mPacket << nbTiles;
+        for(Tile* tile : buildableTiles)
+            gameMap->tileToPacket(clientNotification->mPacket, tile);
+
+        ODClient::getSingleton().queueClientNotification(clientNotification);
+    }
+
+    bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const override
+    {
+        std::vector<Tile*> tiles;
+        if(!getRoomTilesDefault(tiles, gameMap, player, packet))
+            return false;
+
+        int32_t price = getRoomCostForPlayer(gameMap, player, tiles);
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        RoomTreasury* room = new RoomTreasury(gameMap);
+        room->setupRoom(gameMap->nextUniqueNameRoom(room->getType()), player->getSeat(), tiles);
+        room->addToGameMap();
+        room->createMesh();
+
+        if((player != nullptr) &&
+           (player->getIsHuman()))
+        {
+            // We notify the clients with vision of the changed tiles. Note that we need
+            // to calculate per seat since they could have vision on different parts of the building
+            std::map<Seat*,std::vector<Tile*>> tilesPerSeat;
+            const std::vector<Seat*>& seats = gameMap->getSeats();
+            for(Seat* tmpSeat : seats)
+            {
+                if(tmpSeat->getPlayer() == nullptr)
+                    continue;
+                if(!tmpSeat->getPlayer()->getIsHuman())
+                    continue;
+
+                for(Tile* tile : tiles)
+                {
+                    if(!tmpSeat->hasVisionOnTile(tile))
+                        continue;
+
+                    tile->changeNotifiedForSeat(tmpSeat);
+                    tilesPerSeat[tmpSeat].push_back(tile);
+                }
+            }
+
+            for(const std::pair<Seat* const,std::vector<Tile*>>& p : tilesPerSeat)
+            {
+                uint32_t nbTiles = p.second.size();
+                ServerNotification serverNotification(
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
+                serverNotification.mPacket << nbTiles;
+                for(Tile* tile : p.second)
+                {
+                    gameMap->tileToPacket(serverNotification.mPacket, tile);
+                    p.first->updateTileStateForSeat(tile);
+                    tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
+                }
+                ODServer::getSingleton().sendAsyncMsg(serverNotification);
+            }
+        }
+
+        room->checkForRoomAbsorbtion();
+        room->updateActiveSpots();
+
+        return true;
+    }
+
+    void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildRoomDefaultEditor(gameMap, RoomTreasury::mRoomType, inputManager, inputCommand);
+    }
+
+    bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const override
+    {
+        RoomTreasury* room = new RoomTreasury(gameMap);
+        return buildRoomDefaultEditor(gameMap, room, packet);
+    }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
-    { return RoomTreasury::getRoomFromStream(gameMap, is); }
+    {
+        RoomTreasury* room = new RoomTreasury(gameMap);
+        if(!Room::importRoomFromStream(*room, is))
+        {
+            OD_LOG_ERR("Error while building a room from the stream");
+        }
+        return room;
+    }
+
+    bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        int32_t price = getRoomCostForPlayer(gameMap, player, tiles);
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        RoomTreasury* room = new RoomTreasury(gameMap);
+        return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+    }
+
+    int32_t getRoomCostForPlayer(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const
+    {
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomTreasury::mRoomType);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        // First treasury tile is free
+        std::vector<Room*> treasuriesOwned = gameMap->getRoomsByTypeAndSeat(RoomTreasury::mRoomType, player->getSeat());
+        if(treasuriesOwned.empty())
+            price -= pricePerTarget;
+
+        return price;
+    }
 };
 
 // Register the factory
@@ -292,171 +447,4 @@ void RoomTreasury::notifyCarryingStateChanged(Creature* carrier, GameEntity* car
 RoomTreasuryTileData* RoomTreasury::createTileData(Tile* tile)
 {
     return new RoomTreasuryTileData;
-}
-
-void RoomTreasury::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    Player* player = gameMap->getLocalPlayer();
-    int nbTreasuries = player->getSeat()->getNbRooms(RoomType::treasury);
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::treasury);
-    int32_t playerGold = static_cast<int32_t>(player->getSeat()->getGold());
-    if(inputManager.mCommandState == InputCommandState::infoOnly)
-    {
-        // First treasury tile is free
-        if(nbTreasuries <= 0)
-            pricePerTarget = 0;
-
-        if(playerGold < pricePerTarget)
-        {
-            std::string txt = formatBuildRoom(RoomType::treasury, pricePerTarget);
-            inputCommand.displayText(Ogre::ColourValue::Red, txt);
-        }
-        else
-        {
-            std::string txt = formatBuildRoom(RoomType::treasury, pricePerTarget);
-            inputCommand.displayText(Ogre::ColourValue::White, txt);
-        }
-        inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
-            inputManager.mYPos);
-        return;
-    }
-
-    std::vector<Tile*> buildableTiles = gameMap->getBuildableTilesForPlayerInArea(inputManager.mXPos,
-        inputManager.mYPos, inputManager.mLStartDragX, inputManager.mLStartDragY, player);
-
-    inputCommand.selectTiles(buildableTiles);
-
-    if(buildableTiles.empty())
-    {
-        std::string txt = formatBuildRoom(RoomType::treasury, 0);
-        inputCommand.displayText(Ogre::ColourValue::White, txt);
-        return;
-    }
-
-    int32_t priceTotal = static_cast<int32_t>(buildableTiles.size()) * pricePerTarget;
-    // First treasury tile is free
-    if(nbTreasuries <= 0)
-        priceTotal -= pricePerTarget;
-
-    if(playerGold < priceTotal)
-    {
-        std::string txt = formatBuildRoom(RoomType::treasury, priceTotal);
-        inputCommand.displayText(Ogre::ColourValue::Red, txt);
-        return;
-    }
-
-    std::string txt = formatBuildRoom(RoomType::treasury, priceTotal);
-    inputCommand.displayText(Ogre::ColourValue::White, txt);
-
-    if(inputManager.mCommandState != InputCommandState::validated)
-        return;
-
-    ClientNotification *clientNotification = RoomManager::createRoomClientNotification(RoomType::treasury);
-    uint32_t nbTiles = buildableTiles.size();
-    clientNotification->mPacket << nbTiles;
-    for(Tile* tile : buildableTiles)
-        gameMap->tileToPacket(clientNotification->mPacket, tile);
-
-    ODClient::getSingleton().queueClientNotification(clientNotification);
-}
-
-bool RoomTreasury::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
-{
-    std::vector<Tile*> tiles;
-    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
-        return false;
-
-    int32_t price = getRoomCostForPlayer(gameMap, player, tiles);
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomTreasury* room = new RoomTreasury(gameMap);
-    room->setupRoom(gameMap->nextUniqueNameRoom(room->getType()), player->getSeat(), tiles);
-    room->addToGameMap();
-    room->createMesh();
-
-    if((player != nullptr) &&
-       (player->getIsHuman()))
-    {
-        // We notify the clients with vision of the changed tiles. Note that we need
-        // to calculate per seat since they could have vision on different parts of the building
-        std::map<Seat*,std::vector<Tile*>> tilesPerSeat;
-        const std::vector<Seat*>& seats = gameMap->getSeats();
-        for(Seat* tmpSeat : seats)
-        {
-            if(tmpSeat->getPlayer() == nullptr)
-                continue;
-            if(!tmpSeat->getPlayer()->getIsHuman())
-                continue;
-
-            for(Tile* tile : tiles)
-            {
-                if(!tmpSeat->hasVisionOnTile(tile))
-                    continue;
-
-                tile->changeNotifiedForSeat(tmpSeat);
-                tilesPerSeat[tmpSeat].push_back(tile);
-            }
-        }
-
-        for(const std::pair<Seat* const,std::vector<Tile*>>& p : tilesPerSeat)
-        {
-            uint32_t nbTiles = p.second.size();
-            ServerNotification serverNotification(
-                ServerNotificationType::refreshTiles, p.first->getPlayer());
-            serverNotification.mPacket << nbTiles;
-            for(Tile* tile : p.second)
-            {
-                gameMap->tileToPacket(serverNotification.mPacket, tile);
-                p.first->updateTileStateForSeat(tile);
-                tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
-            }
-            ODServer::getSingleton().sendAsyncMsg(serverNotification);
-        }
-    }
-
-    room->checkForRoomAbsorbtion();
-    room->updateActiveSpots();
-
-    return true;
-}
-
-bool RoomTreasury::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
-{
-    int32_t price = getRoomCostForPlayer(gameMap, player, tiles);
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomTreasury* room = new RoomTreasury(gameMap);
-    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
-}
-
-void RoomTreasury::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefaultEditor(gameMap, RoomType::treasury, inputManager, inputCommand);
-}
-
-bool RoomTreasury::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
-{
-    RoomTreasury* room = new RoomTreasury(gameMap);
-    return buildRoomDefaultEditor(gameMap, room, packet);
-}
-
-Room* RoomTreasury::getRoomFromStream(GameMap* gameMap, std::istream& is)
-{
-    RoomTreasury* room = new RoomTreasury(gameMap);
-    room->importFromStream(is);
-    return room;
-}
-
-int32_t RoomTreasury::getRoomCostForPlayer(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
-{
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::treasury);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    // First treasury tile is free
-    std::vector<Room*> treasuriesOwned = gameMap->getRoomsByTypeAndSeat(RoomType::treasury, player->getSeat());
-    if(treasuriesOwned.empty())
-        price -= pricePerTarget;
-
-    return price;
 }

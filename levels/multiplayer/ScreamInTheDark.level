@@ -5272,10 +5272,10 @@ ProtectDungeonTemple	NULL
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
-0	Dragon1	Dragon	13	55	0	Dragon	8	0	max	100	0	0	none	none	0	none	0
-0	Dragon2	Dragon	13	54	0	Dragon	8	0	max	100	0	0	none	none	0	none	0
-0	Dragon3	Dragon	87	58	0	Dragon	8	0	max	100	0	0	none	none	0	none	0
-0	Dragon4	Dragon	87	57	0	Dragon	8	0	max	100	0	0	none	none	0	none	0
+0	Dragon1	Dragon	13	55	0	Dragon	8	0	max	100	0	0	none	none	nullSkillType	none	0
+0	Dragon2	Dragon	13	54	0	Dragon	8	0	max	100	0	0	none	none	nullSkillType	none	0
+0	Dragon3	Dragon	87	58	0	Dragon	8	0	max	100	0	0	none	none	nullSkillType	none	0
+0	Dragon4	Dragon	87	57	0	Dragon	8	0	max	100	0	0	none	none	nullSkillType	none	0
 [/Creatures]
 
 [Spells]

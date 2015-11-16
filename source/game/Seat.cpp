@@ -949,7 +949,7 @@ bool Seat::importSeatFromStream(std::istream& is)
             SkillType type = static_cast<SkillType>(i);
             if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Skills::skillTypeToString(type)) != 0)
+            if(str.compare(Skills::toString(type)) != 0)
                 continue;
 
             if(std::find(mSkillDone.begin(), mSkillDone.end(), type) != mSkillDone.end())
@@ -980,7 +980,7 @@ bool Seat::importSeatFromStream(std::istream& is)
             SkillType type = static_cast<SkillType>(i);
             if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Skills::skillTypeToString(type)) != 0)
+            if(str.compare(Skills::toString(type)) != 0)
                 continue;
 
             // We do not allow a skill to be done and not allowed
@@ -1014,7 +1014,7 @@ bool Seat::importSeatFromStream(std::istream& is)
             SkillType type = static_cast<SkillType>(i);
             if(type == SkillType::nullSkillType)
                 continue;
-            if(str.compare(Skills::skillTypeToString(type)) != 0)
+            if(str.compare(Skills::toString(type)) != 0)
                 continue;
 
             // We do not allow skills already done or not allowed
@@ -1167,21 +1167,21 @@ bool Seat::exportSeatToStream(std::ostream& os) const
     os << "[SkillDone]" << std::endl;
     for(SkillType type : mSkillDone)
     {
-        os << Skills::skillTypeToString(type) << std::endl;
+        os << Skills::toString(type) << std::endl;
     }
     os << "[/SkillDone]" << std::endl;
 
     os << "[SkillNotAllowed]" << std::endl;
     for(SkillType type : mSkillNotAllowed)
     {
-        os << Skills::skillTypeToString(type) << std::endl;
+        os << Skills::toString(type) << std::endl;
     }
     os << "[/SkillNotAllowed]" << std::endl;
 
     os << "[SkillPending]" << std::endl;
     for(SkillType type : mSkillPending)
     {
-        os << Skills::skillTypeToString(type) << std::endl;
+        os << Skills::toString(type) << std::endl;
     }
     os << "[/SkillPending]" << std::endl;
 
@@ -1452,14 +1452,14 @@ void Seat::setSkillTree(const std::vector<SkillType>& skills)
             {
                 // Invalid skill. This might be allowed in the gui to enter invalid
                 // values. In this case, we should remove the assert
-                OD_LOG_ERR("Unallowed skill: " + Skills::skillTypeToString(skillType));
+                OD_LOG_ERR("Unallowed skill: " + Skills::toString(skillType));
                 return;
             }
             const Skill* skill = SkillManager::getSkill(skillType);
             if(skill == nullptr)
             {
                 // We found an unknown skill
-                OD_LOG_ERR("Unknown skill: " + Skills::skillTypeToString(skillType));
+                OD_LOG_ERR("Unknown skill: " + Skills::toString(skillType));
                 return;
             }
 
@@ -1467,7 +1467,7 @@ void Seat::setSkillTree(const std::vector<SkillType>& skills)
             {
                 // Invalid skill. This might happen if the level has a skill pending with a non skillable dependency.
                 // In this case, we don't use the skill tree
-                OD_LOG_ERR("Unallowed skill: " + Skills::skillTypeToString(skillType));
+                OD_LOG_ERR("Unallowed skill: " + Skills::toString(skillType));
                 return;
             }
 

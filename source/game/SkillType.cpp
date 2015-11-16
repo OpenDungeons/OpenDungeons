@@ -22,12 +22,29 @@
 
 namespace Skills
 {
-std::string skillTypeToString(SkillType type)
+
+SkillType fromString(const std::string& type)
+{
+    for(uint32_t i = 0; i < static_cast<uint32_t>(SkillType::countSkill); ++i)
+    {
+        SkillType skillType = static_cast<SkillType>(i);
+        if(type != toString(skillType))
+            continue;
+
+        return skillType;
+    }
+
+    return SkillType::nullSkillType;
+}
+
+std::string toString(SkillType type)
 {
     switch(type)
     {
         case SkillType::nullSkillType:
             return "nullSkillType";
+        case SkillType::roomArena:
+            return "roomArena";
         case SkillType::roomBridgeStone:
             return "roomBridgeStone";
         case SkillType::roomBridgeWooden:
@@ -85,6 +102,8 @@ std::string skillTypeToPlayerVisibleString(SkillType type)
     {
         case SkillType::nullSkillType:
             return "No Skill type";
+        case SkillType::roomArena:
+            return "The Arena Room";
         case SkillType::roomBridgeStone:
             return "The Stone Bridge Room";
         case SkillType::roomBridgeWooden:

@@ -44,13 +44,6 @@ public:
 
     virtual TrapEntity* getTrapEntity(Tile* tile);
 
-    static void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    static bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet);
-    static void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    static bool buildTrapEditor(GameMap* gameMap, ODPacket& packet);
-    static bool buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
-    static Trap* getTrapFromStream(GameMap* gameMap, std::istream& is);
-
     static const TrapType mTrapType;
 
 private:

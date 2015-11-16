@@ -44,20 +44,57 @@ class TrapSpikeFactory : public TrapFactory
     const std::string& getNameReadable() const override
     { return TrapSpikeNameDisplay; }
 
-    virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { TrapSpike::checkBuildTrap(gameMap, inputManager, inputCommand); }
+    void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildTrapDefault(gameMap, TrapType::spike, inputManager, inputCommand);
+    }
 
-    virtual bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const
-    { return TrapSpike::buildTrap(gameMap, player, packet); }
+    bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const override
+    {
+        std::vector<Tile*> tiles;
+        if(!getTrapTilesDefault(tiles, gameMap, player, packet))
+            return false;
 
-    virtual void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { TrapSpike::checkBuildTrapEditor(gameMap, inputManager, inputCommand); }
+        int32_t pricePerTarget = TrapManager::costPerTile(TrapType::spike);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
 
-    virtual bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const
-    { return TrapSpike::buildTrapEditor(gameMap, packet); }
+        TrapSpike* trap = new TrapSpike(gameMap);
+        return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
+    }
+
+    void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildTrapDefaultEditor(gameMap, TrapType::spike, inputManager, inputCommand);
+    }
+
+    bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const override
+    {
+        TrapSpike* trap = new TrapSpike(gameMap);
+        return buildTrapDefaultEditor(gameMap, trap, packet);
+    }
 
     Trap* getTrapFromStream(GameMap* gameMap, std::istream& is) const override
-    { return TrapSpike::getTrapFromStream(gameMap, is); }
+    {
+        TrapSpike* trap = new TrapSpike(gameMap);
+        if(!Trap::importTrapFromStream(*trap, is))
+        {
+            OD_LOG_ERR("Error while building a trap from the stream");
+        }
+        return trap;
+    }
+
+    bool buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        int32_t pricePerTarget = TrapManager::costPerTile(TrapType::spike);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        TrapSpike* trap = new TrapSpike(gameMap);
+        return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
+    }
 };
 
 // Register the factory
@@ -90,12 +127,12 @@ bool TrapSpike::shoot(Tile* tile)
     // We damage every creature standing on the trap
     for(GameEntity* target : enemyCreatures)
     {
-        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), 0.0, 0.0, target->getCoveredTile(0), false, false, false);
+        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), 0.0, 0.0, target->getCoveredTile(0), false, false, false, false);
     }
     std::vector<GameEntity*> alliedCreatures = getGameMap()->getVisibleCreatures(visibleTiles, getSeat(), false);
     for(GameEntity* target : alliedCreatures)
     {
-        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), 0.0, 0.0, target->getCoveredTile(0), false, false, false);
+        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), 0.0, 0.0, target->getCoveredTile(0), false, false, false, false);
     }
     return true;
 }
@@ -103,53 +140,4 @@ bool TrapSpike::shoot(Tile* tile)
 TrapEntity* TrapSpike::getTrapEntity(Tile* tile)
 {
     return new TrapEntity(getGameMap(), true, getName(), MESH_SPIKE, tile, 0.0, true, isActivated(tile) ? 1.0f : 0.7f);
-}
-
-void TrapSpike::checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildTrapDefault(gameMap, TrapType::spike, inputManager, inputCommand);
-}
-
-bool TrapSpike::buildTrap(GameMap* gameMap, Player* player, ODPacket& packet)
-{
-    std::vector<Tile*> tiles;
-    if(!getTrapTilesDefault(tiles, gameMap, player, packet))
-        return false;
-
-    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::spike);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    TrapSpike* trap = new TrapSpike(gameMap);
-    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
-}
-
-void TrapSpike::checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildTrapDefaultEditor(gameMap, TrapType::spike, inputManager, inputCommand);
-}
-
-bool TrapSpike::buildTrapEditor(GameMap* gameMap, ODPacket& packet)
-{
-    TrapSpike* trap = new TrapSpike(gameMap);
-    return buildTrapDefaultEditor(gameMap, trap, packet);
-}
-
-bool TrapSpike::buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
-{
-    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::spike);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    TrapSpike* trap = new TrapSpike(gameMap);
-    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
-}
-
-Trap* TrapSpike::getTrapFromStream(GameMap* gameMap, std::istream& is)
-{
-    TrapSpike* trap = new TrapSpike(gameMap);
-    trap->importFromStream(is);
-    return trap;
 }

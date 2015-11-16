@@ -45,20 +45,57 @@ class TrapBoulderFactory : public TrapFactory
     const std::string& getNameReadable() const override
     { return TrapBoulderNameDisplay; }
 
-    virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { TrapBoulder::checkBuildTrap(gameMap, inputManager, inputCommand); }
+    void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildTrapDefault(gameMap, TrapType::boulder, inputManager, inputCommand);
+    }
 
-    virtual bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const
-    { return TrapBoulder::buildTrap(gameMap, player, packet); }
+    bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const override
+    {
+        std::vector<Tile*> tiles;
+        if(!getTrapTilesDefault(tiles, gameMap, player, packet))
+            return false;
 
-    virtual void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { TrapBoulder::checkBuildTrapEditor(gameMap, inputManager, inputCommand); }
+        int32_t pricePerTarget = TrapManager::costPerTile(TrapType::boulder);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
 
-    virtual bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const
-    { return TrapBoulder::buildTrapEditor(gameMap, packet); }
+        TrapBoulder* trap = new TrapBoulder(gameMap);
+        return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
+    }
+
+    void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildTrapDefaultEditor(gameMap, TrapType::boulder, inputManager, inputCommand);
+    }
+
+    bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const override
+    {
+        TrapBoulder* trap = new TrapBoulder(gameMap);
+        return buildTrapDefaultEditor(gameMap, trap, packet);
+    }
 
     Trap* getTrapFromStream(GameMap* gameMap, std::istream& is) const override
-    { return TrapBoulder::getTrapFromStream(gameMap, is); }
+    {
+        TrapBoulder* trap = new TrapBoulder(gameMap);
+        if(!Trap::importTrapFromStream(*trap, is))
+        {
+            OD_LOG_ERR("Error while building a trap from the stream");
+        }
+        return trap;
+    }
+
+    bool buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        int32_t pricePerTarget = TrapManager::costPerTile(TrapType::boulder);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        TrapBoulder* trap = new TrapBoulder(gameMap);
+        return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
+    }
 };
 
 // Register the factory
@@ -123,53 +160,4 @@ bool TrapBoulder::shoot(Tile* tile)
 TrapEntity* TrapBoulder::getTrapEntity(Tile* tile)
 {
     return new TrapEntity(getGameMap(), true, getName(), MESH_BOULDER, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
-}
-
-void TrapBoulder::checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildTrapDefault(gameMap, TrapType::boulder, inputManager, inputCommand);
-}
-
-bool TrapBoulder::buildTrap(GameMap* gameMap, Player* player, ODPacket& packet)
-{
-    std::vector<Tile*> tiles;
-    if(!getTrapTilesDefault(tiles, gameMap, player, packet))
-        return false;
-
-    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::boulder);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    TrapBoulder* trap = new TrapBoulder(gameMap);
-    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
-}
-
-void TrapBoulder::checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildTrapDefaultEditor(gameMap, TrapType::boulder, inputManager, inputCommand);
-}
-
-bool TrapBoulder::buildTrapEditor(GameMap* gameMap, ODPacket& packet)
-{
-    TrapBoulder* trap = new TrapBoulder(gameMap);
-    return buildTrapDefaultEditor(gameMap, trap, packet);
-}
-
-bool TrapBoulder::buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
-{
-    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::boulder);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    TrapBoulder* trap = new TrapBoulder(gameMap);
-    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
-}
-
-Trap* TrapBoulder::getTrapFromStream(GameMap* gameMap, std::istream& is)
-{
-    TrapBoulder* trap = new TrapBoulder(gameMap);
-    trap->importFromStream(is);
-    return trap;
 }

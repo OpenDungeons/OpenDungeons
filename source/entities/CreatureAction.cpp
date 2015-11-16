@@ -24,13 +24,15 @@
 #include "game/Seat.h"
 #include "utils/LogManager.h"
 
-CreatureAction::CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* entity, Tile* tile, CreatureSkillData* creatureSkillData) :
+CreatureAction::CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* entity, Tile* tile,
+        CreatureSkillData* creatureSkillData, bool b) :
     mCreature(creature),
     mActionType(actionType),
     mForcedAction(forcedAction),
     mEntity(entity),
     mTile(tile),
     mCreatureSkillData(creatureSkillData),
+    mBool(b),
     mNbTurns(0),
     mNbTurnsActive(0)
 {
@@ -109,6 +111,9 @@ std::string CreatureAction::toString(CreatureActionType actionType)
 
     case CreatureActionType::fight:
         return "fight";
+
+    case CreatureActionType::fightArena:
+        return "fightArena";
 
     case CreatureActionType::searchTileToDig:
         return "searchTileToDig";

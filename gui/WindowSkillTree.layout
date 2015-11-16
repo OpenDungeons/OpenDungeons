@@ -98,10 +98,27 @@
                     </Window>
                 </Window>
                 <Window type="OD/ImageButton" name="StoneBridgeButton" >
-                    <Property name="Area" value="{{0.5,-25},{0,135},{0.5,25},{0,185}}" />
+                    <Property name="Area" value="{{0.3,-25},{0,135},{0.3,25},{0,185}}" />
                     <Property name="ButtonImage" value="OpenDungeonsIcons/StoneBridgeButton" />
                     <Property name="TooltipText" value="Room: Stone bridge" />
                     <Window type="OD/ProgressBar" name="StoneBridgeButtonProgressBar" >
+                        <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
+                        <Property name="InheritsTooltipText" value="True" />
+                        <Property name="CurrentProgress" value="0.0" />
+                        <Property name="MousePassThroughEnabled" value="True" />
+                        <Property name="StepSize" value="0.1" />
+                        <Property name="Visible" value="False" />
+                        <Property name="VerticalProgress" value="True" />
+                        <Property name="Alpha" value="0.2" />
+                        <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+                        <Property name="ReversedProgress" value="True" />
+                    </Window>
+                </Window>
+                <Window type="OD/ImageButton" name="ArenaButton" >
+                    <Property name="Area" value="{{0.7,-25},{0,135},{0.7,25},{0,185}}" />
+                    <Property name="ButtonImage" value="OpenDungeonsIcons/ArenaButton" />
+                    <Property name="TooltipText" value="Room: Arena" />
+                    <Window type="OD/ProgressBar" name="ArenaButtonProgressBar" >
                         <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
                         <Property name="InheritsTooltipText" value="True" />
                         <Property name="CurrentProgress" value="0.0" />

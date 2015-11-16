@@ -42,20 +42,57 @@ class RoomHatcheryFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomHatcheryNameDisplay; }
 
-    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomHatchery::checkBuildRoom(gameMap, inputManager, inputCommand); }
+    void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildRoomDefault(gameMap, RoomHatchery::mRoomType, inputManager, inputCommand);
+    }
 
-    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
-    { return RoomHatchery::buildRoom(gameMap, player, packet); }
+    bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const override
+    {
+        std::vector<Tile*> tiles;
+        if(!getRoomTilesDefault(tiles, gameMap, player, packet))
+            return false;
 
-    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomHatchery::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomHatchery::mRoomType);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
 
-    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
-    { return RoomHatchery::buildRoomEditor(gameMap, packet); }
+        RoomHatchery* room = new RoomHatchery(gameMap);
+        return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+    }
+
+    void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildRoomDefaultEditor(gameMap, RoomHatchery::mRoomType, inputManager, inputCommand);
+    }
+
+    bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const override
+    {
+        RoomHatchery* room = new RoomHatchery(gameMap);
+        return buildRoomDefaultEditor(gameMap, room, packet);
+    }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
-    { return RoomHatchery::getRoomFromStream(gameMap, is); }
+    {
+        RoomHatchery* room = new RoomHatchery(gameMap);
+        if(!Room::importRoomFromStream(*room, is))
+        {
+            OD_LOG_ERR("Error while building a room from the stream");
+        }
+        return room;
+    }
+
+    bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomHatchery::mRoomType);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        RoomHatchery* room = new RoomHatchery(gameMap);
+        return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+    }
 };
 
 // Register the factory
@@ -134,53 +171,4 @@ void RoomHatchery::doUpkeep()
 bool RoomHatchery::hasOpenCreatureSpot(Creature* c)
 {
     return mNumActiveSpots > mCreaturesUsingRoom.size();
-}
-
-void RoomHatchery::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefault(gameMap, RoomType::hatchery, inputManager, inputCommand);
-}
-
-bool RoomHatchery::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
-{
-    std::vector<Tile*> tiles;
-    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
-        return false;
-
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::hatchery);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomHatchery* room = new RoomHatchery(gameMap);
-    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
-}
-
-bool RoomHatchery::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
-{
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::hatchery);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomHatchery* room = new RoomHatchery(gameMap);
-    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
-}
-
-void RoomHatchery::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefaultEditor(gameMap, RoomType::hatchery, inputManager, inputCommand);
-}
-
-bool RoomHatchery::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
-{
-    RoomHatchery* room = new RoomHatchery(gameMap);
-    return buildRoomDefaultEditor(gameMap, room, packet);
-}
-
-Room* RoomHatchery::getRoomFromStream(GameMap* gameMap, std::istream& is)
-{
-    RoomHatchery* room = new RoomHatchery(gameMap);
-    room->importFromStream(is);
-    return room;
 }

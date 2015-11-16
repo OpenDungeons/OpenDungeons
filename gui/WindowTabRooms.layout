@@ -84,6 +84,13 @@
             <Property name="TooltipText" value="Build a stone bridge" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
+        <Window type="OD/GameTabButton" name="ArenaButton" >
+            <Property name="Area" value="{{0,180},{0,50},{0,220},{0,90}}" />
+            <Property name="Visible" value="False" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/ArenaButton" />
+            <Property name="TooltipText" value="Build an arena" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
         <Window type="OD/GameTabButton" name="TempleButton" >
             <Property name="Area" value="{{0,570},{0,20},{0,630},{0,80}}" />
             <Property name="Visible" value="False" />

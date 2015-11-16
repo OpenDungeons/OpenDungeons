@@ -19,11 +19,20 @@
 #define ROOMBRIDGE_H
 
 #include "rooms/Room.h"
-#include "rooms/RoomType.h"
+#include "rooms/RoomManager.h"
 
 class Tile;
 
 enum class TileVisual;
+
+class BridgeRoomFactory : public RoomFactory
+{
+protected:
+    void checkBuildBridge(RoomType type, GameMap* gameMap, Seat* seat, const InputManager& inputManager,
+        InputCommand& inputCommand, const std::vector<TileVisual>& allowedTilesVisual, bool isEditor) const;
+    bool readBridgeFromPacket(std::vector<Tile*>& tiles, GameMap* gameMap, Seat* seat,
+        const std::vector<TileVisual>& allowedTilesVisual, ODPacket& packet, bool isEditor) const;
+};
 
 //! \brief this class is a convenience class that handle shared bridges behaviour. It
 //! is designed to be extended
@@ -59,12 +68,6 @@ public:
     virtual bool removeCoveredTile(Tile* t) override;
 
 protected:
-    static void checkBuildBridge(RoomType type, GameMap* gameMap, Seat* seat, const InputManager& inputManager,
-        InputCommand& inputCommand, const std::vector<TileVisual>& allowedTilesVisual, bool isEditor);
-
-    static bool readBridgeFromPacket(std::vector<Tile*>& tiles, GameMap* gameMap, Seat* seat,
-        const std::vector<TileVisual>& allowedTilesVisual, ODPacket& packet, bool isEditor);
-
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;
 

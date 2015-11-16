@@ -191,7 +191,8 @@ class GameEntity : public EntityBase
     //! the enemy inflicted the damage and the object can use this accordingly. attacker is
     //! the entity damaging
     virtual double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
-        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense) = 0;
+        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense,
+        bool ko) = 0;
 
     //! \brief Adds the entity to the correct spaces of the gamemap (animated objects, creature, ...)
     virtual void addToGameMap() = 0;
@@ -234,10 +235,6 @@ class GameEntity : public EntityBase
 
     //! \brief Returns true if the given enemy creature should consider fleeing from this entity
     virtual bool isDangerous(const Creature* creature, int distance) const
-    { return false; }
-
-    //! \brief Returns true if the entity should KO he given creature instead of killing and false otherwise
-    virtual bool shouldKoAttackedCreature(const Creature& creature) const
     { return false; }
 
     //! This function should be called on client side just after the entity is added to the gamemap.

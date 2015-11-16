@@ -124,7 +124,8 @@ public:
     virtual void clearCoveredTiles();
     double getHP(Tile *tile) const;
     double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
-        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense) override;
+        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense,
+        bool ko) override;
     std::string getNameTile(Tile* tile);
 
     //! \brief Tells whether the ground tile below the building tile should be displayed.

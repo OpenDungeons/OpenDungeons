@@ -2625,7 +2625,7 @@ ProtectDungeonTemple	NULL
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
-0	Scarab1	Scarab	37	42	0	Scarab	1	0	max	100	0	0	none	none	0	none	0
+0	Scarab1	Scarab	37	42	0	Scarab	1	0	max	100	0	0	none	none	nullSkillType	none	0
 [/Creatures]
 
 [Spells]

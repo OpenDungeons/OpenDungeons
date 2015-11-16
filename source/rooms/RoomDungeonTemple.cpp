@@ -44,20 +44,43 @@ class RoomDungeonTempleFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomDungeonTempleNameDisplay; }
 
-    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomDungeonTemple::checkBuildRoom(gameMap, inputManager, inputCommand); }
+    void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        // Not buildable in game mode
+    }
 
-    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
-    { return RoomDungeonTemple::buildRoom(gameMap, player, packet); }
+    bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const override
+    {
+        // Not buildable in game mode
+        return false;
+    }
 
-    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomDungeonTemple::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+    bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        // Not buildable in game mode
+        return false;
+    }
 
-    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
-    { return RoomDungeonTemple::buildRoomEditor(gameMap, packet); }
+    void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildRoomDefaultEditor(gameMap, RoomDungeonTemple::mRoomType, inputManager, inputCommand);
+    }
+
+    bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const override
+    {
+        RoomDungeonTemple* room = new RoomDungeonTemple(gameMap);
+        return buildRoomDefaultEditor(gameMap, room, packet);
+    }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
-    { return RoomDungeonTemple::getRoomFromStream(gameMap, is); }
+    {
+        RoomDungeonTemple* room = new RoomDungeonTemple(gameMap);
+        if(!Room::importRoomFromStream(*room, is))
+        {
+            OD_LOG_ERR("Error while building a room from the stream");
+        }
+        return room;
+    }
 };
 
 // Register the factory
@@ -222,33 +245,4 @@ void RoomDungeonTemple::restoreInitialEntityState()
         mTempleObject->notifyRemoveAsked();
 
     Room::restoreInitialEntityState();
-}
-
-void RoomDungeonTemple::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    // Not buildable in game mode
-}
-
-bool RoomDungeonTemple::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
-{
-    // Not buildable in game mode
-    return false;
-}
-
-void RoomDungeonTemple::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefaultEditor(gameMap, RoomType::dungeonTemple, inputManager, inputCommand);
-}
-
-bool RoomDungeonTemple::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
-{
-    RoomDungeonTemple* room = new RoomDungeonTemple(gameMap);
-    return buildRoomDefaultEditor(gameMap, room, packet);
-}
-
-Room* RoomDungeonTemple::getRoomFromStream(GameMap* gameMap, std::istream& is)
-{
-    RoomDungeonTemple* room = new RoomDungeonTemple(gameMap);
-    room->importFromStream(is);
-    return room;
 }

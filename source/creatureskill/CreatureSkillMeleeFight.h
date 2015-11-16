@@ -55,7 +55,7 @@ public:
     { return false; }
 
     virtual bool tryUseFight(GameMap& gameMap, Creature* creature, float range,
-        GameEntity* attackedObject, Tile* attackedTile) const override;
+        GameEntity* attackedObject, Tile* attackedTile, bool ko) const override;
 
     virtual CreatureSkillMeleeFight* clone() const override;
 

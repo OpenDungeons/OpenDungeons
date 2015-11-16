@@ -46,20 +46,57 @@ class RoomTrainingHallFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomTrainingHallNameDisplay; }
 
-    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomTrainingHall::checkBuildRoom(gameMap, inputManager, inputCommand); }
+    void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildRoomDefault(gameMap, RoomTrainingHall::mRoomType, inputManager, inputCommand);
+    }
 
-    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
-    { return RoomTrainingHall::buildRoom(gameMap, player, packet); }
+    bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const override
+    {
+        std::vector<Tile*> tiles;
+        if(!getRoomTilesDefault(tiles, gameMap, player, packet))
+            return false;
 
-    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomTrainingHall::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomTrainingHall::mRoomType);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
 
-    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
-    { return RoomTrainingHall::buildRoomEditor(gameMap, packet); }
+        RoomTrainingHall* room = new RoomTrainingHall(gameMap);
+        return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+    }
+
+    void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildRoomDefaultEditor(gameMap, RoomTrainingHall::mRoomType, inputManager, inputCommand);
+    }
+
+    bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const override
+    {
+        RoomTrainingHall* room = new RoomTrainingHall(gameMap);
+        return buildRoomDefaultEditor(gameMap, room, packet);
+    }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
-    { return RoomTrainingHall::getRoomFromStream(gameMap, is); }
+    {
+        RoomTrainingHall* room = new RoomTrainingHall(gameMap);
+        if(!Room::importRoomFromStream(*room, is))
+        {
+            OD_LOG_ERR("Error while building a room from the stream");
+        }
+        return room;
+    }
+
+    bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        int32_t pricePerTarget = RoomManager::costPerTile(RoomTrainingHall::mRoomType);
+        int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+        if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+            return false;
+
+        RoomTrainingHall* room = new RoomTrainingHall(gameMap);
+        return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+    }
 };
 
 // Register the factory
@@ -343,53 +380,4 @@ void RoomTrainingHall::doUpkeep()
             }
         }
     }
-}
-
-void RoomTrainingHall::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefault(gameMap, RoomType::trainingHall, inputManager, inputCommand);
-}
-
-bool RoomTrainingHall::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
-{
-    std::vector<Tile*> tiles;
-    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
-        return false;
-
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::trainingHall);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomTrainingHall* room = new RoomTrainingHall(gameMap);
-    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
-}
-
-bool RoomTrainingHall::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
-{
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::trainingHall);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-        return false;
-
-    RoomTrainingHall* room = new RoomTrainingHall(gameMap);
-    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
-}
-
-void RoomTrainingHall::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefaultEditor(gameMap, RoomType::trainingHall, inputManager, inputCommand);
-}
-
-bool RoomTrainingHall::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
-{
-    RoomTrainingHall* room = new RoomTrainingHall(gameMap);
-    return buildRoomDefaultEditor(gameMap, room, packet);
-}
-
-Room* RoomTrainingHall::getRoomFromStream(GameMap* gameMap, std::istream& is)
-{
-    RoomTrainingHall* room = new RoomTrainingHall(gameMap);
-    room->importFromStream(is);
-    return room;
 }

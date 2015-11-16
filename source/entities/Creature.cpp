@@ -109,6 +109,7 @@ public:
         mEntity(action.getEntity()),
         mTile(action.getTile()),
         mCreatureSkillData(action.getCreatureSkillData()),
+        mBool(action.getBool()),
         mNbTurns(action.getNbTurns()),
         mNbTurnsActive(action.getNbTurnsActive())
     {
@@ -119,6 +120,7 @@ public:
     GameEntity* const mEntity;
     Tile* const mTile;
     CreatureSkillData* const mCreatureSkillData;
+    const bool mBool;
     const int32_t mNbTurns;
     const int32_t mNbTurnsActive;
 };
@@ -158,7 +160,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
-    mSkillTypeDropDeath   (SkillType::nullSkillType),
+    mSkillTypeDropDeath      (SkillType::nullSkillType),
     mWeaponDropDeath         ("none"),
     mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
@@ -237,7 +239,7 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
-    mSkillTypeDropDeath   (SkillType::nullSkillType),
+    mSkillTypeDropDeath      (SkillType::nullSkillType),
     mWeaponDropDeath         ("none"),
     mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
@@ -382,7 +384,7 @@ void Creature::exportToStream(std::ostream& os) const
     else
         os << "\tnone";
 
-    os << "\t" << mSkillTypeDropDeath;
+    os << "\t" << Skills::toString(mSkillTypeDropDeath);
 
     os << "\t" << mWeaponDropDeath;
 
@@ -441,8 +443,10 @@ bool Creature::importFromStream(std::istream& is)
         }
     }
 
-    if(!(is >> mSkillTypeDropDeath))
+    if(!(is >> tempString))
         return false;
+    mSkillTypeDropDeath = Skills::fromString(tempString);
+
     if(!(is >> mWeaponDropDeath))
         return false;
 
@@ -1078,6 +1082,7 @@ void Creature::doUpkeep()
                     break;
 
                 case CreatureActionType::fight:
+                case CreatureActionType::fightArena:
                     loopBack = handleFightAction(topActionItem);
                     break;
 
@@ -2500,7 +2505,7 @@ bool Creature::handleAttackAction(const CreatureActionWrapper& actionItem)
 
     // We use the skill
     actionItem.mCreatureSkillData->mSkill->tryUseFight(*getGameMap(), this, range,
-        actionItem.mEntity, actionItem.mTile);
+        actionItem.mEntity, actionItem.mTile, actionItem.mBool);
     actionItem.mCreatureSkillData->mWarmup = actionItem.mCreatureSkillData->mSkill->getWarmupNbTurns();
     actionItem.mCreatureSkillData->mCooldown = actionItem.mCreatureSkillData->mSkill->getCooldownNbTurns();
 
@@ -2525,9 +2530,26 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
     std::vector<GameEntity*> enemyPrioritaryTargets;
     std::vector<GameEntity*> enemySecondaryTargets;
     // If we have a particular target, we attack it. Otherwise, we search for one
-    if((actionItem.mEntity != nullptr) &&
-       (actionItem.mEntity->getHP(nullptr) > 0))
+    if(actionItem.mEntity != nullptr)
     {
+        if(actionItem.mEntity->getHP(nullptr) <= 0)
+        {
+            popAction();
+            return true;
+        }
+        Tile* enemyTile = actionItem.mEntity->getPositionTile();
+        if(enemyTile == nullptr)
+        {
+            OD_LOG_ERR("name=" + getName() + ", enemy=" + actionItem.mEntity->getName() + ", enemyPos=" + Helper::toString(actionItem.mEntity->getPosition()));
+            popAction();
+            return true;
+        }
+        if(!actionItem.mEntity->isAttackable(enemyTile, getSeat()))
+        {
+            popAction();
+            return true;
+        }
+
         enemyPrioritaryTargets.push_back(actionItem.mEntity);
     }
     else
@@ -2583,7 +2605,8 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
                (skillData != nullptr))
             {
                 // We can attack
-                pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData);
+                bool ko = (getSeat()->getKoCreatures() || (actionItem.mType == CreatureActionType::fightArena));
+                pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData, ko);
                 return true;
             }
 
@@ -2620,7 +2643,8 @@ bool Creature::handleFightAction(const CreatureActionWrapper& actionItem)
                (skillData != nullptr))
             {
                 // We can attack
-                pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData);
+                bool ko = (getSeat()->getKoCreatures() || (actionItem.mType == CreatureActionType::fightArena));
+                pushAction(CreatureActionType::attackObject, false, true, false, entityAttack, tileAttack, skillData, ko);
                 return true;
             }
 
@@ -2740,7 +2764,7 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
         int skillRangeMaxInt = static_cast<int>(skillRangeMax);
         int skillRangeMaxIntSquared = skillRangeMaxInt * skillRangeMaxInt;
         int bestScoreAttack = -1;
-        std::vector<Tile*> tiles = getGameMap()->visibleTiles(tileAttackCheck->getX(), tileAttackCheck->getY(), skillRangeMaxInt);
+        std::vector<Tile*> tiles = getAccessibleVisibleTiles(tileAttackCheck, skillRangeMaxInt);
         for(Tile* tile : tiles)
         {
             if(tile->isFullTile())
@@ -2782,7 +2806,7 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
         int bestScoreFlee = -1;
         int32_t fightIdleDist = getDefinition()->getFightIdleDist();
         Tile* fleeTile = nullptr;
-        std::vector<Tile*> tiles = getGameMap()->visibleTiles(tileEntityFlee->getX(), tileEntityFlee->getY(), fightIdleDist);
+        std::vector<Tile*> tiles = getAccessibleVisibleTiles(tileEntityFlee, fightIdleDist);
         int32_t fightIdleDistSquared = fightIdleDist * fightIdleDist;
         for(Tile* tile : tiles)
         {
@@ -3862,7 +3886,8 @@ std::string Creature::getStatsText()
 }
 
 double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
-        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense)
+        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense,
+        bool ko)
 {
     mNbTurnsWithoutBattle = 0;
     if(!ignorePhysicalDefense)
@@ -3877,8 +3902,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
     {
         // If the attacking entity is a creature and its seat is configured to KO creatures
         // instead of killing, we KO
-        if((attacker != nullptr) &&
-           (attacker->shouldKoAttackedCreature(*this)))
+        if(ko)
         {
             mHp = 1.0;
             mKoTurnCounter = -ConfigManager::getSingleton().getNbTurnsKoCreatureAttacked();
@@ -3957,7 +3981,8 @@ void Creature::clearActionQueue()
         releaseCarriedEntity();
 }
 
-bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* entity, Tile* tile, CreatureSkillData* skillData)
+bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* entity, Tile* tile,
+        CreatureSkillData* skillData, bool b)
 {
     if(std::find(mActionTry.begin(), mActionTry.end(), actionType) == mActionTry.end())
     {
@@ -3972,7 +3997,7 @@ bool Creature::pushAction(CreatureActionType actionType, bool popCurrentIfPush, 
     if(popCurrentIfPush && !mActionQueue.empty())
         mActionQueue.pop_front();
 
-    mActionQueue.emplace_front(*this, actionType, forceAction, entity, tile, skillData);
+    mActionQueue.emplace_front(*this, actionType, forceAction, entity, tile, skillData, b);
     return true;
 }
 
@@ -5040,7 +5065,58 @@ void Creature::clearStrengthModifier()
     setStrengthModifier(1.0);
 }
 
-bool Creature::shouldKoAttackedCreature(const Creature& creature) const
+std::vector<Tile*> Creature::getAccessibleVisibleTiles(Tile* center, int radius) const
 {
-    return getSeat()->getKoCreatures();
+    // If we are fighting in the arena, the accessible tiles are the arena
+    if(!isActionInList(CreatureActionType::fightArena))
+        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
+
+    // We check if we are in the arena
+    Tile* myTile = getPositionTile();
+    if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName() + ", position=" + Helper::toString(getPosition()));
+        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
+    }
+
+    Room* room = myTile->getCoveringRoom();
+    if(room == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName() + ", not on an arena tile=" + Tile::displayAsString(myTile));
+        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
+    }
+    if(room->getType() != RoomType::arena)
+    {
+        OD_LOG_ERR("name=" + getName() + ", not on an arena tile=" + Tile::displayAsString(myTile) + ", room=" + room->getName());
+        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
+    }
+
+    float radiusSquared = radius * radius;
+    std::vector<Tile*> allowedTiles;
+    for(Tile* tile : room->getCoveredTiles())
+    {
+        float dist = Pathfinding::squaredDistanceTile(*center, *tile);
+        if(dist > radiusSquared)
+            continue;
+
+        allowedTiles.push_back(tile);
+    }
+
+    return allowedTiles;
+}
+
+void Creature::fightInArena(Creature& opponent)
+{
+    pushAction(CreatureActionType::fightArena, false, true, false, &opponent);
+}
+
+bool Creature::isWarmup() const
+{
+    for(const CreatureSkillData& skillData : mSkillData)
+    {
+        if(skillData.mWarmup > 0)
+            return true;
+    }
+
+    return false;
 }

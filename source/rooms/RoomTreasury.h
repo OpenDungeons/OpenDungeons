@@ -69,12 +69,6 @@ public:
     virtual int depositGold(int gold, Tile *tile) override;
     virtual int withdrawGold(int gold) override;
 
-    static void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    static bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet);
-    static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
-    static void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
-    static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
     static int32_t getRoomCostForPlayer(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
 
     static const RoomType mRoomType;

@@ -53,20 +53,43 @@ class RoomPortalWaveFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomPortalWaveNameDisplay; }
 
-    virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomPortalWave::checkBuildRoom(gameMap, inputManager, inputCommand); }
+    void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        // Not buildable on game mode
+    }
 
-    virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
-    { return RoomPortalWave::buildRoom(gameMap, player, packet); }
+    bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const override
+    {
+        // Not buildable on game mode
+        return false;
+    }
 
-    virtual void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
-    { RoomPortalWave::checkBuildRoomEditor(gameMap, inputManager, inputCommand); }
+    void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
+    {
+        checkBuildRoomDefaultEditor(gameMap, RoomPortalWave::mRoomType, inputManager, inputCommand);
+    }
 
-    virtual bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const
-    { return RoomPortalWave::buildRoomEditor(gameMap, packet); }
+    bool buildRoomEditor(GameMap* gameMap, ODPacket& packet) const override
+    {
+        RoomPortalWave* room = new RoomPortalWave(gameMap);
+        return buildRoomDefaultEditor(gameMap, room, packet);
+    }
 
     Room* getRoomFromStream(GameMap* gameMap, std::istream& is) const override
-    { return RoomPortalWave::getRoomFromStream(gameMap, is); }
+    {
+        RoomPortalWave* room = new RoomPortalWave(gameMap);
+        if(!Room::importRoomFromStream(*room, is))
+        {
+            OD_LOG_ERR("Error while building a room from the stream");
+        }
+        return room;
+    }
+
+    bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles) const override
+    {
+        // Not buildable in game mode
+        return false;
+    }
 };
 
 // Register the factory
@@ -1184,35 +1207,6 @@ bool RoomPortalWave::notifyRemovedFromGameMap(GameEntity* entity)
     }
 
     return true;
-}
-
-void RoomPortalWave::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    // Not buildable on game mode
-}
-
-bool RoomPortalWave::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
-{
-    // Not buildable on game mode
-    return false;
-}
-
-void RoomPortalWave::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
-{
-    checkBuildRoomDefaultEditor(gameMap, RoomType::portalWave, inputManager, inputCommand);
-}
-
-bool RoomPortalWave::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
-{
-    RoomPortalWave* room = new RoomPortalWave(gameMap);
-    return buildRoomDefaultEditor(gameMap, room, packet);
-}
-
-Room* RoomPortalWave::getRoomFromStream(GameMap* gameMap, std::istream& is)
-{
-    RoomPortalWave* room = new RoomPortalWave(gameMap);
-    room->importFromStream(is);
-    return room;
 }
 
 std::ostream& operator<<(std::ostream& os, const RoomPortalWaveStrategy& type)

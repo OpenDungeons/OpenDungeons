@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ROOMCRYPT_H
-#define ROOMCRYPT_H
+#ifndef ROOMARENA_H
+#define ROOMARENA_H
 
 #include "rooms/Room.h"
 #include "rooms/RoomType.h"
@@ -24,33 +24,36 @@
 class InputCommand;
 class InputManager;
 
-class RoomCrypt: public Room
+class RoomArena: public Room, public GameEntityListener
 {
 public:
-    RoomCrypt(GameMap* gameMap);
+    RoomArena(GameMap* gameMap);
 
     virtual RoomType getType() const override
     { return mRoomType; }
 
     void absorbRoom(Room *r) override;
-
+    bool hasOpenCreatureSpot(Creature* c) override;
+    bool addCreatureUsingRoom(Creature* c) override;
+    void removeCreatureUsingRoom(Creature* c) override;
     void doUpkeep() override;
 
-    bool hasCarryEntitySpot(GameEntity* carriedEntity) override;
-    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
-    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
+    std::string getListenerName() const override;
+    bool notifyDead(GameEntity* entity) override;
+    bool notifyRemovedFromGameMap(GameEntity* entity) override;
+    bool notifyPickedUp(GameEntity* entity) override;
+    bool notifyDropped(GameEntity* entity) override;
 
     static const RoomType mRoomType;
 
 protected:
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;
 
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
-    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
-    std::map<Tile*,std::pair<Creature*, int32_t> > mRottingCreatures;
-    int32_t mRottenPoints;
+    Creature* mCreatureFighting1;
+    Creature* mCreatureFighting2;
 };
 
-#endif // ROOMCRYPT_H
+#endif // ROOMARENA_H
