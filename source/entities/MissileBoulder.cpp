@@ -41,7 +41,7 @@ MissileBoulder::MissileBoulder(GameMap* gameMap, bool isOnServerMap) :
 
 bool MissileBoulder::hitCreature(Tile* tile, GameEntity* entity)
 {
-    entity->takeDamage(this, mDamage, 0.0, 0.0, tile, false, false, false, false);
+    entity->takeDamage(this, 0.0, mDamage, 0.0, 0.0, tile, false);
     ++mNbHits;
     if(Random::Uint(0, 10 - mNbHits) <= 0)
         return false;

@@ -305,9 +305,8 @@ public:
     uint32_t numCoveredTiles() const override;
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
-    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
-        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense,
-        bool ko) override;
+    double takeDamage(GameEntity* attacker, double damage, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ko) override;
 
     //! \brief Conform: AttackableObject - Adds experience to this creature.
     void receiveExp(double experience);

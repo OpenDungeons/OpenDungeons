@@ -2005,18 +2005,14 @@ std::string Creature::getStatsText()
     return tempSS.str();
 }
 
-double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
-        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense,
-        bool ko)
+double Creature::takeDamage(GameEntity* attacker, double damage, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ko)
 {
     mNbTurnsWithoutBattle = 0;
-    if(!ignorePhysicalDefense)
-        physicalDamage = std::max(physicalDamage - getPhysicalDefense(), 0.0);
-    if(!ignoreMagicalDefense)
-        magicalDamage = std::max(magicalDamage - getMagicalDefense(), 0.0);
-    if(!ignoreElementDefense)
-        elementDamage = std::max(elementDamage - getElementDefense(), 0.0);
-    double damageDone = std::min(mHp, physicalDamage + magicalDamage + elementDamage);
+    physicalDamage = std::max(physicalDamage - getPhysicalDefense(), 0.0);
+    magicalDamage = std::max(magicalDamage - getMagicalDefense(), 0.0);
+    elementDamage = std::max(elementDamage - getElementDefense(), 0.0);
+    double damageDone = std::min(mHp, damage + physicalDamage + magicalDamage + elementDamage);
     mHp -= damageDone;
     if(mHp <= 0)
     {
