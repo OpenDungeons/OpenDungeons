@@ -17,6 +17,7 @@
 
 #include "creaturebehaviour/CreatureBehaviourEngageNaturalEnemy.h"
 
+#include "creatureaction/CreatureAction.h"
 #include "creaturebehaviour/CreatureBehaviourManager.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"

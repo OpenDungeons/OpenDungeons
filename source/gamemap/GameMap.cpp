@@ -619,6 +619,7 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
         bool isClaiming = false;
         bool isDigging = false;
 
+#if 0
         for(const CreatureAction& action : creature->getActionQueue())
         {
             switch(action.getType())
@@ -651,6 +652,7 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
                     break;
             }
         }
+#endif
 
         if(isIdle)
         {
@@ -736,6 +738,7 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
         bool isFleeing = false;
         bool isBusy = false;
 
+#if 0
         for(const CreatureAction& action : creature->getActionQueue())
         {
             switch(action.getType())
@@ -761,6 +764,7 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
                     break;
             }
         }
+#endif
 
         if(isFleeing)
         {

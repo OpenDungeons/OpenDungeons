@@ -270,6 +270,28 @@ set(OD_SOURCEFILES
     ${SRC}/camera/CameraManager.cpp
     ${SRC}/camera/HermiteCatmullSpline.cpp
 
+    ${SRC}/creatureaction/CreatureAction.cpp
+    ${SRC}/creatureaction/CreatureActionAttack.cpp
+    ${SRC}/creatureaction/CreatureActionCarryEntity.cpp
+    ${SRC}/creatureaction/CreatureActionClaimGroundTile.cpp
+    ${SRC}/creatureaction/CreatureActionClaimWallTile.cpp
+    ${SRC}/creatureaction/CreatureActionDigTile.cpp
+    ${SRC}/creatureaction/CreatureActionEat.cpp
+    ${SRC}/creatureaction/CreatureActionFight.cpp
+    ${SRC}/creatureaction/CreatureActionFightArena.cpp
+    ${SRC}/creatureaction/CreatureActionFindHome.cpp
+    ${SRC}/creatureaction/CreatureActionFlee.cpp
+    ${SRC}/creatureaction/CreatureActionGetFee.cpp
+    ${SRC}/creatureaction/CreatureActionGrabEntity.cpp
+    ${SRC}/creatureaction/CreatureActionJob.cpp
+    ${SRC}/creatureaction/CreatureActionLeaveDungeon.cpp
+    ${SRC}/creatureaction/CreatureActionSearchEntityToCarry.cpp
+    ${SRC}/creatureaction/CreatureActionSearchGroundTileToClaim.cpp
+    ${SRC}/creatureaction/CreatureActionSearchTileToDig.cpp
+    ${SRC}/creatureaction/CreatureActionSearchWallTileToClaim.cpp
+    ${SRC}/creatureaction/CreatureActionSleep.cpp
+    ${SRC}/creatureaction/CreatureActionWalkToTile.cpp
+
     ${SRC}/creaturebehaviour/CreatureBehaviour.cpp
     ${SRC}/creaturebehaviour/CreatureBehaviourAttackEnemy.cpp
     ${SRC}/creaturebehaviour/CreatureBehaviourEngageNaturalEnemy.cpp
@@ -312,7 +334,6 @@ set(OD_SOURCEFILES
     ${SRC}/entities/ChickenEntity.cpp
     ${SRC}/entities/CraftedTrap.cpp
     ${SRC}/entities/Creature.cpp
-    ${SRC}/entities/CreatureAction.cpp
     ${SRC}/entities/CreatureDefinition.cpp
     ${SRC}/entities/DoorEntity.cpp
     ${SRC}/entities/EntityBase.cpp

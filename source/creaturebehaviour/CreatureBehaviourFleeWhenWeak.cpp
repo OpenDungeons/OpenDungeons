@@ -17,6 +17,7 @@
 
 #include "creaturebehaviour/CreatureBehaviourFleeWhenWeak.h"
 
+#include "creatureaction/CreatureAction.h"
 #include "creaturebehaviour/CreatureBehaviourManager.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -63,9 +64,7 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
         if(creature.isActionInList(CreatureActionType::flee))
             return true;
 
-        creature.clearDestinations(EntityAnimation::idle_anim, true);
-        creature.clearActionQueue();
-        creature.pushAction(CreatureActionType::flee, false, true, false);
+        creature.flee();
         return true;
     }
 
@@ -75,9 +74,7 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
         if(creature.isActionInList(CreatureActionType::flee))
             return true;
 
-        creature.clearDestinations(EntityAnimation::idle_anim, true);
-        creature.clearActionQueue();
-        creature.pushAction(CreatureActionType::flee, false, true, false);
+        creature.flee();
         return true;
     }
 

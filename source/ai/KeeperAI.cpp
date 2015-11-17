@@ -17,6 +17,7 @@
 
 #include "ai/KeeperAI.h"
 
+#include "creatureaction/CreatureAction.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/Tile.h"

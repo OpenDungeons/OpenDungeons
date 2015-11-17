@@ -17,6 +17,7 @@
 
 #include "rooms/RoomArena.h"
 
+#include "creatureaction/CreatureAction.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "game/Player.h"

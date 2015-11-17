@@ -17,6 +17,7 @@
 
 #include "creatureskill/CreatureSkillStrengthSelf.h"
 
+#include "creatureaction/CreatureAction.h"
 #include "creatureeffect/CreatureEffectStrengthChange.h"
 #include "creatureskill/CreatureSkillManager.h"
 #include "entities/Creature.h"

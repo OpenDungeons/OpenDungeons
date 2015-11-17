@@ -17,6 +17,7 @@
 
 #include "traps/TrapDoor.h"
 
+#include "creatureaction/CreatureAction.h"
 #include "entities/Creature.h"
 #include "entities/DoorEntity.h"
 #include "entities/RenderedMovableEntity.h"

@@ -17,6 +17,7 @@
 
 #include "creaturebehaviour/CreatureBehaviourLeaveDungeonWhenFurious.h"
 
+#include "creatureaction/CreatureAction.h"
 #include "creaturebehaviour/CreatureBehaviourManager.h"
 #include "entities/Creature.h"
 #include "creaturemood/CreatureMood.h"
@@ -53,11 +54,7 @@ bool CreatureBehaviourLeaveDungeonWhenFurious::processBehaviour(Creature& creatu
 
     if(!creature.isActionInList(CreatureActionType::leaveDungeon))
     {
-        creature.clearDestinations(EntityAnimation::idle_anim, true);
-        creature.clearActionQueue();
-        creature.stopJob();
-        creature.stopEating();
-        creature.pushAction(CreatureActionType::leaveDungeon, false, true, false);
+        creature.leaveDungeon();
     }
 
     // If the creature is furious, it does nothing else
