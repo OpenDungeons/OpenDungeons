@@ -123,7 +123,7 @@ public:
 
     virtual void clearCoveredTiles();
     double getHP(Tile *tile) const;
-    double takeDamage(GameEntity* attacker, double damage, double physicalDamage, double magicalDamage, double elementDamage,
+    double takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
         Tile *tileTakingDamage, bool ko) override;
     std::string getNameTile(Tile* tile);
 

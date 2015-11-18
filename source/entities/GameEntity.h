@@ -192,7 +192,7 @@ class GameEntity : public EntityBase
     //! the entity damaging
     //! damage is a damage that ignores defense. physicalDamage, magicalDamage and elementDamage will deal
     //! damages of the corresponding type that will be lowered by creature corresponding defense
-    virtual double takeDamage(GameEntity* attacker, double damage, double physicalDamage, double magicalDamage, double elementDamage,
+    virtual double takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
         Tile *tileTakingDamage, bool ko) = 0;
 
     //! \brief Adds the entity to the correct spaces of the gamemap (animated objects, creature, ...)

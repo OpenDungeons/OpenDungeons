@@ -306,7 +306,7 @@ double Building::getHP(Tile *tile) const
     return total;
 }
 
-double Building::takeDamage(GameEntity* attacker, double damage, double physicalDamage, double magicalDamage, double elementDamage,
+double Building::takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
         Tile *tileTakingDamage, bool ko)
 {
     if(mTileData.count(tileTakingDamage) <= 0)
@@ -316,7 +316,7 @@ double Building::takeDamage(GameEntity* attacker, double damage, double physical
     }
 
     TileData* tileData = mTileData.at(tileTakingDamage);
-    double damageDone = std::min(tileData->mHP, damage + physicalDamage + magicalDamage + elementDamage);
+    double damageDone = std::min(tileData->mHP, absoluteDamage + physicalDamage + magicalDamage + elementDamage);
     tileData->mHP -= damageDone;
 
     GameMap* gameMap = getGameMap();

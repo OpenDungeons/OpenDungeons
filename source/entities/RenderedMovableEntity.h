@@ -53,7 +53,7 @@ public:
     void receiveExp(double experience)
     {}
 
-    double takeDamage(GameEntity* attacker, double damage, double physicalDamage, double magicalDamage, double elementDamage,
+    double takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
         Tile *tileTakingDamage, bool ko) override
     { return 0.0; }
 

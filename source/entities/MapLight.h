@@ -75,7 +75,7 @@ public:
     virtual double getHP(Tile *tile) const
     { return 0.0; }
 
-    virtual double takeDamage(GameEntity* attacker, double damage, double physicalDamage, double magicalDamage, double elementDamage,
+    virtual double takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
         Tile *tileTakingDamage, bool ko) override
     { return 0.0; }
 
