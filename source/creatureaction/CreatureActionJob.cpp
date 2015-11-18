@@ -111,8 +111,11 @@ bool CreatureActionJob::handleJob(Creature& creature, Room* room)
         return true;
     }
 
-    // If we are tired, we go to bed unless we have been slapped
-    bool workForced = creature.isForcedToWork();
+    // If we are tired/hungry, we go to bed unless we are forced to work
+    bool workForced = room->isForcedToWork(creature);
+    if(!workForced)
+        workForced = creature.isForcedToWork();
+
     if (!workForced && (Random::Double(20.0, 30.0) > creature.getWakefulness()))
     {
         creature.popAction();

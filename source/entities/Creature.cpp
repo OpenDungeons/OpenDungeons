@@ -1003,9 +1003,6 @@ void Creature::doUpkeep()
 
     mActionTry.clear();
 
-    if(!mActions.empty())
-        mActions.back().get()->increaseNbTurnActive();
-
     do
     {
         ++loops;
@@ -1019,6 +1016,9 @@ void Creature::doUpkeep()
             loopBack = func();
         }
     } while (loopBack && loops < 20);
+
+    if(!mActions.empty())
+        mActions.back().get()->increaseNbTurnActive();
 
     for(std::unique_ptr<CreatureAction>& creatureAction : mActions)
         creatureAction.get()->increaseNbTurn();
@@ -3090,6 +3090,8 @@ void Creature::releasedInBed()
     // The creature was released in its bed. Let's set its KO state to 0
     mKoTurnCounter = 0;
     computeCreatureOverlayMoodValue();
+    // And sleep a bit
+    sleep();
 }
 
 void Creature::setSeatPrison(Seat* seat)

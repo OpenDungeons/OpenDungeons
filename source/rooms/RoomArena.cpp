@@ -211,7 +211,7 @@ void RoomArena::doUpkeep()
     if((mCreatureFighting1 == nullptr) || (mCreatureFighting2 == nullptr))
     {
         Creature& creature = (mCreatureFighting1 == nullptr ? *mCreatureFighting2 : *mCreatureFighting1);
-        if(creature.isMoving())
+        if(creature.isActionInList(CreatureActionType::walkToTile))
             return;
         if(creature.isWarmup())
             return;
@@ -271,6 +271,17 @@ RenderedMovableEntity* RoomArena::notifyActiveSpotCreated(ActiveSpotPlace place,
             break;
     }
     return nullptr;
+}
+
+bool RoomArena::isForcedToWork(Creature& creature) const
+{
+    // If fighting, the creatures in the arena should not stop because hungry/tired
+    if(mCreatureFighting1 == nullptr)
+        return false;
+    if(mCreatureFighting2 == nullptr)
+        return false;
+
+    return true;
 }
 
 void RoomArena::exportToStream(std::ostream& os) const

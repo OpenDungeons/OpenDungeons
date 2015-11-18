@@ -38,6 +38,8 @@ public:
     void removeCreatureUsingRoom(Creature* c) override;
     void doUpkeep() override;
 
+    bool isForcedToWork(Creature& creature) const override;
+
     std::string getListenerName() const override;
     bool notifyDead(GameEntity* entity) override;
     bool notifyRemovedFromGameMap(GameEntity* entity) override;

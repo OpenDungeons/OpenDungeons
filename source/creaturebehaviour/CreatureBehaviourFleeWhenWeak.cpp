@@ -58,6 +58,10 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
     if(creature.getHP() > creature.getMaxHp() * mWeakCoef)
         return true;
 
+    // If we are fighting in the arena, we should not flee
+    if(creature.isActionInList(CreatureActionType::fightArena))
+        return true;
+
     if(!creature.getVisibleEnemyObjects().empty())
     {
         // If there is an enemy, we should flee
@@ -65,7 +69,17 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
             return true;
 
         creature.flee();
+        return false;
+    }
+
+    if(creature.isActionInList(CreatureActionType::sleep))
         return true;
+
+    if(!creature.hasActionBeenTried(CreatureActionType::sleep))
+    {
+        // Weak creatures should try to sleep if no enemy around
+        creature.sleep();
+        return false;
     }
 
     // We randomly choose to flee
@@ -75,14 +89,8 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
             return true;
 
         creature.flee();
-        return true;
+        return false;
     }
-
-    // Weak creatures should try to sleep if no enemy around
-    if(creature.hasActionBeenTried(CreatureActionType::sleep))
-        return true;
-
-    creature.sleep();
 
     return true;
 }
