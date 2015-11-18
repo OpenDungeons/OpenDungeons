@@ -163,13 +163,14 @@ void RoomLibrary::absorbRoom(Room *r)
         OD_LOG_ERR("Trying to merge incompatible rooms: " + getName() + ", type=" + RoomManager::getRoomNameFromRoomType(getType()) + ", with " + r->getName() + ", type=" + RoomManager::getRoomNameFromRoomType(r->getType()));
         return;
     }
+
+    Room::absorbRoom(r);
+
     RoomLibrary* roomAbs = static_cast<RoomLibrary*>(r);
     mUnusedSpots.insert(mUnusedSpots.end(), roomAbs->mUnusedSpots.begin(), roomAbs->mUnusedSpots.end());
     roomAbs->mUnusedSpots.clear();
-    mCreaturesSpots.insert(roomAbs->mCreaturesSpots.begin(), roomAbs->mCreaturesSpots.end());
-    roomAbs->mCreaturesSpots.clear();
-
-    Room::absorbRoom(r);
+    // mCreaturesSpots should be empty on the absorbed room
+    OD_ASSERT_TRUE_MSG(roomAbs->mCreaturesSpots.empty(), "room=" + getName() + ", roomAbs=" + roomAbs->getName());
 }
 
 void RoomLibrary::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
@@ -185,8 +186,8 @@ void RoomLibrary::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
         if(tmpTile == tile)
         {
             Creature* creature = p.first;
-            creature->stopJob();
-            // stopJob should have released mCreaturesSpots[creature]. Now, we just need to release the unused spot
+            creature->clearActionQueue();
+            // clearActionQueue should have released mCreaturesSpots[creature]. Now, we just need to release the unused spot
             break;
         }
     }
@@ -293,7 +294,7 @@ void RoomLibrary::doUpkeep()
 
         for(Creature* creature : creatures)
         {
-            creature->stopJob();
+            creature->clearActionQueue();
         }
         return;
     }
@@ -383,7 +384,7 @@ void RoomLibrary::doUpkeep()
         for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
         {
             Creature* creature = p.first;
-            creature->stopJob();
+            creature->clearActionQueue();
             break;
         }
     }

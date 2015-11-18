@@ -15,35 +15,33 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CREATUREACTIONJOB_H
-#define CREATUREACTIONJOB_H
+#ifndef CREATUREACTIONSEARCHJOB_H
+#define CREATUREACTIONSEARCHJOB_H
 
 #include "creatureaction/CreatureAction.h"
-#include "entities/GameEntity.h"
 
 class Room;
 
-class CreatureActionJob : public CreatureAction, public GameEntityListener
+class CreatureActionSearchJob : public CreatureAction
 {
 public:
-    CreatureActionJob(Creature& creature, Room& room);
-    virtual ~CreatureActionJob();
+    CreatureActionSearchJob(Creature& creature, bool forced) :
+        CreatureAction(creature),
+        mForced(forced)
+    {}
+
+    virtual ~CreatureActionSearchJob()
+    {}
 
     CreatureActionType getType() const override
-    { return CreatureActionType::job; }
+    { return CreatureActionType::searchJob; }
 
     std::function<bool()> action() override;
 
-    std::string getListenerName() const override;
-    bool notifyDead(GameEntity* entity) override;
-    bool notifyRemovedFromGameMap(GameEntity* entity) override;
-    bool notifyPickedUp(GameEntity* entity) override;
-    bool notifyDropped(GameEntity* entity) override;
-
-    static bool handleJob(Creature& creature, Room* room);
+    static bool handleSearchJob(Creature& creature, bool forced);
 
 private:
-    Room* mRoom;
+    bool mForced;
 };
 
-#endif // CREATUREACTIONJOB_H
+#endif // CREATUREACTIONSEARCHJOB_H

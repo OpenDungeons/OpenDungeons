@@ -119,45 +119,11 @@ void RoomArena::absorbRoom(Room *r)
         return;
     }
 
-    RoomArena* rc = static_cast<RoomArena*>(r);
-    std::vector<Creature*> creaturesFighting;
-    if(rc->mCreatureFighting1 != nullptr)
-        creaturesFighting.push_back(rc->mCreatureFighting1);
-    if(rc->mCreatureFighting2 != nullptr)
-        creaturesFighting.push_back(rc->mCreatureFighting2);
-
-    for(Creature* creature : creaturesFighting)
-    {
-        if(mCreatureFighting1 == nullptr)
-        {
-            creature->removeGameEntityListener(rc);
-            mCreatureFighting1 = creature;
-            mCreatureFighting1->addGameEntityListener(this);
-            // We remove the creature from its old arena
-            if(rc->mCreatureFighting1 == creature)
-                rc->mCreatureFighting1 = nullptr;
-            if(rc->mCreatureFighting2 == creature)
-                rc->mCreatureFighting2 = nullptr;
-            continue;
-        }
-        if(mCreatureFighting2 == nullptr)
-        {
-            creature->removeGameEntityListener(rc);
-            mCreatureFighting2 = creature;
-            mCreatureFighting2->addGameEntityListener(this);
-            // We remove the creature from its old arena
-            if(rc->mCreatureFighting1 == creature)
-                rc->mCreatureFighting1 = nullptr;
-            if(rc->mCreatureFighting2 == creature)
-                rc->mCreatureFighting2 = nullptr;
-            continue;
-        }
-
-        // We have no free space for the creature. It should stop working
-        creature->stopJob();
-    }
-
     Room::absorbRoom(r);
+
+    RoomArena* rc = static_cast<RoomArena*>(r);
+    OD_ASSERT_TRUE_MSG(rc->mCreatureFighting1 == nullptr, "room=" + getName() + ", roomAbs=" + rc->getName() + ", creature=" + rc->mCreatureFighting1->getName());
+    OD_ASSERT_TRUE_MSG(rc->mCreatureFighting2 == nullptr, "room=" + getName() + ", roomAbs=" + rc->getName() + ", creature=" + rc->mCreatureFighting2->getName());
 }
 
 bool RoomArena::hasOpenCreatureSpot(Creature* c)
@@ -228,12 +194,12 @@ void RoomArena::doUpkeep()
     // If a creature is ko, it should be removed from the arena
     if((mCreatureFighting1 != nullptr) && (mCreatureFighting1->isKo()))
     {
-        mCreatureFighting1->stopJob();
+        mCreatureFighting1->clearActionQueue();
         OD_ASSERT_TRUE_MSG(mCreatureFighting1 == nullptr, "room=" + getName() + ", mCreatureFighting1=" + mCreatureFighting1->getName());
     }
     if((mCreatureFighting2 != nullptr) && (mCreatureFighting2->isKo()))
     {
-        mCreatureFighting2->stopJob();
+        mCreatureFighting2->clearActionQueue();
         OD_ASSERT_TRUE_MSG(mCreatureFighting2 == nullptr, "room=" + getName() + ", mCreatureFighting2=" + mCreatureFighting2->getName());
     }
 

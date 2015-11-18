@@ -28,10 +28,10 @@
 #include "creatureaction/CreatureActionFlee.h"
 #include "creatureaction/CreatureActionGetFee.h"
 #include "creatureaction/CreatureActionGrabEntity.h"
-#include "creatureaction/CreatureActionJob.h"
 #include "creatureaction/CreatureActionLeaveDungeon.h"
 #include "creatureaction/CreatureActionSearchEntityToCarry.h"
 #include "creatureaction/CreatureActionSearchGroundTileToClaim.h"
+#include "creatureaction/CreatureActionSearchJob.h"
 #include "creatureaction/CreatureActionSearchTileToDig.h"
 #include "creatureaction/CreatureActionSearchWallTileToClaim.h"
 #include "creatureaction/CreatureActionSleep.h"
@@ -152,7 +152,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mGoldCarried             (0),
     mSkillTypeDropDeath      (SkillType::nullSkillType),
     mWeaponDropDeath         ("none"),
-    mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
     mStatsWindow             (nullptr),
     mNbTurnsWithoutBattle    (0),
@@ -231,7 +230,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mGoldCarried             (0),
     mSkillTypeDropDeath      (SkillType::nullSkillType),
     mWeaponDropDeath         ("none"),
-    mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
     mStatsWindow             (nullptr),
     mNbTurnsWithoutBattle    (0),
@@ -731,7 +729,6 @@ void Creature::dropCarriedEquipment()
 {
     fireCreatureSound(CreatureSound::Die);
     clearActionQueue();
-    stopJob();
     stopEating();
     clearDestinations(EntityAnimation::die_anim, false);
 
@@ -952,7 +949,6 @@ void Creature::doUpkeep()
             mHunger = 0;
             clearDestinations(EntityAnimation::idle_anim, true);
             clearActionQueue();
-            stopJob();
             stopEating();
             mNeedFireRefresh = true;
             if (getHomeTile() != nullptr)
@@ -1164,10 +1160,10 @@ bool Creature::handleIdleAction()
 
     // Otherwise, we try to work
     if (!mDefinition->isWorker() &&
-        !hasActionBeenTried(CreatureActionType::job) &&
+        !hasActionBeenTried(CreatureActionType::searchJob) &&
         (Random::Double(0.0, 1.0) < 0.4))
     {
-        pushAction(Utils::make_unique<CreatureActionJob>(*this, false));
+        pushAction(Utils::make_unique<CreatureActionSearchJob>(*this, false));
         return true;
     }
 
@@ -1443,15 +1439,6 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
     return true;
 }
 
-void Creature::stopJob()
-{
-    if (mJobRoom == nullptr)
-        return;
-
-    mJobRoom->removeCreatureUsingRoom(this);
-    mJobRoom = nullptr;
-}
-
 void Creature::stopEating()
 {
     if (mEatRoom == nullptr)
@@ -1459,11 +1446,6 @@ void Creature::stopEating()
 
     mEatRoom->removeCreatureUsingRoom(this);
     mEatRoom = nullptr;
-}
-
-bool Creature::isJobRoom(Room* room)
-{
-    return mJobRoom == room;
 }
 
 bool Creature::isEatRoom(Room* room)
@@ -2116,7 +2098,6 @@ bool Creature::isActionInList(CreatureActionType action) const
 void Creature::clearActionQueue()
 {
     mActions.clear();
-    stopJob();
     stopEating();
     if(mCarriedEntity != nullptr)
         releaseCarriedEntity();
@@ -2373,7 +2354,7 @@ void Creature::drop(const Ogre::Vector3& v)
         // If not, can we work in this room ?
         if(room->getType() != RoomType::hatchery)
         {
-            pushAction(Utils::make_unique<CreatureActionJob>(*this, true));
+            pushAction(Utils::make_unique<CreatureActionSearchJob>(*this, true));
             return;
         }
     }
@@ -3286,4 +3267,11 @@ void Creature::leaveDungeon()
     clearDestinations(EntityAnimation::idle_anim, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionLeaveDungeon>(*this));
+}
+
+void Creature::jobRoomAbsorbed(Room& newJobRoom)
+{
+    clearDestinations(EntityAnimation::idle_anim, true);
+    clearActionQueue();
+    pushAction(Utils::make_unique<CreatureActionSearchJob>(*this, true));
 }

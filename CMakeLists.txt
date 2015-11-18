@@ -286,6 +286,7 @@ set(OD_SOURCEFILES
     ${SRC}/creatureaction/CreatureActionLeaveDungeon.cpp
     ${SRC}/creatureaction/CreatureActionSearchEntityToCarry.cpp
     ${SRC}/creatureaction/CreatureActionSearchGroundTileToClaim.cpp
+    ${SRC}/creatureaction/CreatureActionSearchJob.cpp
     ${SRC}/creatureaction/CreatureActionSearchTileToDig.cpp
     ${SRC}/creatureaction/CreatureActionSearchWallTileToClaim.cpp
     ${SRC}/creatureaction/CreatureActionSleep.cpp

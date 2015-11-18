@@ -409,16 +409,7 @@ public:
             mHunger = 0.0;
     }
 
-    bool isJobRoom(Room* room);
     bool isEatRoom(Room* room);
-
-    Room* getJobRoom() const
-    { return mJobRoom; }
-
-    //! \brief Allows to change the room the creature is using (when room absorption for example). Beware, the room
-    //! change logic has to be handled elsewhere
-    inline void changeJobRoom(Room* newRoom)
-    { mJobRoom = newRoom; }
 
     Room* getEatRoom() const
     { return mEatRoom; }
@@ -427,9 +418,6 @@ public:
     //! change logic has to be handled elsewhere
     inline void changeEatRoom(Room* newRoom)
     { mEatRoom = newRoom; }
-
-    //! \brief Makes the creature stop its job (releases the job room)
-    void stopJob();
 
     //! \brief Makes the creature stop eating (releases the hatchery)
     void stopEating();
@@ -605,6 +593,8 @@ public:
     // TODO: check if we can move it in the creature action
     bool searchBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData);
 
+    void jobRoomAbsorbed(Room& newJobRoom);
+
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
@@ -692,7 +682,6 @@ private:
     //! Weapon that will be dropped when the creature dies
     std::string     mWeaponDropDeath;
 
-    Room*           mJobRoom;
     Room*           mEatRoom;
     CEGUI::Window*  mStatsWindow;
     int32_t         mNbTurnsWithoutBattle;

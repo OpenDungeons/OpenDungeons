@@ -21,24 +21,37 @@
 #include "creatureaction/CreatureActionSleep.h"
 #include "creaturemood/CreatureMood.h"
 #include "entities/Creature.h"
-#include "entities/CreatureDefinition.h"
 #include "entities/Tile.h"
 #include "game/Seat.h"
-#include "gamemap/GameMap.h"
 #include "rooms/Room.h"
-#include "rooms/RoomType.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 #include "utils/Random.h"
 
+CreatureActionJob::CreatureActionJob(Creature& creature, Room& room) :
+    CreatureAction(creature),
+    mRoom(&room)
+{
+    if(!mRoom->addCreatureUsingRoom(&mCreature))
+    {
+        OD_LOG_ERR("creature=" + mCreature.getName() + ", cannot work in room=" + mRoom->getName());
+    }
+}
+
+CreatureActionJob::~CreatureActionJob()
+{
+    if(mRoom != nullptr)
+        mRoom->removeCreatureUsingRoom(&mCreature);
+}
+
 std::function<bool()> CreatureActionJob::action()
 {
     return std::bind(&CreatureActionJob::handleJob,
-        std::ref(mCreature), mForced);
+        std::ref(mCreature), mRoom);
 }
 
-bool CreatureActionJob::handleJob(Creature& creature, bool forced)
+bool CreatureActionJob::handleJob(Creature& creature, Room* room)
 {
     // Current creature tile position
     Tile* myTile = creature.getPositionTile();
@@ -46,6 +59,13 @@ bool CreatureActionJob::handleJob(Creature& creature, bool forced)
     {
         creature.popAction();
         return false;
+    }
+
+    // If the room is not available, we stop working
+    if(room == nullptr)
+    {
+        creature.popAction();
+        return true;
     }
 
     // If we are unhappy, we stop working
@@ -57,7 +77,6 @@ bool CreatureActionJob::handleJob(Creature& creature, bool forced)
             if(Random::Int(0, 100) < 20)
             {
                 creature.popAction();
-                creature.stopJob();
                 return true;
             }
             break;
@@ -67,7 +86,6 @@ bool CreatureActionJob::handleJob(Creature& creature, bool forced)
         {
             // We don't work
             creature.popAction();
-            creature.stopJob();
             return true;
         }
         default:
@@ -75,12 +93,29 @@ bool CreatureActionJob::handleJob(Creature& creature, bool forced)
             break;
     }
 
+    // We check if we are on a room tile. If not, we will go to one
+    if(myTile->getCoveringRoom() != room)
+    {
+        Tile* dest = room->getCoveredTile(0);
+        if(dest == nullptr)
+        {
+            // No tile to go to !
+            OD_LOG_ERR("creature=" + creature.getName() + ", room=" + room->getName());
+            creature.popAction();
+            return true;
+        }
+
+        if(!creature.setDestination(dest))
+            creature.popAction();
+
+        return true;
+    }
+
     // If we are tired, we go to bed unless we have been slapped
     bool workForced = creature.isForcedToWork();
     if (!workForced && (Random::Double(20.0, 30.0) > creature.getWakefulness()))
     {
         creature.popAction();
-        creature.stopJob();
         creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));
         return true;
     }
@@ -89,98 +124,50 @@ bool CreatureActionJob::handleJob(Creature& creature, bool forced)
     if (!workForced && (Random::Double(70.0, 80.0) < creature.getHunger()))
     {
         creature.popAction();
-        creature.stopJob();
         creature.pushAction(Utils::make_unique<CreatureActionEat>(creature, false));
         return true;
     }
 
-    // If we are already working no need to search for a room
-    if(creature.getJobRoom() != nullptr)
+    // TODO: call some room function to aware that we have nothing to do. That
+    // will avoid the room to have to check for that
+    return false;
+}
+
+std::string CreatureActionJob::getListenerName() const
+{
+    return toString(getType()) + ", creature=" + mCreature.getName();
+}
+
+bool CreatureActionJob::notifyDead(GameEntity* entity)
+{
+    if(entity == mRoom)
+    {
+        mRoom = nullptr;
         return false;
-
-    if(forced)
-    {
-        // We check if we can work in the given room
-        Room* room = myTile->getCoveringRoom();
-        for(const CreatureRoomAffinity& affinity : creature.getDefinition()->getRoomAffinity())
-        {
-            if(room == nullptr)
-                continue;
-            if(room->getType() != affinity.getRoomType())
-                continue;
-            if(affinity.getEfficiency() <= 0)
-                continue;
-            if(!creature.getSeat()->canOwnedCreatureUseRoomFrom(room->getSeat()))
-                continue;
-
-            // It is the room responsibility to test if the creature is suited for working in it
-            if(room->hasOpenCreatureSpot(&creature) && room->addCreatureUsingRoom(&creature))
-            {
-                creature.changeJobRoom(room);
-                return false;
-            }
-            break;
-        }
-
-        // If we couldn't work on the room we were forced to, we stop trying
-        creature.popAction();
-        return true;
     }
+    return true;
+}
 
-    // We get the room we like the most. If we are on such a room, we start working if we can
-    for(const CreatureRoomAffinity& affinity : creature.getDefinition()->getRoomAffinity())
+bool CreatureActionJob::notifyRemovedFromGameMap(GameEntity* entity)
+{
+    if(entity == mRoom)
     {
-        // If likeness = 0, we don't consider working here
-        if(affinity.getLikeness() <= 0)
-            continue;
-
-        // See if we are in the room we like the most. If yes and we can work, we stay. If no,
-        // We check if there is such a room somewhere else where we can go
-        if((myTile->getCoveringRoom() != nullptr) &&
-           (myTile->getCoveringRoom()->getType() == affinity.getRoomType()) &&
-           (creature.getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())))
-        {
-            Room* room = myTile->getCoveringRoom();
-            // If the efficiency is 0 or the room is a hatchery, we only wander in the room
-            if((affinity.getEfficiency() <= 0) ||
-               (room->getType() == RoomType::hatchery))
-            {
-                int index = Random::Int(0, room->numCoveredTiles() - 1);
-                Tile* tileDest = room->getCoveredTile(index);
-                creature.setDestination(tileDest);
-                return false;
-            }
-
-            // It is the room responsibility to test if the creature is suited for working in it
-            if(room->hasOpenCreatureSpot(&creature) && room->addCreatureUsingRoom(&creature))
-            {
-                creature.changeJobRoom(room);
-                return false;
-            }
-        }
-
-        // We are not in a room of the good type or we couldn't use it. We check if there is a reachable room
-        // of the good type
-        std::vector<Room*> rooms = creature.getGameMap()->getRoomsByTypeAndSeat(affinity.getRoomType(), creature.getSeat());
-        rooms = creature.getGameMap()->getReachableRooms(rooms, myTile, &creature);
-        std::random_shuffle(rooms.begin(), rooms.end());
-        for(Room* room : rooms)
-        {
-            // If efficiency is 0, we just want to wander so no need to check if the room
-            // is available
-            if((affinity.getEfficiency() <= 0) ||
-               room->hasOpenCreatureSpot(&creature))
-            {
-                int index = Random::Int(0, room->numCoveredTiles() - 1);
-                Tile* tileDest = room->getCoveredTile(index);
-                creature.setDestination(tileDest);
-                return false;
-            }
-        }
+        mRoom = nullptr;
+        return false;
     }
+    return true;
+}
 
-    // Default action
-    creature.popAction();
-    creature.stopJob();
+bool CreatureActionJob::notifyPickedUp(GameEntity* entity)
+{
+    // That should not happen since we are listening to a room
+    OD_LOG_ERR(toString(getType()) + ", creature=" + mCreature.getName() + ", entity=" + entity->getName());
+    return true;
+}
+
+bool CreatureActionJob::notifyDropped(GameEntity* entity)
+{
+    // That should not happen since we are listening to a room
+    OD_LOG_ERR(toString(getType()) + ", creature=" + mCreature.getName() + ", entity=" + entity->getName());
     return true;
 }
