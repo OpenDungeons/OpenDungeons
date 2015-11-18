@@ -452,6 +452,9 @@ public:
     inline const std::vector<GameEntity*>& getReachableAlliedObjects() const
     { return mReachableAlliedObjects; }
 
+    inline const std::vector<std::unique_ptr<CreatureAction>>& getActions() const
+    { return mActions; }
+
     inline double getWakefulness() const
     { return mWakefulness; }
 
