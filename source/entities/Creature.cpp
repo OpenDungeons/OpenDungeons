@@ -2076,6 +2076,33 @@ void Creature::receiveExp(double experience)
     mExp += experience;
 }
 
+void Creature::useAttack(CreatureSkillData& skillData, GameEntity& entityAttack,
+        Tile& tileAttack, bool ko)
+{
+    // Turn to face the entity we are attacking and set the animation state to Attack.
+    const Ogre::Vector3& pos = getPosition();
+    Ogre::Vector3 walkDirection(tileAttack.getX() - pos.x, tileAttack.getY() - pos.y, 0);
+    walkDirection.normalise();
+    setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
+    fireCreatureSound(CreatureSound::Attack);
+    setNbTurnsWithoutBattle(0);
+
+    // Calculate how much damage we do.
+    Tile* myTile = getPositionTile();
+    float range = Pathfinding::distanceTile(*myTile, tileAttack);
+
+    // We use the skill
+    skillData.mSkill->tryUseFight(*getGameMap(), this, range,
+        &entityAttack, &tileAttack, ko);
+    skillData.mWarmup = skillData.mSkill->getWarmupNbTurns();
+    skillData.mCooldown = skillData.mSkill->getCooldownNbTurns();
+
+    // Fighting is tiring
+    decreaseWakefulness(0.5);
+    // but gives experience
+    receiveExp(1.5);
+}
+
 bool Creature::isActionInList(CreatureActionType action) const
 {
     for (const std::unique_ptr<CreatureAction>& ca : mActions)

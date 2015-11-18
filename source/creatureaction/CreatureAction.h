@@ -35,7 +35,6 @@ enum class CreatureActionType
     claimGroundTile, // (worker only) "Dance" on tile to change its color.
     searchWallTileToClaim, // (worker only) Searches a wall tile to claim
     claimWallTile, // (worker only) "Dance" around the tile to change its color and reinforce it.
-    attackObject, // Do damage to an attackableObject within range, if not in range begin maneuvering.
     findHome, // (fighters only) Try to find a "home" tile in a dormitory somewhere where the creature can sleep.
     sleep, // (fighters only) Try to go to its home tile to and sleep when it gets there.
     job, // (fighters only) Check to see if our seat controls a room where we can work (train, workshop, forge, search, ...)

@@ -271,7 +271,6 @@ set(OD_SOURCEFILES
     ${SRC}/camera/HermiteCatmullSpline.cpp
 
     ${SRC}/creatureaction/CreatureAction.cpp
-    ${SRC}/creatureaction/CreatureActionAttack.cpp
     ${SRC}/creatureaction/CreatureActionCarryEntity.cpp
     ${SRC}/creatureaction/CreatureActionClaimGroundTile.cpp
     ${SRC}/creatureaction/CreatureActionClaimWallTile.cpp

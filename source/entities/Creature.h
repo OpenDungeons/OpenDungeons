@@ -249,21 +249,15 @@ public:
      * Next the function enters the cognition phase where the creature's current
      * state is examined and a decision is made about what to do.  The state of the
      * creature is in the form of a queue, which is really used more like a stack.
-     * At the beginning of the game the 'idle' action is pushed onto each
-     * creature's actionQueue, this action is never removed from the tail end of
-     * the queue and acts as a "last resort" for when the creature completely runs
-     * out of things to do.  Other actions such as 'walkToTile' or 'attackObject'
-     * are then pushed onto the front of the queue and will determine the
-     * creature's future behavior.  When actions are complete they are popped off
-     * the front of the action queue, causing the creature to revert back into the
-     * state it was in when the actions was placed onto the queue.  This allows
-     * actions to be carried out recursively, i.e. if a creature is trying to dig a
-     * tile and it is not nearby it can begin walking toward the tile as a new
-     * action, and when it arrives at the tile it will revert to the 'digTile'
-     * action.
-     *
-     * In the future there should also be a post-cognition phase to do any
-     * additional checks after it tries to move, etc.
+     * If the queue is empty,  the 'idle' action is used. It acts as a "last resort"
+     * for when the creature completely runs out of things to do. Other actions such
+     * as 'walkToTile' or 'job' can be pushed to  determine the what the creature
+     * will do. Once the action is finished (because the creature is tired or there is
+     * nothing related to do), the action will be popped and the previous one will be
+     * used (if any - idle otherwise). This allows actions to be carried out recursively,
+     * i.e. if a creature is trying to dig a tile and it is not nearby it can begin
+     * walking toward the tile as a new action, and when it arrives at the tile it will
+     * revert to the 'digTile' action.
      */
     void doUpkeep();
 
@@ -310,6 +304,10 @@ public:
 
     //! \brief Conform: AttackableObject - Adds experience to this creature.
     void receiveExp(double experience);
+
+    //! \brief performs the given attack on the given target
+    void useAttack(CreatureSkillData& skillData, GameEntity& entityAttack,
+        Tile& tileAttack, bool ko);
 
     //! \brief Returns true if the given action is queued in the action list. False otherwise
     bool isActionInList(CreatureActionType action) const;

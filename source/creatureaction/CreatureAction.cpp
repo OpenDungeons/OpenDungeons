@@ -54,9 +54,6 @@ std::string CreatureAction::toString(CreatureActionType actionType)
     case CreatureActionType::claimGroundTile:
         return "claimGroundTile";
 
-    case CreatureActionType::attackObject:
-        return "attackObject";
-
     case CreatureActionType::findHome:
         return "findHome";
 

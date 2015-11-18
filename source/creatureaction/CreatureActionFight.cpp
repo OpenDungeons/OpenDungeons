@@ -17,7 +17,6 @@
 
 #include "creatureaction/CreatureActionFight.h"
 
-#include "creatureaction/CreatureActionAttack.h"
 #include "creatureaction/CreatureActionWalkToTile.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -137,8 +136,8 @@ bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAtta
             {
                 // We can attack
                 bool ko = creature.getSeat()->getKoCreatures();
-                creature.pushAction(Utils::make_unique<CreatureActionAttack>(creature, *tileAttack, *skillData, *entityAttack, ko));
-                return true;
+                creature.useAttack(*skillData, *entityAttack, *tileAttack, ko);
+                return false;
             }
 
             // We need to move
@@ -175,8 +174,8 @@ bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAtta
             {
                 // We can attack
                 bool ko = creature.getSeat()->getKoCreatures();
-                creature.pushAction(Utils::make_unique<CreatureActionAttack>(creature, *tileAttack, *skillData, *entityAttack, ko));
-                return true;
+                creature.useAttack(*skillData, *entityAttack, *tileAttack, ko);
+                return false;
             }
 
             // We need to move to the entity

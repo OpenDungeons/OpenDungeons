@@ -17,7 +17,6 @@
 
 #include "creatureaction/CreatureActionFightArena.h"
 
-#include "creatureaction/CreatureActionAttack.h"
 #include "creatureaction/CreatureActionWalkToTile.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -100,8 +99,8 @@ bool CreatureActionFightArena::handleFightArena(Creature& creature, GameEntity* 
             // We can attack
             // In the Arena, we always ko the opponent
             bool ko = true;
-            creature.pushAction(Utils::make_unique<CreatureActionAttack>(creature, *tileAttack, *skillData, *entityToAttack, ko));
-            return true;
+            creature.useAttack(*skillData, *entityAttack, *tileAttack, ko);
+            return false;
         }
 
         // We need to move
