@@ -63,6 +63,8 @@ bool CreatureActionLeaveDungeon::handleLeaveDungeon(Creature& creature)
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
 
+            OD_LOG_INF("creature=" + creature.getName() + " left its dungeon");
+
             // We are on the central tile. We can leave the dungeon
             // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
             creature.stopEating();

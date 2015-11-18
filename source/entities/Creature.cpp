@@ -3262,8 +3262,16 @@ void Creature::flee()
     pushAction(Utils::make_unique<CreatureActionFlee>(*this));
 }
 
+void Creature::sleep()
+{
+    clearDestinations(EntityAnimation::idle_anim, true);
+    clearActionQueue();
+    pushAction(Utils::make_unique<CreatureActionSleep>(*this));
+}
+
 void Creature::leaveDungeon()
 {
+    OD_LOG_INF("creature=" + getName() + " wants to leave its dungeon");
     clearDestinations(EntityAnimation::idle_anim, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionLeaveDungeon>(*this));
@@ -3271,6 +3279,9 @@ void Creature::leaveDungeon()
 
 void Creature::jobRoomAbsorbed(Room& newJobRoom)
 {
+    // If the job room is absorbed, we force the creatures working on the old room to search
+    // a job. If there is empty room in the new one, they will use it. If not, they
+    // will do something else
     clearDestinations(EntityAnimation::idle_anim, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionSearchJob>(*this, true));

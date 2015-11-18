@@ -78,6 +78,12 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
         return true;
     }
 
+    // Weak creatures should try to sleep if no enemy around
+    if(creature.hasActionBeenTried(CreatureActionType::sleep))
+        return true;
+
+    creature.sleep();
+
     return true;
 }
 

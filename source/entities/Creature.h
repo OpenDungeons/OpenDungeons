@@ -577,6 +577,8 @@ public:
 
     void flee();
 
+    void sleep();
+
     void leaveDungeon();
 
     bool isWarmup() const;
