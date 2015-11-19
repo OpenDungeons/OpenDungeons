@@ -90,6 +90,7 @@ bool CreatureActionCarryEntity::notifyDead(GameEntity* entity)
 {
     if(entity == mEntityToCarry)
     {
+        mEntityToCarry->setCarryLock(mCreature, false);
         mEntityToCarry = nullptr;
         return false;
     }
@@ -100,6 +101,7 @@ bool CreatureActionCarryEntity::notifyRemovedFromGameMap(GameEntity* entity)
 {
     if(entity == mEntityToCarry)
     {
+        mEntityToCarry->setCarryLock(mCreature, false);
         mEntityToCarry = nullptr;
         return false;
     }
@@ -110,6 +112,7 @@ bool CreatureActionCarryEntity::notifyPickedUp(GameEntity* entity)
 {
     if(entity == mEntityToCarry)
     {
+        mEntityToCarry->setCarryLock(mCreature, false);
         mEntityToCarry = nullptr;
         return false;
     }

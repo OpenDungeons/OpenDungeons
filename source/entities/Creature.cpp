@@ -2303,6 +2303,10 @@ void Creature::drop(const Ogre::Vector3& v)
             GameEntity* entityToCarry = carryable[0];
             for(GameEntity* entity : carryable)
             {
+                // We check that the entity is free to be carried
+                if(entity->getCarryLock(*this))
+                    continue;
+
                 if(entity->getEntityCarryType(this) <= entityToCarry->getEntityCarryType(this))
                     continue;
 
