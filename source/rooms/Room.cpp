@@ -100,12 +100,8 @@ void Room::absorbRoom(Room *r)
     {
         if(getType() != RoomType::hatchery)
             creature->jobRoomAbsorbed(*this);
-        else if(creature->isEatRoom(r))
-            creature->changeEatRoom(this);
         else
-        {
-            OD_LOG_ERR("creature=" + creature->getName() + ", oldRoom=" + r->getName() + ", newRoom=" + getName());
-        }
+            creature->eatRoomAbsorbed(*this);
     }
     mCreaturesUsingRoom.insert(mCreaturesUsingRoom.end(), r->mCreaturesUsingRoom.begin(), r->mCreaturesUsingRoom.end());
     r->mCreaturesUsingRoom.clear();

@@ -47,22 +47,18 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
     {
         OD_LOG_ERR("creature=" + creature.getName());
         creature.popAction();
-        creature.stopEating();
         return true;
     }
 
     if (forced && creature.getHunger() < 5.0)
     {
         creature.popAction();
-
-        creature.stopEating();
         return true;
     }
 
     if (!forced && (creature.getHunger() <= Random::Double(0.0, 15.0)))
     {
         creature.popAction();
-        creature.stopEating();
         return true;
     }
 
@@ -107,7 +103,6 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
     if (hatcheries.empty())
     {
         creature.popAction();
-        creature.stopEating();
         return true;
     }
 
@@ -139,14 +134,12 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
         // We couldn't find a path !
         OD_LOG_ERR("creature=" + creature.getName());
         creature.popAction();
-        creature.stopEating();
         return true;
     }
 
     if(pathToHatchery.size() > maxDistance)
     {
         creature.popAction();
-        creature.stopEating();
         return true;
     }
 
@@ -155,7 +148,6 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
     {
         OD_LOG_ERR("creature=" + creature.getName() + ", tile=" + Tile::displayAsString(chosenTile));
         creature.popAction();
-        creature.stopEating();
         return true;
     }
 

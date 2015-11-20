@@ -35,6 +35,7 @@
 #include "creatureaction/CreatureActionSearchTileToDig.h"
 #include "creatureaction/CreatureActionSearchWallTileToClaim.h"
 #include "creatureaction/CreatureActionSleep.h"
+#include "creatureaction/CreatureActionUseHatchery.h"
 #include "creatureaction/CreatureActionWalkToTile.h"
 #include "creaturebehaviour/CreatureBehaviour.h"
 #include "creatureeffect/CreatureEffect.h"
@@ -152,7 +153,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mGoldCarried             (0),
     mSkillTypeDropDeath      (SkillType::nullSkillType),
     mWeaponDropDeath         ("none"),
-    mEatRoom                 (nullptr),
     mStatsWindow             (nullptr),
     mNbTurnsWithoutBattle    (0),
     mCarriedEntity           (nullptr),
@@ -230,7 +230,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mGoldCarried             (0),
     mSkillTypeDropDeath      (SkillType::nullSkillType),
     mWeaponDropDeath         ("none"),
-    mEatRoom                 (nullptr),
     mStatsWindow             (nullptr),
     mNbTurnsWithoutBattle    (0),
     mCarriedEntity           (nullptr),
@@ -729,7 +728,6 @@ void Creature::dropCarriedEquipment()
 {
     fireCreatureSound(CreatureSound::Die);
     clearActionQueue();
-    stopEating();
     clearDestinations(EntityAnimation::die_anim, false);
 
     // We drop what we are carrying
@@ -949,7 +947,6 @@ void Creature::doUpkeep()
             mHunger = 0;
             clearDestinations(EntityAnimation::idle_anim, true);
             clearActionQueue();
-            stopEating();
             mNeedFireRefresh = true;
             if (getHomeTile() != nullptr)
             {
@@ -1437,20 +1434,6 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
     }
 
     return true;
-}
-
-void Creature::stopEating()
-{
-    if (mEatRoom == nullptr)
-        return;
-
-    mEatRoom->removeCreatureUsingRoom(this);
-    mEatRoom = nullptr;
-}
-
-bool Creature::isEatRoom(Room* room)
-{
-    return mEatRoom == room;
 }
 
 void Creature::engageAlliedNaturalEnemy(Creature& attackerCreature)
@@ -2098,7 +2081,6 @@ bool Creature::isActionInList(CreatureActionType action) const
 void Creature::clearActionQueue()
 {
     mActions.clear();
-    stopEating();
     if(mCarriedEntity != nullptr)
         releaseCarriedEntity();
 }
@@ -3286,9 +3268,20 @@ void Creature::leaveDungeon()
 void Creature::jobRoomAbsorbed(Room& newJobRoom)
 {
     // If the job room is absorbed, we force the creatures working on the old room to search
-    // a job. If there is empty room in the new one, they will use it. If not, they
+    // a job. If there is space in the new one, they will use it. If not, they
     // will do something else
     clearDestinations(EntityAnimation::idle_anim, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionSearchJob>(*this, true));
+}
+
+void Creature::eatRoomAbsorbed(Room& newHatchery)
+{
+    // If the job room is absorbed, we force the creatures eating on the old room to use
+    // the new one. If there is space in the new one, they will use it. If not, they
+    // will do something else
+    clearDestinations(EntityAnimation::idle_anim, true);
+    clearActionQueue();
+    pushAction(Utils::make_unique<CreatureActionSearchFood>(*this, true));
+    pushAction(Utils::make_unique<CreatureActionUseHatchery>(*this, newHatchery, true));
 }

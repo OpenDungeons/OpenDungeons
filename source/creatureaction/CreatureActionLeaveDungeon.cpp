@@ -67,7 +67,6 @@ bool CreatureActionLeaveDungeon::handleLeaveDungeon(Creature& creature)
 
             // We are on the central tile. We can leave the dungeon
             // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
-            creature.stopEating();
             creature.clearDestinations(EntityAnimation::idle_anim, true);
 
             // Remove the creature from the game map and into the deletion queue, it will be deleted

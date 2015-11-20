@@ -409,19 +409,6 @@ public:
             mHunger = 0.0;
     }
 
-    bool isEatRoom(Room* room);
-
-    Room* getEatRoom() const
-    { return mEatRoom; }
-
-    //! \brief Allows to change the room the creature is using (when room absorption for example). Beware, the room
-    //! change logic has to be handled elsewhere
-    inline void changeEatRoom(Room* newRoom)
-    { mEatRoom = newRoom; }
-
-    //! \brief Makes the creature stop eating (releases the hatchery)
-    void stopEating();
-
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(Tile* tile) const;
 
@@ -599,6 +586,7 @@ public:
     bool searchBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData);
 
     void jobRoomAbsorbed(Room& newJobRoom);
+    void eatRoomAbsorbed(Room& newHatchery);
 
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
@@ -687,7 +675,6 @@ private:
     //! Weapon that will be dropped when the creature dies
     std::string     mWeaponDropDeath;
 
-    Room*           mEatRoom;
     CEGUI::Window*  mStatsWindow;
     int32_t         mNbTurnsWithoutBattle;
 

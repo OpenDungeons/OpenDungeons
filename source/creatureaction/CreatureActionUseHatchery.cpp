@@ -65,14 +65,12 @@ bool CreatureActionUseHatchery::handleUseHatchery(Creature& creature, Room* room
     if(forced && creature.getHunger() < 5.0)
     {
         creature.popAction();
-        creature.stopEating();
         return true;
     }
 
     if(!forced && (creature.getHunger() <= Random::Double(0.0, 15.0)))
     {
         creature.popAction();
-        creature.stopEating();
         return true;
     }
 
