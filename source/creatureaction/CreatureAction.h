@@ -39,7 +39,9 @@ enum class CreatureActionType
     sleep, // (fighters only) Try to go to its home tile to and sleep when it gets there.
     searchJob, // (fighters only) Check to see if our seat controls a room where we can work (train, workshop, forge, search, ...)
     job, // (fighters only) works in the given room
-    eat, // (fighters only) Try to find a hatchery to eat
+    searchFood, // (fighters only) Try to find a hatchery to eat or a free chicken
+    eatChicken, // (fighters only) Eats a wandering free chicken
+    useHatchery, // (fighters only) Eats a chicken in the hatchery
     flee, // If a fighter is weak (low hp) or a worker is attacked by a fighter, he will flee
     searchEntityToCarry, // (worker only) Searches around for an entity to carry
     grabEntity, // (worker only) Try to take the entity to carry

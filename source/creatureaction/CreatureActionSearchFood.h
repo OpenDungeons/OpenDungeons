@@ -15,31 +15,31 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CREATUREACTIONEAT_H
-#define CREATUREACTIONEAT_H
+#ifndef CREATUREACTIONSEARCHFOOD_H
+#define CREATUREACTIONSEARCHFOOD_H
 
 #include "creatureaction/CreatureAction.h"
 
-class CreatureActionEat : public CreatureAction
+class CreatureActionSearchFood : public CreatureAction
 {
 public:
-    CreatureActionEat(Creature& creature, bool forced) :
+    CreatureActionSearchFood(Creature& creature, bool forced) :
         CreatureAction(creature),
         mForced(forced)
     {}
 
-    virtual ~CreatureActionEat()
+    virtual ~CreatureActionSearchFood()
     {}
 
     CreatureActionType getType() const override
-    { return CreatureActionType::eat; }
+    { return CreatureActionType::searchFood; }
 
     std::function<bool()> action() override;
 
-    static bool handleEat(Creature& creature, bool forced);
+    static bool handleSearchFood(Creature& creature, bool forced);
 
 private:
     bool mForced;
 };
 
-#endif // CREATUREACTIONEAT_H
+#endif // CREATUREACTIONSEARCHFOOD_H

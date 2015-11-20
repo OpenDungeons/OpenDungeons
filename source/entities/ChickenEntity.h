@@ -56,6 +56,12 @@ public:
     void slap() override
     { mIsSlapped = true; }
 
+    inline bool getLockEat(const Creature& worker) const
+    { return mLockedEat; }
+
+    inline void setLockEat(const Creature& worker, bool lock)
+    { mLockedEat = lock; }
+
     static ChickenEntity* getChickenEntityFromStream(GameMap* gameMap, std::istream& is);
     static ChickenEntity* getChickenEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static std::string getChickenEntityStreamFormat();
@@ -74,6 +80,7 @@ private:
     int32_t mNbTurnOutsideHatchery;
     int32_t mNbTurnDie;
     bool mIsSlapped;
+    bool mLockedEat;
 
     void addTileToListIfPossible(int x, int y, Room* currentHatchery, std::vector<Tile*>& possibleTileMove);
 };

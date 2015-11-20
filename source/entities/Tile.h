@@ -43,7 +43,9 @@ class BuildingObject;
 class PersistentObject;
 class ODPacket;
 
+enum class RoomType;
 enum class SelectionEntityWanted;
+enum class TrapType;
 
 //! Tile types a tile can be
 enum class TileType
@@ -241,9 +243,19 @@ public:
     //! a pointer to the covering room
     Room* getCoveringRoom() const;
 
+    //! \brief Proxy that checks if there is a covering room and, if yes, that its
+    //! type is the expected one. This is for convenience because it is a pretty
+    //! common check
+    bool checkCoveringRoomType(RoomType type) const;
+
     //! \brief Proxy that checks if there is a covering building and if it is a trap. If yes, returns
     //! a pointer to the covering trap
     Trap* getCoveringTrap() const;
+
+    //! \brief Proxy that checks if there is a covering trap and, if yes, that its
+    //! type is the expected one. This is for convenience because it is a pretty
+    //! common check
+    bool checkCoveringTrapType(TrapType type) const;
 
     void setCoveringBuilding(Building* building);
 

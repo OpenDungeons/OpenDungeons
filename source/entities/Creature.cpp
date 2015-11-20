@@ -21,7 +21,7 @@
 #include "creatureaction/CreatureActionClaimGroundTile.h"
 #include "creatureaction/CreatureActionClaimWallTile.h"
 #include "creatureaction/CreatureActionDigTile.h"
-#include "creatureaction/CreatureActionEat.h"
+#include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionFight.h"
 #include "creatureaction/CreatureActionFightArena.h"
 #include "creatureaction/CreatureActionFindHome.h"
@@ -1151,10 +1151,10 @@ bool Creature::handleIdleAction()
 
     // If we are hungry, we go to eat
     if (!mDefinition->isWorker() &&
-        !hasActionBeenTried(CreatureActionType::eat) &&
+        !hasActionBeenTried(CreatureActionType::searchFood) &&
         (Random::Double(70.0, 80.0) < mHunger))
     {
-        pushAction(Utils::make_unique<CreatureActionEat>(*this, false));
+        pushAction(Utils::make_unique<CreatureActionSearchFood>(*this, false));
         return true;
     }
 
@@ -2344,7 +2344,7 @@ void Creature::drop(const Ogre::Vector3& v)
         // we see if we are in an hatchery
         if(room->getType() == RoomType::hatchery)
         {
-            pushAction(Utils::make_unique<CreatureActionEat>(*this, true));
+            pushAction(Utils::make_unique<CreatureActionSearchFood>(*this, true));
             return;
         }
 

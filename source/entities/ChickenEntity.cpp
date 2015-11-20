@@ -37,7 +37,8 @@ ChickenEntity::ChickenEntity(GameMap* gameMap, bool isOnServerMap, const std::st
     mChickenState(ChickenState::free),
     mNbTurnOutsideHatchery(0),
     mNbTurnDie(0),
-    mIsSlapped(false)
+    mIsSlapped(false),
+    mLockedEat(false)
 {
 }
 
@@ -46,7 +47,8 @@ ChickenEntity::ChickenEntity(GameMap* gameMap, bool isOnServerMap) :
     mChickenState(ChickenState::free),
     mNbTurnOutsideHatchery(0),
     mNbTurnDie(0),
-    mIsSlapped(false)
+    mIsSlapped(false),
+    mLockedEat(false)
 {
     setMeshName("Chicken");
 }

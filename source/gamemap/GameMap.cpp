@@ -746,7 +746,7 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
                     isFleeing = true;
                     break;
 
-                case CreatureActionType::eat:
+                case CreatureActionType::searchFood:
                 case CreatureActionType::job:
                     isIdle = false;
                     isBusy = true;

@@ -17,7 +17,7 @@
 
 #include "creatureaction/CreatureActionJob.h"
 
-#include "creatureaction/CreatureActionEat.h"
+#include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionSleep.h"
 #include "creaturemood/CreatureMood.h"
 #include "entities/Creature.h"
@@ -127,7 +127,7 @@ bool CreatureActionJob::handleJob(Creature& creature, Room* room)
     if (!workForced && (Random::Double(70.0, 80.0) < creature.getHunger()))
     {
         creature.popAction();
-        creature.pushAction(Utils::make_unique<CreatureActionEat>(creature, false));
+        creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, false));
         return true;
     }
 
