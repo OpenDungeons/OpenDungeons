@@ -1883,6 +1883,9 @@ bool Tile::removeWorkerDigging(const Creature& worker)
 
 std::string Tile::displayAsString(const Tile* tile)
 {
+    if(tile == nullptr)
+        return "nullptr";
+
     return "[" + Helper::toString(tile->getX()) + ","
          + Helper::toString(tile->getY())+ "]";
 }
