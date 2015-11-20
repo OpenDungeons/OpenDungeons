@@ -156,7 +156,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mStatsWindow             (nullptr),
     mNbTurnsWithoutBattle    (0),
     mCarriedEntity           (nullptr),
-    mCarriedEntityDestType   (GameEntityType::unknown),
     mMoodCooldownTurns       (0),
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
@@ -233,7 +232,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mStatsWindow             (nullptr),
     mNbTurnsWithoutBattle    (0),
     mCarriedEntity           (nullptr),
-    mCarriedEntityDestType   (GameEntityType::unknown),
     mMoodCooldownTurns       (0),
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
@@ -2081,8 +2079,6 @@ bool Creature::isActionInList(CreatureActionType action) const
 void Creature::clearActionQueue()
 {
     mActions.clear();
-    if(mCarriedEntity != nullptr)
-        releaseCarriedEntity();
 }
 
 bool Creature::hasActionBeenTried(CreatureActionType actionType) const
@@ -2467,9 +2463,6 @@ void Creature::carryEntity(GameEntity* carriedEntity)
     if(carriedEntity == nullptr)
         return;
 
-    OD_LOG_INF("creature=" + getName() + " is carrying " + carriedEntity->getName());
-    carriedEntity->notifyEntityCarryOn(this);
-
     // We remove the carried entity from the clients gamemaps as well as the carrier
     // and we send the carrier creation message (that will embed the carried)
     carriedEntity->fireRemoveEntityToSeatsWithVision();
@@ -2488,23 +2481,12 @@ void Creature::releaseCarriedEntity()
         return;
 
     GameEntity* carriedEntity = mCarriedEntity;
-    GameEntityType carriedEntityDestType = mCarriedEntityDestType;
-    std::string carriedEntityDestName = mCarriedEntityDestName;
-
     mCarriedEntity = nullptr;
-    mCarriedEntityDestType = GameEntityType::unknown;
-    mCarriedEntityDestName.clear();
-
     if(carriedEntity == nullptr)
     {
         OD_LOG_ERR("name=" + getName());
         return;
     }
-
-    const Ogre::Vector3& pos = getPosition();
-    OD_LOG_INF("creature=" + getName() + " is releasing carried " + carriedEntity->getName() + ", pos=" + Helper::toString(pos));
-
-    carriedEntity->notifyEntityCarryOff(pos);
 
     for(Seat* seat : mSeatsWithVisionNotified)
     {
@@ -2520,39 +2502,6 @@ void Creature::releaseCarriedEntity()
         serverNotification->mPacket << mPosition;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
-
-    Building* dest = nullptr;
-    switch(carriedEntityDestType)
-    {
-        case GameEntityType::room:
-        {
-            dest = getGameMap()->getRoomByName(carriedEntityDestName);
-            break;
-        }
-        case GameEntityType::trap:
-        {
-            dest = getGameMap()->getTrapByName(carriedEntityDestName);
-            break;
-        }
-        default:
-            break;
-    }
-    if(dest == nullptr)
-    {
-        // We couldn't find the destination. This can happen if it has been destroyed while
-        // we were carrying the entity
-        OD_LOG_INF("Couldn't carry entity=" + carriedEntity->getName()
-            + " to entity name=" + carriedEntityDestName);
-        return;
-    }
-
-    dest->notifyCarryingStateChanged(this, carriedEntity);
-}
-
-void Creature::setCarryEntityDestination(Building* building)
-{
-    mCarriedEntityDestType = building->getObjectType();
-    mCarriedEntityDestName = building->getName();
 }
 
 bool Creature::canSlap(Seat* seat)

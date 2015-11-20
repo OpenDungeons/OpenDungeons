@@ -495,8 +495,6 @@ public:
 
     void releaseCarriedEntity();
 
-    void setCarryEntityDestination(Building* building);
-
     bool hasActionBeenTried(CreatureActionType actionType) const;
 
     void pushAction(std::unique_ptr<CreatureAction>&& action);
@@ -695,8 +693,6 @@ private:
     std::vector<CreatureActionType> mActionTry;
 
     GameEntity*                     mCarriedEntity;
-    GameEntityType                  mCarriedEntityDestType;
-    std::string                     mCarriedEntityDestName;
 
     Ogre::Vector3                   mScale;
 

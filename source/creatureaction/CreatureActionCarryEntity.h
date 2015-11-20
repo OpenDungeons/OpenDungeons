@@ -21,13 +21,14 @@
 #include "creatureaction/CreatureAction.h"
 #include "entities/GameEntity.h"
 
+class Building;
 class GameEntity;
 class Tile;
 
 class CreatureActionCarryEntity : public CreatureAction, public GameEntityListener
 {
 public:
-    CreatureActionCarryEntity(Creature& creature, GameEntity& entityToCarry, Tile& tileDest);
+    CreatureActionCarryEntity(Creature& creature, GameEntity& entityToCarry, Building& buildingDest);
 
     virtual ~CreatureActionCarryEntity();
 
@@ -42,11 +43,12 @@ public:
     bool notifyPickedUp(GameEntity* entity) override;
     bool notifyDropped(GameEntity* entity) override;
 
-    static bool handleCarryEntity(Creature& creature, GameEntity* entityToCarry, Tile& tileDest);
+    static bool handleCarryEntity(Creature& creature, GameEntity* entityToCarry, Tile* tileDest);
 
 private:
     GameEntity* mEntityToCarry;
-    Tile& mTileDest;
+    Tile* mTileDest;
+    Building* mBuildingDest;
 };
 
 #endif // CREATUREACTIONCARRYENTITY_H

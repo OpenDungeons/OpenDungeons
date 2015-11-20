@@ -119,18 +119,8 @@ bool CreatureActionGrabEntity::handleGrabEntity(Creature& creature, GameEntity* 
         return false;
     }
 
-    Tile* tileDest = buildingWants->askSpotForCarriedEntity(entityToCarry);
-    if(tileDest == nullptr)
-    {
-        // The building doesn't want the entity after all
-        creature.popAction();
-        return true;
-    }
-
     creature.popAction();
-    creature.setCarryEntityDestination(buildingWants);
-    creature.carryEntity(entityToCarry);
-    creature.pushAction(Utils::make_unique<CreatureActionCarryEntity>(creature, *entityToCarry, *tileDest));
+    creature.pushAction(Utils::make_unique<CreatureActionCarryEntity>(creature, *entityToCarry, *buildingWants));
     return true;
 }
 

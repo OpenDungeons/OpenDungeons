@@ -57,15 +57,6 @@ bool CreatureActionSearchEntityToCarry::handleSearchEntityToCarry(Creature& crea
         return true;
     }
 
-    // We should not be carrying something here
-    if(creature.getCarriedEntity() != nullptr)
-    {
-        OD_LOG_ERR("creature=" + creature.getName() + ", CarriedEntity=" + creature.getCarriedEntity()->getName() + ", myTile=" + Tile::displayAsString(myTile));
-        creature.releaseCarriedEntity();
-        creature.popAction();
-        return true;
-    }
-
     std::vector<Building*> buildings = creature.getGameMap()->getReachableBuildingsPerSeat(creature.getSeat(), myTile, &creature);
     std::vector<GameEntity*> carryableEntities = creature.getGameMap()->getCarryableEntities(&creature, creature.getTilesWithinSightRadius());
     std::vector<Tile*> carryableEntityInMyTileClients;
