@@ -94,16 +94,14 @@ void Room::absorbRoom(Room *r)
     mNumActiveSpots += r->mNumActiveSpots;
 
     // Every creature working in this room should go to the new one (this is used in the server map only)
+    // To do that, we clear the creatures using the room actions and we push forced
+    // search job/eat
     for(Creature* creature : r->mCreaturesUsingRoom)
     {
-        if(creature->isJobRoom(r))
-            creature->changeJobRoom(this);
-        else if(creature->isEatRoom(r))
-            creature->changeEatRoom(this);
+        if(getType() != RoomType::hatchery)
+            creature->jobRoomAbsorbed(*this);
         else
-        {
-            OD_LOG_ERR("creature=" + creature->getName() + ", oldRoom=" + r->getName() + ", newRoom=" + getName());
-        }
+            creature->eatRoomAbsorbed(*this);
     }
     mCreaturesUsingRoom.insert(mCreaturesUsingRoom.end(), r->mCreaturesUsingRoom.begin(), r->mCreaturesUsingRoom.end());
     r->mCreaturesUsingRoom.clear();

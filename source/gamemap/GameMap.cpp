@@ -24,6 +24,7 @@
 
 #include "gamemap/GameMap.h"
 
+#include "creatureaction/CreatureAction.h"
 #include "creaturemood/CreatureMood.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -619,9 +620,9 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
         bool isClaiming = false;
         bool isDigging = false;
 
-        for(const CreatureAction& action : creature->getActionQueue())
+        for(const std::unique_ptr<CreatureAction>& action : creature->getActions())
         {
-            switch(action.getType())
+            switch(action.get()->getType())
             {
                 case CreatureActionType::fight:
                 case CreatureActionType::flee:
@@ -736,16 +737,16 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
         bool isFleeing = false;
         bool isBusy = false;
 
-        for(const CreatureAction& action : creature->getActionQueue())
+        for(const std::unique_ptr<CreatureAction>& action : creature->getActions())
         {
-            switch(action.getType())
+            switch(action.get()->getType())
             {
                 case CreatureActionType::flee:
                     isIdle = false;
                     isFleeing = true;
                     break;
 
-                case CreatureActionType::eat:
+                case CreatureActionType::searchFood:
                 case CreatureActionType::job:
                     isIdle = false;
                     isBusy = true;

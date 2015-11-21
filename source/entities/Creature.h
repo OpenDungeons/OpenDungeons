@@ -21,19 +21,18 @@
 #ifndef CREATURE_H
 #define CREATURE_H
 
-#include "entities/CreatureAction.h"
 #include "entities/MovableGameEntity.h"
 
 #include <OgreVector2.h>
 #include <OgreVector3.h>
 #include <CEGUI/EventArgs.h>
 
+#include <memory>
 #include <string>
-#include <deque>
 
 class Building;
 class Creature;
-class CreatureActionWrapper;
+class CreatureAction;
 class CreatureEffect;
 class CreatureDefinition;
 class CreatureOverlayStatus;
@@ -43,6 +42,7 @@ class ODPacket;
 class Room;
 class Weapon;
 
+enum class CreatureActionType;
 enum class CreatureMoodLevel;
 enum class SkillType;
 
@@ -125,6 +125,8 @@ class Creature: public MovableGameEntity
 {
     friend class ODClient;
 public:
+    static const int32_t NB_TURNS_BEFORE_CHECKING_TASK;
+
     //! \brief Constructor for creatures. It generates an unique name
     Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position = Ogre::Vector3(0.0f,0.0f,0.0f));
     virtual ~Creature();
@@ -165,6 +167,10 @@ public:
     //! \brief Gets the current dig rate
     inline double getDigRate() const
     { return mDigRate; }
+
+    //! \brief Gets the current claim rate
+    inline double getClaimRate() const
+    { return mClaimRate; }
 
     //! \brief Gets pointer to the Weapon in left hand
     inline const Weapon* getWeaponL() const
@@ -210,6 +216,11 @@ public:
 
     bool setDestination(Tile* tile);
 
+    //! \brief Picks a destination far away in the visible tiles and goes there
+    //! Returns true if a valid Tile was found. The creature will go there
+    //! Returns false if no reachable Tile was found
+    bool wanderRandomly(const std::string& animationState);
+
     void setHP(double nHP);
 
     void heal(double hp);
@@ -238,21 +249,15 @@ public:
      * Next the function enters the cognition phase where the creature's current
      * state is examined and a decision is made about what to do.  The state of the
      * creature is in the form of a queue, which is really used more like a stack.
-     * At the beginning of the game the 'idle' action is pushed onto each
-     * creature's actionQueue, this action is never removed from the tail end of
-     * the queue and acts as a "last resort" for when the creature completely runs
-     * out of things to do.  Other actions such as 'walkToTile' or 'attackObject'
-     * are then pushed onto the front of the queue and will determine the
-     * creature's future behavior.  When actions are complete they are popped off
-     * the front of the action queue, causing the creature to revert back into the
-     * state it was in when the actions was placed onto the queue.  This allows
-     * actions to be carried out recursively, i.e. if a creature is trying to dig a
-     * tile and it is not nearby it can begin walking toward the tile as a new
-     * action, and when it arrives at the tile it will revert to the 'digTile'
-     * action.
-     *
-     * In the future there should also be a post-cognition phase to do any
-     * additional checks after it tries to move, etc.
+     * If the queue is empty,  the 'idle' action is used. It acts as a "last resort"
+     * for when the creature completely runs out of things to do. Other actions such
+     * as 'walkToTile' or 'job' can be pushed to  determine the what the creature
+     * will do. Once the action is finished (because the creature is tired or there is
+     * nothing related to do), the action will be popped and the previous one will be
+     * used (if any - idle otherwise). This allows actions to be carried out recursively,
+     * i.e. if a creature is trying to dig a tile and it is not nearby it can begin
+     * walking toward the tile as a new action, and when it arrives at the tile it will
+     * revert to the 'digTile' action.
      */
     void doUpkeep();
 
@@ -294,18 +299,18 @@ public:
     uint32_t numCoveredTiles() const override;
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
-    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
-        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense,
-        bool ko) override;
+    double takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ko) override;
 
     //! \brief Conform: AttackableObject - Adds experience to this creature.
     void receiveExp(double experience);
 
+    //! \brief performs the given attack on the given target
+    void useAttack(CreatureSkillData& skillData, GameEntity& entityAttack,
+        Tile& tileAttack, bool ko);
+
     //! \brief Returns true if the given action is queued in the action list. False otherwise
     bool isActionInList(CreatureActionType action) const;
-
-    inline const std::deque<CreatureAction>& getActionQueue()
-    { return mActionQueue; }
 
     //! \brief Clears the action queue, except for the Idle action at the end.
     void clearActionQueue();
@@ -383,31 +388,26 @@ public:
     }
     void setJobCooldown(int val);
     inline int getJobCooldown() { return mJobCooldown; }
+
+    inline bool decreaseEatCooldown()
+    {
+        if(mEatCooldown <= 0)
+            return true;
+
+        --mEatCooldown;
+        return false;
+    }
+    void setEatCooldown(int val)
+    { mEatCooldown = val; }
+
+    inline int getEatCooldown() { return mEatCooldown; }
+
     inline void foodEaten(double val)
     {
         mHunger -= val;
         if(mHunger < 0.0)
             mHunger = 0.0;
     }
-
-    bool isJobRoom(Room* room);
-    bool isEatRoom(Room* room);
-
-    //! \brief Allows to change the room the creature is using (when room absorption for example). Beware, the room
-    //! change logic has to be handled elsewhere
-    inline void changeJobRoom(Room* newRoom)
-    { mJobRoom = newRoom; }
-
-    //! \brief Allows to change the room the creature is using (when room absorption for example). Beware, the room
-    //! change logic has to be handled elsewhere
-    inline void changeEatRoom(Room* newRoom)
-    { mEatRoom = newRoom; }
-
-    //! \brief Makes the creature stop its job (releases the job room)
-    void stopJob();
-
-    //! \brief Makes the creature stop eating (releases the hatchery)
-    void stopEating();
 
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(Tile* tile) const;
@@ -427,6 +427,9 @@ public:
     inline const std::vector<Tile*>& getVisibleTiles() const
     { return mVisibleTiles; }
 
+    inline const std::vector<Tile*>& getTilesWithinSightRadius() const
+    { return mTilesWithinSightRadius; }
+
     inline const std::vector<GameEntity*>& getVisibleEnemyObjects() const
     { return mVisibleEnemyObjects; }
 
@@ -436,25 +439,42 @@ public:
     inline const std::vector<GameEntity*>& getReachableAlliedObjects() const
     { return mReachableAlliedObjects; }
 
-    //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
-    //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
-    //! tried.
-    //! Parameters:
-    //! - actionType: The action we want to try
-    //! - popCurrentIfPush: If true and the given action is pushed, before pushing, the current action will be popped
-    //! - forcePush: If true, the action will be pushed even if it has already been tried
-    //! - forceAction: If true, the action is forced (the creature won't stop doing it until too tired/nothing to do)
-    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, bool forceAction, GameEntity* entity = nullptr, Tile* tile = nullptr, CreatureSkillData* skillData = nullptr, bool b = false);
-    void popAction();
+    inline const std::vector<std::unique_ptr<CreatureAction>>& getActions() const
+    { return mActions; }
 
     inline double getWakefulness() const
     { return mWakefulness; }
+
+    inline void increaseWakefulness(double value)
+    {
+        mWakefulness += value;
+        if(mWakefulness > 100.0)
+            mWakefulness = 100.0;
+    }
+
+    void decreaseWakefulness(double value);
 
     inline double getHunger() const
     { return mHunger; }
 
     inline int32_t getGoldFee() const
     { return mGoldFee; }
+
+    void decreaseGoldFee(int32_t value)
+    {
+        mGoldFee -= value;
+        if(mGoldFee < 0)
+            mGoldFee = 0;
+    }
+
+    inline int32_t getGoldCarried() const
+    { return mGoldCarried; }
+
+    inline void resetGoldCarried()
+    { mGoldCarried = 0; }
+
+    inline void addGoldCarried(int32_t gold)
+    { mGoldCarried += gold; }
 
     inline uint32_t getOverlayHealthValue() const
     { return mOverlayHealthValue; }
@@ -464,6 +484,21 @@ public:
 
     inline int32_t getNbTurnsWithoutBattle() const
     { return mNbTurnsWithoutBattle; }
+
+    inline void setNbTurnsWithoutBattle(int32_t nbTurnsWithoutBattle)
+    { mNbTurnsWithoutBattle = nbTurnsWithoutBattle; }
+
+    inline GameEntity* getCarriedEntity() const
+    { return mCarriedEntity; }
+
+    void carryEntity(GameEntity* carriedEntity);
+
+    void releaseCarriedEntity();
+
+    bool hasActionBeenTried(CreatureActionType actionType) const;
+
+    void pushAction(std::unique_ptr<CreatureAction>&& action);
+    void popAction();
 
     void fireCreatureRefreshIfNeeded();
 
@@ -524,7 +559,32 @@ public:
 
     void fightInArena(Creature& opponent);
 
+    void fight();
+
+    void fightCreature(Creature& creature);
+
+    void flee();
+
+    void sleep();
+
+    void leaveDungeon();
+
     bool isWarmup() const;
+
+    void computeCreatureOverlayHealthValue();
+
+    //! \brief Search within listObjects the closest attackable one.
+    //! If a target is found and can be attacked, returns true and
+    //! attackedEntity, attackedTile will be set to the target closest tile and positionTile will
+    //! be set to the best spot.
+    //! If the creature should flee (ranged units attacked by melee), true is returned, positionTile is
+    //! set to the tile where it should flee and attackedEntity = nullptr and attackedTile = nullptr
+    //! If no suitable target is found, returns false
+    // TODO: check if we can move it in the creature action
+    bool searchBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData);
+
+    void jobRoomAbsorbed(Room& newJobRoom);
+    void eatRoomAbsorbed(Room& newHatchery);
 
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
@@ -613,8 +673,6 @@ private:
     //! Weapon that will be dropped when the creature dies
     std::string     mWeaponDropDeath;
 
-    Room*           mJobRoom;
-    Room*           mEatRoom;
     CEGUI::Window*  mStatsWindow;
     int32_t         mNbTurnsWithoutBattle;
 
@@ -628,15 +686,13 @@ private:
     std::vector<GameEntity*>        mVisibleEnemyObjects;
     std::vector<GameEntity*>        mVisibleAlliedObjects;
     std::vector<GameEntity*>        mReachableAlliedObjects;
-    std::deque<CreatureAction>      mActionQueue;
+    std::vector<std::unique_ptr<CreatureAction>>    mActions;
     std::vector<Tile*>              mVisualDebugEntityTiles;
 
     //! \brief Contains the actions that have already been tested to avoid trying several times same action
     std::vector<CreatureActionType> mActionTry;
 
     GameEntity*                     mCarriedEntity;
-    GameEntityType                  mCarriedEntityDestType;
-    std::string                     mCarriedEntityDestName;
 
     Ogre::Vector3                   mScale;
 
@@ -697,20 +753,6 @@ private:
     //! \brief Skills the creature can use
     std::vector<CreatureSkillData> mSkillData;
 
-    //! \brief Picks a destination far away in the visible tiles and goes there
-    //! Returns true if a valid Tile was found. The creature will go there
-    //! Returns false if no reachable Tile was found
-    bool wanderRandomly(const std::string& animationState);
-
-    //! \brief Search within listObjects the closest attackable one.
-    //! If a target is found and can be attacked, returns true and
-    //! attackedEntity, attackedTile will be set to the target closest tile and positionTile will
-    //! be set to the best spot.
-    //! If the creature should flee (ranged units attacked by melee), true is returned, positionTile is
-    //! set to the tile where it should flee and attackedEntity = nullptr and attackedTile = nullptr
-    //! If no suitable target is found, returns false
-    bool searchBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData);
-
     //! \brief A sub-function called by doTurn()
     //! This one checks if there is something prioritary to do (like fighting). If it is the case,
     //! it should empty the action list before adding what to do.
@@ -721,120 +763,14 @@ private:
     //! \return true when another action should handled after that one.
     bool handleIdleAction();
 
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature walking action logic.
-    //! \return true when another action should handled after that one.
-    bool handleWalkToTileAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature claim ground tile search action logic.
-    //! \return true when another action should handled after that one.
-    bool handleSearchGroundTileToClaimAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature claim ground tile action logic.
-    //! \return true when another action should handled after that one.
-    bool handleClaimGroundTileAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature claim wall tile search action logic.
-    //! \return true when another action should handled after that one.
-    bool handleSearchWallTileToClaimAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature claim wall tile action logic.
-    //! \return true when another action should handled after that one.
-    bool handleClaimWallTileAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature dig tile search action logic.
-    //! \return true when another action should handled after that one.
-    bool handleSearchTileToDigAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature dig tile action logic for 1 tile.
-    //! \return true when another action should handled after that one.
-    bool handleDigTileAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature finding home action logic.
-    //! \return true when another action should handled after that one.
-    bool handleFindHomeAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature job action logic.
-    //! \return true when another action should handled after that one.
-    bool handleJobAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature eating action logic.
-    //! \return true when another action should handled after that one.
-    bool handleEatingAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature attack action logic.
-    //! \return true when another action should handled after that one.
-    bool handleAttackAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature fighting action logic.
-    //! \return true when another action should handled after that one.
-    bool handleFightAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature sleeping action logic.
-    //! \return true when another action should handled after that one.
-    bool handleSleepAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature fleeing action logic.
-    //! \return true when another action should handled after that one.
-    bool handleFleeAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature action logic about finding a carryable entity.
-    //! \return true when another action should handled after that one.
-    bool handleSearchEntityToCarryAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature action logic about going to the given
-    //! carryable entity
-    //! \return true when another action should handled after that one.
-    bool handleGrabEntityAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature action logic about carrying an entity to its
-    //! destination building. This function assumes the worker is on the carryable
-    //! entity tile
-    //! \return true when another action should handled after that one.
-    bool handleCarryEntityAction(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature action logic about getting the creature fee.
-    //! \return true when another action should handled after that one.
-    bool handleGetFee(const CreatureActionWrapper& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will handle the creature action logic about trying to leave the dungeon.
-    //! \return true when another action should handled after that one.
-    bool handleLeaveDungeon(const CreatureActionWrapper& actionItem);
-
     //! \brief Restores the creature's stats according to its current level
     void buildStats();
 
     void updateScale();
 
-    void carryEntity(GameEntity* carriedEntity);
-
-    void releaseCarriedEntity();
-
     void increaseHunger(double value);
 
-    void decreaseWakefulness(double value);
-
     void computeMood();
-
-    void computeCreatureOverlayHealthValue();
 
     void computeCreatureOverlayMoodValue();
 

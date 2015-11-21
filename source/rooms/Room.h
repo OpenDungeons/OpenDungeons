@@ -108,6 +108,10 @@ public:
     virtual int withdrawGold(int gold)
     { return 0; }
 
+    //! \brief allows a Room to not let a creature stop working if hungry/sleepy
+    virtual bool isForcedToWork(Creature& creature) const
+    { return false; }
+
     static bool importRoomFromStream(Room& room, std::istream& is);
 
 protected:

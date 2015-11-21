@@ -306,9 +306,8 @@ double Building::getHP(Tile *tile) const
     return total;
 }
 
-double Building::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
-        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense,
-        bool ko)
+double Building::takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ko)
 {
     if(mTileData.count(tileTakingDamage) <= 0)
     {
@@ -317,23 +316,29 @@ double Building::takeDamage(GameEntity* attacker, double physicalDamage, double 
     }
 
     TileData* tileData = mTileData.at(tileTakingDamage);
-    double damageDone = std::min(tileData->mHP, physicalDamage + magicalDamage + elementDamage);
+    double damageDone = std::min(tileData->mHP, absoluteDamage + physicalDamage + magicalDamage + elementDamage);
     tileData->mHP -= damageDone;
 
-    GameMap* gameMap = getGameMap();
-    if(!getIsOnServerMap())
-        return damageDone;
+    // We check if the building is still alive
+    bool isAlive = false;
+    for (std::pair<Tile* const, TileData*>& p : mTileData)
+    {
+        if (p.second->mHP <= 0.0)
+            continue;
 
-    Seat* seat = getSeat();
-    if (seat == nullptr)
-        return damageDone;
+        isAlive = true;
+        break;
+    }
 
-    Player* player = gameMap->getPlayerBySeatId(seat->getId());
+    if(!isAlive)
+        fireEntityDead();
+
+    Player* player = getSeat()->getPlayer();
     if (player == nullptr)
         return damageDone;
 
     // Tells the server game map the player is under attack.
-    gameMap->playerIsFighting(player, tileTakingDamage);
+    getGameMap()->playerIsFighting(player, tileTakingDamage);
 
     return damageDone;
 }

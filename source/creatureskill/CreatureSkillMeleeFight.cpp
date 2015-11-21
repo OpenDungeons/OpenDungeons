@@ -85,7 +85,7 @@ bool CreatureSkillMeleeFight::tryUseFight(GameMap& gameMap, Creature* creature, 
         magAtk *= modifier;
         eleAtk *= modifier;
     }
-    attackedObject->takeDamage(creature, phyAtk, magAtk, eleAtk, attackedTile, false, false, false, ko);
+    attackedObject->takeDamage(creature, 0.0, phyAtk, magAtk, eleAtk, attackedTile, ko);
 
     return true;
 }

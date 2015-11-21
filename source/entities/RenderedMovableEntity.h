@@ -53,9 +53,8 @@ public:
     void receiveExp(double experience)
     {}
 
-    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
-        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense,
-        bool ko) override
+    double takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ko) override
     { return 0.0; }
 
     double getHP(Tile *tile) const override

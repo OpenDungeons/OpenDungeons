@@ -1664,6 +1664,15 @@ Room* Tile::getCoveringRoom() const
     return static_cast<Room*>(mCoveringBuilding);
 }
 
+bool Tile::checkCoveringRoomType(RoomType type) const
+{
+    Room* coveringRoom = getCoveringRoom();
+    if(coveringRoom == nullptr)
+        return false;
+
+    return (coveringRoom->getType() == type);
+}
+
 Trap* Tile::getCoveringTrap() const
 {
     if(mCoveringBuilding == nullptr)
@@ -1673,6 +1682,15 @@ Trap* Tile::getCoveringTrap() const
         return nullptr;
 
     return static_cast<Trap*>(mCoveringBuilding);
+}
+
+bool Tile::checkCoveringTrapType(TrapType type) const
+{
+    Trap* coveringTrap = getCoveringTrap();
+    if(coveringTrap == nullptr)
+        return false;
+
+    return (coveringTrap->getType() == type);
 }
 
 void Tile::computeVisibleTiles()
@@ -1865,6 +1883,9 @@ bool Tile::removeWorkerDigging(const Creature& worker)
 
 std::string Tile::displayAsString(const Tile* tile)
 {
+    if(tile == nullptr)
+        return "nullptr";
+
     return "[" + Helper::toString(tile->getX()) + ","
          + Helper::toString(tile->getY())+ "]";
 }

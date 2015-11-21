@@ -50,13 +50,13 @@ MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap) :
 
 bool MissileOneHit::hitCreature(Tile* tile, GameEntity* entity)
 {
-    entity->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, false, false, false, getKoEnemyCreature());
+    entity->takeDamage(this, 0.0, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, getKoEnemyCreature());
     return false;
 }
 
 void MissileOneHit::hitTargetEntity(Tile* tile, GameEntity* entityTarget)
 {
-    entityTarget->takeDamage(this, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, false, false, false, getKoEnemyCreature());
+    entityTarget->takeDamage(this, 0.0, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, getKoEnemyCreature());
 }
 
 MissileOneHit* MissileOneHit::getMissileOneHitFromStream(GameMap* gameMap, std::istream& is)

@@ -17,6 +17,7 @@
 
 #include "ai/KeeperAI.h"
 
+#include "creatureaction/CreatureAction.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/Tile.h"
@@ -33,6 +34,19 @@
 #include "utils/Random.h"
 
 #include <vector>
+
+// Contains the rooms the AI will try to build. It will try to build them in the given order
+static const std::vector<RoomType> wantedBuildings = {
+    RoomType::dormitory,
+    RoomType::treasury,
+    RoomType::hatchery,
+    RoomType::library,
+    RoomType::trainingHall,
+    RoomType::workshop,
+    RoomType::arena,
+    RoomType::crypt
+};
+
 
 KeeperAI::KeeperAI(GameMap& gameMap, Player& player, const std::string& parameters):
     BaseAI(gameMap, player, parameters),
@@ -491,153 +505,90 @@ bool KeeperAI::lookForGold()
 
 bool KeeperAI::buildMostNeededRoom()
 {
-    uint32_t nbDormitory = 0;
-    if(SkillManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()))
+    for(RoomType roomType: wantedBuildings)
     {
-        std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::dormitory, mPlayer.getSeat());
-        nbDormitory = rooms.size();
-        if(SkillManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()) && nbDormitory == 0)
-        {
-            std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer);
-            if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
-                return false;
+        if(!checkNeedRoom(roomType))
+            continue;
 
-            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::dormitory, &mPlayer, tiles))
-                return false;
+        if(!SkillManager::isRoomAvailable(roomType, mPlayer.getSeat()))
+            continue;
 
+        if(buildRoom(roomType, mRoomPosX, mRoomPosY, mRoomSize))
             return true;
-        }
+
     }
-
-    if(SkillManager::isRoomAvailable(RoomType::treasury, mPlayer.getSeat()))
-    {
-        int totalStorage = 0;
-        int totalGold = 0;
-        for(Room* room : mGameMap.getRooms())
-        {
-            if(room->getSeat() != mPlayer.getSeat())
-                continue;
-
-            totalStorage += room->getTotalGoldStorage();
-            totalGold += room->getTotalGoldStored();
-        }
-
-        int emptyStorage = totalStorage - totalGold;
-        if((emptyStorage < 100) && (totalGold < 20000))
-        {
-            std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer);
-            if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
-                return false;
-
-            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::treasury, &mPlayer, tiles))
-                return false;
-
-            return true;
-        }
-    }
-
-    if(SkillManager::isRoomAvailable(RoomType::hatchery, mPlayer.getSeat()))
-    {
-        std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::hatchery, mPlayer.getSeat());
-        if(rooms.empty())
-        {
-            std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer);
-            if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
-                return false;
-
-            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::hatchery, &mPlayer, tiles))
-                return false;
-
-            return true;
-        }
-    }
-
-    if(SkillManager::isRoomAvailable(RoomType::trainingHall, mPlayer.getSeat()))
-    {
-        std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::trainingHall, mPlayer.getSeat());
-        if(rooms.empty())
-        {
-            std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer);
-            if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
-                return false;
-
-            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::trainingHall, &mPlayer, tiles))
-                return false;
-
-            return true;
-        }
-    }
-
-    if(SkillManager::isRoomAvailable(RoomType::workshop, mPlayer.getSeat()))
-    {
-        std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::workshop, mPlayer.getSeat());
-        if(rooms.empty())
-        {
-            std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer);
-            if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
-                return false;
-
-            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::workshop, &mPlayer, tiles))
-                return false;
-
-            return true;
-        }
-    }
-
-    if(SkillManager::isRoomAvailable(RoomType::library, mPlayer.getSeat()))
-    {
-        std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::library, mPlayer.getSeat());
-        if(rooms.empty())
-        {
-            std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer);
-            if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
-                return false;
-
-            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::library, &mPlayer, tiles))
-                return false;
-
-            return true;
-        }
-    }
-
-    if(SkillManager::isRoomAvailable(RoomType::crypt, mPlayer.getSeat()))
-    {
-        std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::crypt, mPlayer.getSeat());
-        if(rooms.empty())
-        {
-            std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer);
-            if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
-                return false;
-
-            if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::crypt, &mPlayer, tiles))
-                return false;
-
-            return true;
-        }
-    }
-
-    // Once we have done all the basic buildings, we go for another dormitory
-    if(SkillManager::isRoomAvailable(RoomType::dormitory, mPlayer.getSeat()) && nbDormitory == 1)
-    {
-        std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer);
-        if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
-            return false;
-
-        if(!RoomManager::buildRoomOnTiles(&mGameMap, RoomType::dormitory, &mPlayer, tiles))
-            return false;
-
-        return true;
-    }
-
     return false;
+}
+
+bool KeeperAI::buildRoom(RoomType roomType, int x, int y, int roomSize)
+{
+    std::vector<Tile*> tiles = mGameMap.getBuildableTilesForPlayerInArea(x, y, x + roomSize - 1,
+        y + roomSize - 1, &mPlayer);
+    if (tiles.size() < static_cast<uint32_t>(roomSize * roomSize))
+        return false;
+
+    if(!RoomManager::buildRoomOnTiles(&mGameMap, roomType, &mPlayer, tiles))
+        return false;
+
+    OD_LOG_INF("AI seatId=" + Helper::toString(mPlayer.getSeat()->getId())+ " builds room type=" + Helper::toString(static_cast<uint32_t>(roomType)) + ", x=" + Helper::toString(x) + ", y=" + Helper::toString(y) + ", roomSize=" + Helper::toString(roomSize));
+    return true;
+}
+
+bool KeeperAI::checkNeedRoom(RoomType roomType)
+{
+    // We should try to build one room of each except special rooms (like bridges)
+    switch(roomType)
+    {
+        case RoomType::dormitory:
+        {
+            // If we have no dormitory, we try to build 1. If we already have one, we try to build another
+            // if nothing else can be built
+            if(mPlayer.getSeat()->getNbRooms(roomType) <= 0)
+                return true;
+
+            // If too many dormitories, no need to build more
+            if(mPlayer.getSeat()->getNbRooms(roomType) > 1)
+                return false;
+
+            for(RoomType roomType: wantedBuildings)
+            {
+                if(roomType == RoomType::dormitory)
+                    continue;
+
+                if(!checkNeedRoom(roomType))
+                    continue;
+
+                if(!SkillManager::isRoomAvailable(roomType, mPlayer.getSeat()))
+                    continue;
+
+                // Another room is needed
+                return false;
+            }
+
+            return true;
+        }
+        case RoomType::treasury:
+        {
+            int totalStorage = mPlayer.getSeat()->getGoldMax();
+            int totalGold = mPlayer.getSeat()->getGold();
+
+            if(((totalStorage - totalGold) < 200) && (totalGold < 20000))
+                return true;
+
+            return false;
+        }
+        case RoomType::bridgeWooden:
+        case RoomType::bridgeStone:
+            return false;
+
+        default:
+        {
+            if(mPlayer.getSeat()->getNbRooms(roomType) <= 0)
+                return true;
+
+            return false;
+        }
+    }
 }
 
 void KeeperAI::saveWoundedCreatures()

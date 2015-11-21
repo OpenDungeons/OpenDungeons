@@ -20,6 +20,8 @@
 
 #include "ai/BaseAI.h"
 
+enum class RoomType;
+
 class KeeperAI : public BaseAI
 {
 
@@ -70,7 +72,15 @@ protected:
     void handleFirstTurn();
 
 private:
+    //! \brief try to build the most needed available room
     bool buildMostNeededRoom();
+
+    //! \brief Try to build the given room on the given position. Returns true if the room was built and
+    //! false otherwise
+    bool buildRoom(RoomType roomType, int x, int y, int roomSize);
+
+    //! \brief Returns true if the given room is needed and false otherwise
+    bool checkNeedRoom(RoomType roomType);
 
     int mCooldownCheckTreasury;
     int mCooldownLookingForRooms;

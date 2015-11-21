@@ -166,16 +166,17 @@ void RoomWorkshop::absorbRoom(Room *r)
         OD_LOG_ERR("Trying to merge incompatible rooms: " + getName() + ", type=" + RoomManager::getRoomNameFromRoomType(getType()) + ", with " + r->getName() + ", type=" + RoomManager::getRoomNameFromRoomType(r->getType()));
         return;
     }
+
+    Room::absorbRoom(r);
+
     RoomWorkshop* roomAbs = static_cast<RoomWorkshop*>(r);
     mUnusedSpots.insert(mUnusedSpots.end(), roomAbs->mUnusedSpots.begin(), roomAbs->mUnusedSpots.end());
     roomAbs->mUnusedSpots.clear();
-    mCreaturesSpots.insert(roomAbs->mCreaturesSpots.begin(), roomAbs->mCreaturesSpots.end());
-    roomAbs->mCreaturesSpots.clear();
 
     mPoints += roomAbs->mPoints;
     roomAbs->mPoints = 0;
 
-    Room::absorbRoom(r);
+    OD_ASSERT_TRUE_MSG(roomAbs->mCreaturesSpots.empty(), "room=" + getName() + ", roomAbs=" + roomAbs->getName());
 }
 
 void RoomWorkshop::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
@@ -194,8 +195,8 @@ void RoomWorkshop::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
         if(tmpTile == tile)
         {
             Creature* creature = p.first;
-            creature->stopJob();
-            // stopJob should have released mCreaturesSpots[creature]. Now, we just need to release the unused spot
+            creature->clearActionQueue();
+            // clearActionQueue should have released mCreaturesSpots[creature]. Now, we just need to release the unused spot
             break;
         }
     }
@@ -367,7 +368,7 @@ void RoomWorkshop::doUpkeep()
 
         for(Creature* creature : creatures)
         {
-            creature->stopJob();
+            creature->clearActionQueue();
         }
         return;
     }
@@ -437,7 +438,7 @@ void RoomWorkshop::doUpkeep()
             for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
             {
                 Creature* creature = p.first;
-                creature->stopJob();
+                creature->clearActionQueue();
                 break;
             }
         }

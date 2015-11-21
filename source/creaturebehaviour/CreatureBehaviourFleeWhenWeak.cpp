@@ -17,6 +17,7 @@
 
 #include "creaturebehaviour/CreatureBehaviourFleeWhenWeak.h"
 
+#include "creatureaction/CreatureAction.h"
 #include "creaturebehaviour/CreatureBehaviourManager.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -57,16 +58,28 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
     if(creature.getHP() > creature.getMaxHp() * mWeakCoef)
         return true;
 
+    // If we are fighting in the arena, we should not flee
+    if(creature.isActionInList(CreatureActionType::fightArena))
+        return true;
+
     if(!creature.getVisibleEnemyObjects().empty())
     {
         // If there is an enemy, we should flee
         if(creature.isActionInList(CreatureActionType::flee))
             return true;
 
-        creature.clearDestinations(EntityAnimation::idle_anim, true);
-        creature.clearActionQueue();
-        creature.pushAction(CreatureActionType::flee, false, true, false);
+        creature.flee();
+        return false;
+    }
+
+    if(creature.isActionInList(CreatureActionType::sleep))
         return true;
+
+    if(!creature.hasActionBeenTried(CreatureActionType::sleep))
+    {
+        // Weak creatures should try to sleep if no enemy around
+        creature.sleep();
+        return false;
     }
 
     // We randomly choose to flee
@@ -75,10 +88,8 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
         if(creature.isActionInList(CreatureActionType::flee))
             return true;
 
-        creature.clearDestinations(EntityAnimation::idle_anim, true);
-        creature.clearActionQueue();
-        creature.pushAction(CreatureActionType::flee, false, true, false);
-        return true;
+        creature.flee();
+        return false;
     }
 
     return true;

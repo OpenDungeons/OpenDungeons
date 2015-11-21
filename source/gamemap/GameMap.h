@@ -348,6 +348,8 @@ public:
      * will choose the closest tile in possibleDests and return the path between tileStart and it.
      * If a path is found, it is returned and chosenTile is set to the chosen tile. If no path is found,
      * an empty list will be returned and chosenTile will be set to nullptr
+     * Note that this function will use some magic numbers to avoid computing paths that are likely to be
+     * further
      */
     std::list<Tile*> findBestPath(const Creature* creature, Tile* tileStart, const std::vector<Tile*> possibleDests,
         Tile*& chosenTile);

@@ -18,13 +18,11 @@
 #ifndef CREATUREACTION_H
 #define CREATUREACTION_H
 
-#include "entities/GameEntity.h"
+#include <cstdint>
+#include <functional>
+#include <istream>
 
-#include <string>
-
-class Tile;
 class Creature;
-class CreatureSkillData;
 
 enum class CreatureActionType
 {
@@ -37,11 +35,13 @@ enum class CreatureActionType
     claimGroundTile, // (worker only) "Dance" on tile to change its color.
     searchWallTileToClaim, // (worker only) Searches a wall tile to claim
     claimWallTile, // (worker only) "Dance" around the tile to change its color and reinforce it.
-    attackObject, // Do damage to an attackableObject within range, if not in range begin maneuvering.
     findHome, // (fighters only) Try to find a "home" tile in a dormitory somewhere where the creature can sleep.
     sleep, // (fighters only) Try to go to its home tile to and sleep when it gets there.
-    job, // (fighters only) Check to see if our seat controls a room where we can work (train, workshop, forge, search, ...)
-    eat, // (fighters only) Try to find a hatchery to eat
+    searchJob, // (fighters only) Check to see if our seat controls a room where we can work (train, workshop, forge, search, ...)
+    job, // (fighters only) works in the given room
+    searchFood, // (fighters only) Try to find a hatchery to eat or a free chicken
+    eatChicken, // (fighters only) Eats a wandering free chicken
+    useHatchery, // (fighters only) Eats a chicken in the hatchery
     flee, // If a fighter is weak (low hp) or a worker is attacked by a fighter, he will flee
     searchEntityToCarry, // (worker only) Searches around for an entity to carry
     grabEntity, // (worker only) Try to take the entity to carry
@@ -51,19 +51,19 @@ enum class CreatureActionType
     nb // Must be the last value of this enum
 };
 
-//! \brief A data structure to be used in the creature AI calculations.
-class CreatureAction : public GameEntityListener
+class CreatureAction
 {
 public:
-    CreatureAction(Creature& creature, const CreatureActionType actionType, bool forcedAction, GameEntity* entity, Tile* tile,
-        CreatureSkillData* creatureSkillData, bool b);
-    virtual ~CreatureAction();
+    CreatureAction(Creature& creature) :
+        mCreature(creature),
+        mNbTurns(0),
+        mNbTurnsActive(0)
+    {}
 
-    inline const CreatureActionType getType() const
-    { return mActionType; }
+    virtual ~CreatureAction()
+    {}
 
-    inline bool getForcedAction() const
-    { return mForcedAction; }
+    virtual CreatureActionType getType() const = 0;
 
     inline void increaseNbTurn()
     { ++mNbTurns; }
@@ -77,41 +77,21 @@ public:
     inline int32_t getNbTurnsActive() const
     { return mNbTurnsActive; }
 
-    inline GameEntity* getEntity() const
-    { return mEntity; }
-
-    inline void clearNbTurnsActive()
-    { mNbTurnsActive = 0; }
-
-    inline Tile* getTile() const
-    { return mTile; }
-
-    inline bool getBool() const
-    { return mBool; }
-
-    inline CreatureSkillData* getCreatureSkillData() const
-    { return mCreatureSkillData; }
-
-    std::string getListenerName() const override;
-    bool notifyDead(GameEntity* entity) override;
-    bool notifyRemovedFromGameMap(GameEntity* entity) override;
-    bool notifyPickedUp(GameEntity* entity) override;
-    bool notifyDropped(GameEntity* entity) override;
+    //! Returns a pointer to the given action from CreatureAction class. Note that
+    //! we don't want to do stuff in the child classes because many actions will
+    //! pop themselves which might result in errors. Instead, we expect every action
+    //! to call the expected action from CreatureAction with the good parameters.
+    virtual std::function<bool()> action() = 0;
 
     static std::string toString(CreatureActionType actionType);
 
+protected:
+    Creature& mCreature;
+
 private:
     CreatureAction(const CreatureAction&) = delete;
-    Creature& mCreature;
-    CreatureActionType mActionType;
-    bool mForcedAction;
-    GameEntity* mEntity;
-    Tile* mTile;
-    CreatureSkillData* mCreatureSkillData;
-    bool mBool;
-    //! Number of turns the action is in the creature pending actions
+
     int32_t mNbTurns;
-    //! Number of turns the action is the one active
     int32_t mNbTurnsActive;
 };
 

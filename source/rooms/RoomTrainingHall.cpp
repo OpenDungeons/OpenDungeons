@@ -115,14 +115,19 @@ RoomTrainingHall::RoomTrainingHall(GameMap* gameMap) :
 
 void RoomTrainingHall::absorbRoom(Room *r)
 {
+    if(r->getType() != getType())
+    {
+        OD_LOG_ERR("Trying to merge incompatible rooms: " + getName() + ", type=" + RoomManager::getRoomNameFromRoomType(getType()) + ", with " + r->getName() + ", type=" + RoomManager::getRoomNameFromRoomType(r->getType()));
+        return;
+    }
+
     Room::absorbRoom(r);
 
-    RoomTrainingHall* rd = static_cast<RoomTrainingHall*>(r);
-    mUnusedDummies.insert(mUnusedDummies.end(), rd->mUnusedDummies.begin(), rd->mUnusedDummies.end());
-    rd->mUnusedDummies.clear();
+    RoomTrainingHall* roomAbs = static_cast<RoomTrainingHall*>(r);
+    mUnusedDummies.insert(mUnusedDummies.end(), roomAbs->mUnusedDummies.begin(), roomAbs->mUnusedDummies.end());
+    roomAbs->mUnusedDummies.clear();
 
-    mCreaturesDummies.insert(rd->mCreaturesDummies.begin(), rd->mCreaturesDummies.end());
-    rd->mCreaturesDummies.clear();
+    OD_ASSERT_TRUE_MSG(roomAbs->mCreaturesDummies.empty(), "room=" + getName() + ", roomAbs=" + roomAbs->getName());
 }
 
 RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
@@ -189,8 +194,8 @@ void RoomTrainingHall::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile
         if(tmpTile == tile)
         {
             Creature* creature = p.first;
-            creature->stopJob();
-            // stopJob should have released mCreaturesDummies[creature]. Now, we just need to release the unused dummy
+            creature->clearActionQueue();
+            // clearActionQueue should have released mCreaturesDummies[creature]. Now, we just need to release the unused dummy
             break;
         }
     }

@@ -75,9 +75,8 @@ public:
     virtual double getHP(Tile *tile) const
     { return 0.0; }
 
-    virtual double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, double elementDamage,
-        Tile *tileTakingDamage, bool ignorePhysicalDefense, bool ignoreMagicalDefense, bool ignoreElementDefense,
-        bool ko) override
+    virtual double takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ko) override
     { return 0.0; }
 
     const Ogre::ColourValue& getDiffuseColor() const

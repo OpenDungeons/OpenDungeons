@@ -17,6 +17,7 @@
 
 #include "creaturebehaviour/CreatureBehaviourAttackEnemy.h"
 
+#include "creatureaction/CreatureAction.h"
 #include "creaturebehaviour/CreatureBehaviourManager.h"
 #include "creaturemood/CreatureMood.h"
 #include "entities/Creature.h"
@@ -64,9 +65,7 @@ bool CreatureBehaviourAttackEnemy::processBehaviour(Creature& creature) const
         {
             if(Random::Int(0,100) > 80)
             {
-                creature.clearDestinations(EntityAnimation::idle_anim, true);
-                creature.clearActionQueue();
-                creature.pushAction(CreatureActionType::flee, false, true, false);
+                creature.flee();
                 return false;
             }
             break;
@@ -76,9 +75,7 @@ bool CreatureBehaviourAttackEnemy::processBehaviour(Creature& creature) const
     }
 
     // If we are not already fighting with a creature then start doing so.
-    creature.clearDestinations(EntityAnimation::idle_anim, true);
-    creature.clearActionQueue();
-    creature.pushAction(CreatureActionType::fight, false, true, false);
+    creature.fight();
 
     return false;
 }
