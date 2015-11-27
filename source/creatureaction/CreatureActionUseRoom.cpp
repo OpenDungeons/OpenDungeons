@@ -34,6 +34,7 @@ CreatureActionUseRoom::CreatureActionUseRoom(Creature& creature, Room& room, boo
     mRoom(&room),
     mForced(forced)
 {
+    mRoom->addGameEntityListener(this);
     if(!mRoom->addCreatureUsingRoom(&mCreature))
     {
         OD_LOG_ERR("creature=" + mCreature.getName() + ", cannot work in room=" + mRoom->getName());
@@ -43,7 +44,10 @@ CreatureActionUseRoom::CreatureActionUseRoom(Creature& creature, Room& room, boo
 CreatureActionUseRoom::~CreatureActionUseRoom()
 {
     if(mRoom != nullptr)
+    {
+        mRoom->removeGameEntityListener(this);
         mRoom->removeCreatureUsingRoom(&mCreature);
+    }
 }
 
 std::function<bool()> CreatureActionUseRoom::action()
