@@ -21,16 +21,15 @@
 #include "creatureaction/CreatureActionClaimGroundTile.h"
 #include "creatureaction/CreatureActionClaimWallTile.h"
 #include "creatureaction/CreatureActionDigTile.h"
-#include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionFight.h"
 #include "creatureaction/CreatureActionFightArena.h"
 #include "creatureaction/CreatureActionFindHome.h"
 #include "creatureaction/CreatureActionFlee.h"
 #include "creatureaction/CreatureActionGetFee.h"
 #include "creatureaction/CreatureActionGrabEntity.h"
-#include "creatureaction/CreatureActionUseRoom.h"
 #include "creatureaction/CreatureActionLeaveDungeon.h"
 #include "creatureaction/CreatureActionSearchEntityToCarry.h"
+#include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionSearchGroundTileToClaim.h"
 #include "creatureaction/CreatureActionSearchJob.h"
 #include "creatureaction/CreatureActionSearchTileToDig.h"
@@ -3210,28 +3209,4 @@ void Creature::leaveDungeon()
     clearDestinations(EntityAnimation::idle_anim, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionLeaveDungeon>(*this));
-}
-
-// TODO: jobRoomAbsorbed and eatRoomAbsorbed should be merged in a room virtual
-// function so that the hatchery pushes the correct actions as well as the other
-// rooms
-void Creature::jobRoomAbsorbed(Room& newJobRoom)
-{
-    // If the job room is absorbed, we force the creatures working on the old room to search
-    // a job. If there is space in the new one, they will use it. If not, they
-    // will do something else
-    clearDestinations(EntityAnimation::idle_anim, true);
-    clearActionQueue();
-    pushAction(Utils::make_unique<CreatureActionSearchJob>(*this, true));
-}
-
-void Creature::eatRoomAbsorbed(Room& newHatchery)
-{
-    // If the job room is absorbed, we force the creatures eating on the old room to use
-    // the new one. If there is space in the new one, they will use it. If not, they
-    // will do something else
-    clearDestinations(EntityAnimation::idle_anim, true);
-    clearActionQueue();
-    pushAction(Utils::make_unique<CreatureActionSearchFood>(*this, true));
-    pushAction(Utils::make_unique<CreatureActionUseRoom>(*this, newHatchery, true));
 }

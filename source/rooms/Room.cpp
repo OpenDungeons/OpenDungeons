@@ -17,6 +17,7 @@
 
 #include "rooms/Room.h"
 
+#include "creatureaction/CreatureActionSearchJob.h"
 #include "entities/Creature.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
@@ -33,6 +34,7 @@
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/MakeUnique.h"
 
 #include <istream>
 #include <ostream>
@@ -97,12 +99,8 @@ void Room::absorbRoom(Room *r)
     // To do that, we clear the creatures using the room actions and we push forced
     // search job/eat
     for(Creature* creature : r->mCreaturesUsingRoom)
-    {
-        if(getType() != RoomType::hatchery)
-            creature->jobRoomAbsorbed(*this);
-        else
-            creature->eatRoomAbsorbed(*this);
-    }
+        handleCreatureUsingAbsorbedRoom(*creature);
+
     mCreaturesUsingRoom.insert(mCreaturesUsingRoom.end(), r->mCreaturesUsingRoom.begin(), r->mCreaturesUsingRoom.end());
     r->mCreaturesUsingRoom.clear();
 
@@ -122,6 +120,16 @@ void Room::absorbRoom(Room *r)
 
     r->mCoveredTilesDestroyed.insert(r->mCoveredTilesDestroyed.end(), r->mCoveredTiles.begin(), r->mCoveredTiles.end());
     r->mCoveredTiles.clear();
+}
+
+void Room::handleCreatureUsingAbsorbedRoom(Creature& creature)
+{
+    // If the job room is absorbed, we force the creatures working in the old rooms to search
+    // a job. If there is space in the new one, they will use it. If not, they
+    // will do something else
+    creature.clearDestinations(EntityAnimation::idle_anim, true);
+    creature.clearActionQueue();
+    creature.pushAction(Utils::make_unique<CreatureActionSearchJob>(creature, true));
 }
 
 void Room::reorderRoomTiles(std::vector<Tile*>& tiles)

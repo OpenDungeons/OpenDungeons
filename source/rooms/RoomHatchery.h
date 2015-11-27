@@ -40,6 +40,7 @@ public:
     { return true; }
 
     bool useRoom(Creature& creature, bool forced) override;
+    void handleCreatureUsingAbsorbedRoom(Creature& creature) override;
 
     static const RoomType mRoomType;
 

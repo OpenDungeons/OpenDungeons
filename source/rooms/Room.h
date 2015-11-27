@@ -53,6 +53,11 @@ public:
 
     virtual void absorbRoom(Room* r);
 
+    //! \brief By default, we consider that creatures using the room are working and
+    //! should be forced to work in the new room (if possible). If not, this function
+    //! should be overriden
+    virtual void handleCreatureUsingAbsorbedRoom(Creature& creature);
+
     static std::string getRoomStreamFormat();
 
     virtual RoomType getType() const = 0;

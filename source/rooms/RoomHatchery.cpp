@@ -18,6 +18,8 @@
 #include "rooms/RoomHatchery.h"
 
 #include "creatureaction/CreatureActionEatChicken.h"
+#include "creatureaction/CreatureActionUseRoom.h"
+#include "creatureaction/CreatureActionSearchFood.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "entities/ChickenEntity.h"
@@ -212,4 +214,11 @@ bool RoomHatchery::useRoom(Creature& creature, bool forced)
 
     creature.pushAction(Utils::make_unique<CreatureActionEatChicken>(creature, *chickenClosest));
     return true;
+}
+
+void RoomHatchery::handleCreatureUsingAbsorbedRoom(Creature& creature)
+{
+    creature.clearDestinations(EntityAnimation::idle_anim, true);
+    creature.clearActionQueue();
+    creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, true));
 }
