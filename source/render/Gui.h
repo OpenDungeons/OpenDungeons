@@ -50,6 +50,7 @@ public:
         skirmishMenu,
         multiplayerClientMenu,
         multiplayerServerMenu,
+        multiMasterServerJoinMenu,
         editorMenu,
         editorModeGui,
         optionsMenu,

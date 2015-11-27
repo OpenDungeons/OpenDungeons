@@ -198,7 +198,8 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 
     const std::string& level = mFilesList[id];
     // In single player mode, we act as a server
-    if(!ODServer::getSingleton().startServer(level, ServerMode::ModeGameSinglePlayer))
+    const std::string& nickname = ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayerNick();
+    if(!ODServer::getSingleton().startServer(nickname, level, ServerMode::ModeGameSinglePlayer, false))
     {
         OD_LOG_ERR("Could not start server for single player game !!!");
         mainWin->getChild(Gui::SKM_TEXT_LOADING)->setText("ERROR: Could not start server for single player game !!!");

@@ -56,6 +56,8 @@ MenuModeMain::MenuModeMain(ModeManager *modeManager):
     connectModeChangeEvent(Gui::MM_BUTTON_START_MULTIPLAYER_CLIENT, AbstractModeManager::ModeType::MENU_MULTIPLAYER_CLIENT);
     connectModeChangeEvent(Gui::MM_BUTTON_START_MULTIPLAYER_SERVER, AbstractModeManager::ModeType::MENU_MULTIPLAYER_SERVER);
     connectModeChangeEvent(Gui::MM_BUTTON_LOAD_GAME, AbstractModeManager::ModeType::MENU_LOAD_SAVEDGAME);
+    connectModeChangeEvent("StartMasterServerHostButton", AbstractModeManager::ModeType::MENU_MASTERSERVER_HOST);
+    connectModeChangeEvent("StartMasterServerJoinButton", AbstractModeManager::ModeType::MENU_MASTERSERVER_JOIN);
     addEventConnection(
         getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild(Gui::MM_BUTTON_QUIT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,

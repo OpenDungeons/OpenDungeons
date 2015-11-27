@@ -74,6 +74,7 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     mSheets[skirmishMenu] = wmgr->loadLayoutFromFile("MenuSkirmish.layout");
     mSheets[multiplayerClientMenu] = wmgr->loadLayoutFromFile("MenuMultiplayerClient.layout");
     mSheets[multiplayerServerMenu] = wmgr->loadLayoutFromFile("MenuMultiplayerServer.layout");
+    mSheets[multiMasterServerJoinMenu] = wmgr->loadLayoutFromFile("MenuMasterServerJoin.layout");
     mSheets[editorModeGui] =  wmgr->loadLayoutFromFile("ModeEditor.layout");
     mSheets[editorMenu] =  wmgr->loadLayoutFromFile("MenuEditor.layout");
     mSheets[configureSeats] =  wmgr->loadLayoutFromFile("MenuConfigureSeats.layout");
@@ -89,6 +90,7 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     mSheets[editorMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[loadSavedGameMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[multiMasterServerJoinMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
 
     // Add sound to button clicks
     CEGUI::GlobalEventSet& ges = CEGUI::GlobalEventSet::getSingleton();

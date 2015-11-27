@@ -395,6 +395,7 @@ set(OD_SOURCEFILES
     ${SRC}/modes/MenuModeConfigureSeats.cpp
     ${SRC}/modes/MenuModeEditor.cpp
     ${SRC}/modes/MenuModeLoad.cpp
+    ${SRC}/modes/MenuModeMasterServerJoin.cpp
     ${SRC}/modes/MenuModeMultiplayerClient.cpp
     ${SRC}/modes/MenuModeMultiplayerServer.cpp
     ${SRC}/modes/MenuModeReplay.cpp
@@ -474,6 +475,7 @@ set(OD_SOURCEFILES
     ${SRC}/utils/LogSinkConsole.cpp
     ${SRC}/utils/LogSinkFile.cpp
     ${SRC}/utils/LogSinkOgre.cpp
+    ${SRC}/utils/MasterServer.cpp
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
 

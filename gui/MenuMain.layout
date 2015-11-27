@@ -34,9 +34,17 @@
             <Property name="Area" value="{{0.5,-150},{0.5,-10},{0.5,-10},{0.5,70}}" />
             <Property name="Text" value="Join Game" />
         </Window>
+        <Window type="OD/MainMenuButton" name="StartMasterServerJoinButton" >
+            <Property name="Area" value="{{0.5,-150},{0.5,-90},{0.5,-10},{0.5,-10}}" />
+            <Property name="Text" value="Server Join" />
+        </Window>
         <Window type="OD/MainMenuButton" name="StartMultiplayerServerButton" >
             <Property name="Area" value="{{0.5,-150},{0.5,100},{0.5,-10},{0.5,180}}" />
             <Property name="Text" value="Host Game" />
+        </Window>
+        <Window type="OD/MainMenuButton" name="StartMasterServerHostButton" >
+            <Property name="Area" value="{{0.5,-150},{0.5,190},{0.5,-10},{0.5,270}}" />
+            <Property name="Text" value="Server Host" />
         </Window>
         <Window type="OD/MainMenuButton" name="MapEditorButton" >
             <Property name="Area" value="{{0.5,10},{0.5,-10},{0.5,150},{0.5,70}}" />

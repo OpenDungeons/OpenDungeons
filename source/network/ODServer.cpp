@@ -43,6 +43,7 @@
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/MasterServer.h"
 #include "utils/ResourceManager.h"
 #include "ODApplication.h"
 
@@ -57,6 +58,10 @@
 
 const std::string SAVEGAME_SKIRMISH_PREFIX = "SK-";
 const std::string SAVEGAME_MULTIPLAYER_PREFIX = "MP-";
+static const double MASTER_SERVER_UPDATE_PERIOD_MS = 30000.0;
+static const int32_t MASTER_SERVER_STATUS_PENDING = 0;
+static const int32_t MASTER_SERVER_STATUS_STARTED = 1;
+static const int32_t MASTER_SERVER_STATUS_FINISHED = 2;
 
 template<> ODServer* Ogre::Singleton<ODServer>::msSingleton = nullptr;
 
@@ -67,7 +72,8 @@ ODServer::ODServer() :
     mGameMap(new GameMap(true)),
     mSeatsConfigured(false),
     mPlayerConfig(nullptr),
-    mConsoleInterface(std::bind(&ODServer::printConsoleMsg, this, std::placeholders::_1))
+    mConsoleInterface(std::bind(&ODServer::printConsoleMsg, this, std::placeholders::_1)),
+    mMasterServerGameStatusUpdateTime(0)
 {
     ConsoleCommands::addConsoleCommands(mConsoleInterface);
 }
@@ -77,12 +83,14 @@ ODServer::~ODServer()
     delete mGameMap;
 }
 
-bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
+bool ODServer::startServer(const std::string& creator, const std::string& levelFilename, ServerMode mode, bool useMasterServer)
 {
     OD_LOG_INF("Asked to launch server with levelFilename=" + levelFilename);
 
     mSeatsConfigured = false;
     mDisconnectedPlayers.clear();
+    mMasterServerGameId.clear();
+    mMasterServerGameStatusUpdateTime = 0.0;
     mPlayerConfig = nullptr;
 
     // Start the server socket listener as well as the server socket thread
@@ -99,7 +107,8 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
     }
 
     // Set up the socket to listen on the specified port
-    if (!createServer(getNetworkPort()))
+    int32_t port = getNetworkPort();
+    if (!createServer(port))
     {
         mServerMode = ServerMode::ModeNone;
         mServerState = ServerState::StateNone;
@@ -165,7 +174,28 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
         }
     }
 
-    // In single player, we set seats that can be chosen to
+    if(useMasterServer)
+    {
+        LevelInfo info;
+        if(!MapLoader::getMapInfo(levelFilename, info))
+        {
+            info.mLevelName = "No name";
+            info.mLevelDescription = "No description";
+        }
+
+        const std::string& label = info.mLevelName;
+        const std::string& descr = info.mLevelDescription;
+        std::string uuid;
+        if(!MasterServer::registerGame(ODApplication::VERSION, creator, port, label, descr, uuid))
+        {
+            OD_LOG_ERR("Could not register the game in the master server !!!");
+            return false;
+        }
+
+        mMasterServerGameId = uuid;
+    }
+
+    // In single player, we use a default value for seats that can be chosen
     if(mServerMode != ServerMode::ModeGameSinglePlayer)
         return true;
 
@@ -381,6 +411,14 @@ void ODServer::serverThread()
             // The game is not started
             if(mSeatsConfigured)
             {
+                // We notify the master server that we are not waiting for players anymore
+                if(!mMasterServerGameId.empty())
+                {
+                    mMasterServerGameStatusUpdateTime = 0.0;
+                    MasterServer::updateGame(mMasterServerGameId, MASTER_SERVER_STATUS_STARTED);
+                }
+
+                // We configure the game for launching
                 const std::vector<Seat*>& seats = gameMap->getSeats();
                 for (int jj = 0; jj < gameMap->getMapSizeY(); ++jj)
                 {
@@ -447,6 +485,15 @@ void ODServer::serverThread()
             else
             {
                 // We are still waiting for players
+                if(!mMasterServerGameId.empty())
+                {
+                    mMasterServerGameStatusUpdateTime += turnLengthMs;
+                    if(mMasterServerGameStatusUpdateTime >= MASTER_SERVER_UPDATE_PERIOD_MS)
+                    {
+                        mMasterServerGameStatusUpdateTime = 0.0;
+                        MasterServer::updateGame(mMasterServerGameId, MASTER_SERVER_STATUS_PENDING);
+                    }
+                }
                 continue;
             }
         }
@@ -462,6 +509,12 @@ void ODServer::serverThread()
         startNewTurn(static_cast<double>(clock.restart().asSeconds()) * 0.95);
 
         processServerNotifications();
+    }
+
+    if(!mMasterServerGameId.empty())
+    {
+        mMasterServerGameStatusUpdateTime = 0.0;
+        MasterServer::updateGame(mMasterServerGameId, MASTER_SERVER_STATUS_FINISHED);
     }
 }
 

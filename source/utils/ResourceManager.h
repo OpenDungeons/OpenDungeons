@@ -137,6 +137,9 @@ public:
     inline const std::string& getServerModeLevel() const
     { return mServerModeLevel; }
 
+    inline const std::string& getServerModeCreator() const
+    { return mServerModeCreator; }
+
     inline int32_t getForcedNetworkPort() const
     { return mForcedNetworkPort; }
 
@@ -144,6 +147,7 @@ private:
     //! \brief used when the executable is launched in server mode
     bool mServerMode;
     std::string mServerModeLevel;
+    std::string mServerModeCreator;
 
     //! \brief used when the network port is forced
     int32_t mForcedNetworkPort;

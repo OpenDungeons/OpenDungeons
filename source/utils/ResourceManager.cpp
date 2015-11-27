@@ -323,7 +323,6 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
 
     if(options.count("server") > 0)
     {
-        // We change log file
         mServerMode = true;
         std::string filePath = getLevelPathMultiplayer() + options["server"].as<std::string>();
         boost::filesystem::path level(filePath);
@@ -333,6 +332,11 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
             exit(1);
         }
         mServerModeLevel = level.string();
+
+        if(options.count("mscreator") > 0)
+        {
+            mServerModeCreator = options["mscreator"].as<std::string>();
+        }
     }
 
     if(options.count("port") > 0)

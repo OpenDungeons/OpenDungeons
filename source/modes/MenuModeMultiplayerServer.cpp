@@ -37,8 +37,8 @@
 
 const std::string LEVEL_EXTENSION = ".level";
 
-MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER_SERVER)
+MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager, bool useMasterServer):
+    AbstractApplicationMode(modeManager, useMasterServer ? ModeManager::MENU_MASTERSERVER_HOST : ModeManager::MENU_MULTIPLAYER_SERVER)
 {
     CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerServerMenu);
 
@@ -171,23 +171,32 @@ bool MenuModeMultiplayerServer::serverButtonPressed(const CEGUI::EventArgs&)
     mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("Loading...");
 
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
-    int id = selItem->getID();
+    uint32_t id = selItem->getID();
 
+    if(id >= mFilesList.size())
+    {
+        OD_LOG_ERR("index too high=" + Helper::toString(id) + ", size=" + Helper::toString(mFilesList.size()));
+        return true;
+    }
     const std::string& level = mFilesList[id];
 
+    bool useMasterServer = (getModeType() == ModeManager::MENU_MASTERSERVER_HOST);
+
     // We are a server
-    if(!ODServer::getSingleton().startServer(level, ServerMode::ModeGameMultiPlayer))
+    if(!ODServer::getSingleton().startServer(nick, level, ServerMode::ModeGameMultiPlayer, useMasterServer))
     {
         OD_LOG_ERR("Could not start server for multi player game !!!");
         mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("ERROR: Could not start server for multi player game !!!");
         return true;
     }
 
-    // We connect ourself
+    // Connexion parameters
     int port = ODServer::getSingleton().getNetworkPort();
     uint32_t timeout = ConfigManager::getSingleton().getClientConnectionTimeout();
     std::string replayFilename = ResourceManager::getSingleton().getReplayDataPath()
         + ResourceManager::getSingleton().buildReplayFilename();
+
+    // We connect ourself
     if(!ODClient::getSingleton().connect("localhost", port, timeout, replayFilename))
     {
         OD_LOG_ERR("Could not connect to server for multi player game !!!");

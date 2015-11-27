@@ -148,6 +148,9 @@ public:
     inline const std::string& getMainMenuMusic() const
     { return mMainMenuMusic; }
 
+    inline const std::string& getMasterServerUrl() const
+    { return mMasterServerUrl; }
+
     const std::vector<const SpawnCondition*>& getCreatureSpawnConditions(const CreatureDefinition* def) const;
 
     //! \brief Get the fighter creature definition spawnable in portals according to the given faction.
@@ -291,6 +294,7 @@ private:
     int32_t mNbTurnsKoCreatureAttacked;
     std::string mDefaultWorkerRogue;
     std::string mMainMenuMusic;
+    std::string mMasterServerUrl;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
     std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;
 

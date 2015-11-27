@@ -74,7 +74,7 @@ class ODServer: public Ogre::Singleton<ODServer>,
     inline ServerMode getServerMode() const
     { return mServerMode; }
 
-    bool startServer(const std::string& levelFilename, ServerMode mode);
+    bool startServer(const std::string& creator, const std::string& levelFilename, ServerMode mode, bool useMasterServer);
     void stopServer();
 
     //! \brief Adds a server notification to the server notification queue. The message will be sent to the concerned player
@@ -115,6 +115,9 @@ private:
     std::map<ODSocketClient*, std::vector<std::string>> mCreaturesInfoWanted;
 
     ConsoleInterface mConsoleInterface;
+
+    std::string mMasterServerGameId;
+    double mMasterServerGameStatusUpdateTime;
 
     void printConsoleMsg(const std::string& text);
 
