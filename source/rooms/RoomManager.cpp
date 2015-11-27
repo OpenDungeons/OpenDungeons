@@ -750,56 +750,18 @@ void RoomManager::sellRoomTilesEditor(GameMap* gameMap, ODPacket& packet)
         room->updateActiveSpots();
 }
 
-// TODO : merge that in the manager (the string parameter for getRoomConfigInt32)
-int RoomManager::costPerTile(RoomType t)
+int RoomManager::costPerTile(RoomType type)
 {
-    switch (t)
+    std::vector<const RoomFactory*>& factories = getFactories();
+    uint32_t index = static_cast<uint32_t>(type);
+    if(index >= factories.size())
     {
-    case RoomType::nullRoomType:
-        return 0;
-
-    case RoomType::dungeonTemple:
-        return 0;
-
-    case RoomType::portal:
-        return 0;
-
-    case RoomType::treasury:
-        return ConfigManager::getSingleton().getRoomConfigInt32("TreasuryCostPerTile");
-
-    case RoomType::dormitory:
-        return ConfigManager::getSingleton().getRoomConfigInt32("DormitoryCostPerTile");
-
-    case RoomType::hatchery:
-        return ConfigManager::getSingleton().getRoomConfigInt32("HatcheryCostPerTile");
-
-    case RoomType::workshop:
-        return ConfigManager::getSingleton().getRoomConfigInt32("WorkshopCostPerTile");
-
-    case RoomType::trainingHall:
-        return ConfigManager::getSingleton().getRoomConfigInt32("TrainHallCostPerTile");
-
-    case RoomType::library:
-        return ConfigManager::getSingleton().getRoomConfigInt32("LibraryCostPerTile");
-
-    case RoomType::crypt:
-        return ConfigManager::getSingleton().getRoomConfigInt32("CryptCostPerTile");
-
-    case RoomType::prison:
-        return ConfigManager::getSingleton().getRoomConfigInt32("PrisonCostPerTile");
-
-    case RoomType::bridgeWooden:
-        return ConfigManager::getSingleton().getRoomConfigInt32("WoodenBridgeCostPerTile");
-
-    case RoomType::bridgeStone:
-        return ConfigManager::getSingleton().getRoomConfigInt32("StoneBridgeCostPerTile");
-
-    case RoomType::arena:
-        return ConfigManager::getSingleton().getRoomConfigInt32("ArenaCostPerTile");
-
-    default:
-        return 0;
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
+        return false;
     }
+
+    const RoomFactory& factory = *factories[index];
+    return factory.getCostPerTile();
 }
 
 ClientNotification* RoomManager::createRoomClientNotification(RoomType type)

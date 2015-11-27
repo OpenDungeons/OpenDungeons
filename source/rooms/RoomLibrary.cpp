@@ -49,6 +49,9 @@ class RoomLibraryFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomLibraryNameDisplay; }
 
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getRoomConfigInt32("LibraryCostPerTile"); }
+
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildRoomDefault(gameMap, RoomLibrary::mRoomType, inputManager, inputCommand);

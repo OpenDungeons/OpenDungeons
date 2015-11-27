@@ -44,6 +44,7 @@ public:
     virtual RoomType getRoomType() const = 0;
     virtual const std::string& getName() const = 0;
     virtual const std::string& getNameReadable() const = 0;
+    virtual int getCostPerTile() const = 0;
 
     virtual void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const = 0;
     virtual bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const = 0;
@@ -120,7 +121,7 @@ public:
 
     static std::string formatSellRoom(int price);
 
-    static int costPerTile(RoomType t);
+    static int costPerTile(RoomType type);
 
     /*! \brief Creates a ClientNotification to ask for creating a room. It fills the packet with the needed data
      * for the RoomManager to retrieve the spell (mainly the RoomType) so that the rooms only have to handle their

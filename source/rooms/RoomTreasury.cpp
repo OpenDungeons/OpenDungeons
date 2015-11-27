@@ -30,6 +30,7 @@
 #include "network/ServerNotification.h"
 #include "rooms/RoomManager.h"
 #include "sound/SoundEffectsManager.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
@@ -52,6 +53,9 @@ class RoomTreasuryFactory : public RoomFactory
 
     const std::string& getNameReadable() const override
     { return RoomTreasuryNameDisplay; }
+
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getRoomConfigInt32("TreasuryCostPerTile"); }
 
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {

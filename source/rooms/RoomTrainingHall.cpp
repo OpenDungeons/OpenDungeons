@@ -46,6 +46,9 @@ class RoomTrainingHallFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomTrainingHallNameDisplay; }
 
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getRoomConfigInt32("TrainHallCostPerTile"); }
+
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildRoomDefault(gameMap, RoomTrainingHall::mRoomType, inputManager, inputCommand);

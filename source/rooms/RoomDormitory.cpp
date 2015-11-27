@@ -24,6 +24,7 @@
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "rooms/RoomManager.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -43,6 +44,9 @@ class RoomDormitoryFactory : public RoomFactory
 
     const std::string& getNameReadable() const override
     { return RoomDormitoryNameDisplay; }
+
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getRoomConfigInt32("DormitoryCostPerTile"); }
 
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {

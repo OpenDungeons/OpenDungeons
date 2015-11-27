@@ -50,6 +50,9 @@ class RoomPortalFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomPortalNameDisplay; }
 
+    int getCostPerTile() const override
+    { return 0; }
+
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         // Not buildable on game mode

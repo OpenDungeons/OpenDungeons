@@ -47,6 +47,9 @@ class RoomHatcheryFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomHatcheryNameDisplay; }
 
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getRoomConfigInt32("HatcheryCostPerTile"); }
+
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildRoomDefault(gameMap, RoomHatchery::mRoomType, inputManager, inputCommand);

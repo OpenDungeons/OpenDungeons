@@ -48,6 +48,9 @@ class RoomPrisonFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomPrisonNameDisplay; }
 
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getRoomConfigInt32("PrisonCostPerTile"); }
+
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildRoomDefault(gameMap, RoomPrison::mRoomType, inputManager, inputCommand);
