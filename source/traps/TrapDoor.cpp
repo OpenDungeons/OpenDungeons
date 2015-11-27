@@ -52,6 +52,9 @@ class TrapDoorFactory : public TrapFactory
     const std::string& getNameReadable() const override
     { return TrapDoorNameDisplay; }
 
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getTrapConfigInt32("WoodenDoorCostPerTile"); }
+
     virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
     {
         Player* player = gameMap->getLocalPlayer();

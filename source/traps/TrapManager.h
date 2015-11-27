@@ -44,6 +44,7 @@ public:
     virtual TrapType getTrapType() const = 0;
     virtual const std::string& getName() const = 0;
     virtual const std::string& getNameReadable() const = 0;
+    virtual int getCostPerTile() const = 0;
 
     virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const = 0;
     virtual bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const = 0;
@@ -121,7 +122,7 @@ public:
 
     static std::string formatSellTrap(int price);
 
-    static int costPerTile(TrapType t);
+    static int costPerTile(TrapType type);
 
     /*! \brief Creates a ClientNotification to ask for creating a trap. It fills the packet with the needed data
      * for the TrapManager to retrieve the spell (mainly the TrapType) so that the traps only have to handle their
