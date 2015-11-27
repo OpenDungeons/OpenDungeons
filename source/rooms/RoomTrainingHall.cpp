@@ -328,61 +328,64 @@ void RoomTrainingHall::doUpkeep()
     // We add a probability to change dummies so that creatures do not use the same during too much time
     if(mCreaturesDummies.size() > 0 && Random::Int(50,150) < ++nbTurnsNoChangeDummies)
         refreshCreaturesDummies();
+}
 
-    for(const std::pair<Creature* const,Tile*>& p : mCreaturesDummies)
+bool RoomTrainingHall::useRoom(Creature& creature, bool forced)
+{
+    if(mCreaturesDummies.count(&creature) <= 0)
     {
-        Creature* creature = p.first;
-        Tile* tileDummy = p.second;
-        Tile* tileCreature = creature->getPositionTile();
-        if(tileCreature == nullptr)
-        {
-            OD_LOG_ERR("unexpected null tileCreature");
-            continue;
-        }
-
-        Ogre::Real wantedX = static_cast<Ogre::Real>(tileDummy->getX());
-        Ogre::Real wantedY = static_cast<Ogre::Real>(tileDummy->getY()) - OFFSET_CREATURE;
-
-        RenderedMovableEntity* ro = getBuildingObjectFromTile(tileDummy);
-        if(ro == nullptr)
-        {
-            OD_LOG_ERR("unexpected null building object");
-            continue;
-        }
-        // We consider that the creature is in the good place if it is in the expected tile and not moving
-        Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
-        if(expectedDest == nullptr)
-        {
-            OD_LOG_ERR("room=" + getName() + ", creature=" + creature->getName());
-            continue;
-        }
-        if((tileCreature == expectedDest) &&
-           !creature->isMoving())
-        {
-            if (!creature->decreaseJobCooldown())
-            {
-                creature->setAnimationState(EntityAnimation::idle_anim);
-            }
-            else
-            {
-                Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x, ro->getPosition().y - creature->getPosition().y, 0);
-                walkDirection.normalise();
-                creature->setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
-                ro->setAnimationState("Triggered", false);
-                const CreatureRoomAffinity& creatureRoomAffinity = creature->getDefinition()->getRoomAffinity(getType());
-                OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature->getName()
-                    + ", creatureRoomAffinityType=" + Helper::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
-
-                // We add a bonus per wall active spots
-                double coef = 1.0 + static_cast<double>(mNumActiveSpots - mCentralActiveSpotTiles.size()) * ConfigManager::getSingleton().getRoomConfigDouble("TrainHallBonusWallActiveSpot");
-                double expReceived = creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("TrainHallXpPerAttack");
-                expReceived *= coef;
-
-                creature->receiveExp(expReceived);
-                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("TrainHallWakefulnessPerAttack"));
-                creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMin"),
-                    ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMax")));
-            }
-        }
+        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName() + ", pos=" + Helper::toString(creature.getPosition()));
+        return false;
     }
+
+    Tile* tileSpot = mCreaturesDummies.at(&creature);
+    Tile* tileCreature = creature.getPositionTile();
+    if(tileCreature == nullptr)
+    {
+        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName() + ", pos=" + Helper::toString(creature.getPosition()));
+        return false;
+    }
+
+    Ogre::Real wantedX = static_cast<Ogre::Real>(tileSpot->getX());
+    Ogre::Real wantedY = static_cast<Ogre::Real>(tileSpot->getY()) - OFFSET_CREATURE;
+
+    RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
+    if(ro == nullptr)
+    {
+        OD_LOG_ERR("unexpected null building object");
+        return false;
+    }
+    // We consider that the creature is in the good place if it is in the expected tile and not moving
+    Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
+    if(expectedDest == nullptr)
+    {
+        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName());
+        return false;
+    }
+
+    if(tileCreature != expectedDest)
+    {
+        creature.setDestination(expectedDest);
+        return false;
+    }
+
+    Ogre::Vector3 walkDirection(ro->getPosition().x - creature.getPosition().x, ro->getPosition().y - creature.getPosition().y, 0);
+    walkDirection.normalise();
+    creature.setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
+    ro->setAnimationState("Triggered", false);
+    const CreatureRoomAffinity& creatureRoomAffinity = creature.getDefinition()->getRoomAffinity(getType());
+    OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature.getName()
+        + ", creatureRoomAffinityType=" + Helper::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
+
+    // We add a bonus per wall active spots
+    double coef = 1.0 + static_cast<double>(mNumActiveSpots - mCentralActiveSpotTiles.size()) * ConfigManager::getSingleton().getRoomConfigDouble("TrainHallBonusWallActiveSpot");
+    double expReceived = creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("TrainHallXpPerAttack");
+    expReceived *= coef;
+
+    creature.receiveExp(expReceived);
+    creature.jobDone(ConfigManager::getSingleton().getRoomConfigDouble("TrainHallWakefulnessPerAttack"));
+    creature.setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMin"),
+        ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMax")));
+
+    return false;
 }

@@ -63,14 +63,11 @@ std::string CreatureAction::toString(CreatureActionType actionType)
     case CreatureActionType::searchJob:
         return "searchJob";
 
-    case CreatureActionType::job:
-        return "job";
+    case CreatureActionType::useRoom:
+        return "useRoom";
 
     case CreatureActionType::searchFood:
         return "searchFood";
-
-    case CreatureActionType::useHatchery:
-        return "useHatchery";
 
     case CreatureActionType::eatChicken:
         return "eatChicken";

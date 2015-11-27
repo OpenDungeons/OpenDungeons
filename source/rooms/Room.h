@@ -65,6 +65,18 @@ public:
     virtual Creature* getCreatureUsingRoom(unsigned index);
     virtual bool hasOpenCreatureSpot(Creature* c) { return false; }
 
+    //! \brief Called by the creature during its upkeep when using the room when it is ready
+    //! to do something (no cooldown or no other action).
+    //! Returns true if the action queue should continue to be proceeded and false otherwise
+    virtual bool useRoom(Creature& creature, bool forced)
+    { return false; }
+
+    //! \brief Returns true if the room is for creatures entertainment and false
+    //! otherwise. It will be used by the creature to know if it should stop to use
+    //! the room if hungry/sleepy/bad mood.
+    virtual bool isRestRoom(Creature& creature)
+    { return false; }
+
     //! \brief Updates the active spot lists.
     virtual void updateActiveSpots();
 

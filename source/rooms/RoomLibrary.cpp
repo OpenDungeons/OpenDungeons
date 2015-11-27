@@ -288,89 +288,12 @@ void RoomLibrary::doUpkeep()
         // We remove the creatures working here
         std::vector<Creature*> creatures;
         for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
-        {
             creatures.push_back(p.first);
-        }
 
         for(Creature* creature : creatures)
-        {
             creature->clearActionQueue();
-        }
+
         return;
-    }
-
-    int32_t skillEntityPoints = ConfigManager::getSingleton().getRoomConfigInt32("LibrarySkillPointsBook");
-    for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
-    {
-        Creature* creature = p.first;
-        Tile* tileSpot = p.second;
-        Tile* tileCreature = creature->getPositionTile();
-        if(tileCreature == nullptr)
-            continue;
-
-        Ogre::Real wantedX = -1;
-        Ogre::Real wantedY = -1;
-        getCreatureWantedPos(creature, tileSpot, wantedX, wantedY);
-
-        RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
-        if(ro == nullptr)
-        {
-            OD_LOG_ERR("unexpected null building object");
-            continue;
-        }
-        // We consider that the creature is in the good place if it is in the expected tile and not moving
-        Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
-        if(expectedDest == nullptr)
-        {
-            OD_LOG_ERR("room=" + getName() + ", creature=" + creature->getName());
-            continue;
-        }
-        if((tileCreature == expectedDest) &&
-           !creature->isMoving())
-        {
-            if (!creature->decreaseJobCooldown())
-            {
-                creature->setAnimationState(EntityAnimation::idle_anim);
-            }
-            else
-            {
-                Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x, ro->getPosition().y - creature->getPosition().y, 0);
-                walkDirection.normalise();
-                creature->setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
-
-                ro->setAnimationState("Triggered", false);
-
-                const CreatureRoomAffinity& creatureRoomAffinity = creature->getDefinition()->getRoomAffinity(getType());
-                OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature->getName()
-                    + ", creatureRoomAffinityType=" + Helper::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
-
-                int32_t pointsEarned = static_cast<int32_t>(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("LibraryPointsPerWork"));
-                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("LibraryWakefulnessPerWork"));
-                creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMin"),
-                    ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMax")));
-
-                // We check if we have enough points to create a skill entity
-                mSkillPoints += pointsEarned;
-                if(mSkillPoints < skillEntityPoints)
-                    continue;
-
-                mSkillPoints -= skillEntityPoints;
-                // We check if there is an empty tile to release the skillEntity
-                Tile* spawnTile = checkIfAvailableSpot();
-                if(spawnTile == nullptr)
-                {
-                    OD_LOG_ERR("room=" + getName());
-                    return;
-                }
-
-                SkillEntity* skillEntity = new SkillEntity(getGameMap(), true, getName(), skillEntityPoints);
-                skillEntity->setSeat(getSeat());
-                skillEntity->addToGameMap();
-                Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(spawnTile->getX()), static_cast<Ogre::Real>(spawnTile->getY()), static_cast<Ogre::Real>(0.0));
-                skillEntity->createMesh();
-                skillEntity->setPosition(spawnPosition);
-            }
-        }
     }
 
     uint32_t nbItems = countSkillItemsOnRoom();
@@ -388,6 +311,86 @@ void RoomLibrary::doUpkeep()
             break;
         }
     }
+}
+
+bool RoomLibrary::useRoom(Creature& creature, bool forced)
+{
+    int32_t skillEntityPoints = ConfigManager::getSingleton().getRoomConfigInt32("LibrarySkillPointsBook");
+    if(mCreaturesSpots.count(&creature) <= 0)
+    {
+        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName() + ", pos=" + Helper::toString(creature.getPosition()));
+        return false;
+    }
+
+    Tile* tileSpot = mCreaturesSpots.at(&creature);
+    Tile* tileCreature = creature.getPositionTile();
+    if(tileCreature == nullptr)
+    {
+        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName() + ", pos=" + Helper::toString(creature.getPosition()));
+        return false;
+    }
+
+    Ogre::Real wantedX = -1;
+    Ogre::Real wantedY = -1;
+    getCreatureWantedPos(&creature, tileSpot, wantedX, wantedY);
+
+    RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
+    if(ro == nullptr)
+    {
+        OD_LOG_ERR("unexpected null building object");
+        return false;
+    }
+    // We consider that the creature is in the good place if it is in the expected tile and not moving
+    Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
+    if(expectedDest == nullptr)
+    {
+        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName());
+        return false;
+    }
+
+    if(tileCreature != expectedDest)
+    {
+        creature.setDestination(expectedDest);
+        return false;
+    }
+
+    Ogre::Vector3 walkDirection(ro->getPosition().x - creature.getPosition().x, ro->getPosition().y - creature.getPosition().y, 0);
+    walkDirection.normalise();
+    creature.setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
+
+    ro->setAnimationState("Triggered", false);
+
+    const CreatureRoomAffinity& creatureRoomAffinity = creature.getDefinition()->getRoomAffinity(getType());
+    OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature.getName()
+        + ", creatureRoomAffinityType=" + Helper::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
+
+    int32_t pointsEarned = static_cast<int32_t>(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("LibraryPointsPerWork"));
+    creature.jobDone(ConfigManager::getSingleton().getRoomConfigDouble("LibraryWakefulnessPerWork"));
+    creature.setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMin"),
+        ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMax")));
+
+    // We check if we have enough points to create a skill entity
+    mSkillPoints += pointsEarned;
+    if(mSkillPoints < skillEntityPoints)
+        return false;
+
+    mSkillPoints -= skillEntityPoints;
+    // We check if there is an empty tile to release the skillEntity
+    Tile* spawnTile = checkIfAvailableSpot();
+    if(spawnTile == nullptr)
+    {
+        OD_LOG_ERR("room=" + getName());
+        return false;
+    }
+
+    SkillEntity* skillEntity = new SkillEntity(getGameMap(), true, getName(), skillEntityPoints);
+    skillEntity->setSeat(getSeat());
+    skillEntity->addToGameMap();
+    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(spawnTile->getX()), static_cast<Ogre::Real>(spawnTile->getY()), static_cast<Ogre::Real>(0.0));
+    skillEntity->createMesh();
+    skillEntity->setPosition(spawnPosition);
+
+    return false;
 }
 
 uint32_t RoomLibrary::countSkillItemsOnRoom()

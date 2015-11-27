@@ -387,20 +387,6 @@ public:
         return false;
     }
     void setJobCooldown(int val);
-    inline int getJobCooldown() { return mJobCooldown; }
-
-    inline bool decreaseEatCooldown()
-    {
-        if(mEatCooldown <= 0)
-            return true;
-
-        --mEatCooldown;
-        return false;
-    }
-    void setEatCooldown(int val)
-    { mEatCooldown = val; }
-
-    inline int getEatCooldown() { return mEatCooldown; }
 
     inline void foodEaten(double val)
     {

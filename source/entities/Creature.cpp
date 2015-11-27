@@ -28,6 +28,7 @@
 #include "creatureaction/CreatureActionFlee.h"
 #include "creatureaction/CreatureActionGetFee.h"
 #include "creatureaction/CreatureActionGrabEntity.h"
+#include "creatureaction/CreatureActionUseRoom.h"
 #include "creatureaction/CreatureActionLeaveDungeon.h"
 #include "creatureaction/CreatureActionSearchEntityToCarry.h"
 #include "creatureaction/CreatureActionSearchGroundTileToClaim.h"
@@ -35,7 +36,6 @@
 #include "creatureaction/CreatureActionSearchTileToDig.h"
 #include "creatureaction/CreatureActionSearchWallTileToClaim.h"
 #include "creatureaction/CreatureActionSleep.h"
-#include "creatureaction/CreatureActionUseHatchery.h"
 #include "creatureaction/CreatureActionWalkToTile.h"
 #include "creaturebehaviour/CreatureBehaviour.h"
 #include "creatureeffect/CreatureEffect.h"
@@ -148,7 +148,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mClaimRate               (0.0),
     mDeathCounter            (0),
     mJobCooldown             (0),
-    mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
     mSkillTypeDropDeath      (SkillType::nullSkillType),
@@ -224,7 +223,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mClaimRate               (0.0),
     mDeathCounter            (0),
     mJobCooldown             (0),
-    mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
     mSkillTypeDropDeath      (SkillType::nullSkillType),
@@ -3214,6 +3212,9 @@ void Creature::leaveDungeon()
     pushAction(Utils::make_unique<CreatureActionLeaveDungeon>(*this));
 }
 
+// TODO: jobRoomAbsorbed and eatRoomAbsorbed should be merged in a room virtual
+// function so that the hatchery pushes the correct actions as well as the other
+// rooms
 void Creature::jobRoomAbsorbed(Room& newJobRoom)
 {
     // If the job room is absorbed, we force the creatures working on the old room to search
@@ -3232,5 +3233,5 @@ void Creature::eatRoomAbsorbed(Room& newHatchery)
     clearDestinations(EntityAnimation::idle_anim, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionSearchFood>(*this, true));
-    pushAction(Utils::make_unique<CreatureActionUseHatchery>(*this, newHatchery, true));
+    pushAction(Utils::make_unique<CreatureActionUseRoom>(*this, newHatchery, true));
 }

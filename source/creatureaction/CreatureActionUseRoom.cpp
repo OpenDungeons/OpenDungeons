@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "creatureaction/CreatureActionJob.h"
+#include "creatureaction/CreatureActionUseRoom.h"
 
 #include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionSleep.h"
@@ -29,9 +29,10 @@
 #include "utils/MakeUnique.h"
 #include "utils/Random.h"
 
-CreatureActionJob::CreatureActionJob(Creature& creature, Room& room) :
+CreatureActionUseRoom::CreatureActionUseRoom(Creature& creature, Room& room, bool forced) :
     CreatureAction(creature),
-    mRoom(&room)
+    mRoom(&room),
+    mForced(forced)
 {
     if(!mRoom->addCreatureUsingRoom(&mCreature))
     {
@@ -39,20 +40,23 @@ CreatureActionJob::CreatureActionJob(Creature& creature, Room& room) :
     }
 }
 
-CreatureActionJob::~CreatureActionJob()
+CreatureActionUseRoom::~CreatureActionUseRoom()
 {
     if(mRoom != nullptr)
         mRoom->removeCreatureUsingRoom(&mCreature);
 }
 
-std::function<bool()> CreatureActionJob::action()
+std::function<bool()> CreatureActionUseRoom::action()
 {
-    return std::bind(&CreatureActionJob::handleJob,
-        std::ref(mCreature), mRoom);
+    return std::bind(&CreatureActionUseRoom::handleJob,
+        std::ref(mCreature), mRoom, mForced);
 }
 
-bool CreatureActionJob::handleJob(Creature& creature, Room* room)
+bool CreatureActionUseRoom::handleJob(Creature& creature, Room* room, bool forced)
 {
+    if(!creature.decreaseJobCooldown())
+        return false;
+
     // Current creature tile position
     Tile* myTile = creature.getPositionTile();
     if (myTile == nullptr)
@@ -68,29 +72,34 @@ bool CreatureActionJob::handleJob(Creature& creature, Room* room)
         return true;
     }
 
-    // If we are unhappy, we stop working
-    switch(creature.getMoodValue())
+    // If we are working in the room, we check that our status (mood/hungry/sleepy)
+    // allows us to work
+    if(!room->isRestRoom(creature))
     {
-        case CreatureMoodLevel::Upset:
+        // If we are unhappy, we stop working
+        switch(creature.getMoodValue())
         {
-            // 20% chances of not working
-            if(Random::Int(0, 100) < 20)
+            case CreatureMoodLevel::Upset:
             {
+                // 20% chances of not working
+                if(Random::Int(0, 100) < 20)
+                {
+                    creature.popAction();
+                    return true;
+                }
+                break;
+            }
+            case CreatureMoodLevel::Angry:
+            case CreatureMoodLevel::Furious:
+            {
+                // We don't work
                 creature.popAction();
                 return true;
             }
-            break;
+            default:
+                // We can work
+                break;
         }
-        case CreatureMoodLevel::Angry:
-        case CreatureMoodLevel::Furious:
-        {
-            // We don't work
-            creature.popAction();
-            return true;
-        }
-        default:
-            // We can work
-            break;
     }
 
     // We check if we are on a room tile. If not, we will go to one
@@ -111,37 +120,38 @@ bool CreatureActionJob::handleJob(Creature& creature, Room* room)
         return true;
     }
 
-    // If we are tired/hungry, we go to bed unless we are forced to work
-    bool workForced = room->isForcedToWork(creature);
-    if(!workForced)
-        workForced = creature.isForcedToWork();
-
-    if (!workForced && (Random::Double(20.0, 30.0) > creature.getWakefulness()))
+    if(!room->isRestRoom(creature))
     {
-        creature.popAction();
-        creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));
-        return true;
+        // If   we are tired/hungry, we go to bed unless we are forced to work
+        bool workForced = room->isForcedToWork(creature);
+        if(!workForced)
+            workForced = creature.isForcedToWork();
+
+        if (!workForced && (Random::Double(20.0, 30.0) > creature.getWakefulness()))
+        {
+            creature.popAction();
+            creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));
+            return true;
+        }
+
+        // If we are hungry, we go to bed unless we have been slapped
+        if (!workForced && (Random::Double(70.0, 80.0) < creature.getHunger()))
+        {
+            creature.popAction();
+            creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, false));
+            return true;
+        }
     }
 
-    // If we are hungry, we go to bed unless we have been slapped
-    if (!workForced && (Random::Double(70.0, 80.0) < creature.getHunger()))
-    {
-        creature.popAction();
-        creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, false));
-        return true;
-    }
-
-    // TODO: call some room function to aware that we have nothing to do. That
-    // will avoid the room to have to check for that
-    return false;
+    return room->useRoom(creature, forced);
 }
 
-std::string CreatureActionJob::getListenerName() const
+std::string CreatureActionUseRoom::getListenerName() const
 {
     return toString(getType()) + ", creature=" + mCreature.getName();
 }
 
-bool CreatureActionJob::notifyDead(GameEntity* entity)
+bool CreatureActionUseRoom::notifyDead(GameEntity* entity)
 {
     if(entity == mRoom)
     {
@@ -151,7 +161,7 @@ bool CreatureActionJob::notifyDead(GameEntity* entity)
     return true;
 }
 
-bool CreatureActionJob::notifyRemovedFromGameMap(GameEntity* entity)
+bool CreatureActionUseRoom::notifyRemovedFromGameMap(GameEntity* entity)
 {
     if(entity == mRoom)
     {
@@ -161,14 +171,14 @@ bool CreatureActionJob::notifyRemovedFromGameMap(GameEntity* entity)
     return true;
 }
 
-bool CreatureActionJob::notifyPickedUp(GameEntity* entity)
+bool CreatureActionUseRoom::notifyPickedUp(GameEntity* entity)
 {
     // That should not happen since we are listening to a room
     OD_LOG_ERR(toString(getType()) + ", creature=" + mCreature.getName() + ", entity=" + entity->getName());
     return true;
 }
 
-bool CreatureActionJob::notifyDropped(GameEntity* entity)
+bool CreatureActionUseRoom::notifyDropped(GameEntity* entity)
 {
     // That should not happen since we are listening to a room
     OD_LOG_ERR(toString(getType()) + ", creature=" + mCreature.getName() + ", entity=" + entity->getName());

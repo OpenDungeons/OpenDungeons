@@ -15,22 +15,22 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CREATUREACTIONJOB_H
-#define CREATUREACTIONJOB_H
+#ifndef CREATUREACTIONUSEROOM_H
+#define CREATUREACTIONUSEROOM_H
 
 #include "creatureaction/CreatureAction.h"
 #include "entities/GameEntity.h"
 
 class Room;
 
-class CreatureActionJob : public CreatureAction, public GameEntityListener
+class CreatureActionUseRoom : public CreatureAction, public GameEntityListener
 {
 public:
-    CreatureActionJob(Creature& creature, Room& room);
-    virtual ~CreatureActionJob();
+    CreatureActionUseRoom(Creature& creature, Room& room, bool forced);
+    virtual ~CreatureActionUseRoom();
 
     CreatureActionType getType() const override
-    { return CreatureActionType::job; }
+    { return CreatureActionType::useRoom; }
 
     std::function<bool()> action() override;
 
@@ -40,10 +40,11 @@ public:
     bool notifyPickedUp(GameEntity* entity) override;
     bool notifyDropped(GameEntity* entity) override;
 
-    static bool handleJob(Creature& creature, Room* room);
+    static bool handleJob(Creature& creature, Room* room, bool forced);
 
 private:
     Room* mRoom;
+    bool mForced;
 };
 
-#endif // CREATUREACTIONJOB_H
+#endif // CREATUREACTIONUSEROOM_H

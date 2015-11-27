@@ -54,12 +54,8 @@ std::function<bool()> CreatureActionEatChicken::action()
 
 bool CreatureActionEatChicken::handleEatChicken(Creature& creature, ChickenEntity* chicken)
 {
-    if(creature.getEatCooldown() > 0)
-    {
-        // We do nothing
-        creature.decreaseEatCooldown();
+    if(!creature.decreaseJobCooldown())
         return false;
-    }
 
     Tile* myTile = creature.getPositionTile();
     if(myTile == nullptr)
@@ -113,7 +109,7 @@ bool CreatureActionEatChicken::handleEatChicken(Creature& creature, ChickenEntit
     // We can eat the chicken
     chicken->eatChicken(&creature);
     creature.foodEaten(ConfigManager::getSingleton().getRoomConfigDouble("HatcheryHungerPerChicken"));
-    creature.setEatCooldown(Random::Int(ConfigManager::getSingleton().getRoomConfigUInt32("HatcheryCooldownChickenMin"),
+    creature.setJobCooldown(Random::Int(ConfigManager::getSingleton().getRoomConfigUInt32("HatcheryCooldownChickenMin"),
         ConfigManager::getSingleton().getRoomConfigUInt32("HatcheryCooldownChickenMax")));
     creature.setHP(creature.getHP() + ConfigManager::getSingleton().getRoomConfigDouble("HatcheryHpRecoveredPerChicken"));
     creature.computeCreatureOverlayHealthValue();

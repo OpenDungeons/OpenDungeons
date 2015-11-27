@@ -31,17 +31,21 @@ public:
     ~RoomHatchery()
     {}
 
-    virtual RoomType getType() const
+    RoomType getType() const override
     { return mRoomType; }
 
-    virtual void doUpkeep();
-    virtual bool hasOpenCreatureSpot(Creature* c);
+    void doUpkeep() override;
+    bool hasOpenCreatureSpot(Creature* c) override;
+    bool isRestRoom(Creature& creature) override
+    { return true; }
+
+    bool useRoom(Creature& creature, bool forced) override;
 
     static const RoomType mRoomType;
 
 protected:
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
-    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+    RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
     uint32_t getNbChickens();
     uint32_t mSpawnChickenCooldown;

@@ -140,14 +140,13 @@ class RoomDormitory: public Room
 public:
     RoomDormitory(GameMap* gameMap);
 
-    virtual RoomType getType() const override
+    RoomType getType() const override
     { return mRoomType; }
 
-    // Functions overriding virtual functions in the Room base class.
     void absorbRoom(Room *r) override;
     bool removeCoveredTile(Tile* t) override;
 
-    virtual void restoreInitialEntityState() override;
+    void restoreInitialEntityState() override;
 
     // Functions specific to this class.
     std::vector<Tile*> getOpenTiles();
@@ -159,12 +158,14 @@ public:
     bool hasCarryEntitySpot(GameEntity* carriedEntity) override;
     Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
+    bool isRestRoom(Creature& creature) override
+    { return true; }
 
     static const RoomType mRoomType;
 
 protected:
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual bool importFromStream(std::istream& is) override;
+    void exportToStream(std::ostream& os) const override;
+    bool importFromStream(std::istream& is) override;
 
     RoomDormitoryTileData* createTileData(Tile* tile);
     // Because dormitory do not use active spots, we don't want the default

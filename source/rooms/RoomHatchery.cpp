@@ -17,6 +17,8 @@
 
 #include "rooms/RoomHatchery.h"
 
+#include "creatureaction/CreatureActionEatChicken.h"
+#include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "entities/ChickenEntity.h"
 #include "game/Player.h"
@@ -24,6 +26,7 @@
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
+#include "utils/MakeUnique.h"
 
 const std::string RoomHatcheryName = "Hatchery";
 const std::string RoomHatcheryNameDisplay = "Hatchery room";
@@ -171,4 +174,42 @@ void RoomHatchery::doUpkeep()
 bool RoomHatchery::hasOpenCreatureSpot(Creature* c)
 {
     return mNumActiveSpots > mCreaturesUsingRoom.size();
+}
+
+bool RoomHatchery::useRoom(Creature& creature, bool forced)
+{
+    // We look for the closest chicken (if any). We consider chickens
+    // on the hatchery only
+    // Because TilesWithinSightRadius are sorted by distance, we use them rather
+    // than covered tiles.
+    ChickenEntity* chickenClosest = nullptr;
+    for(Tile* tile : creature.getTilesWithinSightRadius())
+    {
+        if(tile->getCoveringRoom() != this)
+            continue;
+
+        std::vector<GameEntity*> chickens;
+        tile->fillWithChickenEntities(chickens);
+        if(chickens.empty())
+            continue;
+
+        for(GameEntity* chickenEnt : chickens)
+        {
+            ChickenEntity* chicken = static_cast<ChickenEntity*>(chickenEnt);
+            if(chicken->getLockEat(creature))
+                continue;
+
+            chickenClosest = chicken;
+            break;
+        }
+        if(chickenClosest != nullptr)
+            break;
+    }
+
+    // If we cannot find any available chicken, nothing to do
+    if(chickenClosest == nullptr)
+        return false;
+
+    creature.pushAction(Utils::make_unique<CreatureActionEatChicken>(creature, *chickenClosest));
+    return true;
 }
