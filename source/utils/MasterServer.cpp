@@ -25,11 +25,12 @@
 // We will replace all special meaning chars to make sure they are correctly read
 // by the master server. For example, since ';' is the separation for CSV,
 // we don't want to use some in the texts as it may break our reading.
-static const char replacementChar = '%';
+static const char replacementChar = '_';
 static const std::vector<std::pair<char,char>> specialChars = {
     std::pair<char,char>(replacementChar, '0'),
     std::pair<char,char>('\n', '1'),
-    std::pair<char,char>(';', '2')
+    std::pair<char,char>(';', '2'),
+    std::pair<char,char>('&', '3')
 };
 
 namespace MasterServer
