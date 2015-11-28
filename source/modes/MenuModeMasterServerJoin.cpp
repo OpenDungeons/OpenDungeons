@@ -73,6 +73,11 @@ MenuModeMasterServerJoin::MenuModeMasterServerJoin(ModeManager *modeManager):
     CEGUI::Window* mainWin = gui.getGuiSheet(Gui::guiSheet::multiMasterServerJoinMenu);
     CEGUI::MultiColumnList* levelSelectList = static_cast<CEGUI::MultiColumnList*>(
         mainWin->getChild("LevelWindowFrame/LevelSelect"));
+
+    // We remove the columns from the list if any
+    while(levelSelectList->getColumnCount() > 0)
+        levelSelectList->removeColumn(0);
+
     levelSelectList->setSelectionMode(CEGUI::MultiColumnList::SelectionMode::RowSingle);
     levelSelectList->addColumn("Creator", 0, CEGUI::UDim(0.45f, 0));
     levelSelectList->addColumn("Level", 1, CEGUI::UDim(0.45f, 0));
