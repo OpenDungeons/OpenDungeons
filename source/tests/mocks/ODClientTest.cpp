@@ -399,17 +399,18 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
             std::string entityName;
             std::string animState;
             bool loop;
+            bool playIdleWhenAnimationEnds;
             bool shouldSetWalkDirection;
             Ogre::Vector3 walkDirection(0, 0, 0);
             BOOST_CHECK(packetReceived >> entityName >> animState
-                >> loop >> shouldSetWalkDirection);
+                >> loop >> playIdleWhenAnimationEnds >> shouldSetWalkDirection);
 
             if(shouldSetWalkDirection)
             {
                 BOOST_CHECK(packetReceived >> walkDirection);
             }
 
-            handleSetAnimationState(entityName, animState, loop, shouldSetWalkDirection, walkDirection);
+            handleSetAnimationState(entityName, animState, loop, playIdleWhenAnimationEnds, shouldSetWalkDirection, walkDirection);
             break;
         }
         default:

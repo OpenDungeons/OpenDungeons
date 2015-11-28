@@ -221,7 +221,7 @@ bool RoomHatchery::useRoom(Creature& creature, bool forced)
 
 void RoomHatchery::handleCreatureUsingAbsorbedRoom(Creature& creature)
 {
-    creature.clearDestinations(EntityAnimation::idle_anim, true);
+    creature.clearDestinations(EntityAnimation::idle_anim, true, true);
     creature.clearActionQueue();
     creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, true));
 }

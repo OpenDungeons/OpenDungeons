@@ -153,7 +153,7 @@ void RenderedMovableEntity::setMeshOpacity(float opacity)
 void RenderedMovableEntity::pickup()
 {
     removeEntityFromPositionTile();
-    clearDestinations(EntityAnimation::idle_anim, true);
+    clearDestinations(EntityAnimation::idle_anim, true, true);
 }
 
 void RenderedMovableEntity::drop(const Ogre::Vector3& v)

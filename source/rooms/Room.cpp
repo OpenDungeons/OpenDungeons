@@ -127,7 +127,7 @@ void Room::handleCreatureUsingAbsorbedRoom(Creature& creature)
     // If the job room is absorbed, we force the creatures working in the old rooms to search
     // a job. If there is space in the new one, they will use it. If not, they
     // will do something else
-    creature.clearDestinations(EntityAnimation::idle_anim, true);
+    creature.clearDestinations(EntityAnimation::idle_anim, true, true);
     creature.clearActionQueue();
     creature.pushAction(Utils::make_unique<CreatureActionSearchJob>(creature, true));
 }

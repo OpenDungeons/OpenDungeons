@@ -250,7 +250,7 @@ bool RoomLibrary::addCreatureUsingRoom(Creature* creature)
         // We add the last step to take account of the offset
         Ogre::Vector3 dest(wantedX, wantedY, 0.0);
         path.push_back(dest);
-        creature->setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+        creature->setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
     }
 
     return true;

@@ -106,7 +106,7 @@ void ChickenEntity::doUpkeep()
     if(mIsSlapped || (mNbTurnOutsideHatchery >= NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE))
     {
         mChickenState = ChickenState::dying;
-        clearDestinations(EntityAnimation::die_anim, false);
+        clearDestinations(EntityAnimation::die_anim, false, false);
         return;
     }
 
@@ -140,7 +140,7 @@ void ChickenEntity::doUpkeep()
     Ogre::Vector3 v (static_cast<Ogre::Real>(tileDest->getX()), static_cast<Ogre::Real>(tileDest->getY()), 0.0);
     std::vector<Ogre::Vector3> path;
     path.push_back(v);
-    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
 }
 
 void ChickenEntity::addTileToListIfPossible(int x, int y, Room* currentHatchery, std::vector<Tile*>& possibleTileMove)
@@ -254,7 +254,7 @@ bool ChickenEntity::eatChicken(Creature* creature)
 
     removeEntityFromPositionTile();
     mChickenState = ChickenState::eaten;
-    clearDestinations(EntityAnimation::idle_anim, true);
+    clearDestinations(EntityAnimation::idle_anim, true, true);
     return true;
 }
 

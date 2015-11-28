@@ -40,6 +40,7 @@ MovableGameEntity::MovableGameEntity(GameMap* gameMap, bool isOnServerMap) :
     mAnimationState(nullptr),
     mDestinationAnimationState(EntityAnimation::idle_anim),
     mDestinationAnimationLoop(false),
+    mDestinationPlayIdleWhenAnimationEnds(false),
     mDestinationAnimationDirection(Ogre::Vector3::ZERO),
     mWalkDirection(Ogre::Vector3::ZERO),
     mAnimationTime(0.0)
@@ -67,8 +68,8 @@ void MovableGameEntity::tileToVector3(const std::list<Tile*>& tiles, std::vector
     }
 }
 
-void MovableGameEntity::setWalkPath(const std::string& walkAnim, const std::string& endAnim,
-        bool loopEndAnim, const std::vector<Ogre::Vector3>& path)
+void MovableGameEntity::setWalkPath(const std::string& walkAnim, const std::string& endAnim, bool loopEndAnim,
+        bool playIdleWhenAnimationEnds, const std::vector<Ogre::Vector3>& path)
 {
     mWalkQueue.clear();
     // We set the animation after clearing mWalkQueue and before filling it to be
@@ -81,13 +82,14 @@ void MovableGameEntity::setWalkPath(const std::string& walkAnim, const std::stri
 
     if(path.empty())
     {
-        setAnimationState(endAnim, loopEndAnim);
+        setAnimationState(endAnim, loopEndAnim, Ogre::Vector3::ZERO, playIdleWhenAnimationEnds);
     }
     else
     {
         // We save the wanted animation
         mDestinationAnimationState = endAnim;
         mDestinationAnimationLoop = loopEndAnim;
+        mDestinationPlayIdleWhenAnimationEnds = playIdleWhenAnimationEnds;
     }
 
     if(!getIsOnServerMap())
@@ -104,7 +106,7 @@ void MovableGameEntity::setWalkPath(const std::string& walkAnim, const std::stri
         uint32_t nbDest = mWalkQueue.size();
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::animatedObjectSetWalkPath, seat->getPlayer());
-        serverNotification->mPacket << name << walkAnim << endAnim << loopEndAnim << nbDest;
+        serverNotification->mPacket << name << walkAnim << endAnim << loopEndAnim << playIdleWhenAnimationEnds << nbDest;
         for(const Ogre::Vector3& v : mWalkQueue)
             serverNotification->mPacket << v;
 
@@ -112,7 +114,7 @@ void MovableGameEntity::setWalkPath(const std::string& walkAnim, const std::stri
     }
 }
 
-void MovableGameEntity::clearDestinations(const std::string& animation, bool loopAnim)
+void MovableGameEntity::clearDestinations(const std::string& animation, bool loopAnim, bool playIdleWhenAnimationEnds)
 {
     mWalkQueue.clear();
     stopWalking();
@@ -129,7 +131,8 @@ void MovableGameEntity::clearDestinations(const std::string& animation, bool loo
         uint32_t nbDest = 0;
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::animatedObjectSetWalkPath, seat->getPlayer());
-        serverNotification->mPacket << name << emptyString << animation << loopAnim << nbDest;
+        serverNotification->mPacket << name << emptyString << animation
+            << loopAnim << playIdleWhenAnimationEnds << nbDest;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
@@ -143,7 +146,7 @@ void MovableGameEntity::stopWalking()
     if(mDestinationAnimationDirection == Ogre::Vector3::ZERO)
         mDestinationAnimationDirection = mWalkDirection;
 
-    setAnimationState(mDestinationAnimationState, mDestinationAnimationLoop, mDestinationAnimationDirection);
+    setAnimationState(mDestinationAnimationState, mDestinationAnimationLoop, mDestinationAnimationDirection, mDestinationPlayIdleWhenAnimationEnds);
 
     // We reset the destination state
     mDestinationAnimationState.clear();
@@ -160,7 +163,7 @@ void MovableGameEntity::setWalkDirection(const Ogre::Vector3& direction)
     RenderManager::getSingleton().rrOrientEntityToward(this, direction);
 }
 
-void MovableGameEntity::setAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction)
+void MovableGameEntity::setAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction, bool playIdleWhenAnimationEnds)
 {
     // Ignore the command if the command is exactly the same and looped. Otherwise, we accept
     // the command because it may be a trap/building object that is triggered several times
@@ -182,10 +185,11 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, c
         if(direction != Ogre::Vector3::ZERO)
             setWalkDirection(direction);
 
-        fireObjectAnimationState(state, loop, direction);
+        fireObjectAnimationState(state, loop, direction, playIdleWhenAnimationEnds);
         return;
     }
 
+    mDestinationPlayIdleWhenAnimationEnds = playIdleWhenAnimationEnds;
     // On client side, if the entity has reached its destination, we change the animation. Otherwise, we save
     // the wanted animation that will be set when it has arrived by stopWalking
     if(!mWalkQueue.empty())
@@ -214,7 +218,13 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
          * getAnimationSpeedFactor());
     mAnimationTime += addedTime;
     if (!getIsOnServerMap() && getAnimationState() != nullptr)
-        getAnimationState()->addTime(static_cast<Ogre::Real>(addedTime));
+    {
+        // If the animation has stopped we set it to idle if we have to
+        if(mDestinationPlayIdleWhenAnimationEnds && getAnimationState()->hasEnded())
+            RenderManager::getSingleton().rrSetObjectAnimationState(this, EntityAnimation::idle_anim, true);
+        else
+            getAnimationState()->addTime(static_cast<Ogre::Real>(addedTime));
+    }
 
     if (mWalkQueue.empty())
         return;
@@ -292,7 +302,7 @@ void MovableGameEntity::setPosition(const Ogre::Vector3& v)
         addEntityToPositionTile();
 }
 
-void MovableGameEntity::fireObjectAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction)
+void MovableGameEntity::fireObjectAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction, bool playIdleWhenAnimationEnds)
 {
     for(Seat* seat : mSeatsWithVisionNotified)
     {
@@ -304,7 +314,7 @@ void MovableGameEntity::fireObjectAnimationState(const std::string& state, bool 
         ServerNotification* serverNotification = new ServerNotification(
             ServerNotificationType::setObjectAnimationState, seat->getPlayer());
         const std::string& name = getName();
-        serverNotification->mPacket << name << state << loop;
+        serverNotification->mPacket << name << state << loop << playIdleWhenAnimationEnds;
         if(direction != Ogre::Vector3::ZERO)
             serverNotification->mPacket << true << direction;
         else if(mWalkDirection != Ogre::Vector3::ZERO)

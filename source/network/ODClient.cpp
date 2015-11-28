@@ -474,8 +474,10 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
             std::string walkAnim;
             std::string endAnim;
             bool loopEndAnim;
+            bool playIdleWhenAnimationEnds;
             uint32_t nbDest;
-            OD_ASSERT_TRUE(packetReceived >> objName >> walkAnim >> endAnim >> loopEndAnim >> nbDest);
+            OD_ASSERT_TRUE(packetReceived >> objName >> walkAnim >> endAnim);
+            OD_ASSERT_TRUE(packetReceived >> loopEndAnim >> playIdleWhenAnimationEnds >> nbDest);
 
             MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
             if(tempAnimatedObject == nullptr)
@@ -493,7 +495,7 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
                 tempAnimatedObject->correctEntityMovePosition(dest);
                 path.push_back(dest);
             }
-            tempAnimatedObject->setWalkPath(walkAnim, endAnim, loopEndAnim, path);
+            tempAnimatedObject->setWalkPath(walkAnim, endAnim, loopEndAnim, playIdleWhenAnimationEnds, path);
             break;
         }
 
@@ -550,9 +552,10 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
             std::string objName;
             std::string animState;
             bool loop;
+            bool playIdleWhenAnimationEnds;
             bool shouldSetWalkDirection;
             OD_ASSERT_TRUE(packetReceived >> objName >> animState
-                >> loop >> shouldSetWalkDirection);
+                >> loop >> playIdleWhenAnimationEnds >> shouldSetWalkDirection);
             MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
             if (obj == nullptr)
             {
@@ -567,7 +570,7 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
                 obj->setWalkDirection(walkDirection);
             }
 
-            obj->setAnimationState(animState, loop);
+            obj->setAnimationState(animState, loop, Ogre::Vector3::ZERO, playIdleWhenAnimationEnds);
             break;
         }
 
