@@ -21,6 +21,7 @@
 #include "modes/MenuModeMain.h"
 #include "modes/MenuModeConfigureSeats.h"
 #include "modes/MenuModeSkirmish.h"
+#include "modes/MenuModeMasterServerJoin.h"
 #include "modes/MenuModeMultiplayerClient.h"
 #include "modes/MenuModeMultiplayerServer.h"
 #include "modes/MenuModeEditor.h"
@@ -108,7 +109,7 @@ void ModeManager::checkModeChange()
         mCurrentApplicationMode = Utils::make_unique<MenuModeMultiplayerClient>(this);
         break;
     case MENU_MULTIPLAYER_SERVER:
-        mCurrentApplicationMode = Utils::make_unique<MenuModeMultiplayerServer>(this);
+        mCurrentApplicationMode = Utils::make_unique<MenuModeMultiplayerServer>(this, false);
         break;
     case MENU_EDITOR:
         mCurrentApplicationMode = Utils::make_unique<MenuModeEditor>(this);
@@ -124,6 +125,12 @@ void ModeManager::checkModeChange()
         break;
     case MENU_LOAD_SAVEDGAME:
         mCurrentApplicationMode = Utils::make_unique<MenuModeLoad>(this);
+        break;
+    case MENU_MASTERSERVER_HOST:
+        mCurrentApplicationMode = Utils::make_unique<MenuModeMultiplayerServer>(this, true);
+        break;
+    case MENU_MASTERSERVER_JOIN:
+        mCurrentApplicationMode = Utils::make_unique<MenuModeMasterServerJoin>(this);
         break;
     default:
         break;

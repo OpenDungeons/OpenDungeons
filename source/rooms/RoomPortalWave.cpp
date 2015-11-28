@@ -53,6 +53,9 @@ class RoomPortalWaveFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomPortalWaveNameDisplay; }
 
+    int getCostPerTile() const override
+    { return 0; }
+
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         // Not buildable on game mode

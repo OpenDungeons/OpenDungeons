@@ -275,7 +275,6 @@ set(OD_SOURCEFILES
     ${SRC}/creatureaction/CreatureActionClaimGroundTile.cpp
     ${SRC}/creatureaction/CreatureActionClaimWallTile.cpp
     ${SRC}/creatureaction/CreatureActionDigTile.cpp
-    ${SRC}/creatureaction/CreatureActionUseHatchery.cpp
     ${SRC}/creatureaction/CreatureActionEatChicken.cpp
     ${SRC}/creatureaction/CreatureActionFight.cpp
     ${SRC}/creatureaction/CreatureActionFightArena.cpp
@@ -283,7 +282,6 @@ set(OD_SOURCEFILES
     ${SRC}/creatureaction/CreatureActionFlee.cpp
     ${SRC}/creatureaction/CreatureActionGetFee.cpp
     ${SRC}/creatureaction/CreatureActionGrabEntity.cpp
-    ${SRC}/creatureaction/CreatureActionJob.cpp
     ${SRC}/creatureaction/CreatureActionLeaveDungeon.cpp
     ${SRC}/creatureaction/CreatureActionSearchEntityToCarry.cpp
     ${SRC}/creatureaction/CreatureActionSearchFood.cpp
@@ -292,6 +290,7 @@ set(OD_SOURCEFILES
     ${SRC}/creatureaction/CreatureActionSearchTileToDig.cpp
     ${SRC}/creatureaction/CreatureActionSearchWallTileToClaim.cpp
     ${SRC}/creatureaction/CreatureActionSleep.cpp
+    ${SRC}/creatureaction/CreatureActionUseRoom.cpp
     ${SRC}/creatureaction/CreatureActionWalkToTile.cpp
 
     ${SRC}/creaturebehaviour/CreatureBehaviour.cpp
@@ -395,6 +394,7 @@ set(OD_SOURCEFILES
     ${SRC}/modes/MenuModeConfigureSeats.cpp
     ${SRC}/modes/MenuModeEditor.cpp
     ${SRC}/modes/MenuModeLoad.cpp
+    ${SRC}/modes/MenuModeMasterServerJoin.cpp
     ${SRC}/modes/MenuModeMultiplayerClient.cpp
     ${SRC}/modes/MenuModeMultiplayerServer.cpp
     ${SRC}/modes/MenuModeReplay.cpp
@@ -474,6 +474,7 @@ set(OD_SOURCEFILES
     ${SRC}/utils/LogSinkConsole.cpp
     ${SRC}/utils/LogSinkFile.cpp
     ${SRC}/utils/LogSinkOgre.cpp
+    ${SRC}/utils/MasterServer.cpp
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
 

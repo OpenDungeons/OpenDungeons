@@ -17,7 +17,7 @@
 
 #include "creatureaction/CreatureActionSearchJob.h"
 
-#include "creatureaction/CreatureActionJob.h"
+#include "creatureaction/CreatureActionUseRoom.h"
 #include "creaturemood/CreatureMood.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -90,7 +90,7 @@ bool CreatureActionSearchJob::handleSearchJob(Creature& creature, bool forced)
             // It is the room responsibility to test if the creature is suited for working in it
             if(room->hasOpenCreatureSpot(&creature))
             {
-                creature.pushAction(Utils::make_unique<CreatureActionJob>(creature, *room));
+                creature.pushAction(Utils::make_unique<CreatureActionUseRoom>(creature, *room, forced));
                 return false;
             }
             break;
@@ -128,7 +128,7 @@ bool CreatureActionSearchJob::handleSearchJob(Creature& creature, bool forced)
             // It is the room responsibility to test if the creature is suited for working in it
             if(room->hasOpenCreatureSpot(&creature))
             {
-                creature.pushAction(Utils::make_unique<CreatureActionJob>(creature, *room));
+                creature.pushAction(Utils::make_unique<CreatureActionUseRoom>(creature, *room, forced));
                 return true;
             }
         }

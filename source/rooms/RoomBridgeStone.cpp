@@ -24,6 +24,7 @@
 #include "modes/InputManager.h"
 #include "network/ODPacket.h"
 #include "rooms/RoomManager.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -44,6 +45,9 @@ class RoomBridgeStoneFactory : public BridgeRoomFactory
 
     const std::string& getNameReadable() const override
     { return RoomBridgeStoneNameDisplay; }
+
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getRoomConfigInt32("StoneBridgeCostPerTile"); }
 
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {

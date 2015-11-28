@@ -44,6 +44,9 @@ class TrapSpikeFactory : public TrapFactory
     const std::string& getNameReadable() const override
     { return TrapSpikeNameDisplay; }
 
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getTrapConfigInt32("SpikeCostPerTile"); }
+
     void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildTrapDefault(gameMap, TrapType::spike, inputManager, inputCommand);

@@ -55,7 +55,8 @@ public:
      * walk, the entity will play walkAnim (looped). When it gets to the wanted position,
      * it will play endAnim (looped or not depending on loopEndAnim).
      */
-    void setWalkPath(const std::string& walkAnim, const std::string& endAnim, bool loopEndAnim, const std::vector<Ogre::Vector3>& path);
+    void setWalkPath(const std::string& walkAnim, const std::string& endAnim, bool loopEndAnim,
+        bool playIdleWhenAnimationEnds, const std::vector<Ogre::Vector3>& path);
 
     /*! \brief Converts a tile list to a vector of Ogre::Vector3
      *
@@ -65,7 +66,7 @@ public:
 
     //! \brief Clears all future destinations from the walk queue, stops the object where it is, and sets its animation state.
     //! This is a server side function
-    void clearDestinations(const std::string& animation, bool loopAnim);
+    void clearDestinations(const std::string& animation, bool loopAnim, bool playIdleWhenAnimationEnds);
 
     //! \brief Stops the object where it is, and sets its animation state.
     virtual void stopWalking();
@@ -80,7 +81,7 @@ public:
     virtual double getMoveSpeed() const
     { return 1.0; }
 
-    virtual void setAnimationState(const std::string& state, bool loop = true, const Ogre::Vector3& direction = Ogre::Vector3::ZERO);
+    virtual void setAnimationState(const std::string& state, bool loop = true, const Ogre::Vector3& direction = Ogre::Vector3::ZERO, bool playIdleWhenAnimationEnds = true);
 
     virtual double getAnimationSpeedFactor() const
     { return 1.0; }
@@ -114,10 +115,11 @@ protected:
     bool mPrevAnimationStateLoop;
 
 private:
-    void fireObjectAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction);
+    void fireObjectAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction, bool playIdleWhenAnimationEnds);
     Ogre::AnimationState* mAnimationState;
     std::string mDestinationAnimationState;
     bool mDestinationAnimationLoop;
+    bool mDestinationPlayIdleWhenAnimationEnds;
     Ogre::Vector3 mDestinationAnimationDirection;
     Ogre::Vector3 mWalkDirection;
     double mAnimationTime;

@@ -49,24 +49,25 @@ class RoomWorkshop: public Room{
 public:
     RoomWorkshop(GameMap* gameMap);
 
-    virtual RoomType getType() const override
+    RoomType getType() const override
     { return mRoomType; }
 
-    virtual void doUpkeep() override;
-    virtual bool hasOpenCreatureSpot(Creature* c) override;
-    virtual bool addCreatureUsingRoom(Creature* c) override;
-    virtual void removeCreatureUsingRoom(Creature* c) override;
-    virtual void absorbRoom(Room *r) override;
+    void doUpkeep() override;
+    bool hasOpenCreatureSpot(Creature* c) override;
+    bool addCreatureUsingRoom(Creature* c) override;
+    void removeCreatureUsingRoom(Creature* c) override;
+    void absorbRoom(Room *r) override;
+    bool useRoom(Creature& creature, bool forced) override;
 
     static const RoomType mRoomType;
 
 protected:
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual bool importFromStream(std::istream& is) override;
+    void exportToStream(std::ostream& os) const override;
+    bool importFromStream(std::istream& is) override;
 
     RoomWorkshopTileData* createTileData(Tile* tile) override;
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
-    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
+    RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
     //!\brief checks if a tile is available in the workshop to place a new crafted trap
     uint32_t countCraftedItemsOnRoom();

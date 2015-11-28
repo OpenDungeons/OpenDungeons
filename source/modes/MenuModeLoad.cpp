@@ -144,7 +144,7 @@ bool MenuModeLoad::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 
     const std::string& level = mFilesList[id];
     // In single player mode, we act as a server
-    if(!ODServer::getSingleton().startServer(level, ServerMode::ModeGameLoaded))
+    if(!ODServer::getSingleton().startServer(nickname, level, ServerMode::ModeGameLoaded, false))
     {
         OD_LOG_ERR("Could not start server for single player game !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");

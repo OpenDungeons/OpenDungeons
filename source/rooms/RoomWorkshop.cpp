@@ -50,6 +50,9 @@ class RoomWorkshopFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomWorkshopNameDisplay; }
 
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getRoomConfigInt32("WorkshopCostPerTile"); }
+
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildRoomDefault(gameMap, RoomWorkshop::mRoomType, inputManager, inputCommand);
@@ -254,7 +257,7 @@ bool RoomWorkshop::addCreatureUsingRoom(Creature* creature)
         // We add the last step to take account of the offset
         Ogre::Vector3 dest(wantedX, wantedY, 0.0);
         path.push_back(dest);
-        creature->setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+        creature->setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
     }
 
     return true;
@@ -362,70 +365,12 @@ void RoomWorkshop::doUpkeep()
         // We remove the creatures working here
         std::vector<Creature*> creatures;
         for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
-        {
             creatures.push_back(p.first);
-        }
 
         for(Creature* creature : creatures)
-        {
             creature->clearActionQueue();
-        }
+
         return;
-    }
-
-    for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
-    {
-        Creature* creature = p.first;
-        Tile* tileSpot = p.second;
-        Tile* tileCreature = creature->getPositionTile();
-        if(tileCreature == nullptr)
-        {
-            OD_LOG_ERR("unexpected null tileCreature");
-            continue;
-        }
-
-        Ogre::Real wantedX = -1;
-        Ogre::Real wantedY = -1;
-        getCreatureWantedPos(creature, tileSpot, wantedX, wantedY);
-
-        RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
-        if(ro == nullptr)
-        {
-            OD_LOG_ERR("unexpected null building object");
-            continue;
-        }
-        // We consider that the creature is in the good place if it is in the expected tile and not moving
-        Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
-        if(expectedDest == nullptr)
-        {
-            OD_LOG_ERR("room=" + getName() + ", creature=" + creature->getName());
-            continue;
-        }
-        if((tileCreature == expectedDest) &&
-           !creature->isMoving())
-        {
-            if (!creature->decreaseJobCooldown())
-            {
-                creature->setAnimationState(EntityAnimation::idle_anim);
-            }
-            else
-            {
-                Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x - 1.0, ro->getPosition().y - creature->getPosition().y + 1.0, 0);
-                walkDirection.normalise();
-                creature->setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
-
-                ro->setAnimationState("Triggered", false);
-
-                const CreatureRoomAffinity& creatureRoomAffinity = creature->getDefinition()->getRoomAffinity(getType());
-                OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature->getName()
-                    + ", creatureRoomAffinityType=" + Helper::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
-
-                mPoints += static_cast<int32_t>(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("WorkshopPointsPerWork"));
-                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("WorkshopWakefulnessPerWork"));
-                creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("WorkshopCooldownWorkMin"),
-                    ConfigManager::getSingleton().getRoomConfigUInt32("WorkshopCooldownWorkMax")));
-            }
-        }
     }
 
     uint32_t nbCraftedItems = countCraftedItemsOnRoom();
@@ -467,6 +412,63 @@ void RoomWorkshop::doUpkeep()
     craftedTrap->setPosition(spawnPosition);
     mPoints -= pointsNeeded;
     mTrapType = TrapType::nullTrapType;
+}
+
+bool RoomWorkshop::useRoom(Creature& creature, bool forced)
+{
+    if(mCreaturesSpots.count(&creature) <= 0)
+    {
+        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName() + ", pos=" + Helper::toString(creature.getPosition()));
+        return false;
+    }
+
+    Tile* tileSpot = mCreaturesSpots.at(&creature);
+    Tile* tileCreature = creature.getPositionTile();
+    if(tileCreature == nullptr)
+    {
+        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName() + ", pos=" + Helper::toString(creature.getPosition()));
+        return false;
+    }
+
+    Ogre::Real wantedX = -1;
+    Ogre::Real wantedY = -1;
+    getCreatureWantedPos(&creature, tileSpot, wantedX, wantedY);
+
+    RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
+    if(ro == nullptr)
+    {
+        OD_LOG_ERR("unexpected null building object");
+        return false;
+    }
+    // We consider that the creature is in the good place if it is in the expected tile and not moving
+    Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
+    if(expectedDest == nullptr)
+    {
+        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName());
+        return false;
+    }
+    if(tileCreature != expectedDest)
+    {
+        creature.setDestination(expectedDest);
+        return false;
+    }
+
+    Ogre::Vector3 walkDirection(ro->getPosition().x - creature.getPosition().x - 1.0, ro->getPosition().y - creature.getPosition().y + 1.0, 0);
+    walkDirection.normalise();
+    creature.setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
+
+    ro->setAnimationState("Triggered", false);
+
+    const CreatureRoomAffinity& creatureRoomAffinity = creature.getDefinition()->getRoomAffinity(getType());
+    OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature.getName()
+        + ", creatureRoomAffinityType=" + Helper::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
+
+    mPoints += static_cast<int32_t>(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("WorkshopPointsPerWork"));
+    creature.jobDone(ConfigManager::getSingleton().getRoomConfigDouble("WorkshopWakefulnessPerWork"));
+    creature.setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("WorkshopCooldownWorkMin"),
+        ConfigManager::getSingleton().getRoomConfigUInt32("WorkshopCooldownWorkMax")));
+
+    return false;
 }
 
 uint32_t RoomWorkshop::countCraftedItemsOnRoom()

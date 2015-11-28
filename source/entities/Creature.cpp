@@ -21,7 +21,6 @@
 #include "creatureaction/CreatureActionClaimGroundTile.h"
 #include "creatureaction/CreatureActionClaimWallTile.h"
 #include "creatureaction/CreatureActionDigTile.h"
-#include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionFight.h"
 #include "creatureaction/CreatureActionFightArena.h"
 #include "creatureaction/CreatureActionFindHome.h"
@@ -30,12 +29,12 @@
 #include "creatureaction/CreatureActionGrabEntity.h"
 #include "creatureaction/CreatureActionLeaveDungeon.h"
 #include "creatureaction/CreatureActionSearchEntityToCarry.h"
+#include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionSearchGroundTileToClaim.h"
 #include "creatureaction/CreatureActionSearchJob.h"
 #include "creatureaction/CreatureActionSearchTileToDig.h"
 #include "creatureaction/CreatureActionSearchWallTileToClaim.h"
 #include "creatureaction/CreatureActionSleep.h"
-#include "creatureaction/CreatureActionUseHatchery.h"
 #include "creatureaction/CreatureActionWalkToTile.h"
 #include "creaturebehaviour/CreatureBehaviour.h"
 #include "creatureeffect/CreatureEffect.h"
@@ -148,7 +147,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mClaimRate               (0.0),
     mDeathCounter            (0),
     mJobCooldown             (0),
-    mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
     mSkillTypeDropDeath      (SkillType::nullSkillType),
@@ -224,7 +222,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mClaimRate               (0.0),
     mDeathCounter            (0),
     mJobCooldown             (0),
-    mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
     mSkillTypeDropDeath      (SkillType::nullSkillType),
@@ -726,7 +723,7 @@ void Creature::dropCarriedEquipment()
 {
     fireCreatureSound(CreatureSound::Die);
     clearActionQueue();
-    clearDestinations(EntityAnimation::die_anim, false);
+    clearDestinations(EntityAnimation::die_anim, false, false);
 
     // We drop what we are carrying
     Tile* myTile = getPositionTile();
@@ -943,7 +940,7 @@ void Creature::doUpkeep()
             mMoodPoints = 0;
             mWakefulness = 100;
             mHunger = 0;
-            clearDestinations(EntityAnimation::idle_anim, true);
+            clearDestinations(EntityAnimation::idle_anim, true, true);
             clearActionQueue();
             mNeedFireRefresh = true;
             if (getHomeTile() != nullptr)
@@ -1110,7 +1107,7 @@ bool Creature::handleIdleAction()
             {
                 std::vector<Ogre::Vector3> path;
                 tileToVector3(tempPath, path, true, 0.0);
-                setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+                setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
                 pushAction(Utils::make_unique<CreatureActionWalkToTile>(*this));
                 return false;
             }
@@ -2046,7 +2043,7 @@ void Creature::useAttack(CreatureSkillData& skillData, GameEntity& entityAttack,
     const Ogre::Vector3& pos = getPosition();
     Ogre::Vector3 walkDirection(tileAttack.getX() - pos.x, tileAttack.getY() - pos.y, 0);
     walkDirection.normalise();
-    setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
+    setAnimationState(EntityAnimation::attack_anim, false, walkDirection, true);
     fireCreatureSound(CreatureSound::Attack);
     setNbTurnsWithoutBattle(0);
 
@@ -2137,7 +2134,7 @@ void Creature::pickup()
 {
     // Stop the creature walking and set it off the map to prevent the AI from running on it.
     removeEntityFromPositionTile();
-    clearDestinations(EntityAnimation::idle_anim, true);
+    clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
 
     if(!getIsOnServerMap())
@@ -2355,7 +2352,7 @@ bool Creature::setDestination(Tile* tile)
 
     std::vector<Ogre::Vector3> path;
     tileToVector3(result, path, true, 0.0);
-    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
     pushAction(Utils::make_unique<CreatureActionWalkToTile>(*this));
     return true;
 }
@@ -2992,7 +2989,7 @@ void Creature::checkWalkPathValid()
         return;
 
     // There is an unpassable tile in our way. We stop what we are doing
-    clearDestinations(EntityAnimation::idle_anim, true);
+    clearDestinations(EntityAnimation::idle_anim, true, true);
 }
 
 void Creature::setJobCooldown(int val)
@@ -3180,28 +3177,28 @@ bool Creature::isWarmup() const
 
 void Creature::fight()
 {
-    clearDestinations(EntityAnimation::idle_anim, true);
+    clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionFight>(*this, nullptr));
 }
 
 void Creature::fightCreature(Creature& creature)
 {
-    clearDestinations(EntityAnimation::idle_anim, true);
+    clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionWalkToTile>(*this));
 }
 
 void Creature::flee()
 {
-    clearDestinations(EntityAnimation::idle_anim, true);
+    clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionFlee>(*this));
 }
 
 void Creature::sleep()
 {
-    clearDestinations(EntityAnimation::idle_anim, true);
+    clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionSleep>(*this));
 }
@@ -3209,28 +3206,7 @@ void Creature::sleep()
 void Creature::leaveDungeon()
 {
     OD_LOG_INF("creature=" + getName() + " wants to leave its dungeon");
-    clearDestinations(EntityAnimation::idle_anim, true);
+    clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionLeaveDungeon>(*this));
-}
-
-void Creature::jobRoomAbsorbed(Room& newJobRoom)
-{
-    // If the job room is absorbed, we force the creatures working on the old room to search
-    // a job. If there is space in the new one, they will use it. If not, they
-    // will do something else
-    clearDestinations(EntityAnimation::idle_anim, true);
-    clearActionQueue();
-    pushAction(Utils::make_unique<CreatureActionSearchJob>(*this, true));
-}
-
-void Creature::eatRoomAbsorbed(Room& newHatchery)
-{
-    // If the job room is absorbed, we force the creatures eating on the old room to use
-    // the new one. If there is space in the new one, they will use it. If not, they
-    // will do something else
-    clearDestinations(EntityAnimation::idle_anim, true);
-    clearActionQueue();
-    pushAction(Utils::make_unique<CreatureActionSearchFood>(*this, true));
-    pushAction(Utils::make_unique<CreatureActionUseHatchery>(*this, newHatchery, true));
 }

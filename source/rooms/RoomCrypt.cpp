@@ -47,6 +47,9 @@ class RoomCryptFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomCryptNameDisplay; }
 
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getRoomConfigInt32("CryptCostPerTile"); }
+
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildRoomDefault(gameMap, RoomCrypt::mRoomType, inputManager, inputCommand);

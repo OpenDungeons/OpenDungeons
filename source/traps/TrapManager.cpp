@@ -735,32 +735,18 @@ void TrapManager::sellTrapTilesEditor(GameMap* gameMap, ODPacket& packet)
         trap->updateActiveSpots();
 }
 
-// TODO : merge that in the manager (the string parameter for getTrapConfigInt32)
-int TrapManager::costPerTile(TrapType t)
+int TrapManager::costPerTile(TrapType type)
 {
-    switch (t)
+    std::vector<const TrapFactory*>& factories = getFactories();
+    uint32_t index = static_cast<uint32_t>(type);
+    if(index >= factories.size())
     {
-        case TrapType::nullTrapType:
-            return 0;
-
-        case TrapType::cannon:
-            return ConfigManager::getSingleton().getTrapConfigInt32("CannonCostPerTile");
-
-        case TrapType::spike:
-            return ConfigManager::getSingleton().getTrapConfigInt32("SpikeCostPerTile");
-
-        case TrapType::boulder:
-            return ConfigManager::getSingleton().getTrapConfigInt32("BoulderCostPerTile");
-
-        case TrapType::doorWooden:
-            return ConfigManager::getSingleton().getTrapConfigInt32("WoodenDoorCostPerTile");
-
-        default:
-        {
-            OD_LOG_ERR("Unknown enum for getting trap cost " + getTrapNameFromTrapType(t));
-            return 0;
-        }
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
+        return 0;
     }
+
+    const TrapFactory& factory = *factories[index];
+    return factory.getCostPerTile();
 }
 
 ClientNotification* TrapManager::createTrapClientNotification(TrapType type)

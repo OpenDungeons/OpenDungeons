@@ -48,6 +48,9 @@ class RoomPrisonFactory : public RoomFactory
     const std::string& getNameReadable() const override
     { return RoomPrisonNameDisplay; }
 
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getRoomConfigInt32("PrisonCostPerTile"); }
+
     void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildRoomDefault(gameMap, RoomPrison::mRoomType, inputManager, inputCommand);
@@ -348,5 +351,5 @@ void RoomPrison::actionPrisoner(Creature* creature)
     Ogre::Vector3 v (static_cast<Ogre::Real>(tileDest->getX()), static_cast<Ogre::Real>(tileDest->getY()), 0.0);
     std::vector<Ogre::Vector3> path;
     path.push_back(v);
-    creature->setWalkPath(EntityAnimation::flee_anim, EntityAnimation::idle_anim, true, path);
+    creature->setWalkPath(EntityAnimation::flee_anim, EntityAnimation::idle_anim, true, true, path);
 }

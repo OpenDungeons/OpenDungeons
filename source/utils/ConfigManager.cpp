@@ -590,6 +590,12 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
             mMainMenuMusic = elements[0];
             // Not mandatory
         }
+
+        if(nextParam == "MasterServerUrl")
+        {
+            configFile >> mMasterServerUrl;
+            // Not mandatory
+        }
     }
 
     if(paramsOk != 0x01)

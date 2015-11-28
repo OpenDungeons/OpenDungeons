@@ -31,20 +31,21 @@ public:
     ~RoomTrainingHall()
     {}
 
-    virtual RoomType getType() const
+    RoomType getType() const override
     { return mRoomType; }
 
-    virtual void doUpkeep();
-    virtual bool hasOpenCreatureSpot(Creature* c);
-    virtual bool addCreatureUsingRoom(Creature* c);
-    virtual void removeCreatureUsingRoom(Creature* c);
-    virtual void absorbRoom(Room *r);
+    void doUpkeep() override;
+    bool hasOpenCreatureSpot(Creature* c) override;
+    bool addCreatureUsingRoom(Creature* c) override;
+    void removeCreatureUsingRoom(Creature* c) override;
+    void absorbRoom(Room *r) override;
+    bool useRoom(Creature& creature, bool forced) override;
 
     static const RoomType mRoomType;
 
 protected:
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
-    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+    RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
     static const Ogre::Real OFFSET_CREATURE;
     static const Ogre::Real OFFSET_DUMMY;

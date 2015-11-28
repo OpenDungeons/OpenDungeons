@@ -387,20 +387,6 @@ public:
         return false;
     }
     void setJobCooldown(int val);
-    inline int getJobCooldown() { return mJobCooldown; }
-
-    inline bool decreaseEatCooldown()
-    {
-        if(mEatCooldown <= 0)
-            return true;
-
-        --mEatCooldown;
-        return false;
-    }
-    void setEatCooldown(int val)
-    { mEatCooldown = val; }
-
-    inline int getEatCooldown() { return mEatCooldown; }
 
     inline void foodEaten(double val)
     {
@@ -583,9 +569,6 @@ public:
     // TODO: check if we can move it in the creature action
     bool searchBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData);
 
-    void jobRoomAbsorbed(Room& newJobRoom);
-    void eatRoomAbsorbed(Room& newHatchery);
-
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
@@ -660,7 +643,6 @@ private:
     //! \brief Counter to let the creature stay some turns after its death
     unsigned int    mDeathCounter;
     int             mJobCooldown;
-    int             mEatCooldown;
 
     //! \brief At pay day, mGoldFee will be set to the creature fee and decreased when the creature gets gold
     int32_t         mGoldFee;

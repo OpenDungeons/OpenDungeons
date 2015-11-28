@@ -18,7 +18,7 @@
 #include "creatureaction/CreatureActionSearchFood.h"
 
 #include "creatureaction/CreatureActionEatChicken.h"
-#include "creatureaction/CreatureActionUseHatchery.h"
+#include "creatureaction/CreatureActionUseRoom.h"
 #include "entities/ChickenEntity.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
@@ -151,6 +151,6 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
         return true;
     }
 
-    creature.pushAction(Utils::make_unique<CreatureActionUseHatchery>(creature, *chosenTile->getCoveringRoom(), forced));
+    creature.pushAction(Utils::make_unique<CreatureActionUseRoom>(creature, *chosenTile->getCoveringRoom(), forced));
     return true;
 }

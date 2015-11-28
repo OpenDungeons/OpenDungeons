@@ -15,26 +15,31 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MENUMODEMULTIPLAYERSERVER_H
-#define MENUMODEMULTIPLAYERSERVER_H
+#ifndef MENUMODEMASTERSERVERJOIN_H
+#define MENUMODEMASTERSERVERJOIN_H
 
 #include "AbstractApplicationMode.h"
+#include "utils/MasterServer.h"
 
-class MenuModeMultiplayerServer: public AbstractApplicationMode
+class MenuModeMasterServerJoin: public AbstractApplicationMode
 {
 public:
-    MenuModeMultiplayerServer(ModeManager *modeManager, bool useMasterServer);
+    MenuModeMasterServerJoin(ModeManager*);
 
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
     void activate() final override;
 
-    bool serverButtonPressed(const CEGUI::EventArgs&);
+    bool clientButtonPressed(const CEGUI::EventArgs&);
     bool updateDescription(const CEGUI::EventArgs&);
 
+    void onFrameStarted(const Ogre::FrameEvent& evt);
+
 private:
-    std::vector<std::string> mFilesList;
-    std::vector<std::string> mDescriptionList;
+    void refreshList();
+
+    std::vector<MasterServerGame> mMasterServerGames;
+    Ogre::Real mTimeSinceLastUpdateList;
 };
 
-#endif // MENUMODEMULTIPLAYERSERVER_H
+#endif // MENUMODEMASTERSERVERJOIN_H

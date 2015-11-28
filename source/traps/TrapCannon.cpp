@@ -46,6 +46,9 @@ class TrapCannonFactory : public TrapFactory
     const std::string& getNameReadable() const override
     { return TrapCannonNameDisplay; }
 
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getTrapConfigInt32("CannonCostPerTile"); }
+
     void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildTrapDefault(gameMap, TrapType::cannon, inputManager, inputCommand);

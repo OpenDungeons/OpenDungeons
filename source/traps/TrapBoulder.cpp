@@ -45,6 +45,9 @@ class TrapBoulderFactory : public TrapFactory
     const std::string& getNameReadable() const override
     { return TrapBoulderNameDisplay; }
 
+    int getCostPerTile() const override
+    { return ConfigManager::getSingleton().getTrapConfigInt32("BoulderCostPerTile"); }
+
     void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildTrapDefault(gameMap, TrapType::boulder, inputManager, inputCommand);
