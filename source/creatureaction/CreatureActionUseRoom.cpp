@@ -159,6 +159,7 @@ bool CreatureActionUseRoom::notifyDead(GameEntity* entity)
 {
     if(entity == mRoom)
     {
+        mRoom->removeCreatureUsingRoom(&mCreature);
         mRoom = nullptr;
         return false;
     }
@@ -169,6 +170,7 @@ bool CreatureActionUseRoom::notifyRemovedFromGameMap(GameEntity* entity)
 {
     if(entity == mRoom)
     {
+        mRoom->removeCreatureUsingRoom(&mCreature);
         mRoom = nullptr;
         return false;
     }

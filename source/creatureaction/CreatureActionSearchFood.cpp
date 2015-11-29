@@ -90,7 +90,7 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
             break;
     }
 
-    // If we cannot find any available chicken. We wait
+    // If we found a chicken, we go for it
     if(chickenClosest != nullptr)
     {
         creature.pushAction(Utils::make_unique<CreatureActionEatChicken>(creature, *chickenClosest));
@@ -106,12 +106,14 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
         return true;
     }
 
-    // Pick a hatchery and try to walk to it.
-    uint32_t maxDistance = 40;
+    // Pick a hatchery where we can eat and try to walk to it.
     std::vector<Tile*> hatcheriesTiles;
     for(Room* hatcheryRoom : hatcheries)
     {
         if(hatcheryRoom->numCoveredTiles() <= 0)
+            continue;
+
+        if(!hatcheryRoom->hasOpenCreatureSpot(&creature))
             continue;
 
         Tile* tile = hatcheryRoom->getCoveredTile(0);
@@ -127,18 +129,18 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
         hatcheriesTiles.push_back(tile);
     }
 
+    if(hatcheriesTiles.empty())
+    {
+        creature.popAction();
+        return true;
+    }
+
     Tile* chosenTile = nullptr;
     std::list<Tile*> pathToHatchery = creature.getGameMap()->findBestPath(&creature, myTile, hatcheriesTiles, chosenTile);
     if(chosenTile == nullptr)
     {
         // We couldn't find a path !
         OD_LOG_ERR("creature=" + creature.getName());
-        creature.popAction();
-        return true;
-    }
-
-    if(pathToHatchery.size() > maxDistance)
-    {
         creature.popAction();
         return true;
     }

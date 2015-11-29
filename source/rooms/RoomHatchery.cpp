@@ -18,7 +18,6 @@
 #include "rooms/RoomHatchery.h"
 
 #include "creatureaction/CreatureActionEatChicken.h"
-#include "creatureaction/CreatureActionUseRoom.h"
 #include "creatureaction/CreatureActionSearchFood.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
