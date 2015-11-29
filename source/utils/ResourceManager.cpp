@@ -482,6 +482,7 @@ void ResourceManager::buildCommandOptions(boost::program_options::options_descri
         ("log", boost::program_options::value<std::string>(), "log file to use")
         ("server", boost::program_options::value<std::string>(), "Launches the game on server mode and opens the given level")
         ("appData", boost::program_options::value<std::string>(), "Sets appData to the given path (where logs, replays, ... are saved)")
+        ("mscreator", boost::program_options::value<std::string>(), "Sets the creator for this map to connect to the master server. The server option needs to be on")
         ("port", boost::program_options::value<int32_t>(), "Sets the port used. Note that the port is used for both single and multi player")
     ;
 }
