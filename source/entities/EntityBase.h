@@ -127,6 +127,8 @@ public:
     { return false; }
     virtual void drop(const Ogre::Vector3& v)
     {}
+    void show();
+    void hide();
 
     //! \brief Exports the entity so that it can be updated on server side. exportToPacketForUpdate should be
     //! called on server side and the packet should be given to the corresponding entity in updateFromPacket

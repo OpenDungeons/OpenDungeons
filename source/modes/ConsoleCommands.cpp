@@ -466,6 +466,12 @@ Command::Result cTriggerCompositor(const Command::ArgumentList_t& args, ConsoleI
     return Command::Result::SUCCESS;
 }
 
+Command::Result cStartTileCulling(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+{
+    ODFrameListener::getSingleton().getCameraManager()->startTileCulling();
+    return Command::Result::SUCCESS;
+}
+
 } // namespace <none>
 
 namespace ConsoleCommands
@@ -521,6 +527,11 @@ void addConsoleCommands(ConsoleInterface& cl)
                   "Adds a new creature according to following parameters",
                   cSendCmdToServer,
                   cSrvAddCreature,
+                  {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
+
+    cl.addCommand("startTileCulling",
+                  "start culling of the tiles",
+                  cStartTileCulling,
                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
 
     std::string listDescription = "'list' (or 'ls' for short) is a utility which lists various types of information about the current game. "

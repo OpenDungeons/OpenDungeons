@@ -33,6 +33,9 @@
 #include <set>
 
 class TileContainer;
+class CullingManager;
+class GameMap;
+class TileContainer;
 
 // The min/max camera height in tile size
 const Ogre::Real MIN_CAMERA_Z = 3.0;
@@ -48,6 +51,7 @@ enum class ViewModes : uint16_t
 
 class CameraManager
 {
+    friend class CullingManager;
 public:
     enum Direction
     {
@@ -62,7 +66,7 @@ public:
         fullStop
     };
 
-    CameraManager(Ogre::SceneManager* sceneManager, TileContainer* gameMap, Ogre::RenderWindow* renderWindow);
+    CameraManager(Ogre::SceneManager* sceneManager, GameMap* gameMap, Ogre::RenderWindow* renderWindow);
     ~CameraManager()
     {}
 
@@ -86,15 +90,18 @@ public:
         return mTranslateVectorAccel;
     }
 
-    bool onFrameStarted()
-    { return true; }
-    bool onFrameEnded()
-    { return true; }
+    bool onFrameStarted();
+    bool onFrameEnded();
+
+    CullingManager* mCullingManager;
 
     /*! \brief Sets the camera to a new location while still satisfying the
     * constraints placed on its movement
     */
     void updateCameraFrameTime(const Ogre::Real frameTime);
+
+    void startCreatureCulling();
+    void startTileCulling();
 
     /*! \brief Computes a vector whose z-component is 0 and whose x-y coordinates
     * are the position on the floor that the camera is pointed at.
@@ -185,7 +192,8 @@ private:
     Ogre::Camera* mActiveCamera;
     Ogre::SceneNode* mActiveCameraNode;
 
-    TileContainer* mGameMap;
+
+    GameMap* mGameMap;
 
     //! \brief Is true when a camera is flying to a given position.
     bool            mCameraIsFlying;

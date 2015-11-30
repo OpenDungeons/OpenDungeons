@@ -21,6 +21,7 @@
 #include <cassert>
 #include <list>
 #include <vector>
+#include "entities/Tile.h"
 
 class ODPacket;
 class TileDistance;

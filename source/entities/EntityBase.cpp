@@ -16,6 +16,7 @@
  */
 
 #include "EntityBase.h"
+#include "render/RenderManager.h"
 
 #include "utils/Helper.h"
 
@@ -55,4 +56,14 @@ void EntityBase::destroyMesh()
     mMeshExists = false;
 
     destroyMeshLocal();
+}
+
+void EntityBase::show()
+{
+    RenderManager::getSingleton().rrAttachEntity(this);
+}
+
+void EntityBase::hide()
+{
+    RenderManager::getSingleton().rrDetachEntity(this);
 }

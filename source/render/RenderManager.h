@@ -39,6 +39,7 @@ class Creature;
 class Player;
 class RenderedMovableEntity;
 class Weapon;
+class EntityBase;
 
 namespace Ogre
 {
@@ -97,6 +98,8 @@ public:
     void rrCreateTile(Tile& tile, const GameMap& gameMap, const Player& localPlayer);
     void rrDestroyTile(Tile& tile);
     void rrTemporalMarkTile(Tile* curTile);
+    void rrDetachEntity(EntityBase* curEntity);
+    void rrAttachEntity(EntityBase* curEntity);
     void rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
     void rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
     void rrUpdateEntityOpacity(RenderedMovableEntity* entity);
