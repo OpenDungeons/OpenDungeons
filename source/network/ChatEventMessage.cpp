@@ -71,7 +71,7 @@ std::string EventMessage::getMessageAsString()
             eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/SkillIcon'] [colour='FFEEEE00']";
             break;
         case EventShortNoticeType::aboutObjectives:
-            eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/ObjectivesIcon'] [colour='FF0000EE']";
+            eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/ObjectivesIcon'] [colour='FF3333FF']";
             break;
     }
     return eventType + mMessage + formatWhiteColor + "\n";
