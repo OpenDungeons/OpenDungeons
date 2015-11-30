@@ -259,9 +259,9 @@ namespace Helper
     }
     std::string toString(const Ogre::Vector3& v)
     {
-        return "[" + TTostring(v.x)
+        return "(" + TTostring(v.x)
             + "," + TTostring(v.y)
-            + "," + TTostring(v.z) + "]";
+            + "," + TTostring(v.z) + ")";
     }
     std::string toString(const Ogre::ColourValue& c)
     {
