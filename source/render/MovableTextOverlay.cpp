@@ -20,7 +20,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-#include <Ogre.h>
+#include <OgreCamera.h>
 #include <Overlay/OgreFont.h>
 #include <Overlay/OgreFontManager.h>
 #include <Overlay/OgreOverlay.h>

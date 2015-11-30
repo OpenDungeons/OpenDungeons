@@ -18,7 +18,7 @@
 #ifndef MOVABLETEXTOVERLAY_H
 #define MOVABLETEXTOVERLAY_H
 
-#include <Ogre.h>
+#include <OgrePrerequisites.h>
 
 namespace Ogre
 {

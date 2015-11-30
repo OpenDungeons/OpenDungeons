@@ -24,6 +24,8 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <OgreEntity.h>
+
 const std::string CREATURE_OVERLAY_STATUS_PREFIX = "CreatureOverlayStatus_";
 
 enum class CreatureOverlays

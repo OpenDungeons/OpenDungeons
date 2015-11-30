@@ -24,6 +24,9 @@
 
 #include "utils/LogManager.h"
 
+#include <OgreColourValue.h>
+#include <OgreVector3.h>
+
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/filesystem.hpp>
 

@@ -23,12 +23,16 @@
 #ifndef HELPER_H_
 #define HELPER_H_
 
-#include <Ogre.h>
-
 #include <string>
 #include <sstream>
 #include <vector>
 #include <cstdint>
+
+namespace Ogre
+{
+class ColourValue;
+class Vector3;
+}
 
 //! \brief Math constant pi. Always use this one, never M_PI from <cmath> (it's not portable)
 const double PI = 3.141592653589793238462643;
