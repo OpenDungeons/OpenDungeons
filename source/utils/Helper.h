@@ -23,7 +23,7 @@
 #ifndef HELPER_H_
 #define HELPER_H_
 
-#include <OgreStringConverter.h>
+#include <Ogre.h>
 
 #include <string>
 #include <sstream>
@@ -121,9 +121,6 @@ namespace Helper
     //! \brief opens the file fileName and adds the uncommented lines to the stream.
     //! Returns true is the file could be open and false if an error occurs
     bool readFileWithoutComments(const std::string& fileName, std::stringstream& stream);
-
-    inline Ogre::Real toReal(const std::string& text)
-    { return Ogre::StringConverter::parseReal(text); }
 
     std::string toString(float f, unsigned short precision = 6);
     std::string toString(double d, unsigned short precision = 6);

@@ -18,22 +18,18 @@
 #include "entities/MovableGameEntity.h"
 
 #include "entities/Tile.h"
-
 #include "game/Player.h"
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "render/RenderManager.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
-
 #include "ODApplication.h"
 
-#include "OgreAnimationState.h"
+#include <OgreAnimationState.h>
 
 MovableGameEntity::MovableGameEntity(GameMap* gameMap, bool isOnServerMap) :
     GameEntity(gameMap, isOnServerMap),

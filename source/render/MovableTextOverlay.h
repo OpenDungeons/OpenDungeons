@@ -18,11 +18,15 @@
 #ifndef MOVABLETEXTOVERLAY_H
 #define MOVABLETEXTOVERLAY_H
 
-#include "Ogre.h"
-#include "Overlay/OgreFont.h"
-#include "Overlay/OgreFontManager.h"
-#include "Overlay/OgreOverlayContainer.h"
-#include "Overlay/OgreOverlayManager.h"
+#include <Ogre.h>
+
+namespace Ogre
+{
+class Font;
+class Overlay;
+class OverlayContainer;
+class OverlayElement;
+}
 
 class ChildOverlay
 {

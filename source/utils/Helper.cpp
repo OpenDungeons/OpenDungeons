@@ -26,6 +26,8 @@
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/filesystem.hpp>
+
+#include <iomanip>
 #include <fstream>
 
 namespace Helper

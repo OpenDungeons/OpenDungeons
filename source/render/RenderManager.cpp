@@ -29,17 +29,12 @@
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
-
 #include "game/Player.h"
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
 #include "gamemap/TileSet.h"
-
 #include "render/CreatureOverlayStatus.h"
-
 #include "rooms/Room.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
@@ -61,11 +56,12 @@
 #include <OgreViewport.h>
 #include <OgreRoot.h>
 #include <OgreQuaternion.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayManager.h>
 #include <Overlay/OgreOverlaySystem.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
-#include <sstream>
 
-using std::stringstream;
+#include <sstream>
 
 template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = nullptr;
 
