@@ -136,6 +136,7 @@ namespace Helper
     std::string toString(int64_t d);
     std::string toString(uint64_t d);
     std::string toString(const Ogre::Vector3& v);
+    std::string toStringWithoutZ(const Ogre::Vector3& v);
     std::string toString(const Ogre::ColourValue& c);
 
     //! \brief Converts a pointer to displayable string. Useful for debug
