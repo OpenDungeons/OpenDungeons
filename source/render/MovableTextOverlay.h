@@ -20,6 +20,8 @@
 
 #include <OgrePrerequisites.h>
 
+#include <cstdint>
+
 namespace Ogre
 {
 class Font;

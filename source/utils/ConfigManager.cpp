@@ -1506,7 +1506,7 @@ int32_t ConfigManager::getSkillPoints(const std::string& res) const
     if(mSkillPoints.count(res) <= 0)
     {
         OD_LOG_ERR("Unknown parameter res=" + res);
-        return 0.0;
+        return 0;
     }
 
     return mSkillPoints.at(res);

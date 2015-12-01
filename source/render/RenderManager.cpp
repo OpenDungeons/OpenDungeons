@@ -40,6 +40,7 @@
 #include "utils/ResourceManager.h"
 
 #include <OgreBone.h>
+#include <OgreCamera.h>
 #include <OgreCompositorManager.h>
 #include <OgreEntity.h>
 #include <OgreMaterialManager.h>
