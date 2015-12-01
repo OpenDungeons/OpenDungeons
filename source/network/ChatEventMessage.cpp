@@ -17,26 +17,25 @@
 
 #include "network/ChatEventMessage.h"
 
-#include "game/Player.h"
 #include "game/Seat.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 
-ChatMessage::ChatMessage(Player* player, const std::string& message) :
+ChatMessage::ChatMessage(const std::string& playerNick, const std::string& message, Seat* seat) :
     mMessage(message),
-    mPlayer(player)
+    mPlayerNick(playerNick),
+    mSeat(seat)
 {
 }
 
-std::string ChatMessage::getMessageAsString()
+std::string ChatMessage::getMessageAsString() const
 {
-    std::string colorId = mPlayer ? (mPlayer->getSeat() ? mPlayer->getSeat()->getColorId() : "") : "";
+    std::string colorId = mSeat ? mSeat->getColorId() : "";
     Ogre::ColourValue colorValue = ConfigManager::getSingleton().getColorFromId(colorId);
     const std::string formatSeatColor = "[colour='" + Helper::getCEGUIColorFromOgreColourValue(colorValue) + "']";
     const std::string formatWhiteColor = "[colour='FFFFFFFF']";
-    std::string playerNickname = mPlayer ? mPlayer->getNick() : "";
-    std::string messageStr = formatSeatColor + playerNickname + formatWhiteColor + ": " + getMessage()  + "\n";
+    std::string messageStr = formatSeatColor + mPlayerNick + formatWhiteColor + ": " + getMessage()  + "\n";
     return messageStr;
 }
 

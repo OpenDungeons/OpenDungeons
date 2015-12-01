@@ -385,11 +385,12 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
         case ServerNotificationType::chat:
         {
             int32_t seatId;
+            std::string playerNick;
             std::string chatMsg;
-            OD_ASSERT_TRUE(packetReceived >> seatId >> chatMsg);
+            OD_ASSERT_TRUE(packetReceived >> playerNick >> chatMsg >> seatId);
             Seat* seat = gameMap->getSeatById(seatId);
-            Player* player = seat ? seat->getPlayer() : nullptr;
-            addChatMessage(new ChatMessage(player, chatMsg));
+            ChatMessage chat(playerNick, chatMsg, seat);
+            frameListener->getModeManager()->getCurrentMode()->receiveChat(chat);
             break;
         }
 
@@ -975,23 +976,6 @@ void ODClient::processClientNotifications()
                 break;
         }
         delete event;
-    }
-}
-
-void ODClient::addChatMessage(ChatMessage* chat)
-{
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    switch(frameListener->getModeManager()->getCurrentModeType())
-    {
-        case AbstractModeManager::GAME:
-        {
-            GameEditorModeBase* gm = static_cast<GameEditorModeBase*>(frameListener->getModeManager()->getCurrentMode());
-            gm->receiveChat(chat);
-            break;
-        }
-        // Note: Later, we can handle other modes here.
-        default:
-            break;
     }
 }
 

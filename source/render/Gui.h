@@ -138,8 +138,6 @@ public:
     static const std::string EDM_BUTTON_LAUNCH;
     static const std::string EDM_BUTTON_BACK;
     static const std::string EDM_LIST_LEVELS;
-    static const std::string CSM_BUTTON_LAUNCH;
-    static const std::string CSM_BUTTON_BACK;
     static const std::string REM_TEXT_LOADING;
     static const std::string REM_BUTTON_LAUNCH;
     static const std::string REM_BUTTON_DELETE;

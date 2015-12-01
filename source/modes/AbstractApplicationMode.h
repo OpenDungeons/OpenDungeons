@@ -29,6 +29,7 @@
 
 #include <vector>
 
+class ChatMessage;
 class GameEntity;
 
 class AbstractApplicationMode :
@@ -115,6 +116,10 @@ public:
     {
         mEventConnections.emplace_back(conn);
     }
+
+    //! \brief Allows to receive and display some chat text
+    virtual void receiveChat(const ChatMessage& chat)
+    {}
 
 protected:
     ModeManager& getModeManager()

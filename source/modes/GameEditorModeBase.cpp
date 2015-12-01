@@ -165,18 +165,15 @@ void GameEditorModeBase::onFrameStarted(const Ogre::FrameEvent& evt)
     mMiniMap.update(evt.timeSinceLastFrame);
 }
 
-void GameEditorModeBase::receiveChat(ChatMessage* message)
+void GameEditorModeBase::receiveChat(const ChatMessage& chat)
 {
     // Adds the message right away
     CEGUI::Window* chatTextBox = mRootWindow->getChild("GameChatWindow/GameChatText");
-    chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str()));
+    chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(chat.getMessageAsString().c_str()));
 
     // Ensure the latest text is shown
     CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
     scrollBar->setScrollPosition(scrollBar->getDocumentSize());
-
-    // Delete it now we don't need it anymore.
-    delete message;
 }
 
 void GameEditorModeBase::receiveEventShortNotice(EventMessage* event)

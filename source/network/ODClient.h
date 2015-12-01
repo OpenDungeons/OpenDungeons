@@ -88,9 +88,6 @@ class ODClient: public Ogre::Singleton<ODClient>,
     void playerDisconnected() override;
 
  private:
-    //! \brief Convenience function to send a chat message.
-    void addChatMessage(ChatMessage* chat);
-
     //! \brief Convenience function to send a game event.
     void addEventMessage(EventMessage* event);
 
