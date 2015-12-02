@@ -17,6 +17,8 @@
 
 #include "creatureaction/CreatureActionSearchJob.h"
 
+#include "creatureaction/CreatureActionSearchFood.h"
+#include "creatureaction/CreatureActionSleep.h"
 #include "creatureaction/CreatureActionUseRoom.h"
 #include "creaturemood/CreatureMood.h"
 #include "entities/Creature.h"
@@ -70,6 +72,23 @@ bool CreatureActionSearchJob::handleSearchJob(Creature& creature, bool forced)
         default:
             // We can work
             break;
+    }
+
+    bool workForced = creature.isForcedToWork();
+    // If we are sleepy, we go to bed unless we have been slapped
+    if (!workForced && (Random::Double(20.0, 30.0) > creature.getWakefulness()))
+    {
+        creature.popAction();
+        creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));
+        return true;
+    }
+
+    // If we are hungry, we try to find food unless we have been slapped
+    if (!workForced && (Random::Double(70.0, 80.0) < creature.getHunger()))
+    {
+        creature.popAction();
+        creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, false));
+        return true;
     }
 
     if(forced)
