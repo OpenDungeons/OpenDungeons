@@ -120,6 +120,10 @@ void Room::absorbRoom(Room *r)
 
     r->mCoveredTilesDestroyed.insert(r->mCoveredTilesDestroyed.end(), r->mCoveredTiles.begin(), r->mCoveredTiles.end());
     r->mCoveredTiles.clear();
+
+    // We fire the dead event so that if there are creatures heading for this room or
+    // whatever, we release them before the remove from gamemap event
+    r->fireEntityDead();
 }
 
 void Room::handleCreatureUsingAbsorbedRoom(Creature& creature)
