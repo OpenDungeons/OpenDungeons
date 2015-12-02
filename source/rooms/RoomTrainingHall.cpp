@@ -198,6 +198,7 @@ void RoomTrainingHall::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile
         {
             Creature* creature = p.first;
             creature->clearActionQueue();
+
             // clearActionQueue should have released mCreaturesDummies[creature]. Now, we just need to release the unused dummy
             break;
         }
@@ -280,6 +281,7 @@ bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
     Tile* tileDummy = mUnusedDummies[index];
     mUnusedDummies.erase(mUnusedDummies.begin() + index);
     mCreaturesDummies[creature] = tileDummy;
+
     const Ogre::Vector3& creaturePosition = creature->getPosition();
     Ogre::Real wantedX = static_cast<Ogre::Real>(tileDummy->getX());
     Ogre::Real wantedY = static_cast<Ogre::Real>(tileDummy->getY()) - OFFSET_CREATURE;
@@ -308,17 +310,21 @@ bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
 void RoomTrainingHall::removeCreatureUsingRoom(Creature* c)
 {
     Room::removeCreatureUsingRoom(c);
-    if(mCreaturesDummies.count(c) > 0)
+    std::map<Creature*,Tile*>::iterator it = mCreaturesDummies.find(c);
+    if(it == mCreaturesDummies.end())
     {
-        Tile* tileDummy = mCreaturesDummies[c];
-        if(tileDummy == nullptr)
-        {
-            OD_LOG_ERR("unexpected null tileDummy");
-            return;
-        }
-        mUnusedDummies.push_back(tileDummy);
-        mCreaturesDummies.erase(c);
+        OD_LOG_ERR("creature=" + c->getName() + ", room=" + getName());
+        return;
     }
+
+    Tile* tileDummy = it->second;
+    if(tileDummy == nullptr)
+    {
+        OD_LOG_ERR("unexpected null tileDummy room=" + getName());
+        return;
+    }
+    mUnusedDummies.push_back(tileDummy);
+    mCreaturesDummies.erase(c);
 }
 
 void RoomTrainingHall::doUpkeep()
@@ -335,13 +341,14 @@ void RoomTrainingHall::doUpkeep()
 
 bool RoomTrainingHall::useRoom(Creature& creature, bool forced)
 {
-    if(mCreaturesDummies.count(&creature) <= 0)
+    std::map<Creature*,Tile*>::iterator it = mCreaturesDummies.find(&creature);
+    if(it == mCreaturesDummies.end())
     {
-        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName() + ", pos=" + Helper::toString(creature.getPosition()));
+        OD_LOG_ERR("creature=" + creature.getName() + ", room=" + getName());
         return false;
     }
 
-    Tile* tileSpot = mCreaturesDummies.at(&creature);
+    Tile* tileSpot = it->second;
     Tile* tileCreature = creature.getPositionTile();
     if(tileCreature == nullptr)
     {
