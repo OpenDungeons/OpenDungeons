@@ -20,8 +20,12 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <OgreCamera.h>
+#include <Overlay/OgreFont.h>
 #include <Overlay/OgreFontManager.h>
-#include <OgrePrerequisites.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayContainer.h>
+#include <Overlay/OgreOverlayManager.h>
 
 ChildOverlay::ChildOverlay(const Ogre::String& fontName, Ogre::Real charHeight,
         const Ogre::ColourValue& color, const Ogre::String& materialName) :

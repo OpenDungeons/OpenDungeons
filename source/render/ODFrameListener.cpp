@@ -37,10 +37,12 @@
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 
+#include <OgreCamera.h>
 #include <OgreRenderWindow.h>
 #include <OgreRoot.h>
 #include <OgreSceneManager.h>
 #include <Overlay/OgreOverlaySystem.h>
+
 #include <CEGUI/EventArgs.h>
 #include <CEGUI/Window.h>
 #include <CEGUI/Size.h>

@@ -1954,7 +1954,7 @@ std::string Creature::getStatsText()
     tempSS << "Destinations:";
     for(const Ogre::Vector3& dest : mWalkQueue)
     {
-        tempSS << Helper::toString(dest) << "/";
+        tempSS << Helper::toStringWithoutZ(dest) << "/";
     }
     tempSS << std::endl;
     tempSS << "Seat id: " << getSeat()->getId() << std::endl;

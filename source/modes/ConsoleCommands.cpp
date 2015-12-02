@@ -16,6 +16,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <OgreCamera.h>
 #include <OgreSceneManager.h>
 
 #include <boost/algorithm/string/join.hpp>

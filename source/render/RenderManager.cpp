@@ -29,43 +29,40 @@
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
-
 #include "game/Player.h"
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
 #include "gamemap/TileSet.h"
-
 #include "render/CreatureOverlayStatus.h"
-
 #include "rooms/Room.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
 
-#include <OgreMesh.h>
 #include <OgreBone.h>
-#include <OgreSkeleton.h>
-#include <OgreSkeletonInstance.h>
+#include <OgreCamera.h>
+#include <OgreCompositorManager.h>
+#include <OgreEntity.h>
 #include <OgreMaterialManager.h>
+#include <OgreMesh.h>
+#include <OgreMovableObject.h>
 #include <OgreParticleSystem.h>
-#include <OgreTechnique.h>
-#include <OgreSubEntity.h>
+#include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
-#include <OgreMovableObject.h>
-#include <OgreEntity.h>
+#include <OgreSkeleton.h>
+#include <OgreSkeletonInstance.h>
+#include <OgreSubEntity.h>
 #include <OgreSubMesh.h>
-#include <OgreCompositorManager.h>
-#include <OgreViewport.h>
 #include <OgreRoot.h>
-#include <OgreQuaternion.h>
+#include <OgreTechnique.h>
+#include <OgreViewport.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayManager.h>
 #include <Overlay/OgreOverlaySystem.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
-#include <sstream>
 
-using std::stringstream;
+#include <sstream>
 
 template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = nullptr;
 

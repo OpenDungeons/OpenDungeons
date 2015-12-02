@@ -68,7 +68,7 @@ bool CreatureActionSleep::handleSleep(Creature& creature, int32_t nbTurnsActive)
                 return false;
             }
             RoomDormitory* dormitory = static_cast<RoomDormitory*>(roomHomeTile);
-            creature.setAnimationState(EntityAnimation::sleep_anim, false, dormitory->getSleepDirection(&creature));
+            creature.setAnimationState(EntityAnimation::sleep_anim, false, dormitory->getSleepDirection(&creature), false);
         }
 
         // Improve wakefulness

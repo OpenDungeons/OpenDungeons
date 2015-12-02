@@ -19,6 +19,8 @@
 
 #include <boost/filesystem.hpp>
 
+#include <iomanip>
+
 template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = nullptr;
 
 //! \brief Log filename used when OD Application throws errors without using Ogre default logger.

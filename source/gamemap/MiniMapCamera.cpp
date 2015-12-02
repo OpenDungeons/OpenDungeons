@@ -26,10 +26,14 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <OgreCamera.h>
 #include <OgreHardwarePixelBuffer.h>
 #include <OgrePrerequisites.h>
+#include <OgreRenderTexture.h>
 #include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
 #include <OgreTextureManager.h>
+#include <OgreViewport.h>
 
 #include <CEGUI/BasicImage.h>
 #include <CEGUI/Image.h>

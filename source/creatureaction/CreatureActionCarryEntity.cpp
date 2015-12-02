@@ -47,14 +47,15 @@ CreatureActionCarryEntity::~CreatureActionCarryEntity()
         const Ogre::Vector3& pos = mCreature.getPosition();
         OD_LOG_INF("creature=" + mCreature.getName() + " is releasing carried " + mEntityToCarry->getName() + ", pos=" + Helper::toString(pos));
         mEntityToCarry->notifyEntityCarryOff(pos);
-
     }
+
+    mCreature.releaseCarriedEntity();
+
     if(mBuildingDest != nullptr)
     {
         mBuildingDest->removeGameEntityListener(this);
         mBuildingDest->notifyCarryingStateChanged(&mCreature, mEntityToCarry);
     }
-    mCreature.releaseCarriedEntity();
 }
 
 std::function<bool()> CreatureActionCarryEntity::action()

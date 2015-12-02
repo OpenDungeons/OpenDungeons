@@ -23,12 +23,16 @@
 #ifndef HELPER_H_
 #define HELPER_H_
 
-#include <OgreStringConverter.h>
-
 #include <string>
 #include <sstream>
 #include <vector>
 #include <cstdint>
+
+namespace Ogre
+{
+class ColourValue;
+class Vector3;
+}
 
 //! \brief Math constant pi. Always use this one, never M_PI from <cmath> (it's not portable)
 const double PI = 3.141592653589793238462643;
@@ -122,9 +126,6 @@ namespace Helper
     //! Returns true is the file could be open and false if an error occurs
     bool readFileWithoutComments(const std::string& fileName, std::stringstream& stream);
 
-    inline Ogre::Real toReal(const std::string& text)
-    { return Ogre::StringConverter::parseReal(text); }
-
     std::string toString(float f, unsigned short precision = 6);
     std::string toString(double d, unsigned short precision = 6);
     std::string toString(int8_t d);
@@ -136,6 +137,7 @@ namespace Helper
     std::string toString(int64_t d);
     std::string toString(uint64_t d);
     std::string toString(const Ogre::Vector3& v);
+    std::string toStringWithoutZ(const Ogre::Vector3& v);
     std::string toString(const Ogre::ColourValue& c);
 
     //! \brief Converts a pointer to displayable string. Useful for debug

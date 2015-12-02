@@ -24,8 +24,13 @@
 
 #include "utils/LogManager.h"
 
+#include <OgreColourValue.h>
+#include <OgreVector3.h>
+
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/filesystem.hpp>
+
+#include <iomanip>
 #include <fstream>
 
 namespace Helper
@@ -259,9 +264,14 @@ namespace Helper
     }
     std::string toString(const Ogre::Vector3& v)
     {
-        return "[" + TTostring(v.x)
+        return "(" + TTostring(v.x)
             + "," + TTostring(v.y)
-            + "," + TTostring(v.z) + "]";
+            + "," + TTostring(v.z) + ")";
+    }
+    std::string toStringWithoutZ(const Ogre::Vector3& v)
+    {
+        return "(" + TTostring(v.x)
+            + "," + TTostring(v.y) + ")";
     }
     std::string toString(const Ogre::ColourValue& c)
     {
