@@ -31,6 +31,7 @@
 
 const std::vector<std::string> EMPTY_SPAWNPOOL;
 const std::string EMPTY_STRING;
+const Ogre::ColourValue DEFAULT_SEAT_COLOURVALUE;
 const std::string ConfigManager::DEFAULT_TILESET_NAME = "Default";
 
 const std::string ConfigManager::DefaultWorkerCreatureDefinition = "DefaultWorker";
@@ -1359,157 +1360,171 @@ const std::string& ConfigManager::getUserValue(Config::Ctg category,
     }
     auto& userCfg = mUserConfig[category];
 
-    if(userCfg.count(param) <= 0)
+    auto it = userCfg.find(param);
+    if(it == userCfg.end())
     {
         if (triggerError)
             OD_LOG_ERR("Unknown parameter param=" + param);
         return defaultValue;
     }
 
-    return userCfg.at(param);
+    return it->second;
 }
 
 const std::string& ConfigManager::getRoomConfigString(const std::string& param) const
 {
-    if(mRoomsConfig.count(param) <= 0)
+    auto it = mRoomsConfig.find(param);
+    if(it == mRoomsConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return EMPTY_STRING;
     }
 
-    return mRoomsConfig.at(param);
+    return it->second;
 }
 
 uint32_t ConfigManager::getRoomConfigUInt32(const std::string& param) const
 {
-    if(mRoomsConfig.count(param) <= 0)
+    auto it = mRoomsConfig.find(param);
+    if(it == mRoomsConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
-    return Helper::toUInt32(mRoomsConfig.at(param));
+    return Helper::toUInt32(it->second);
 }
 
 int32_t ConfigManager::getRoomConfigInt32(const std::string& param) const
 {
-    if(mRoomsConfig.count(param) <= 0)
+    auto it = mRoomsConfig.find(param);
+    if(it == mRoomsConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
-    return Helper::toInt(mRoomsConfig.at(param));
+    return Helper::toInt(it->second);
 }
 
 double ConfigManager::getRoomConfigDouble(const std::string& param) const
 {
-    if(mRoomsConfig.count(param) <= 0)
+    auto it = mRoomsConfig.find(param);
+    if(it == mRoomsConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return 0.0;
     }
 
-    return Helper::toDouble(mRoomsConfig.at(param));
+    return Helper::toDouble(it->second);
 }
 
 const std::string& ConfigManager::getTrapConfigString(const std::string& param) const
 {
-    if(mTrapsConfig.count(param) <= 0)
+    auto it = mTrapsConfig.find(param);
+    if(it == mTrapsConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return EMPTY_STRING;
     }
 
-    return mTrapsConfig.at(param);
+    return it->second;
 }
 
 uint32_t ConfigManager::getTrapConfigUInt32(const std::string& param) const
 {
-    if(mTrapsConfig.count(param) <= 0)
+    auto it = mTrapsConfig.find(param);
+    if(it == mTrapsConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
-    return Helper::toUInt32(mTrapsConfig.at(param));
+    return Helper::toUInt32(it->second);
 }
 
 int32_t ConfigManager::getTrapConfigInt32(const std::string& param) const
 {
-    if(mTrapsConfig.count(param) <= 0)
+    auto it = mTrapsConfig.find(param);
+    if(it == mTrapsConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
-    return Helper::toInt(mTrapsConfig.at(param));
+    return Helper::toInt(it->second);
 }
 
 double ConfigManager::getTrapConfigDouble(const std::string& param) const
 {
-    if(mTrapsConfig.count(param) <= 0)
+    auto it = mTrapsConfig.find(param);
+    if(it == mTrapsConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return 0.0;
     }
 
-    return Helper::toDouble(mTrapsConfig.at(param));
+    return Helper::toDouble(it->second);
 }
 
 const std::string& ConfigManager::getSpellConfigString(const std::string& param) const
 {
-    if(mSpellConfig.count(param) <= 0)
+    auto it = mSpellConfig.find(param);
+    if(it == mSpellConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return EMPTY_STRING;
     }
 
-    return mSpellConfig.at(param);
+    return it->second;
 }
 
 uint32_t ConfigManager::getSpellConfigUInt32(const std::string& param) const
 {
-    if(mSpellConfig.count(param) <= 0)
+    auto it = mSpellConfig.find(param);
+    if(it == mSpellConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
-    return Helper::toUInt32(mSpellConfig.at(param));
+    return Helper::toUInt32(it->second);
 }
 
 int32_t ConfigManager::getSpellConfigInt32(const std::string& param) const
 {
-    if(mSpellConfig.count(param) <= 0)
+    auto it = mSpellConfig.find(param);
+    if(it == mSpellConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
-    return Helper::toInt(mSpellConfig.at(param));
+    return Helper::toInt(it->second);
 }
 
 double ConfigManager::getSpellConfigDouble(const std::string& param) const
 {
-    if(mSpellConfig.count(param) <= 0)
+    auto it = mSpellConfig.find(param);
+    if(it == mSpellConfig.end())
     {
         OD_LOG_ERR("Unknown parameter param=" + param);
         return 0.0;
     }
 
-    return Helper::toDouble(mSpellConfig.at(param));
+    return Helper::toDouble(it->second);
 }
 
 int32_t ConfigManager::getSkillPoints(const std::string& res) const
 {
-    if(mSkillPoints.count(res) <= 0)
+    auto it = mSkillPoints.find(res);
+    if(it == mSkillPoints.end())
     {
         OD_LOG_ERR("Unknown parameter res=" + res);
         return 0;
     }
 
-    return mSkillPoints.at(res);
+    return it->second;
 }
 
 const CreatureDefinition* ConfigManager::getCreatureDefinition(const std::string& name) const
@@ -1535,34 +1550,39 @@ const Weapon* ConfigManager::getWeapon(const std::string& name) const
 
 Ogre::ColourValue ConfigManager::getColorFromId(const std::string& id) const
 {
-    if(mSeatColors.count(id) > 0)
-        return mSeatColors.at(id);
+    auto it = mSeatColors.find(id);
+    if(it == mSeatColors.end())
+        return DEFAULT_SEAT_COLOURVALUE;
 
-    return Ogre::ColourValue();
+    return it->second;
+
 }
 
 const std::vector<const SpawnCondition*>& ConfigManager::getCreatureSpawnConditions(const CreatureDefinition* def) const
 {
-    if(mCreatureSpawnConditions.count(def) == 0)
+    auto it = mCreatureSpawnConditions.find(def);
+    if(it == mCreatureSpawnConditions.end())
         return SpawnCondition::EMPTY_SPAWNCONDITIONS;
 
-    return mCreatureSpawnConditions.at(def);
+    return it->second;
 }
 
 const std::vector<std::string>& ConfigManager::getFactionSpawnPool(const std::string& faction) const
 {
-    if(mFactionSpawnPool.count(faction) == 0)
+    auto it = mFactionSpawnPool.find(faction);
+    if(it == mFactionSpawnPool.end())
         return EMPTY_SPAWNPOOL;
 
-    return mFactionSpawnPool.at(faction);
+    return it->second;
 }
 
 const std::string& ConfigManager::getFactionWorkerClass(const std::string& faction) const
 {
-    if(mFactionDefaultWorkerClass.count(faction) == 0)
+    auto it = mFactionDefaultWorkerClass.find(faction);
+    if(it == mFactionDefaultWorkerClass.end())
         return EMPTY_STRING;
 
-    return mFactionDefaultWorkerClass.at(faction);
+    return it->second;
 }
 
 const TileSet* ConfigManager::getTileSet(const std::string& tileSetName) const
@@ -1570,12 +1590,15 @@ const TileSet* ConfigManager::getTileSet(const std::string& tileSetName) const
     if(tileSetName.empty())
         return mTileSets.at(DEFAULT_TILESET_NAME);
 
-    if(mTileSets.count(tileSetName) > 0)
-        return mTileSets.at(tileSetName);
+    auto it = mTileSets.find(tileSetName);
+    if(it == mTileSets.end())
+    {
+        OD_LOG_ERR("Cannot find requested tileset name=" + tileSetName);
+        // We return the default tileset
+        return mTileSets.at(DEFAULT_TILESET_NAME);
+    }
 
-    OD_LOG_ERR("Cannot find requested tileset name=" + tileSetName);
-    // We return the default tileset
-    return mTileSets.at(DEFAULT_TILESET_NAME);
+    return it->second;
 }
 
 bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)

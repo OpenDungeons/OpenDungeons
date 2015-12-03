@@ -259,17 +259,21 @@ bool RoomLibrary::addCreatureUsingRoom(Creature* creature)
 void RoomLibrary::removeCreatureUsingRoom(Creature* c)
 {
     Room::removeCreatureUsingRoom(c);
-    if(mCreaturesSpots.count(c) > 0)
+    auto it = mCreaturesSpots.find(c);
+    if(it == mCreaturesSpots.end())
     {
-        Tile* tileSpot = mCreaturesSpots[c];
-        if(tileSpot == nullptr)
-        {
-            OD_LOG_ERR("unexpected null tileSpot");
-            return;
-        }
-        mUnusedSpots.push_back(tileSpot);
-        mCreaturesSpots.erase(c);
+        OD_LOG_ERR("room=" + getName() + ", creature=" + c->getName());
+        return;
     }
+
+    Tile* tileSpot = it->second;
+    if(tileSpot == nullptr)
+    {
+        OD_LOG_ERR("room=" + getName() + ", creature=" + c->getName());
+        return;
+    }
+    mUnusedSpots.push_back(tileSpot);
+    mCreaturesSpots.erase(it);
 }
 
 void RoomLibrary::doUpkeep()
@@ -319,13 +323,14 @@ void RoomLibrary::doUpkeep()
 bool RoomLibrary::useRoom(Creature& creature, bool forced)
 {
     int32_t skillEntityPoints = ConfigManager::getSingleton().getRoomConfigInt32("LibrarySkillPointsBook");
-    if(mCreaturesSpots.count(&creature) <= 0)
+    auto it = mCreaturesSpots.find(&creature);
+    if(it == mCreaturesSpots.end())
     {
-        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName() + ", pos=" + Helper::toString(creature.getPosition()));
+        OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName());
         return false;
     }
 
-    Tile* tileSpot = mCreaturesSpots.at(&creature);
+    Tile* tileSpot = it->second;
     Tile* tileCreature = creature.getPositionTile();
     if(tileCreature == nullptr)
     {
