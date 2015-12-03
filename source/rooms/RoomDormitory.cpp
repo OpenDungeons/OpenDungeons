@@ -136,13 +136,14 @@ bool RoomDormitory::removeCoveredTile(Tile* t)
     if (t == nullptr)
         return false;
 
-    if(mTileData.count(t) <= 0)
+    auto it = mTileData.find(t);
+    if(it == mTileData.end())
     {
         OD_LOG_ERR("room=" + getName() + ", tile=" + Tile::displayAsString(t));
         return false;
     }
 
-    RoomDormitoryTileData* roomDormitoryTileData = static_cast<RoomDormitoryTileData*>(mTileData[t]);
+    RoomDormitoryTileData* roomDormitoryTileData = static_cast<RoomDormitoryTileData*>(it->second);
     if(roomDormitoryTileData->mCreature != nullptr)
     {
         // Inform the creature that it no longer has a place to sleep

@@ -93,13 +93,14 @@ void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
 
 void Building::removeBuildingObject(Tile* tile)
 {
-    if(mBuildingObjects.count(tile) == 0)
+    auto it = mBuildingObjects.find(tile);
+    if(it == mBuildingObjects.end())
         return;
 
-    RenderedMovableEntity* obj = mBuildingObjects[tile];
+    RenderedMovableEntity* obj = it->second;
     obj->removeFromGameMap();
     obj->deleteYourself();
-    mBuildingObjects.erase(tile);
+    mBuildingObjects.erase(it);
 }
 
 void Building::removeBuildingObject(RenderedMovableEntity* obj)
@@ -162,10 +163,11 @@ void Building::removeAllBuildingObjects()
 
 RenderedMovableEntity* Building::getBuildingObjectFromTile(Tile* tile)
 {
-    if(mBuildingObjects.count(tile) == 0)
+    auto it = mBuildingObjects.find(tile);
+    if(it == mBuildingObjects.end())
         return nullptr;
 
-    RenderedMovableEntity* obj = mBuildingObjects[tile];
+    RenderedMovableEntity* obj = it->second;
     return obj;
 }
 
@@ -309,13 +311,14 @@ double Building::getHP(Tile *tile) const
 double Building::takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
         Tile *tileTakingDamage, bool ko)
 {
-    if(mTileData.count(tileTakingDamage) <= 0)
+    auto it = mTileData.find(tileTakingDamage);
+    if(it == mTileData.end())
     {
         OD_LOG_ERR("building=" + getName() + ", tile=" + Tile::displayAsString(tileTakingDamage));
         return 0.0;
     }
 
-    TileData* tileData = mTileData.at(tileTakingDamage);
+    TileData* tileData = it->second;
     double damageDone = std::min(tileData->mHP, absoluteDamage + physicalDamage + magicalDamage + elementDamage);
     tileData->mHP -= damageDone;
 
@@ -379,12 +382,13 @@ void Building::exportToStream(std::ostream& os) const
     os << name << "\t" << seatId << "\t" << nbTiles << "\n";
     for(Tile* tile : mCoveredTiles)
     {
-        if(mTileData.count(tile) <= 0)
+        auto it = mTileData.find(tile);
+        if(it == mTileData.end())
         {
             OD_LOG_ERR("building=" + getName() + ", tile=" + Tile::displayAsString(tile));
             continue;
         }
-        TileData* tileData = mTileData.at(tile);
+        TileData* tileData = it->second;
         os << tile->getX() << "\t" << tile->getY();
         exportTileDataToStream(os, tile, tileData);
         os << "\n";
@@ -396,12 +400,13 @@ void Building::exportToStream(std::ostream& os) const
 
     for(Tile* tile : mCoveredTilesDestroyed)
     {
-        if(mTileData.count(tile) <= 0)
+        auto it = mTileData.find(tile);
+        if(it == mTileData.end())
         {
             OD_LOG_ERR("building=" + getName() + ", tile=" + Tile::displayAsString(tile));
             continue;
         }
-        TileData* tileData = mTileData.at(tile);
+        TileData* tileData = it->second;
         os << tile->getX() << "\t" << tile->getY();
         exportTileDataToStream(os, tile, tileData);
         os << "\n";

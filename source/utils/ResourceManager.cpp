@@ -186,9 +186,10 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
     mUserDataPath.clear();
     mUserConfigPath.clear();
 
-    if(options.count("appData") > 0)
+    auto itOption = options.find("appData");
+    if(itOption != options.end())
     {
-        mUserDataPath = options["appData"].as<std::string>();
+        mUserDataPath = itOption->second.as<std::string>();
         if(!mUserDataPath.empty())
         {
             uint32_t len = mUserDataPath.length();
@@ -310,10 +311,11 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
         exit(1);
     }
 
-    if(options.count("log") > 0)
+    itOption = options.find("log");
+    if(itOption != options.end())
     {
         // We change log file
-        mOgreLogFile = mUserDataPath + options["log"].as<std::string>();
+        mOgreLogFile = mUserDataPath + itOption->second.as<std::string>();
     }
     else
     {
@@ -321,10 +323,11 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
         mOgreLogFile = mUserDataPath + LOGFILENAME;
     }
 
-    if(options.count("server") > 0)
+    itOption = options.find("server");
+    if(itOption != options.end())
     {
         mServerMode = true;
-        std::string filePath = getLevelPathMultiplayer() + options["server"].as<std::string>();
+        std::string filePath = getLevelPathMultiplayer() + itOption->second.as<std::string>();
         boost::filesystem::path level(filePath);
         if(!boost::filesystem::exists(level))
         {
@@ -333,14 +336,16 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
         }
         mServerModeLevel = level.string();
 
-        if(options.count("mscreator") > 0)
+        auto it2 = options.find("mscreator");
+        if(it2 != options.end())
         {
-            mServerModeCreator = options["mscreator"].as<std::string>();
+            mServerModeCreator = it2->second.as<std::string>();
         }
     }
 
-    if(options.count("port") > 0)
-        mForcedNetworkPort = options["port"].as<int32_t>();
+    itOption = options.find("port");
+    if(itOption != options.end())
+        mForcedNetworkPort = itOption->second.as<int32_t>();
 
     mUserConfigFile = mUserConfigPath + USERCFGFILENAME;
     mCeguiLogFile = mUserDataPath + CEGUILOGFILENAME;

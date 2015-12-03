@@ -151,10 +151,11 @@ int32_t Trap::getNbNeededCraftedTrap() const
     int32_t nbNeededCraftedTrap = 0;
     for(Tile* tile : mCoveredTiles)
     {
-        if(mTileData.count(tile) <= 0)
+        auto it = mTileData.find(tile);
+        if(it == mTileData.end())
             continue;
 
-        TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+        TrapTileData* trapTileData = static_cast<TrapTileData*>(it->second);
         if (trapTileData->isActivated())
             continue;
 
@@ -197,10 +198,11 @@ void Trap::updateActiveSpots()
         if(trapTileData->getRemoveTrap())
         {
             trapTileData->setRemoveTrap(false);
-            if(mBuildingObjects.count(p.first) <= 0)
+            auto it = mBuildingObjects.find(p.first);
+            if(it == mBuildingObjects.end())
                 continue;
 
-            RenderedMovableEntity* trapEntity = mBuildingObjects.at(p.first);
+            RenderedMovableEntity* trapEntity = it->second;
             if(trapEntity->notifyRemoveAsked())
                 removeBuildingObject(p.first);
             else
@@ -330,10 +332,11 @@ Tile* Trap::askSpotForCarriedEntity(GameEntity* carriedEntity)
 
     for(Tile* tile : mCoveredTiles)
     {
-        if(mTileData.count(tile) <= 0)
+        auto it = mTileData.find(tile);
+        if(it == mTileData.end())
             continue;
 
-        TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+        TrapTileData* trapTileData = static_cast<TrapTileData*>(it->second);
         if (trapTileData->isActivated())
             continue;
 
@@ -355,10 +358,11 @@ void Trap::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEnti
 
     for(Tile* tile : mCoveredTiles)
     {
-        if(mTileData.count(tile) <= 0)
+        auto it = mTileData.find(tile);
+        if(it == mTileData.end())
             continue;
 
-        TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+        TrapTileData* trapTileData = static_cast<TrapTileData*>(it->second);
         if(trapTileData->isActivated())
             continue;
         if(trapTileData->getCarriedCraftedTrap() != carriedEntity)
@@ -399,13 +403,14 @@ bool Trap::isAttackable(Tile* tile, Seat* seat) const
         return false;
 
     // We check if the trap is hidden for this seat
-    if(mTileData.count(tile) <= 0)
+    auto it = mTileData.find(tile);
+    if(it == mTileData.end())
     {
         OD_LOG_ERR("name=" + getName() + ", tile=" + Tile::displayAsString(tile));
         return false;
     }
 
-    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(it->second);
     if(std::find(trapTileData->mSeatsVision.begin(), trapTileData->mSeatsVision.end(), seat) == trapTileData->mSeatsVision.end())
         return false;
 
@@ -554,16 +559,17 @@ TrapTileData* Trap::createTileData(Tile* tile)
 
 bool Trap::isTileVisibleForSeat(Tile* tile, Seat* seat) const
 {
-    if(mTileData.count(tile) <= 0)
+    if(getGameMap()->isInEditorMode())
+        return true;
+
+    auto it = mTileData.find(tile);
+    if(it == mTileData.end())
     {
         OD_LOG_ERR("trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
         return false;
     }
 
-    if(getGameMap()->isInEditorMode())
-        return true;
-
-    const TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+    const TrapTileData* trapTileData = static_cast<TrapTileData*>(it->second);
     if(std::find(trapTileData->mSeatsVision.begin(), trapTileData->mSeatsVision.end(), seat) == trapTileData->mSeatsVision.end())
         return false;
 
@@ -577,13 +583,14 @@ bool Trap::isClaimable(Seat* seat) const
 
 void Trap::claimForSeat(Seat* seat, Tile* tile, double danceRate)
 {
-    if(mTileData.count(tile) <= 0)
+    auto it = mTileData.find(tile);
+    if(it == mTileData.end())
     {
         OD_LOG_ERR("trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
         return;
     }
 
-    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(it->second);
     if(danceRate < trapTileData->mClaimedValue)
     {
         trapTileData->mClaimedValue -= danceRate;
@@ -610,13 +617,14 @@ bool Trap::sortForMapSave(Trap* t1, Trap* t2)
 
 bool Trap::shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
 {
-    if(mTileData.count(tile) <= 0)
+    auto it = mTileData.find(tile);
+    if(it == mTileData.end())
     {
         OD_LOG_ERR("trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
         return true;
     }
 
-    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData[tile]);
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(it->second);
     if(std::find(trapTileData->mSeatsVision.begin(), trapTileData->mSeatsVision.end(), seat) == trapTileData->mSeatsVision.end())
         return false;
 

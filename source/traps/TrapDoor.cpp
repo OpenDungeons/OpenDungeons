@@ -309,13 +309,14 @@ void TrapDoor::doUpkeep()
     {
         if(!canDoorBeOnTile(getGameMap(), tile))
         {
-            if(mTileData.count(tile) <= 0)
+            auto it = mTileData.find(tile);
+            if(it == mTileData.end())
             {
                 OD_LOG_ERR("trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
                 return;
             }
 
-            TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+            TrapTileData* trapTileData = static_cast<TrapTileData*>(it->second);
             trapTileData->mHP = 0.0;
         }
 

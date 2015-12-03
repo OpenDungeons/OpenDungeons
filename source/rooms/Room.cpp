@@ -650,8 +650,9 @@ void Room::repairRoom()
 
         mCoveredTiles.push_back(tile);
         TileData* tileData;
-        if(mTileData.count(tile) > 0)
-            tileData = mTileData.at(tile);
+        auto it = mTileData.find(tile);
+        if(it != mTileData.end())
+            tileData = it->second;
         else
         {
             tileData = createTileData(tile);
