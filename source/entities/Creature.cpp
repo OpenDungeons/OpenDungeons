@@ -3210,3 +3210,14 @@ void Creature::leaveDungeon()
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionLeaveDungeon>(*this));
 }
+
+bool Creature::needsToEat(bool forced) const
+{
+    if (forced && getHunger() < 5.0)
+        return false;
+
+    if (!forced && (getHunger() <= Random::Double(0.0, 15.0)))
+        return false;
+
+    return true;
+}

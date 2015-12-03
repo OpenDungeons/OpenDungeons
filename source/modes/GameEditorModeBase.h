@@ -93,8 +93,7 @@ public:
 
     void onFrameStarted(const Ogre::FrameEvent& evt) override;
 
-    //! \brief Receive and display some chat text
-    void receiveChat(ChatMessage* message);
+    void receiveChat(const ChatMessage& chat) override;
 
     //! \brief Receive and display some event text
     void receiveEventShortNotice(EventMessage* event);

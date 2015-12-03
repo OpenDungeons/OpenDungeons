@@ -50,13 +50,8 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
         return true;
     }
 
-    if (forced && creature.getHunger() < 5.0)
-    {
-        creature.popAction();
-        return true;
-    }
-
-    if (!forced && (creature.getHunger() <= Random::Double(0.0, 15.0)))
+    // Check if the creature needs to eat
+    if(!creature.needsToEat(forced))
     {
         creature.popAction();
         return true;

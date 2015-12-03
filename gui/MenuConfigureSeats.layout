@@ -23,24 +23,37 @@
             <Property name="BackgroundEnabled" value="False" />
         </Window>
         <Window type="OD/FrameWindow" name="ListPlayers" >
-            <Property name="Area" value="{{0.5,-315},{0.5,-180},{0.5,315},{0.5,240}}" />
+            <Property name="Area" value="{{0.5,-500},{0.5,-180},{0.5,500},{0.5,240}}" />
             <Property name="Text" value="Please configure players..." />
             <Property name="MinSize" value="{{0,630},{0,420}}" />
             <Property name="AlwaysOnTop" value="True" />
+            <Window type="OD/StaticText" name="GameChatText" >
+                <Property name="Area" value="{{0,20},{0,40},{0.3,0},{1,-145}}" />
+                <Property name="FrameEnabled" value="True" />
+                <Property name="BackgroundEnabled" value="True" />
+                <Property name="VertFormatting" value="TopAligned" />
+                <Property name="HorzFormatting" value="WordWrapLeftAligned" />
+                <Property name="VertScrollbar" value="True" />
+                <Property name="Font" value="LiberationSans-10" />
+            </Window>
+            <Window type="OD/Editbox" name="GameChatEditBox" >
+                <Property name="Area" value="{{0,20},{1,-135},{0.3,0},{1,-110}}" />
+                <Property name="Font" value="LiberationSans-10" />
+            </Window>
             <Window type="OD/StaticText" name="TextSeatTitle" >
-               <Property name="Area" value="{{0,20},{0,40},{0,100},{0,70}}" />
+               <Property name="Area" value="{{0.3,10},{0,40},{0.3,70},{0,70}}" />
                <Property name="Text" value="Seat" />
                <Property name="FrameEnabled" value="False" />
                <Property name="BackgroundEnabled" value="False" />
             </Window>
             <Window type="OD/StaticText" name="ComboPlayerTypeSeatTitle" >
-                <Property name="Area" value="{{0,100},{0,40},{0.5,-10},{0,70}}" />
+                <Property name="Area" value="{{0.3,80},{0,40},{0.5,80},{0,70}}" />
                <Property name="Text" value="Player faction" />
                <Property name="FrameEnabled" value="False" />
                <Property name="BackgroundEnabled" value="False" />
             </Window>
             <Window type="OD/StaticText" name="ComboPlayerSeatTitle" >
-                <Property name="Area" value="{{0.5,10},{0,40},{1,-20},{0,70}}" />
+                <Property name="Area" value="{{0.5,90},{0,40},{1,-90},{0,70}}" />
                <Property name="Text" value="Player" />
                <Property name="FrameEnabled" value="False" />
                <Property name="BackgroundEnabled" value="False" />
@@ -52,11 +65,11 @@
                <Property name="BackgroundEnabled" value="False" />
             </Window>
             <Window type="OD/MainMenuButton" name="BackButton" >
-                <Property name="Area" value="{{0.5,-228},{1,-100},{0.5,-64},{1,-20}}" />
+                <Property name="Area" value="{{0.5,-170},{1,-100},{0.5,-10},{1,-20}}" />
                 <Property name="Text" value="Back" />
             </Window>
             <Window type="OD/MainMenuButton" name="LaunchGameButton" >
-                <Property name="Area" value="{{0.5,-2},{1,-100},{0.5,162},{1,-20}}" />
+                <Property name="Area" value="{{0.5,10},{1,-100},{0.5,170},{1,-20}}" />
                 <Property name="Text" value="Start Game" />
             </Window>
         </Window>

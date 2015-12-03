@@ -22,13 +22,14 @@
 
 #include <cstdint>
 
-class Seat;
-class Player;
+class ChatMessage;
 class ODPacket;
+class Player;
+class Seat;
 
 namespace CEGUI
 {
-    class EventArgs;
+class EventArgs;
 }
 
 class MenuModeConfigureSeats: public AbstractApplicationMode
@@ -40,10 +41,13 @@ public:
 
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
-    void activate();
+    void activate() override;
+
+    void receiveChat(const ChatMessage& chat) override;
 
     bool launchSelectedButtonPressed(const CEGUI::EventArgs&);
     bool goBack(const CEGUI::EventArgs& e = {});
+    bool chatText(const CEGUI::EventArgs& e);
 
     bool comboChanged(const CEGUI::EventArgs& ea);
     void addPlayer(const std::string& nick, int32_t id);

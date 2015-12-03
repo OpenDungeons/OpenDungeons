@@ -1121,11 +1121,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // to the Server
             std::string chatMsg;
             OD_ASSERT_TRUE(packetReceived >> chatMsg);
-            int32_t seatId = clientSocket->getPlayer()->getSeat()->getId();
+            int32_t seatId = -1;
+            if(clientSocket->getPlayer()->getSeat() != nullptr)
+                seatId = clientSocket->getPlayer()->getSeat()->getId();
 
             ODPacket packetSend;
+            const std::string& playerNick = clientSocket->getPlayer()->getNick();
             ServerNotification notif(ServerNotificationType::chat, nullptr);
-            notif.mPacket << seatId << chatMsg;
+            notif.mPacket << playerNick << chatMsg << seatId;
             sendAsyncMsg(notif);
             break;
         }

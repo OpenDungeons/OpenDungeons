@@ -569,6 +569,11 @@ public:
     // TODO: check if we can move it in the creature action
     bool searchBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData);
 
+    //! \brief returns true if the creature needs to eat. forced should be true if
+    //! the creature is forced to eat (ie it has been dropped on a hatchery) and
+    //! false otherwise
+    bool needsToEat(bool forced) const;
+
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;

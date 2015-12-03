@@ -182,6 +182,13 @@ bool RoomHatchery::hasOpenCreatureSpot(Creature* c)
 
 bool RoomHatchery::useRoom(Creature& creature, bool forced)
 {
+    // Check if the creature needs to eat
+    if(!creature.needsToEat(forced))
+    {
+        creature.popAction();
+        return true;
+    }
+
     // We look for the closest chicken (if any). We consider chickens
     // on the hatchery only
     // Because TilesWithinSightRadius are sorted by distance, we use them rather

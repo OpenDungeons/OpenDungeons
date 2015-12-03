@@ -23,7 +23,7 @@
 
 #include "network/ODServer.h"
 
-class Player;
+class Seat;
 
 /*! \brief A data structure to store a chat message and its relevant time stamps.
  *
@@ -36,20 +36,18 @@ class Player;
 class ChatMessage
 {
 public:
-    ChatMessage(Player* player, const std::string& message);
+    ChatMessage(const std::string& playerNick, const std::string& message, Seat* seat);
 
     inline const std::string& getMessage() const
     { return mMessage; }
 
-    inline Player* getPlayer() const
-    { return mPlayer; }
-
     //! \brief Computes and returns the preformatted message string.
-    std::string getMessageAsString();
+    std::string getMessageAsString() const;
 
 private:
     std::string mMessage;
-    Player* mPlayer;
+    std::string mPlayerNick;
+    Seat* mSeat;
 };
 
 class EventMessage

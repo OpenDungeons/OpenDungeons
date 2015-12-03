@@ -21,13 +21,11 @@
 
 #include "modes/MenuModeConfigureSeats.h"
 #include "modes/ModeManager.h"
-
-#include "render/Gui.h"
-#include "render/ODFrameListener.h"
-
+#include "network/ChatEventMessage.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
-
+#include "render/Gui.h"
+#include "render/ODFrameListener.h"
 #include "sound/MusicPlayer.h"
 
 #include "utils/ConfigManager.h"
@@ -49,13 +47,13 @@ MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager* modeManager):
 {
     CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::configureSeats);
     addEventConnection(
-        window->getChild(Gui::CSM_BUTTON_LAUNCH)->subscribeEvent(
+        window->getChild("ListPlayers/LaunchGameButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&MenuModeConfigureSeats::launchSelectedButtonPressed, this)
         )
     );
     addEventConnection(
-        window->getChild(Gui::CSM_BUTTON_BACK)->subscribeEvent(
+        window->getChild("ListPlayers/BackButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&MenuModeConfigureSeats::goBack, this)
         )
@@ -65,6 +63,13 @@ MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager* modeManager):
         window->getChild("ListPlayers/__auto_closebutton__")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&MenuModeConfigureSeats::goBack, this)
+        )
+    );
+
+    addEventConnection(
+        window->getChild("ListPlayers/GameChatEditBox")->subscribeEvent(
+            CEGUI::Editbox::EventTextAccepted,
+            CEGUI::Event::Subscriber(&MenuModeConfigureSeats::chatText, this)
         )
     );
 }
@@ -108,6 +113,12 @@ void MenuModeConfigureSeats::activate()
 
     tmpWin->setText(reinterpret_cast<const CEGUI::utf8*>(std::string("Configure map : " + gameMap->getLevelName()).c_str()));
 
+    // Reset the chat
+    CEGUI::Window* chatWin = tmpWin->getChild("GameChatText");
+    chatWin->setText("");
+    CEGUI::Window* chatEdit = tmpWin->getChild("GameChatEditBox");
+    chatEdit->setText("");
+
     const std::vector<std::string>& factions = ConfigManager::getSingleton().getFactions();
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
     const std::vector<Seat*>& seats = gameMap->getSeats();
@@ -130,7 +141,7 @@ void MenuModeConfigureSeats::activate()
         tmpWin->addChild(textSeatId);
         Ogre::ColourValue seatColor = seat->getColorValue();
         seatColor.a = 1.0f; // Restore the color opacity
-        textSeatId->setArea(CEGUI::UDim(0,20), CEGUI::UDim(0,65 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,30));
+        textSeatId->setArea(CEGUI::UDim(0.3,10), CEGUI::UDim(0,65 + offset), CEGUI::UDim(0,60), CEGUI::UDim(0,30));
         textSeatId->setText("[colour='" + Helper::getCEGUIColorFromOgreColourValue(seatColor) + "']Seat "  + Helper::toString(seat->getId()));
         textSeatId->setProperty("FrameEnabled", "False");
         textSeatId->setProperty("BackgroundEnabled", "False");
@@ -138,7 +149,7 @@ void MenuModeConfigureSeats::activate()
         name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seat->getId());
         combo = static_cast<CEGUI::Combobox*>(winMgr.createWindow("OD/Combobox", name));
         tmpWin->addChild(combo);
-        combo->setArea(CEGUI::UDim(0,100), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,200));
+        combo->setArea(CEGUI::UDim(0.3,80), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0.2,0), CEGUI::UDim(0,200));
         combo->setReadOnly(true);
         combo->setEnabled(enabled);
         combo->setSortingEnabled(true);
@@ -184,7 +195,7 @@ void MenuModeConfigureSeats::activate()
         name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seat->getId());
         combo = static_cast<CEGUI::Combobox*>(winMgr.createWindow("OD/Combobox", name));
         tmpWin->addChild(combo);
-        combo->setArea(CEGUI::UDim(0.5,10), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,200));
+        combo->setArea(CEGUI::UDim(0.7,-90), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,200));
         combo->setReadOnly(true);
         combo->setEnabled(enabled);
         combo->setSortingEnabled(true);
@@ -558,3 +569,27 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
     }
 }
 
+void MenuModeConfigureSeats::receiveChat(const ChatMessage& chat)
+{
+    CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
+    // Adds the message right away
+    CEGUI::Window* chatWin = playersWin->getChild("GameChatText");
+    chatWin->appendText(reinterpret_cast<const CEGUI::utf8*>(chat.getMessageAsString().c_str()));
+
+    // Ensure the latest text is shown
+    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatWin->getChild("__auto_vscrollbar__"));
+    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
+}
+
+bool MenuModeConfigureSeats::chatText(const CEGUI::EventArgs& e)
+{
+    CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
+    CEGUI::Editbox* chatEdit = static_cast<CEGUI::Editbox*>(playersWin->getChild("GameChatEditBox"));
+    const std::string txt = chatEdit->getText().c_str();
+
+    ODClient::getSingleton().queueClientNotification(ClientNotificationType::chat, txt);
+
+    chatEdit->setText("");
+
+    return true;
+}

@@ -192,9 +192,6 @@ const std::string Gui::EDM_BUTTON_LAUNCH = "LevelWindowFrame/LaunchGameButton";
 const std::string Gui::EDM_BUTTON_BACK = "LevelWindowFrame/BackButton";
 const std::string Gui::EDM_LIST_LEVELS = "LevelWindowFrame/LevelSelect";
 
-const std::string Gui::CSM_BUTTON_LAUNCH = "ListPlayers/LaunchGameButton";
-const std::string Gui::CSM_BUTTON_BACK = "ListPlayers/BackButton";
-
 const std::string Gui::EDITOR = "MainTabControl";
 const std::string Gui::EDITOR_LAVA_BUTTON = "MainTabControl/Tiles/LavaButton";
 const std::string Gui::EDITOR_GOLD_BUTTON = "MainTabControl/Tiles/GoldButton";
