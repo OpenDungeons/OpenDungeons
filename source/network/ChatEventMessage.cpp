@@ -31,8 +31,7 @@ ChatMessage::ChatMessage(const std::string& playerNick, const std::string& messa
 
 std::string ChatMessage::getMessageAsString() const
 {
-    std::string colorId = mSeat ? mSeat->getColorId() : "";
-    Ogre::ColourValue colorValue = ConfigManager::getSingleton().getColorFromId(colorId);
+    const Ogre::ColourValue& colorValue = mSeat ? mSeat->getColorValue() : ConfigManager::getSingleton().getColorFromId("");
     const std::string formatSeatColor = "[colour='" + Helper::getCEGUIColorFromOgreColourValue(colorValue) + "']";
     const std::string formatWhiteColor = "[colour='FFFFFFFF']";
     std::string messageStr = formatSeatColor + mPlayerNick + formatWhiteColor + ": " + getMessage()  + "\n";

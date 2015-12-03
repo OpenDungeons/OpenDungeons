@@ -76,7 +76,7 @@ public:
     static const std::string DefaultWorkerCreatureDefinition;
     static const std::string DEFAULT_TILESET_NAME;
 
-    Ogre::ColourValue getColorFromId(const std::string& id) const;
+    const Ogre::ColourValue& getColorFromId(const std::string& id) const;
     inline const std::map<std::string, CreatureDefinition*>& getCreatureDefinitions() const
     { return mCreatureDefs; }
     const CreatureDefinition* getCreatureDefinition(const std::string& name) const;

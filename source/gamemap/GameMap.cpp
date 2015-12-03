@@ -2034,7 +2034,7 @@ bool GameMap::addSeat(Seat *s)
     }
     mSeats.push_back(s);
     // We set the Seat color value
-    Ogre::ColourValue colorValue = ConfigManager::getSingleton().getColorFromId(s->getColorId());
+    const Ogre::ColourValue& colorValue = ConfigManager::getSingleton().getColorFromId(s->getColorId());
     s->setColorValue(colorValue);
 
     // Add the goals for all seats to this seat.

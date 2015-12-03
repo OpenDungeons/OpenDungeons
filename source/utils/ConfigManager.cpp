@@ -1548,7 +1548,7 @@ const Weapon* ConfigManager::getWeapon(const std::string& name) const
     return nullptr;
 }
 
-Ogre::ColourValue ConfigManager::getColorFromId(const std::string& id) const
+const Ogre::ColourValue& ConfigManager::getColorFromId(const std::string& id) const
 {
     auto it = mSeatColors.find(id);
     if(it == mSeatColors.end())
