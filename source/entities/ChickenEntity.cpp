@@ -18,6 +18,7 @@
 #include "entities/ChickenEntity.h"
 
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "network/ODPacket.h"
 #include "game/Seat.h"
@@ -171,6 +172,11 @@ void ChickenEntity::addTileToListIfPossible(int x, int y, Room* currentHatchery,
 
     // We can move on this tile
     possibleTileMove.push_back(tile);
+}
+
+GameEntityType ChickenEntity::getObjectType() const
+{
+    return GameEntityType::chickenEntity;
 }
 
 bool ChickenEntity::tryPickup(Seat* seat)

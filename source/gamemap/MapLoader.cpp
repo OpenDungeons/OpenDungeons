@@ -18,18 +18,17 @@
 #include "gamemap/MapLoader.h"
 
 #include "creaturemood/CreatureMoodManager.h"
-
 #include "gamemap/GameMap.h"
 #include "game/Seat.h"
 #include "goals/Goal.h"
 #include "goals/GoalLoading.h"
-
 #include "entities/ChickenEntity.h"
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/EntityLoading.h"
 #include "entities/GameEntity.h"
+#include "entities/GameEntityType.h"
 #include "entities/GiftBoxEntity.h"
 #include "entities/MapLight.h"
 #include "entities/MissileObject.h"
@@ -37,15 +36,11 @@
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
 #include "entities/Weapon.h"
-
 #include "rooms/Room.h"
 #include "rooms/RoomManager.h"
-
 #include "spells/Spell.h"
-
 #include "traps/Trap.h"
 #include "traps/TrapManager.h"
-
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"

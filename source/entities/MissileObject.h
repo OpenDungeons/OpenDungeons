@@ -84,8 +84,7 @@ public:
     virtual void hitTargetEntity(Tile* tile, GameEntity* entityTarget)
     {}
 
-    virtual GameEntityType getObjectType() const override
-    { return GameEntityType::missileObject; }
+    virtual GameEntityType getObjectType() const override;
 
     virtual double getMoveSpeed() const override
     { return mSpeed; }

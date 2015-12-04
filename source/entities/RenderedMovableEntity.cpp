@@ -20,26 +20,21 @@
 #include "entities/BuildingObject.h"
 #include "entities/TreasuryObject.h"
 #include "entities/ChickenEntity.h"
+#include "entities/GameEntityType.h"
 #include "entities/MissileObject.h"
 #include "entities/SmallSpiderEntity.h"
 #include "entities/CraftedTrap.h"
 #include "entities/PersistentObject.h"
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
-
 #include "game/Player.h"
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
-
 #include "network/ODPacket.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
-
 #include "render/RenderManager.h"
-
 #include "spells/Spell.h"
-
 #include "utils/LogManager.h"
 #include "utils/Helper.h"
 

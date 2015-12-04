@@ -42,8 +42,7 @@ public:
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     TrapEntity(GameMap* gameMap, bool isOnServerMap);
 
-    virtual GameEntityType getObjectType() const override
-    { return GameEntityType::trapEntity; }
+    virtual GameEntityType getObjectType() const override;
 
     virtual TrapEntityType getTrapEntityType() const
     { return TrapEntityType::trapEntity; }

@@ -17,36 +17,35 @@
 
 #include "modes/EditorMode.h"
 
-#include "modes/GameEditorModeConsole.h"
-
+#include "camera/CameraManager.h"
+#include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
+#include "entities/GameEntityType.h"
+#include "entities/MapLight.h"
+#include "entities/RenderedMovableEntity.h"
+#include "entities/Tile.h"
+#include "game/SkillManager.h"
+#include "game/Player.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
 #include "gamemap/MapLoader.h"
 #include "gamemap/Pathfinding.h"
-#include "render/ODFrameListener.h"
+#include "modes/GameEditorModeConsole.h"
+#include "network/ODClient.h"
+#include "network/ODServer.h"
 #include "render/Gui.h"
-#include "render/TextRenderer.h"
-#include "entities/Creature.h"
-#include "entities/CreatureDefinition.h"
-#include "entities/MapLight.h"
-#include "entities/Tile.h"
-#include "game/SkillManager.h"
-#include "game/Seat.h"
-#include "traps/TrapManager.h"
-#include "game/Player.h"
+#include "render/ODFrameListener.h"
 #include "render/RenderManager.h"
-#include "camera/CameraManager.h"
+#include "render/TextRenderer.h"
 #include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
 #include "sound/MusicPlayer.h"
-#include "network/ODClient.h"
-#include "network/ODServer.h"
-#include "ODApplication.h"
-#include "entities/RenderedMovableEntity.h"
-
+#include "traps/TrapManager.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
 #include "utils/Helper.h"
+#include "ODApplication.h"
 
 #include <OgreEntity.h>
 #include <OgreRoot.h>
@@ -241,12 +240,12 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
     if(tileClicked == nullptr)
         return true;
 
-    std::vector<EntityBase*> entities;
+    std::vector<GameEntity*> entities;
     tileClicked->fillWithEntities(entities, SelectionEntityWanted::creatureAlive, mGameMap->getLocalPlayer());
     // We search the closest creature alive
     Creature* closestCreature = nullptr;
     double closestDist = 0;
-    for(EntityBase* entity : entities)
+    for(GameEntity* entity : entities)
     {
         if(entity->getObjectType() != GameEntityType::creature)
         {
@@ -375,12 +374,12 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     if (id == OIS::MB_Middle)
     {
         // See if the mouse is over any entity that might display a stats window
-        std::vector<EntityBase*> entities;
+        std::vector<GameEntity*> entities;
         tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
         // We search the closest creature alive
-        EntityBase* closestEntity = nullptr;
+        GameEntity* closestEntity = nullptr;
         double closestDist = 0;
-        for(EntityBase* entity : entities)
+        for(GameEntity* entity : entities)
         {
             if(!entity->canDisplayStatsWindow(mGameMap->getLocalPlayer()->getSeat()))
                 continue;
@@ -460,12 +459,12 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         else
         {
             // No creature in hand. We check if we want to slap something
-            std::vector<EntityBase*> entities;
+            std::vector<GameEntity*> entities;
             tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
             // We search the closest creature alive
-            EntityBase* closestEntity = nullptr;
+            GameEntity* closestEntity = nullptr;
             double closestDist = 0;
-            for(EntityBase* entity : entities)
+            for(GameEntity* entity : entities)
             {
                 if(!entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
                     continue;
@@ -513,12 +512,12 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     }
 
     // See if the mouse is over any pickup-able entity
-    std::vector<EntityBase*> entities;
+    std::vector<GameEntity*> entities;
     tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
     // We search the closest creature alive
-    EntityBase* closestEntity = nullptr;
+    GameEntity* closestEntity = nullptr;
     double closestDist = 0;
-    for(EntityBase* entity : entities)
+    for(GameEntity* entity : entities)
     {
         if(!entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
             continue;

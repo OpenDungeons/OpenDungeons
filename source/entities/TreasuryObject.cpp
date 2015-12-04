@@ -17,6 +17,7 @@
 
 #include "entities/TreasuryObject.h"
 
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
@@ -41,6 +42,12 @@ TreasuryObject::TreasuryObject(GameMap* gameMap, bool isOnServerMap) :
     mHasGoldValueChanged(false)
 {
 }
+
+GameEntityType TreasuryObject::getObjectType() const
+{
+    return GameEntityType::treasuryObject;
+}
+
 
 void TreasuryObject::mergeGold(TreasuryObject* obj)
 {

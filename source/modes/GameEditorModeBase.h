@@ -23,7 +23,6 @@
 #include "game/PlayerSelection.h"
 #include "gamemap/MiniMapCamera.h"
 
-class EntityBase;
 class GameEditorModeConsole;
 
 namespace CEGUI

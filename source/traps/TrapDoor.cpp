@@ -20,6 +20,7 @@
 #include "creatureaction/CreatureAction.h"
 #include "entities/Creature.h"
 #include "entities/DoorEntity.h"
+#include "entities/GameEntityType.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"

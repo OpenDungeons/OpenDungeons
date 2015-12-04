@@ -42,8 +42,7 @@ public:
     virtual ~Room()
     {}
 
-    virtual GameEntityType getObjectType() const
-    { return GameEntityType::room; }
+    virtual GameEntityType getObjectType() const override;
 
     virtual bool isBridge() const
     { return false; }

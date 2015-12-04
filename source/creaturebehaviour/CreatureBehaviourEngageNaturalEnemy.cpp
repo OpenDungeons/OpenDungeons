@@ -21,6 +21,7 @@
 #include "creaturebehaviour/CreatureBehaviourManager.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/GameEntityType.h"
 #include "creaturemood/CreatureMood.h"
 #include "game/Player.h"
 #include "game/Seat.h"

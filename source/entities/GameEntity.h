@@ -23,8 +23,6 @@
 #ifndef GAMEENTITY_H
 #define GAMEENTITY_H
 
-#include "entities/EntityBase.h"
-
 #include <OgreVector3.h>
 #include <cassert>
 #include <string>
@@ -44,6 +42,8 @@ class ODPacket;
 class Player;
 class Seat;
 class Tile;
+
+enum class GameEntityType;
 
 //! This enum is used to know how carryable entities should be prioritized from lowest to highest
 enum class EntityCarryType
@@ -127,7 +127,7 @@ public:
  * and initialised with a good default value in the default constructor.
  * Member variables are private and only accessed through getters and setters.
  */
-class GameEntity : public EntityBase
+class GameEntity
 {
   public:
     //! \brief Default constructor with default values
@@ -141,7 +141,102 @@ class GameEntity : public EntityBase
 
     virtual ~GameEntity() {}
 
-    // ===== GETTERS =====
+    std::string getOgreNamePrefix() const;
+
+    //! \brief Get the name of the object
+    inline const std::string& getName() const
+    { return mName; }
+
+    //! \brief Get the mesh name of the object
+    inline const std::string& getMeshName() const
+    { return mMeshName; }
+
+    //! \brief Get the seat that the object belongs to
+    inline Seat* getSeat() const
+    { return mSeat; }
+
+    //! \brief Get if the mesh is already existing
+    inline bool isMeshExisting() const
+    { return mMeshExists; }
+
+    const Ogre::Vector3& getPosition() const
+    { return mPosition; }
+
+    inline Ogre::SceneNode* getParentSceneNode() const
+    { return mParentSceneNode; }
+
+    inline Ogre::SceneNode* getEntityNode() const
+    { return mEntityNode; }
+
+    virtual const Ogre::Vector3& getScale() const
+    { return Ogre::Vector3::UNIT_SCALE; }
+
+    //! \brief Set the name of the entity
+    inline void setName(const std::string& name)
+    { mName = name; }
+
+    //! \brief Set the name of the mesh file
+    inline void setMeshName(const std::string& meshName)
+    { mMeshName = meshName; }
+
+    //! \brief Sets the seat this object belongs to
+    inline void setSeat(Seat* seat)
+    { mSeat = seat; }
+
+    //! \brief Set if the mesh exists
+    inline void setMeshExisting(bool isExisting)
+    { mMeshExists = isExisting; }
+
+    //! \brief Set the new entity position.
+    virtual void setPosition(const Ogre::Vector3& v)
+    { mPosition = v; }
+
+    inline void setParentSceneNode(Ogre::SceneNode* sceneNode)
+    { mParentSceneNode = sceneNode; }
+
+    inline void setEntityNode(Ogre::SceneNode* sceneNode)
+    { mEntityNode = sceneNode; }
+
+    //! \brief Function that calls the mesh creation. If the mesh is already created, does nothing
+    void createMesh();
+    //! \brief Function that calls the mesh destruction. If the mesh is not created, does nothing
+    void destroyMesh();
+
+    //! \brief Get the type of this object
+    virtual GameEntityType getObjectType() const = 0;
+
+    //! \brief Called when the stat windows is displayed
+    virtual bool canDisplayStatsWindow(Seat* seat)
+    { return false; }
+
+    virtual void createStatsWindow()
+    {}
+
+    //! \brief Called when the entity is being slapped
+    virtual bool canSlap(Seat* seat)
+    { return false; }
+    virtual void slap()
+    {}
+
+    //! \brief Called when the entity is being picked up /dropped
+    virtual bool tryPickup(Seat* seat)
+    { return false; }
+    virtual void pickup()
+    {}
+
+    virtual bool tryDrop(Seat* seat, Tile* tile)
+    { return false; }
+    virtual void drop(const Ogre::Vector3& v)
+    {}
+
+    //! \brief Exports the entity so that it can be updated on server side. exportToPacketForUpdate should be
+    //! called on server side and the packet should be given to the corresponding entity in updateFromPacket
+    //! exportToPacketForUpdate and updateFromPacket works like exportToPacket and importFromPacket but for entities
+    //! that already exist on client side and that we only want to update (for example a creature that levels up)
+    virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
+    {}
+    virtual void updateFromPacket(ODPacket& is)
+    {}
 
     //! \brief Get if the object can be attacked or not
     virtual bool isAttackable(Tile* tile, Seat* seat) const
@@ -160,7 +255,6 @@ class GameEntity : public EntityBase
     inline void setCarryLock(const Creature& worker, bool lock)
     { mCarryLock = lock; }
 
-    // ===== METHODS =====
     //! \brief Function that schedules the object destruction. This function should not be called twice
     void deleteYourself();
 
@@ -254,8 +348,6 @@ class GameEntity : public EntityBase
 
     static std::string getGameEntityStreamFormat();
 
-    virtual void destroyMeshLocal();
-
     //! Used on client side to correct drop position to avoid all dropped entities
     //! to be on the exact same position (center of the tile)
     virtual void correctDropPosition(Ogre::Vector3& position)
@@ -272,12 +364,56 @@ class GameEntity : public EntityBase
     static void exportToStream(GameEntity* entity, std::ostream& os);
 
   protected:
-    virtual void exportHeadersToStream(std::ostream& os) const override;
-    virtual void exportHeadersToPacket(ODPacket& os) const override;
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual bool importFromStream(std::istream& is) override;
-    virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
-    virtual void importFromPacket(ODPacket& is) override;
+    /*! \brief Exports the headers needed to recreate the entity. For example, for missile objects
+     * type cannon, it exports GameEntityType::missileObject and MissileType::oneHit. The content of the
+     * GameEntityType will be exported by exportToPacket. exportHeadersTo* should export the needed information
+     * to know which class should be used. Then, importFromPacket can be called to import the data. The rule of
+     * thumb is that importFrom* should be the exact opposite to exportTo*
+     * exportToStream and importFromStream are used to write data in level files (editor or save game).
+     * exportToPacket and importFromPacket are used to send data from the server to the clients.
+     * Note that the functions using stream and packet might not export the same data. Functions using packet will
+     * export/import only the needed information for the clients while functions using the stream will export/import
+     * every needed information to save/restore the entity from scratch.
+     */
+    virtual void exportHeadersToStream(std::ostream& os) const;
+    virtual void exportHeadersToPacket(ODPacket& os) const;
+    //! \brief Exports the data of the GameEntity
+    virtual void exportToStream(std::ostream& os) const;
+    virtual bool importFromStream(std::istream& is);
+    virtual void exportToPacket(ODPacket& os, const Seat* seat) const;
+    virtual void importFromPacket(ODPacket& is);
+
+    //! \brief Function that implements the mesh creation
+    virtual void createMeshLocal()
+    {}
+
+    //! \brief Function that implements the mesh deletion
+    virtual void destroyMeshLocal();
+
+    //! \brief The position of this object
+    Ogre::Vector3 mPosition;
+
+    //! brief The name of the entity
+    std::string mName;
+
+    //! \brief The name of the mesh
+    std::string mMeshName;
+
+    //! \brief Stores the existence state of the mesh
+    bool mMeshExists;
+
+    //! \brief The seat that the object belongs to
+    Seat* mSeat;
+
+    //! \brief A flag saying whether the object has been requested to delete
+    bool mIsDeleteRequested;
+
+    //! Used by the renderer to save the scene node this entity belongs to. This is useful
+    //! when the entity is removed from the scene (during pickup for example)
+    Ogre::SceneNode* mParentSceneNode;
+
+    //! Used by the renderer to save this entity's node
+    Ogre::SceneNode* mEntityNode;
 
     //! \brief Fires a add entity message to the player of the given seat
     virtual void fireAddEntity(Seat* seat, bool async) = 0;

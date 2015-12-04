@@ -45,6 +45,7 @@
 #include "creatureskill/CreatureSkill.h"
 #include "entities/ChickenEntity.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
 #include "entities/Weapon.h"
@@ -295,6 +296,11 @@ void Creature::destroyMeshWeapons()
 
     if(mWeaponR != nullptr)
         RenderManager::getSingleton().rrDestroyWeapon(this, mWeaponR, "R");
+}
+
+GameEntityType Creature::getObjectType() const
+{
+    return GameEntityType::creature;
 }
 
 void Creature::addToGameMap()

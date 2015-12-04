@@ -18,21 +18,16 @@
 #include "entities/GiftBoxEntity.h"
 
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
-
 #include "network/ODPacket.h"
-
 #include "game/Skill.h"
-
 #include "gamemap/GameMap.h"
-
 #include "giftboxes/GiftBoxSkill.h"
-
 #include "traps/Trap.h"
 #include "traps/TrapBoulder.h"
 #include "traps/TrapCannon.h"
 #include "traps/TrapSpike.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
@@ -53,6 +48,11 @@ GiftBoxEntity::GiftBoxEntity(GameMap* gameMap, bool isOnServerMap) :
     RenderedMovableEntity(gameMap, isOnServerMap),
     mGiftBoxType(GiftBoxType::nbTypes)
 {
+}
+
+GameEntityType GiftBoxEntity::getObjectType() const
+{
+    return GameEntityType::giftBoxEntity;
 }
 
 const Ogre::Vector3& GiftBoxEntity::getScale() const

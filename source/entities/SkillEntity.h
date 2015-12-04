@@ -35,8 +35,7 @@ public:
     SkillEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, int32_t skillPoints);
     SkillEntity(GameMap* gameMap, bool isOnServerMap);
 
-    virtual GameEntityType getObjectType() const override
-    { return GameEntityType::skillEntity; }
+    virtual GameEntityType getObjectType() const override;
 
     virtual const Ogre::Vector3& getScale() const override;
 

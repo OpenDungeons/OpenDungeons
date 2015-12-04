@@ -19,6 +19,7 @@
 
 #include "creatureaction/CreatureActionSearchJob.h"
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
@@ -43,6 +44,11 @@ Room::Room(GameMap* gameMap):
     Building(gameMap),
     mNumActiveSpots(0)
 {
+}
+
+GameEntityType Room::getObjectType() const
+{
+    return GameEntityType::room;
 }
 
 bool Room::compareTile(Tile* tile1, Tile* tile2)

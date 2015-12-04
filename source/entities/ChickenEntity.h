@@ -40,8 +40,7 @@ public:
     virtual double getMoveSpeed() const override
     { return 0.4; }
 
-    virtual GameEntityType getObjectType() const override
-    { return GameEntityType::chickenEntity; }
+    virtual GameEntityType getObjectType() const override;
 
     virtual bool tryPickup(Seat* seat) override;
     virtual void pickup() override;

@@ -41,8 +41,7 @@ public:
     virtual ~Spell()
     {}
 
-    virtual GameEntityType getObjectType() const
-    { return GameEntityType::spell; }
+    virtual GameEntityType getObjectType() const override;
 
     virtual SpellType getSpellType() const = 0;
 

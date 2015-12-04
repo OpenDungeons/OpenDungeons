@@ -19,6 +19,7 @@
 
 #include "camera/CameraManager.h"
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Skill.h"
@@ -379,12 +380,12 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     if(tileClicked == nullptr)
         return true;
 
-    std::vector<EntityBase*> entities;
+    std::vector<GameEntity*> entities;
     tileClicked->fillWithEntities(entities, SelectionEntityWanted::creatureAliveOrDead, mGameMap->getLocalPlayer());
     // We search the closest creature alive
     Creature* closestCreature = nullptr;
     double closestDist = 0;
-    for(EntityBase* entity : entities)
+    for(GameEntity* entity : entities)
     {
         if(entity->getObjectType() != GameEntityType::creature)
         {
@@ -544,12 +545,12 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     if (id == OIS::MB_Middle)
     {
         // See if the mouse is over any entity that might display a stats window
-        std::vector<EntityBase*> entities;
+        std::vector<GameEntity*> entities;
         tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
         // We search the closest creature alive
-        EntityBase* closestEntity = nullptr;
+        GameEntity* closestEntity = nullptr;
         double closestDist = 0;
-        for(EntityBase* entity : entities)
+        for(GameEntity* entity : entities)
         {
             if(!entity->canDisplayStatsWindow(mGameMap->getLocalPlayer()->getSeat()))
                 continue;
@@ -619,12 +620,12 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
         else
         {
             // No creature in hand. We check if we want to slap something
-            std::vector<EntityBase*> entities;
+            std::vector<GameEntity*> entities;
             tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
             // We search the closest creature alive
-            EntityBase* closestEntity = nullptr;
+            GameEntity* closestEntity = nullptr;
             double closestDist = 0;
-            for(EntityBase* entity : entities)
+            for(GameEntity* entity : entities)
             {
                 if(!entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
                     continue;
@@ -667,12 +668,12 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     if (mPlayerSelection.getCurrentAction() == SelectedAction::none)
     {
         // See if the mouse is over any pickup-able entity
-        std::vector<EntityBase*> entities;
+        std::vector<GameEntity*> entities;
         tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
         // We search the closest creature alive
-        EntityBase* closestEntity = nullptr;
+        GameEntity* closestEntity = nullptr;
         double closestDist = 0;
-        for(EntityBase* entity : entities)
+        for(GameEntity* entity : entities)
         {
             if(!entity->tryPickup(mGameMap->getLocalPlayer()->getSeat()))
                 continue;

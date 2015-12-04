@@ -17,6 +17,7 @@
 
 #include "rooms/RoomTreasury.h"
 
+#include "entities/GameEntityType.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"

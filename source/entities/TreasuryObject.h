@@ -35,8 +35,7 @@ public:
 
     virtual void doUpkeep() override;
 
-    virtual GameEntityType getObjectType() const override
-    { return GameEntityType::treasuryObject; }
+    virtual GameEntityType getObjectType() const override;
 
     virtual bool tryPickup(Seat* seat) override;
     virtual bool tryDrop(Seat* seat, Tile* tile) override;

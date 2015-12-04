@@ -19,6 +19,7 @@
 
 #include "entities/Building.h"
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/TreasuryObject.h"
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -47,7 +48,7 @@ const std::string Tile::TILE_PREFIX = "Tile_";
 const std::string Tile::TILE_SCANF = TILE_PREFIX + "%i_%i";
 
 Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, double fullness) :
-    EntityBase({}, {}),
+    GameEntity(gameMap, isOnServerMap, "", "", nullptr),
     mX                  (x),
     mY                  (y),
     mType               (type),
@@ -65,12 +66,9 @@ Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, do
     mColorCustomMesh    (true),
     mHasBridge          (false),
     mLocalPlayerHasVision   (false),
-    mGameMap(gameMap),
-    mIsOnServerMap(isOnServerMap),
     mNbWorkersDigging(0),
     mNbWorkersClaiming(0)
 {
-    setSeat(nullptr);
     computeTileVisual();
 }
 
@@ -81,6 +79,12 @@ Tile::~Tile()
         OD_LOG_ERR("tile=" + Tile::displayAsString(this) + ", size=" + Helper::toString(mEntitiesInTile.size()));
     }
 }
+
+GameEntityType Tile::getObjectType() const
+{
+    return GameEntityType::tile;
+}
+
 
 bool Tile::isDiggable(const Seat* seat) const
 {
@@ -660,7 +664,7 @@ bool Tile::isClaimedForSeat(const Seat* seat) const
 
 bool Tile::isClaimed() const
 {
-    if(!mIsOnServerMap)
+    if(!getIsOnServerMap())
     {
         if(mTileVisual == TileVisual::claimedGround)
             return true;
@@ -881,7 +885,7 @@ void Tile::setFullness(double f)
         if(!getGameMap()->isInEditorMode())
         {
             // Do a flood fill to update the contiguous region touching the tile.
-            for(Seat* seat : mGameMap->getSeats())
+            for(Seat* seat : getGameMap()->getSeats())
                 getGameMap()->refreshFloodFill(seat, this);
         }
     }
@@ -889,9 +893,9 @@ void Tile::setFullness(double f)
 
 void Tile::createMeshLocal()
 {
-    EntityBase::createMeshLocal();
+    GameEntity::createMeshLocal();
 
-    if(mIsOnServerMap)
+    if(getIsOnServerMap())
         return;
 
     RenderManager::getSingleton().rrCreateTile(*this, *getGameMap(), *getGameMap()->getLocalPlayer());
@@ -899,9 +903,9 @@ void Tile::createMeshLocal()
 
 void Tile::destroyMeshLocal()
 {
-    EntityBase::destroyMeshLocal();
+    GameEntity::destroyMeshLocal();
 
-    if(mIsOnServerMap)
+    if(getIsOnServerMap())
         return;
 
     RenderManager::getSingleton().rrDestroyTile(*this);
@@ -1113,7 +1117,7 @@ void Tile::refreshMesh()
     if (!isMeshExisting())
         return;
 
-    if(mIsOnServerMap)
+    if(getIsOnServerMap())
         return;
 
     RenderManager::getSingleton().rrRefreshTile(*this, *getGameMap(), *getGameMap()->getLocalPlayer());
@@ -1479,7 +1483,7 @@ uint32_t Tile::countEntitiesOnTile(GameEntityType entityType) const
     return nbItems;
 }
 
-void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityWanted entityWanted, Player* player) const
+void Tile::fillWithEntities(std::vector<GameEntity*>& entities, SelectionEntityWanted entityWanted, Player* player) const
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
@@ -1621,7 +1625,7 @@ bool Tile::addTreasuryObject(TreasuryObject* obj)
         return false;
     }
 
-    if(!mIsOnServerMap)
+    if(!getIsOnServerMap())
     {
         // On client side, we add the entity to tile. Merging is relevant on server side only
         mEntitiesInTile.push_back(obj);
@@ -1717,7 +1721,7 @@ void Tile::computeVisibleTiles()
 
 void Tile::setDirtyForAllSeats()
 {
-    if(!mIsOnServerMap)
+    if(!getIsOnServerMap())
         return;
 
     for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
@@ -1735,7 +1739,7 @@ void Tile::notifyEntitiesSeatsWithVision()
 
 bool Tile::isFullTile() const
 {
-    if(mIsOnServerMap)
+    if(getIsOnServerMap())
     {
         return getFullness() > 0.0;
     }
@@ -1802,7 +1806,7 @@ double Tile::getCreatureSpeedDefault(const Creature* creature) const
     // If we are on a full tile, we set the speed to ground speed. That can happen
     // on client side if there is a desynchro between server and client and the
     // creature is not exactly on the same tile
-    if(!mIsOnServerMap && isFullTile())
+    if(!getIsOnServerMap() && isFullTile())
         return creature->getMoveSpeedGround();
 
     switch(getTileVisual())

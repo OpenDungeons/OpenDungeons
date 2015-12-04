@@ -45,8 +45,7 @@ public:
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     PersistentObject(GameMap* gameMap, bool isOnServerMap);
 
-    virtual GameEntityType getObjectType() const override
-    { return GameEntityType::persistentObject; }
+    virtual GameEntityType getObjectType() const override;
 
     //! This has nothing to do with vision. It is just to decide if the tile where the persistent object is should notify it
     //! or not. That would allow for hidden traps, for example, not to send their presence to the clients until they triggered.

@@ -18,15 +18,12 @@
 #include "entities/PersistentObject.h"
 
 #include "entities/Building.h"
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
-
 #include "network/ODPacket.h"
-
 #include "game/Player.h"
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
-
 #include "utils/LogManager.h"
 
 #include <iostream>
@@ -46,6 +43,12 @@ PersistentObject::PersistentObject(GameMap* gameMap, bool isOnServerMap) :
     RenderedMovableEntity(gameMap, isOnServerMap)
 {
 }
+
+GameEntityType PersistentObject::getObjectType() const
+{
+    return GameEntityType::persistentObject;
+}
+
 
 PersistentObject* PersistentObject::getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {

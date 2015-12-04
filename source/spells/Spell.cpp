@@ -17,6 +17,7 @@
 
 #include "spells/Spell.h"
 
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -39,6 +40,11 @@ Spell::Spell(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, 
     RenderedMovableEntity(gameMap, isOnServerMap, baseName, meshName, rotationAngle, false, 1.0f),
         mNbTurns(nbTurns)
 {
+}
+
+GameEntityType Spell::getObjectType() const
+{
+    return GameEntityType::spell;
 }
 
 void Spell::doUpkeep()

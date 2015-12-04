@@ -20,6 +20,7 @@
 #include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/GameEntityType.h"
 #include "gamemap/GameMap.h"
 #include "utils/LogManager.h"
 

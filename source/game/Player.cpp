@@ -19,6 +19,7 @@
 
 #include "creatureaction/CreatureAction.h"
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "game/SkillManager.h"
 #include "game/Seat.h"

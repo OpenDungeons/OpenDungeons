@@ -18,18 +18,15 @@
 #include "entities/CraftedTrap.h"
 
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
-
 #include "network/ODPacket.h"
-
 #include "gamemap/GameMap.h"
-
 #include "traps/Trap.h"
 #include "traps/TrapBoulder.h"
 #include "traps/TrapCannon.h"
 #include "traps/TrapDoor.h"
 #include "traps/TrapSpike.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
@@ -50,6 +47,12 @@ CraftedTrap::CraftedTrap(GameMap* gameMap, bool isOnServerMap) :
     RenderedMovableEntity(gameMap, isOnServerMap)
 {
 }
+
+GameEntityType CraftedTrap::getObjectType() const
+{
+    return GameEntityType::craftedTrap;
+}
+
 
 const Ogre::Vector3& CraftedTrap::getScale() const
 {

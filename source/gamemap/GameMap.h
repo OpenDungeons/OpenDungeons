@@ -42,7 +42,6 @@ class GameEntity;
 class Player;
 class Trap;
 class Seat;
-class EntityBase;
 class Goal;
 class MapLight;
 class MovableGameEntity;
@@ -511,7 +510,7 @@ public:
     //! \brief get the tileset global scale
     const Ogre::Vector3& getTileSetScale() const;
 
-    void playerSelects(std::vector<EntityBase*>& entities, int tileX1, int tileY1, int tileX2,
+    void playerSelects(std::vector<GameEntity*>& entities, int tileX1, int tileY1, int tileX2,
         int tileY2, SelectionTileAllowed tileAllowed, SelectionEntityWanted entityWanted, Player* player);
 
     //! \brief Called on client side each time a new turn is received
