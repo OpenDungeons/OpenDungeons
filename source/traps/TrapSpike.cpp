@@ -47,6 +47,12 @@ class TrapSpikeFactory : public TrapFactory
     int getCostPerTile() const override
     { return ConfigManager::getSingleton().getTrapConfigInt32("SpikeCostPerTile"); }
 
+    const std::string& getMeshName() const override
+    {
+        static const std::string meshName = "Spiketrap";
+        return meshName;
+    }
+
     void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildTrapDefault(gameMap, TrapType::spike, inputManager, inputCommand);
@@ -104,8 +110,6 @@ class TrapSpikeFactory : public TrapFactory
 static TrapRegister reg(new TrapSpikeFactory);
 }
 
-const std::string TrapSpike::MESH_SPIKE = "Spiketrap";
-
 TrapSpike::TrapSpike(GameMap* gameMap) :
     Trap(gameMap)
 {
@@ -142,5 +146,5 @@ bool TrapSpike::shoot(Tile* tile)
 
 TrapEntity* TrapSpike::getTrapEntity(Tile* tile)
 {
-    return new TrapEntity(getGameMap(), true, getName(), MESH_SPIKE, tile, 0.0, true, isActivated(tile) ? 1.0f : 0.7f);
+    return new TrapEntity(getGameMap(), true, getName(), reg.getTrapFactory()->getMeshName(), tile, 0.0, true, isActivated(tile) ? 1.0f : 0.7f);
 }

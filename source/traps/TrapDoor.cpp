@@ -56,6 +56,12 @@ class TrapDoorFactory : public TrapFactory
     int getCostPerTile() const override
     { return ConfigManager::getSingleton().getTrapConfigInt32("WoodenDoorCostPerTile"); }
 
+    const std::string& getMeshName() const override
+    {
+        static const std::string meshName = "WoodenDoor";
+        return meshName;
+    }
+
     virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
     {
         Player* player = gameMap->getLocalPlayer();
@@ -271,7 +277,6 @@ class TrapDoorFactory : public TrapFactory
 static TrapRegister reg(new TrapDoorFactory);
 }
 
-const std::string TrapDoor::MESH_DOOR = "WoodenDoor";
 const std::string TrapDoor::ANIMATION_OPEN = "Open";
 const std::string TrapDoor::ANIMATION_CLOSE = "Close";
 
@@ -300,7 +305,7 @@ TrapEntity* TrapDoor::getTrapEntity(Tile* tile)
     {
         rotation = 0.0;
     }
-    return new DoorEntity(getGameMap(), true, getSeat(), getName(), MESH_DOOR, tile, rotation, false, isActivated(tile) ? 1.0f : 0.5f,
+    return new DoorEntity(getGameMap(), true, getSeat(), getName(), reg.getTrapFactory()->getMeshName(), tile, rotation, false, isActivated(tile) ? 1.0f : 0.5f,
         ANIMATION_OPEN, false);
 }
 

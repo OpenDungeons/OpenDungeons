@@ -28,7 +28,6 @@ class TrapDoor : public Trap
 public:
     TrapDoor(GameMap* gameMap);
 
-    static const std::string MESH_DOOR;
     static const std::string ANIMATION_OPEN;
     static const std::string ANIMATION_CLOSE;
 

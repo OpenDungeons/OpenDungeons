@@ -500,7 +500,6 @@ void Player::markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, b
         return;
 
     std::vector<Tile*> tilesMark;
-    // TODO : re-write this function to make it follow code guidelines using if->return
     // If human player, we notify marked tiles
     if(getIsHuman())
     {

@@ -45,6 +45,7 @@ public:
     virtual const std::string& getName() const = 0;
     virtual const std::string& getNameReadable() const = 0;
     virtual int getCostPerTile() const = 0;
+    virtual const std::string& getMeshName() const = 0;
 
     virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const = 0;
     virtual bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const = 0;
@@ -124,6 +125,8 @@ public:
 
     static int costPerTile(TrapType type);
 
+    static const std::string& getMeshFromTrapType(TrapType trapType);
+
     /*! \brief Creates a ClientNotification to ask for creating a trap. It fills the packet with the needed data
      * for the TrapManager to retrieve the spell (mainly the TrapType) so that the traps only have to handle their
      * specific data.
@@ -151,6 +154,9 @@ public:
         TrapManager::unregisterFactory(mTrapFactory);
         delete mTrapFactory;
     }
+
+    inline const TrapFactory* getTrapFactory() const
+    { return mTrapFactory; }
 
 private:
     const TrapFactory* mTrapFactory;

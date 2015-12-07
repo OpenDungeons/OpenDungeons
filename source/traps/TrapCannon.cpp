@@ -49,6 +49,12 @@ class TrapCannonFactory : public TrapFactory
     int getCostPerTile() const override
     { return ConfigManager::getSingleton().getTrapConfigInt32("CannonCostPerTile"); }
 
+    const std::string& getMeshName() const override
+    {
+        static const std::string meshName = "Cannon";
+        return meshName;
+    }
+
     void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildTrapDefault(gameMap, TrapType::cannon, inputManager, inputCommand);
@@ -106,7 +112,6 @@ class TrapCannonFactory : public TrapFactory
 static TrapRegister reg(new TrapCannonFactory);
 }
 
-const std::string TrapCannon::MESH_CANON = "Cannon";
 const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 
 TrapCannon::TrapCannon(GameMap* gameMap) :
@@ -162,5 +167,5 @@ bool TrapCannon::shoot(Tile* tile)
 
 TrapEntity* TrapCannon::getTrapEntity(Tile* tile)
 {
-    return new TrapEntity(getGameMap(), true, getName(), MESH_CANON, tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
+    return new TrapEntity(getGameMap(), true, getName(), reg.getTrapFactory()->getMeshName(), tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }

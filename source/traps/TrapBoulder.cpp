@@ -48,6 +48,12 @@ class TrapBoulderFactory : public TrapFactory
     int getCostPerTile() const override
     { return ConfigManager::getSingleton().getTrapConfigInt32("BoulderCostPerTile"); }
 
+    const std::string& getMeshName() const override
+    {
+        static const std::string meshName = "Boulder";
+        return meshName;
+    }
+
     void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         checkBuildTrapDefault(gameMap, TrapType::boulder, inputManager, inputCommand);
@@ -105,8 +111,6 @@ class TrapBoulderFactory : public TrapFactory
 static TrapRegister reg(new TrapBoulderFactory);
 }
 
-const std::string TrapBoulder::MESH_BOULDER = "Boulder";
-
 TrapBoulder::TrapBoulder(GameMap* gameMap) :
     Trap(gameMap)
 {
@@ -162,5 +166,5 @@ bool TrapBoulder::shoot(Tile* tile)
 
 TrapEntity* TrapBoulder::getTrapEntity(Tile* tile)
 {
-    return new TrapEntity(getGameMap(), true, getName(), MESH_BOULDER, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
+    return new TrapEntity(getGameMap(), true, getName(), reg.getTrapFactory()->getMeshName(), tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }

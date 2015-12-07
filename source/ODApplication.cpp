@@ -57,8 +57,6 @@ void ODApplication::startGame(boost::program_options::variables_map& options)
     logMgr.addSink(std::unique_ptr<LogSink>(new LogSinkConsole()));
     logMgr.addSink(std::unique_ptr<LogSink>(new LogSinkFile(resMgr.getLogFile())));
 
-    // TODO: add a parameter to set the 'creator' of the map and to allow to use
-    // the master server
     if(resMgr.isServerMode())
         startServer();
     else

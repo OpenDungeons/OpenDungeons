@@ -749,6 +749,20 @@ int TrapManager::costPerTile(TrapType type)
     return factory.getCostPerTile();
 }
 
+const std::string& TrapManager::getMeshFromTrapType(TrapType type)
+{
+    std::vector<const TrapFactory*>& factories = getFactories();
+    uint32_t index = static_cast<uint32_t>(type);
+    if(index >= factories.size())
+    {
+        OD_LOG_ERR("type=" + Helper::toString(index) + ", factories.size=" + Helper::toString(factories.size()));
+        return EMPTY_STRING;
+    }
+
+    const TrapFactory& factory = *factories[index];
+    return factory.getMeshName();
+}
+
 ClientNotification* TrapManager::createTrapClientNotification(TrapType type)
 {
     ClientNotification *clientNotification = new ClientNotification(ClientNotificationType::askBuildTrap);

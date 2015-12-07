@@ -59,8 +59,6 @@ protected:
 
 private:
     TrapType mTrapType;
-
-    const std::string& getMeshFromTrapType(TrapType trapType);
 };
 
 #endif // CRAFTEDTRAP_H
