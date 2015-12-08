@@ -164,8 +164,8 @@ void MenuModeConfigureSeats::activate()
                 // At creation, we set the combo to the first available choice
                 if(cptFaction == 0)
                 {
-                    combo->setItemSelectState(item, true);
                     combo->setText(item->getText());
+                    combo->setItemSelectState(item, true);
                 }
                 ++cptFaction;
             }
@@ -244,8 +244,8 @@ void MenuModeConfigureSeats::activate()
                 // At creation, we set the combo to the first available choice
                 if(cptTeamId == 0)
                 {
-                    combo->setItemSelectState(item, true);
                     combo->setText(item->getText());
+                    combo->setItemSelectState(item, true);
                 }
                 ++cptTeamId;
             }
@@ -330,8 +330,8 @@ bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
             if(item->getID() != selItem->getID())
                 continue;
 
-            combo->setItemSelectState(item, false);
             combo->setText("");
+            combo->setItemSelectState(item, false);
         }
     }
 
@@ -503,6 +503,7 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
         CEGUI::Combobox* combo;
         bool isSelected;
         int seatIdPacket;
+        CEGUI::ListboxItem* selItem = nullptr;
         OD_ASSERT_TRUE(packet >> seatIdPacket);
         OD_ASSERT_TRUE_MSG(seatId == seatIdPacket, "seatId=" + Helper::toString(seatId) + ", seatIdPacket=" + Helper::toString(seatIdPacket));
         std::string name;
@@ -514,16 +515,19 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
             int32_t factionIndex = -1;
             OD_ASSERT_TRUE(packet >> factionIndex);
             uint32_t id = static_cast<uint32_t>(factionIndex);
+            selItem = nullptr;
             for(uint32_t i = 0; i < combo->getItemCount(); ++i)
             {
-                CEGUI::ListboxItem* selItem = combo->getListboxItemFromIndex(i);
-                if(isSelected && selItem->getID() == id)
-                {
-                    combo->setItemSelectState(selItem, true);
-                    combo->setText(selItem->getText());
-                }
-                else
-                    combo->setItemSelectState(selItem, false);
+                CEGUI::ListboxItem* item = combo->getListboxItemFromIndex(i);
+                if(isSelected && item->getID() == id)
+                    selItem = item;
+
+                combo->setItemSelectState(item, false);
+            }
+            if(selItem != nullptr)
+            {
+                combo->setText(selItem->getText());
+                combo->setItemSelectState(selItem, true);
             }
         }
 
@@ -535,16 +539,24 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
         {
             OD_ASSERT_TRUE(packet >> playerId);
         }
+
+        // Because of a bug in CEGUI::Combobox, the text is unset if we call setItemSelectState
+        // on an unselected item that has the same text as the currently selected one. For
+        // this reason, we start by unselecting everything and we will select after if
+        // there is something to select
+        selItem = nullptr;
         for(uint32_t i = 0; i < combo->getItemCount(); ++i)
         {
-            CEGUI::ListboxItem* selItem = combo->getListboxItemFromIndex(i);
-            if(isSelected && selItem->getID() == static_cast<uint32_t>(playerId))
-            {
-                combo->setItemSelectState(selItem, true);
-                combo->setText(selItem->getText());
-            }
-            else
-                combo->setItemSelectState(selItem, false);
+            CEGUI::ListboxItem* item = combo->getListboxItemFromIndex(i);
+            if(isSelected && item->getID() == static_cast<uint32_t>(playerId))
+                selItem = item;
+
+            combo->setItemSelectState(item, false);
+        }
+        if(selItem != nullptr)
+        {
+            combo->setText(selItem->getText());
+            combo->setItemSelectState(selItem, true);
         }
 
         name = COMBOBOX_TEAM_ID_PREFIX + Helper::toString(seatId);
@@ -555,16 +567,19 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
         {
             OD_ASSERT_TRUE(packet >> teamId);
         }
+        selItem = nullptr;
         for(uint32_t i = 0; i < combo->getItemCount(); ++i)
         {
-            CEGUI::ListboxItem* selItem = combo->getListboxItemFromIndex(i);
-            if(isSelected && selItem->getID() == static_cast<uint32_t>(teamId))
-            {
-                combo->setItemSelectState(selItem, true);
-                combo->setText(selItem->getText());
-            }
-            else
-                combo->setItemSelectState(selItem, false);
+            CEGUI::ListboxItem* item = combo->getListboxItemFromIndex(i);
+            if(isSelected && item->getID() == static_cast<uint32_t>(teamId))
+                selItem = item;
+
+            combo->setItemSelectState(item, false);
+        }
+        if(selItem != nullptr)
+        {
+            combo->setText(selItem->getText());
+            combo->setItemSelectState(selItem, true);
         }
     }
 }
