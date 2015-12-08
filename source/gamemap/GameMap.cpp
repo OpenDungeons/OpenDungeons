@@ -1697,9 +1697,29 @@ std::vector<GameEntity*> GameMap::getVisibleForce(const std::vector<Tile*>& visi
             continue;
         }
 
-        tile->fillWithAttackableCreatures(returnList, seat, enemyForce);
-        tile->fillWithAttackableRoom(returnList, seat, enemyForce);
-        tile->fillWithAttackableTrap(returnList, seat, enemyForce);
+        if(enemyForce)
+        {
+            tile->fillWithEntities(returnList, SelectionEntityWanted::creatureAliveEnemyAttackable, seat->getPlayer());
+            Building* building = tile->getCoveringBuilding();
+            if((building != nullptr) &&
+               (!building->getSeat()->isAlliedSeat(seat)) &&
+               (building->isAttackable(tile, seat)) &&
+               (std::find(returnList.begin(), returnList.end(), building) == returnList.end()))
+            {
+                returnList.push_back(building);
+            }
+        }
+        else
+        {
+            tile->fillWithEntities(returnList, SelectionEntityWanted::creatureAliveAllied, seat->getPlayer());
+            Building* building = tile->getCoveringBuilding();
+            if((building != nullptr) &&
+               (building->getSeat()->isAlliedSeat(seat)) &&
+               (std::find(returnList.begin(), returnList.end(), building) == returnList.end()))
+            {
+                returnList.push_back(building);
+            }
+        }
     }
 
     return returnList;
@@ -1718,7 +1738,14 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& 
             continue;
         }
 
-        tile->fillWithAttackableCreatures(returnList, seat, enemyCreatures);
+        if(enemyCreatures)
+        {
+            tile->fillWithEntities(returnList, SelectionEntityWanted::creatureAliveEnemyAttackable, seat->getPlayer());
+        }
+        else
+        {
+            tile->fillWithEntities(returnList, SelectionEntityWanted::creatureAliveAllied, seat->getPlayer());
+        }
     }
 
     return returnList;

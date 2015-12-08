@@ -1326,66 +1326,6 @@ double Tile::digOut(double digRate)
     return digRateScaled;
 }
 
-void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
-{
-    for(GameEntity* entity : mEntitiesInTile)
-    {
-        if(entity == nullptr)
-        {
-            OD_LOG_ERR("unexpected null entity in tile=" + Tile::displayAsString(this));
-            continue;
-        }
-
-        if(entity->getObjectType() != GameEntityType::creature)
-            continue;
-
-        if(!entity->isAttackable(this, seat))
-            continue;
-
-        // The invert flag is used to determine whether we want to return a list of the creatures
-        // allied with supplied seat or the contrary.
-        if ((invert && !entity->getSeat()->isAlliedSeat(seat)) || (!invert
-            && entity->getSeat()->isAlliedSeat(seat)))
-        {
-            // Add the current creature
-            if (std::find(entities.begin(), entities.end(), entity) == entities.end())
-                entities.push_back(entity);
-        }
-    }
-}
-
-void Tile::fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
-{
-    Room* room = getCoveringRoom();
-    if((room != nullptr) &&
-        room->isAttackable(this, seat))
-    {
-        if ((invert && !room->getSeat()->isAlliedSeat(seat)) || (!invert
-            && room->getSeat()->isAlliedSeat(seat)))
-        {
-            // If the room is not in the list already then add it.
-            if (std::find(entities.begin(), entities.end(), room) == entities.end())
-                entities.push_back(room);
-        }
-    }
-}
-
-void Tile::fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
-{
-    Trap* trap = getCoveringTrap();
-    if((trap != nullptr) &&
-        trap->isAttackable(this, seat))
-    {
-        if ((invert && !trap->getSeat()->isAlliedSeat(seat)) || (!invert
-            && trap->getSeat()->isAlliedSeat(seat)))
-        {
-            // If the trap is not in the list already then add it.
-            if (std::find(entities.begin(), entities.end(), trap) == entities.end())
-                entities.push_back(trap);
-        }
-    }
-}
-
 void Tile::fillWithCarryableEntities(Creature* carrier, std::vector<GameEntity*>& entities)
 {
     for(GameEntity* entity : mEntitiesInTile)
@@ -1403,43 +1343,6 @@ void Tile::fillWithCarryableEntities(Creature* carrier, std::vector<GameEntity*>
             entities.push_back(entity);
     }
 }
-
-void Tile::fillWithChickenEntities(std::vector<GameEntity*>& entities)
-{
-    for(GameEntity* entity : mEntitiesInTile)
-    {
-        if(entity == nullptr)
-        {
-            OD_LOG_ERR("unexpected null entity in tile=" + Tile::displayAsString(this));
-            continue;
-        }
-
-        if(entity->getObjectType() != GameEntityType::chickenEntity)
-            continue;
-
-        if (std::find(entities.begin(), entities.end(), entity) == entities.end())
-            entities.push_back(entity);
-    }
-}
-
-void Tile::fillWithCraftedTraps(std::vector<GameEntity*>& entities)
-{
-    for(GameEntity* entity : mEntitiesInTile)
-    {
-        if(entity == nullptr)
-        {
-            OD_LOG_ERR("unexpected null entity in tile=" + Tile::displayAsString(this));
-            continue;
-        }
-
-        if(entity->getObjectType() != GameEntityType::craftedTrap)
-            continue;
-
-        if (std::find(entities.begin(), entities.end(), entity) == entities.end())
-            entities.push_back(entity);
-    }
-}
-
 
 bool Tile::isEntityOnTile(GameEntity* entity) const
 {
@@ -1483,7 +1386,7 @@ uint32_t Tile::countEntitiesOnTile(GameEntityType entityType) const
     return nbItems;
 }
 
-void Tile::fillWithEntities(std::vector<GameEntity*>& entities, SelectionEntityWanted entityWanted, Player* player) const
+void Tile::fillWithEntities(std::vector<GameEntity*>& entities, SelectionEntityWanted entityWanted, Player* player)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
@@ -1510,6 +1413,13 @@ void Tile::fillWithEntities(std::vector<GameEntity*>& entities, SelectionEntityW
 
                 Creature* creature = static_cast<Creature*>(entity);
                 if(!creature->isAlive())
+                    continue;
+
+                break;
+            }
+            case SelectionEntityWanted::chicken:
+            {
+                if(entity->getObjectType() != GameEntityType::chickenEntity)
                     continue;
 
                 break;
@@ -1600,6 +1510,26 @@ void Tile::fillWithEntities(std::vector<GameEntity*>& entities, SelectionEntityW
 
                 break;
             }
+            case SelectionEntityWanted::creatureAliveEnemyAttackable:
+            {
+                if(entity->getObjectType() != GameEntityType::creature)
+                    continue;
+
+                if(entity->getSeat() == nullptr)
+                    continue;
+
+                if(player->getSeat()->isAlliedSeat(entity->getSeat()))
+                    continue;
+
+                Creature* creature = static_cast<Creature*>(entity);
+                if(!creature->isAlive())
+                    continue;
+
+                if(!creature->isAttackable(this, player->getSeat()))
+                    continue;
+
+                break;
+            }
             default:
             {
                 static bool logMsg = false;
@@ -1612,8 +1542,10 @@ void Tile::fillWithEntities(std::vector<GameEntity*>& entities, SelectionEntityW
             }
         }
 
-        if (std::find(entities.begin(), entities.end(), entity) == entities.end())
-            entities.push_back(entity);
+        if (std::find(entities.begin(), entities.end(), entity) != entities.end())
+            continue;
+
+        entities.push_back(entity);
     }
 }
 

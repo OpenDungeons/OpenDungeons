@@ -23,6 +23,7 @@
 #include "entities/Tile.h"
 #include "entities/ChickenEntity.h"
 #include "game/Player.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
@@ -135,9 +136,7 @@ uint32_t RoomHatchery::getNbChickens()
 {
     std::vector<GameEntity*> chickens;
     for(Tile* tile : mCoveredTiles)
-    {
-        tile->fillWithChickenEntities(chickens);
-    }
+        tile->fillWithEntities(chickens, SelectionEntityWanted::chicken, getSeat()->getPlayer());
 
     return chickens.size();
 }
@@ -200,7 +199,7 @@ bool RoomHatchery::useRoom(Creature& creature, bool forced)
             continue;
 
         std::vector<GameEntity*> chickens;
-        tile->fillWithChickenEntities(chickens);
+        tile->fillWithEntities(chickens, SelectionEntityWanted::chicken, getSeat()->getPlayer());
         if(chickens.empty())
             continue;
 

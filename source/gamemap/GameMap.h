@@ -73,13 +73,15 @@ enum class SelectionEntityWanted
 {
     any,
     tiles,
+    chicken,
     creatureAliveOwned,
     creatureAliveOwnedHurt,
     creatureAliveAllied,
     creatureAliveEnemy,
     creatureAlive,
     creatureAliveOrDead,
-    creatureAliveInOwnedPrisonHurt
+    creatureAliveInOwnedPrisonHurt,
+    creatureAliveEnemyAttackable
 };
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
