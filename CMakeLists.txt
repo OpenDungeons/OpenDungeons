@@ -337,7 +337,6 @@ set(OD_SOURCEFILES
     ${SRC}/entities/Creature.cpp
     ${SRC}/entities/CreatureDefinition.cpp
     ${SRC}/entities/DoorEntity.cpp
-    ${SRC}/entities/EntityBase.cpp
     ${SRC}/entities/EntityLoading.cpp
     ${SRC}/entities/GameEntity.cpp
     ${SRC}/entities/GameEntityType.cpp

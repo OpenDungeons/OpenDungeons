@@ -17,14 +17,12 @@
 
 #include "entities/BuildingObject.h"
 
+#include "entities/GameEntityType.h"
 #include "network/ODPacket.h"
-
 #include "gamemap/GameMap.h"
-
 #include "traps/TrapBoulder.h"
 #include "traps/TrapCannon.h"
 #include "traps/TrapSpike.h"
-
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
@@ -43,6 +41,11 @@ BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap, const std::
 BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap) :
     RenderedMovableEntity(gameMap, isOnServerMap)
 {
+}
+
+GameEntityType BuildingObject::getObjectType() const
+{
+    return GameEntityType::buildingObject;
 }
 
 BuildingObject* BuildingObject::getBuildingObjectFromPacket(GameMap* gameMap, ODPacket& is)

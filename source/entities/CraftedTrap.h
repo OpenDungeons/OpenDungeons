@@ -37,8 +37,7 @@ public:
     CraftedTrap(GameMap* gameMap, bool isOnServerMap, const std::string& workshopName, TrapType trapType);
     CraftedTrap(GameMap* gameMap, bool isOnServerMap);
 
-    virtual GameEntityType getObjectType() const override
-    { return GameEntityType::craftedTrap; }
+    virtual GameEntityType getObjectType() const override;
 
     virtual const Ogre::Vector3& getScale() const;
 

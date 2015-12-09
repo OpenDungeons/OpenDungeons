@@ -18,7 +18,7 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include "entities/EntityBase.h"
+#include "entities/GameEntity.h"
 
 #include <OgreVector3.h>
 
@@ -115,7 +115,7 @@ enum class FloodFillType
  * the tile has been dug out.  Additionally the tile contains lists of the
  * entities located within it to aid in AI calculations.
  */
-class Tile : public EntityBase
+class Tile : public GameEntity
 {
 public:
     Tile(GameMap* gameMap, bool isOnServerMap, int x = 0, int y = 0, TileType type = TileType::dirt, double fullness = 100.0);
@@ -126,8 +126,37 @@ public:
     static const std::string TILE_PREFIX;
     static const std::string TILE_SCANF;
 
-    virtual GameEntityType getObjectType() const
-    { return GameEntityType::tile; }
+    virtual GameEntityType getObjectType() const override;
+
+    void doUpkeep() override
+    {}
+
+    std::vector<Tile*> getCoveredTiles() override
+    { return std::vector<Tile*>(); }
+
+    Tile* getCoveredTile(int index) override
+    { return nullptr; }
+
+    uint32_t numCoveredTiles() const override
+    { return 0; }
+
+    double getHP(Tile* tile) const override
+    { return 0.0; }
+
+    double takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
+        Tile *tileTakingDamage, bool ko) override
+    { return 0.0; }
+
+    void addToGameMap() override
+    {}
+    void removeFromGameMap() override
+    {}
+
+    void fireAddEntity(Seat* seat, bool async) override
+    {}
+
+    void fireRemoveEntity(Seat* seat) override
+    {}
 
     /*! \brief Set the type (rock, claimed, etc.) of the tile.
      *
@@ -335,7 +364,7 @@ public:
 
     //TODO: see if this function can replace the ones above (if not too much used)
     //! Fills the given vector with corresponding entities on this tile.
-    void fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityWanted entityWanted, Player* player) const;
+    void fillWithEntities(std::vector<GameEntity*>& entities, SelectionEntityWanted entityWanted, Player* player) const;
 
     //! \brief Computes the visible tiles and tags them to know which are visible
     void computeVisibleTiles();
@@ -444,9 +473,6 @@ protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
 private:
-    inline GameMap* getGameMap() const
-    { return mGameMap; }
-
     //! \brief The tile position
     int mX, mY;
 
@@ -510,10 +536,6 @@ private:
     { mFullness = f; }
 
     void setDirtyForAllSeats();
-
-    GameMap* mGameMap;
-
-    const bool mIsOnServerMap;
 
     uint32_t mNbWorkersDigging;
     uint32_t mNbWorkersClaiming;

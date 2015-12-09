@@ -17,6 +17,7 @@
 
 #include "entities/SmallSpiderEntity.h"
 
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "network/ODPacket.h"
 #include "gamemap/GameMap.h"
@@ -44,6 +45,12 @@ SmallSpiderEntity::SmallSpiderEntity(GameMap* gameMap, bool isOnServerMap) :
 {
     setMeshName("SmallSpider");
 }
+
+GameEntityType SmallSpiderEntity::getObjectType() const
+{
+    return GameEntityType::smallSpiderEntity;
+}
+
 
 void SmallSpiderEntity::doUpkeep()
 {

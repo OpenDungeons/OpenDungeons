@@ -133,8 +133,7 @@ public:
 
     static const uint32_t NB_OVERLAY_HEALTH_VALUES;
 
-    virtual GameEntityType getObjectType() const
-    { return GameEntityType::creature; }
+    virtual GameEntityType getObjectType() const;
 
     virtual void addToGameMap();
     virtual void removeFromGameMap() override;

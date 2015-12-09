@@ -17,12 +17,13 @@
 
 #include "rooms/RoomDormitory.h"
 
+#include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
+#include "entities/GameEntityType.h"
+#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
-#include "entities/RenderedMovableEntity.h"
-#include "entities/Creature.h"
-#include "entities/CreatureDefinition.h"
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"

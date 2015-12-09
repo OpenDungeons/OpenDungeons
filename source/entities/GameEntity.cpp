@@ -22,18 +22,15 @@
 
 #include "entities/GameEntity.h"
 
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
-
 #include "game/Player.h"
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
-
 #include "render/RenderManager.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -44,7 +41,14 @@ GameEntity::GameEntity(
           std::string     meshName,
           Seat*           seat
           ) :
-    EntityBase(name, meshName, seat),
+    mPosition          (Ogre::Vector3::ZERO),
+    mName              (name),
+    mMeshName          (meshName),
+    mMeshExists        (false),
+    mSeat              (seat),
+    mIsDeleteRequested (false),
+    mParentSceneNode   (nullptr),
+    mEntityNode        (nullptr),
     mGameMap           (gameMap),
     mIsOnMap           (false),
     mParticleSystemsNumber   (0),
@@ -369,7 +373,6 @@ bool GameEntity::importFromStream(std::istream& is)
 
 void GameEntity::destroyMeshLocal()
 {
-    EntityBase::destroyMeshLocal();
     if(!getIsOnServerMap())
     {
         for(EntityParticleEffect* effect : mEntityParticleEffects)
@@ -476,4 +479,28 @@ void GameEntity::exportToStream(GameEntity* entity, std::ostream& os)
 {
     entity->exportHeadersToStream(os);
     entity->exportToStream(os);
+}
+
+std::string GameEntity::getOgreNamePrefix() const
+{
+    return Helper::toString(static_cast<int32_t>(getObjectType())) + "-";
+}
+
+void GameEntity::createMesh()
+{
+    if (mMeshExists)
+        return;
+
+    mMeshExists = true;
+    createMeshLocal();
+}
+
+void GameEntity::destroyMesh()
+{
+    if(!mMeshExists)
+        return;
+
+    mMeshExists = false;
+
+    destroyMeshLocal();
 }

@@ -20,6 +20,7 @@
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/EntityLoading.h"
+#include "entities/GameEntityType.h"
 #include "entities/MapLight.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"

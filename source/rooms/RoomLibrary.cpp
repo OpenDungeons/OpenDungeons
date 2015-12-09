@@ -19,6 +19,7 @@
 
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/GameEntityType.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/SkillEntity.h"
 #include "entities/Tile.h"

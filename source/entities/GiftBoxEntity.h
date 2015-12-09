@@ -43,8 +43,7 @@ public:
     GiftBoxEntity(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, const std::string& meshName, GiftBoxType type);
     GiftBoxEntity(GameMap* gameMap, bool isOnServerMap);
 
-    virtual GameEntityType getObjectType() const override
-    { return GameEntityType::giftBoxEntity; }
+    virtual GameEntityType getObjectType() const override;
 
     virtual const Ogre::Vector3& getScale() const override;
 

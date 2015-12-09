@@ -37,8 +37,7 @@ public:
         const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
     BuildingObject(GameMap* gameMap, bool isOnServerMap);
 
-    virtual GameEntityType getObjectType() const override
-    { return GameEntityType::buildingObject; }
+    virtual GameEntityType getObjectType() const override;
 
     static BuildingObject* getBuildingObjectFromPacket(GameMap* gameMap, ODPacket& is);
 };

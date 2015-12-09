@@ -166,8 +166,7 @@ public:
     virtual ~Trap()
     {}
 
-    virtual GameEntityType getObjectType() const
-    { return GameEntityType::trap; }
+    virtual GameEntityType getObjectType() const;
 
     virtual void addToGameMap() override;
     virtual void removeFromGameMap() override;

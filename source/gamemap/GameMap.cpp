@@ -28,6 +28,7 @@
 #include "creaturemood/CreatureMood.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/GameEntityType.h"
 #include "entities/MapLight.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
@@ -2879,7 +2880,7 @@ uint32_t GameMap::getMaxNumberCreatures(Seat* seat) const
     return std::min(nbCreatures, ConfigManager::getSingleton().getMaxCreaturesPerSeatAbsolute());
 }
 
-void GameMap::playerSelects(std::vector<EntityBase*>& entities, int tileX1, int tileY1, int tileX2,
+void GameMap::playerSelects(std::vector<GameEntity*>& entities, int tileX1, int tileY1, int tileX2,
     int tileY2, SelectionTileAllowed tileAllowed, SelectionEntityWanted entityWanted, Player* player)
 {
     std::vector<Tile*> tiles = rectangularRegion(tileX1, tileY1, tileX2, tileY2);

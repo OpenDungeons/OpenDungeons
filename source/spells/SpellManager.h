@@ -23,7 +23,6 @@
 #include <cstdint>
 
 class ClientNotification;
-class EntityBase;
 class GameMap;
 class InputCommand;
 class InputManager;

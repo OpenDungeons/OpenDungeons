@@ -20,6 +20,7 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/GiftBoxEntity.h"
 #include "entities/PersistentObject.h"
 #include "entities/SkillEntity.h"

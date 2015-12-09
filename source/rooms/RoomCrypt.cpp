@@ -18,6 +18,7 @@
 #include "rooms/RoomCrypt.h"
 
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/SmallSpiderEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"

@@ -19,6 +19,7 @@
 
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -92,7 +93,7 @@ void SpellSummonWorker::checkSpellCast(GameMap* gameMap, const InputManager& inp
         return;
     }
 
-    std::vector<EntityBase*> targets;
+    std::vector<GameEntity*> targets;
     gameMap->playerSelects(targets, inputManager.mXPos, inputManager.mYPos, inputManager.mLStartDragX,
         inputManager.mLStartDragY, SelectionTileAllowed::groundClaimedAllied, SelectionEntityWanted::tiles, player);
 
@@ -105,7 +106,7 @@ void SpellSummonWorker::checkSpellCast(GameMap* gameMap, const InputManager& inp
     int32_t priceTotal = 0;
 
     std::vector<Tile*> tiles;
-    for(EntityBase* target : targets)
+    for(GameEntity* target : targets)
     {
         if(target->getObjectType() != GameEntityType::tile)
         {

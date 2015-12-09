@@ -17,6 +17,7 @@
 
 #include "entities/MapLight.h"
 
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -53,6 +54,12 @@ MapLight::MapLight(GameMap* gameMap, bool isOnServerMap, Ogre::Real diffRed, Ogr
     mAttenuationLinear = attenLin;
     mAttenuationQuadratic = attenQuad;
 }
+
+GameEntityType MapLight::getObjectType() const
+{
+    return GameEntityType::mapLight;
+}
+
 
 void MapLight::createMeshLocal()
 {

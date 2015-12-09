@@ -16,14 +16,12 @@
  */
 
 #include "entities/TrapEntity.h"
+
 #include "entities/DoorEntity.h"
-
+#include "entities/GameEntityType.h"
 #include "network/ODPacket.h"
-
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -39,6 +37,13 @@ TrapEntity::TrapEntity(GameMap* gameMap, bool isOnServerMap) :
     PersistentObject(gameMap, isOnServerMap)
 {
 }
+
+GameEntityType TrapEntity::getObjectType() const
+{
+    return GameEntityType::trapEntity;
+}
+
+
 
 TrapEntity* TrapEntity::getTrapEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {

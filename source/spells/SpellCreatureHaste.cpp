@@ -19,6 +19,7 @@
 
 #include "creatureeffect/CreatureEffectSpeedChange.h"
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -103,12 +104,12 @@ void SpellCreatureHaste::checkSpellCast(GameMap* gameMap, const InputManager& in
             inputManager.mYPos);
     }
 
-    std::vector<EntityBase*> entities;
+    std::vector<GameEntity*> entities;
     // We search the closest creature alive
     tileSelected->fillWithEntities(entities, SelectionEntityWanted::creatureAliveAllied, player);
     Creature* closestCreature = nullptr;
     double closestDist = 0;
-    for(EntityBase* entity : entities)
+    for(GameEntity* entity : entities)
     {
         if(entity->getObjectType() != GameEntityType::creature)
         {

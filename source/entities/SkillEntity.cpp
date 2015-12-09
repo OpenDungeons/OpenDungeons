@@ -18,19 +18,15 @@
 #include "entities/SkillEntity.h"
 
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
-
 #include "network/ODPacket.h"
-
 #include "game/Skill.h"
-
 #include "gamemap/GameMap.h"
-
 #include "traps/Trap.h"
 #include "traps/TrapBoulder.h"
 #include "traps/TrapCannon.h"
 #include "traps/TrapSpike.h"
-
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
@@ -51,6 +47,11 @@ SkillEntity::SkillEntity(GameMap* gameMap, bool isOnServerMap, const std::string
 SkillEntity::SkillEntity(GameMap* gameMap, bool isOnServerMap) :
     RenderedMovableEntity(gameMap, isOnServerMap)
 {
+}
+
+GameEntityType SkillEntity::getObjectType() const
+{
+    return GameEntityType::skillEntity;
 }
 
 const Ogre::Vector3& SkillEntity::getScale() const

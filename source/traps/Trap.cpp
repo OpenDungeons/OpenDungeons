@@ -19,6 +19,7 @@
 
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
@@ -39,7 +40,6 @@
 
 #include <istream>
 #include <ostream>
-
 
 void TrapTileData::fireSeatsSawTriggering()
 {
@@ -75,6 +75,11 @@ Trap::Trap(GameMap* gameMap) :
     mMinDamage(0.0),
     mMaxDamage(0.0)
 {
+}
+
+GameEntityType Trap::getObjectType() const
+{
+    return GameEntityType::trap;
 }
 
 void Trap::addToGameMap()

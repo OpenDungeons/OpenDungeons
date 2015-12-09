@@ -37,8 +37,7 @@ public:
 
     virtual void doUpkeep() override;
 
-    virtual GameEntityType getObjectType() const override
-    { return GameEntityType::smallSpiderEntity; }
+    virtual GameEntityType getObjectType() const override;
 
     bool canSlap(Seat* seat) override;
 

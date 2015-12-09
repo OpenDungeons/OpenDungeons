@@ -19,6 +19,7 @@
 
 #include "creatureeffect/CreatureEffectHeal.h"
 #include "entities/Creature.h"
+#include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -100,7 +101,7 @@ void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inp
             inputManager.mLStartDragY);
     }
 
-    std::vector<EntityBase*> targets;
+    std::vector<GameEntity*> targets;
     gameMap->playerSelects(targets, inputManager.mXPos, inputManager.mYPos, inputManager.mLStartDragX, inputManager.mLStartDragY,
         SelectionTileAllowed::groundClaimedAllied, SelectionEntityWanted::creatureAliveOwnedHurt, player);
 
@@ -119,7 +120,7 @@ void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inp
 
     std::random_shuffle(targets.begin(), targets.end());
     std::vector<Creature*> creatures;
-    for(EntityBase* target : targets)
+    for(GameEntity* target : targets)
     {
         if(playerMana < pricePerTarget)
             break;

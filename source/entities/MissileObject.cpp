@@ -18,6 +18,7 @@
 #include "entities/MissileObject.h"
 
 #include "entities/Building.h"
+#include "entities/GameEntityType.h"
 #include "entities/MissileBoulder.h"
 #include "entities/MissileOneHit.h"
 #include "entities/Tile.h"
@@ -60,6 +61,11 @@ MissileObject::~MissileObject()
 {
     if(mEntityTarget != nullptr)
         mEntityTarget->removeGameEntityListener(this);
+}
+
+GameEntityType MissileObject::getObjectType() const
+{
+    return GameEntityType::missileObject;
 }
 
 void MissileObject::doUpkeep()
