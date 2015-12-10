@@ -423,6 +423,7 @@ set(OD_SOURCEFILES
     ${SRC}/rooms/RoomBridge.cpp
     ${SRC}/rooms/RoomBridgeStone.cpp
     ${SRC}/rooms/RoomBridgeWooden.cpp
+    ${SRC}/rooms/RoomCasino.cpp
     ${SRC}/rooms/RoomCrypt.cpp
     ${SRC}/rooms/RoomDormitory.cpp
     ${SRC}/rooms/RoomDungeonTemple.cpp

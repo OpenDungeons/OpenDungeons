@@ -91,6 +91,13 @@
             <Property name="TooltipText" value="Build an arena" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
+        <Window type="OD/GameTabButton" name="CasinoButton" >
+            <Property name="Area" value="{{0,220},{0,50},{0,260},{0,90}}" />
+            <Property name="Visible" value="False" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/CasinoButton" />
+            <Property name="TooltipText" value="Build an casino" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
         <Window type="OD/GameTabButton" name="TempleButton" >
             <Property name="Area" value="{{0,570},{0,20},{0,630},{0,80}}" />
             <Property name="Visible" value="False" />

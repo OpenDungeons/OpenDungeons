@@ -721,7 +721,7 @@ ProtectDungeonTemple	NULL
 24	0	1	100	1
 24	1	1	100	1
 24	2	1	100	1
-24	3	1	100	1
+24	3	1	0	1
 24	4	1	100	1
 24	5	1	100	1
 24	6	1	100	1
@@ -744,6 +744,13 @@ ProtectDungeonTemple	NULL
 24	31	1	0	1
 24	33	1	0	1
 24	34	1	0	1
+25	0	1	100	1
+25	1	1	0	1
+25	2	1	0	1
+25	3	1	0	1
+25	4	1	0	1
+25	5	1	0	1
+25	6	1	100	1
 25	12	1	0	1
 25	13	1	0	1
 25	15	1	0	1
@@ -760,6 +767,20 @@ ProtectDungeonTemple	NULL
 25	31	1	0	1
 25	33	1	0	1
 25	34	1	0	1
+26	0	1	100	1
+26	1	1	0	1
+26	2	1	0	1
+26	3	1	0	1
+26	4	1	0	1
+26	5	1	0	1
+26	6	1	100	1
+27	0	1	100	1
+27	1	1	0	1
+27	2	1	0	1
+27	3	1	0	1
+27	4	1	0	1
+27	5	1	0	1
+27	6	1	100	1
 27	12	1	0	1
 27	13	1	0	1
 27	15	1	0	1
@@ -776,6 +797,13 @@ ProtectDungeonTemple	NULL
 27	31	1	0	1
 27	33	1	0	1
 27	34	1	0	1
+28	0	1	100	1
+28	1	1	0	1
+28	2	1	0	1
+28	3	1	0	1
+28	4	1	0	1
+28	5	1	0	1
+28	6	1	100	1
 28	12	1	0	1
 28	13	1	0	1
 28	15	1	0	1
@@ -792,7 +820,13 @@ ProtectDungeonTemple	NULL
 28	31	1	0	1
 28	33	1	0	1
 28	34	1	0	1
-29	0	1	25
+29	0	1	100	1
+29	1	1	0	1
+29	2	1	0	1
+29	3	1	0	1
+29	4	1	0	1
+29	5	1	0	1
+29	6	1	100	1
 [/Tiles]
 
 [Rooms]
@@ -1128,6 +1162,34 @@ Wizard26	11	4	0
 23	8
 23	9
 [/Room]
+[Room]
+15	Casino_1	1	25
+25	1
+25	2
+25	3
+25	4
+25	5
+26	1
+26	2
+26	3
+26	4
+26	5
+27	1
+27	2
+27	3
+27	4
+27	5
+28	1
+28	2
+28	3
+28	4
+28	5
+29	1
+29	2
+29	3
+29	4
+29	5
+[/Room]
 [/Rooms]
 
 [Traps]
@@ -1204,11 +1266,11 @@ Wizard26	11	4	0
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 1	DefaultWorker2	Kobold.mesh	18	28	0	DefaultWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	DwarfWorker5	Dwarf1.mesh	21	28	0	DwarfWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
-1	Wyvern6	Wyvern.mesh	24	28	0	Wyvern	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Wyvern6	Wyvern.mesh	24	28	0	Wyvern	1	0	max	100	0	300	none	none	nullSkillType	none	0
 1	Dragon7	Dragon.mesh	27	28	0	Dragon	1	0	max	100	0	0	none	none	nullSkillType	none	0
-1	Orc8	Orc.mesh	18	25	0	Orc	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Orc8	Orc.mesh	18	25	0	Orc	1	0	max	100	0	1000	none	none	nullSkillType	none	0
 1	Kreatur9	Kreatur.mesh	21	25	0	Kreatur	1	0	max	100	0	0	none	none	nullSkillType	none	0
-1	Goblin10	Goblin.mesh	24	25	0	Goblin	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Goblin10	Goblin.mesh	24	25	0	Goblin	1	0	max	100	0	400	none	none	nullSkillType	none	0
 1	PitDemon11	PitDemon.mesh	27	25	0	PitDemon	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Spider12	Spider.mesh	18	22	0	Spider	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	TentacleAlbine13	TentacleAlbine.mesh	21	22	0	TentacleAlbine	1	0	max	100	0	0	none	none	nullSkillType	none	0
