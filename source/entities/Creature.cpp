@@ -3192,7 +3192,7 @@ void Creature::fightCreature(Creature& creature)
 {
     clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
-    pushAction(Utils::make_unique<CreatureActionWalkToTile>(*this));
+    pushAction(Utils::make_unique<CreatureActionFight>(*this, &creature));
 }
 
 void Creature::flee()
