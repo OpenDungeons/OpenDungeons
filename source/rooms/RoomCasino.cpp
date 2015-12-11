@@ -367,7 +367,6 @@ void RoomCasino::doUpkeep()
         ro->setAnimationState("Triggered", false);
 
         // TODO: we could use the wall active spots to change feePercent/bets
-        // TODO: we could use room efficiency to change the odds and make some creatures more likely to win
         // TODO: broke creatures could engage the creature they are gambling with
 
         // We set anim for both creatures
@@ -386,12 +385,14 @@ void RoomCasino::doUpkeep()
         creature->addGoldCarried(-creatureBet);
         creature->jobDone(wakefullness);
         creature->setJobCooldown(cooldown);
+        const CreatureRoomAffinity& creature1RoomAffinity = creature->getDefinition()->getRoomAffinity(getType());
 
         creature = p.second.mCreature2.mCreature;
         totalBet += creatureBet;
         creature->addGoldCarried(-creatureBet);
         creature->jobDone(wakefullness);
         creature->setJobCooldown(cooldown);
+        const CreatureRoomAffinity& creature2RoomAffinity = creature->getDefinition()->getRoomAffinity(getType());
 
         p.second.mCooldown = cooldown;
 
@@ -401,7 +402,9 @@ void RoomCasino::doUpkeep()
         totalBet -= totalFee;
 
         // We give the total amount to the winning creature
-        if(Random::Uint(0,1) == 0)
+        double totalWinPercent = creature1RoomAffinity.getEfficiency()
+                + creature2RoomAffinity.getEfficiency();
+        if(Random::Double(0, totalWinPercent) <= creature1RoomAffinity.getEfficiency())
         {
             setCreatureWinning(*p.second.mCreature1.mCreature, ro->getPosition());
             setCreatureLoosing(*p.second.mCreature2.mCreature, ro->getPosition());
