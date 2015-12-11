@@ -28,9 +28,10 @@
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 
-CreatureActionFight::CreatureActionFight(Creature& creature, GameEntity* entityAttack) :
+CreatureActionFight::CreatureActionFight(Creature& creature, GameEntity* entityAttack, bool koOpponent) :
     CreatureAction(creature),
-    mEntityAttack(entityAttack)
+    mEntityAttack(entityAttack),
+    mKoOpponent(koOpponent)
 {
     if(mEntityAttack != nullptr)
         mEntityAttack->addGameEntityListener(this);
@@ -45,10 +46,10 @@ CreatureActionFight::~CreatureActionFight()
 std::function<bool()> CreatureActionFight::action()
 {
     return std::bind(&CreatureActionFight::handleFight,
-        std::ref(mCreature), mEntityAttack);
+        std::ref(mCreature), mEntityAttack, mKoOpponent);
 }
 
-bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAttack)
+bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAttack, bool koOpponent)
 {
     Tile* myTile = creature.getPositionTile();
     if(myTile == nullptr)
@@ -136,8 +137,7 @@ bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAtta
                (skillData != nullptr))
             {
                 // We can attack
-                bool ko = creature.getSeat()->getKoCreatures();
-                creature.useAttack(*skillData, *entityAttack, *tileAttack, ko);
+                creature.useAttack(*skillData, *entityAttack, *tileAttack, koOpponent);
                 return false;
             }
 
@@ -174,8 +174,7 @@ bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAtta
                (skillData != nullptr))
             {
                 // We can attack
-                bool ko = creature.getSeat()->getKoCreatures();
-                creature.useAttack(*skillData, *entityAttack, *tileAttack, ko);
+                creature.useAttack(*skillData, *entityAttack, *tileAttack, koOpponent);
                 return false;
             }
 

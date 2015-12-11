@@ -26,7 +26,7 @@ class GameEntity;
 class CreatureActionFight : public CreatureAction, public GameEntityListener
 {
 public:
-    CreatureActionFight(Creature& creature, GameEntity* entityAttack);
+    CreatureActionFight(Creature& creature, GameEntity* entityAttack, bool koOpponent);
     virtual ~CreatureActionFight();
 
     CreatureActionType getType() const override
@@ -40,10 +40,11 @@ public:
     bool notifyPickedUp(GameEntity* entity) override;
     bool notifyDropped(GameEntity* entity) override;
 
-    static bool handleFight(Creature& creature, GameEntity* entityAttack);
+    static bool handleFight(Creature& creature, GameEntity* entityAttack, bool koOpponent);
 
 private:
     GameEntity* mEntityAttack;
+    bool mKoOpponent;
 };
 
 #endif // CREATUREACTIONFIGHT_H

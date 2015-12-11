@@ -546,7 +546,7 @@ public:
 
     void fight();
 
-    void fightCreature(Creature& creature);
+    void fightCreature(Creature& creature, bool ko);
 
     void flee();
 
