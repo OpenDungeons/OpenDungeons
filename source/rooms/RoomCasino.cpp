@@ -367,7 +367,6 @@ void RoomCasino::doUpkeep()
         ro->setAnimationState("Triggered", false);
 
         // TODO: we could use the wall active spots to change feePercent/bets
-        // TODO: broke creatures could engage the creature they are gambling with
 
         // We set anim for both creatures
         uint32_t cooldown = Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("CasinoCooldownWorkMin"),
@@ -421,13 +420,7 @@ void RoomCasino::doUpkeep()
 
 bool RoomCasino::useRoom(Creature& creature, bool forced)
 {
-    // If the creature has no gold, it should stop gambling
-    if(creature.getGoldCarried() <= 0)
-    {
-        creature.popAction();
-        return true;
-    }
-
+    bool isGamblePossible = false;
     Tile* tileSpot = nullptr;
     RoomCasinoGameCreatureInfo* creatureInfo = nullptr;
     RoomCasinoGameCreatureInfo* opponentInfo = nullptr;
@@ -436,24 +429,26 @@ bool RoomCasino::useRoom(Creature& creature, bool forced)
     {
         if(p.second.mCreature1.mCreature == &creature)
         {
-            if(p.second.mCreature1.mIsReady && (p.second.mCreature2.mCreature != nullptr))
-                return false;
-
             tileSpot = p.first;
             creatureInfo = &p.second.mCreature1;
             opponentInfo = &p.second.mCreature2;
             creaturePositionOffset = OFFSET_CREATURE;
+
+            if(p.second.mCreature1.mIsReady && (p.second.mCreature2.mCreature != nullptr))
+                isGamblePossible = true;
+
             break;
         }
         if(p.second.mCreature2.mCreature == &creature)
         {
-            if(p.second.mCreature2.mIsReady && (p.second.mCreature1.mCreature != nullptr))
-                return false;
-
             tileSpot = p.first;
             creatureInfo = &p.second.mCreature2;
             opponentInfo = &p.second.mCreature1;
             creaturePositionOffset = -OFFSET_CREATURE;
+
+            if(p.second.mCreature2.mIsReady && (p.second.mCreature1.mCreature != nullptr))
+                isGamblePossible = true;
+
             break;
         }
     }
@@ -469,6 +464,28 @@ bool RoomCasino::useRoom(Creature& creature, bool forced)
         OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName());
         return false;
     }
+
+    // If the creature has no gold, it should stop gambling
+    if(creature.getGoldCarried() <= 0)
+    {
+        // We save the opponent here because it could be released by popAction
+        // if there is a gambler waiting
+        Creature* opponent = opponentInfo->mCreature;
+        creature.popAction();
+        // We randomly engage the creature we are playing with if any
+        if((opponent != nullptr) && (Random::Uint(0,100) <= 50))
+        {
+            // We fight for KO
+            creature.fightCreature(*opponent, true);
+            opponent->fightCreature(creature, true);
+        }
+        return true;
+    }
+
+    // If the creature can play (if it is ready and has an opponent), it should
+    // play (or at least wait for the opponent)
+    if(isGamblePossible)
+        return false;
 
     Tile* tileCreature = creature.getPositionTile();
     if(tileCreature == nullptr)
