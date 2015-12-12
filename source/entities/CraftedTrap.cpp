@@ -23,22 +23,18 @@
 #include "network/ODPacket.h"
 #include "gamemap/GameMap.h"
 #include "traps/Trap.h"
-#include "traps/TrapBoulder.h"
-#include "traps/TrapCannon.h"
-#include "traps/TrapDoor.h"
-#include "traps/TrapSpike.h"
+#include "traps/TrapManager.h"
+#include "traps/TrapType.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
 #include <iostream>
 
-const std::string EMPTY_STRING;
-
 const Ogre::Vector3 SCALE(0.5,0.5,0.5);
 
 CraftedTrap::CraftedTrap(GameMap* gameMap, bool isOnServerMap, const std::string& workshopName, TrapType trapType) :
-    RenderedMovableEntity(gameMap, isOnServerMap, workshopName, getMeshFromTrapType(trapType), 0.0f, false),
+    RenderedMovableEntity(gameMap, isOnServerMap, workshopName, TrapManager::getMeshFromTrapType(trapType), 0.0f, false),
     mTrapType(trapType)
 {
 }
@@ -57,29 +53,6 @@ GameEntityType CraftedTrap::getObjectType() const
 const Ogre::Vector3& CraftedTrap::getScale() const
 {
     return SCALE;
-}
-
-const std::string& CraftedTrap::getMeshFromTrapType(TrapType trapType)
-{
-    // TODO: let the TrapManager handle that
-    switch(trapType)
-    {
-        case TrapType::nullTrapType:
-            return EMPTY_STRING;
-        case TrapType::cannon:
-            return TrapCannon::MESH_CANON;
-        case TrapType::spike:
-            return TrapSpike::MESH_SPIKE;
-        case TrapType::boulder:
-            return TrapBoulder::MESH_BOULDER;
-        case TrapType::doorWooden:
-            return TrapDoor::MESH_DOOR;
-        default:
-            OD_LOG_ERR("Wrong enum asked for CraftedTrap " + getName() + ", trapType="
-                + Helper::toString(static_cast<uint32_t>(trapType)));
-    }
-
-    return EMPTY_STRING;
 }
 
 void CraftedTrap::notifyEntityCarryOn(Creature* carrier)

@@ -333,6 +333,15 @@ SkillManager::SkillManager() :
     mSkills[index] = def;
     lvl3depends.push_back(skill);
 
+    resType = SkillType::roomCasino;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::toString(resType));
+    skill = new Skill(resType, points, lvl2depends);
+    def = new SkillDefRoom("AttackSkills/", "CasinoButton", skill, RoomType::casino);
+    def->mapSkill(mSkillsFamily);
+    mSkills[index] = def;
+    lvl3depends.push_back(skill);
+
     // Tech Skills
     lvl1depends.clear();
     lvl2depends.clear();

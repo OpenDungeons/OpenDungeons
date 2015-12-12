@@ -24,8 +24,6 @@
 class TrapSpike : public Trap
 {
 public:
-    static const std::string MESH_SPIKE;
-
     TrapSpike(GameMap* gameMap);
 
     virtual const TrapType getType() const

@@ -1450,7 +1450,8 @@ void Creature::engageAlliedNaturalEnemy(Creature& attackerCreature)
     if(isActionInList(CreatureActionType::fight))
         return;
 
-    fightCreature(attackerCreature);
+    // When fighting a natural enemy, we always fight to death
+    fightCreature(attackerCreature, false);
 }
 
 double Creature::getMoveSpeed() const
@@ -3185,14 +3186,15 @@ void Creature::fight()
 {
     clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
-    pushAction(Utils::make_unique<CreatureActionFight>(*this, nullptr));
+    bool ko = getSeat()->getKoCreatures();
+    pushAction(Utils::make_unique<CreatureActionFight>(*this, nullptr, ko));
 }
 
-void Creature::fightCreature(Creature& creature)
+void Creature::fightCreature(Creature& creature, bool ko)
 {
     clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
-    pushAction(Utils::make_unique<CreatureActionWalkToTile>(*this));
+    pushAction(Utils::make_unique<CreatureActionFight>(*this, &creature, ko));
 }
 
 void Creature::flee()

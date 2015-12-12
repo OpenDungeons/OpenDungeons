@@ -26,8 +26,6 @@ class ODPacket;
 class TrapCannon : public Trap
 {
 public:
-    static const std::string MESH_CANON;
-
     TrapCannon(GameMap* gameMap);
 
     virtual const TrapType getType() const

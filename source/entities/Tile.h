@@ -347,24 +347,15 @@ public:
 
     static std::string displayAsString(const Tile* tile);
 
-    //! \brief Fills entities with all the attackable creatures in the Tile. If invert is true,
-    //! the list will be filled with the enemies with the given seat. If invert is false, it will be filled
-    //! with allies with the given seat. For all theses functions, the list is checked to be sure
-    //! no entity is added twice
-    void fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+    //! \brief fills the given vector with the carryable entities on this tile
     void fillWithCarryableEntities(Creature* carrier, std::vector<GameEntity*>& entities);
-    void fillWithChickenEntities(std::vector<GameEntity*>& entities);
-    void fillWithCraftedTraps(std::vector<GameEntity*>& entities);
     uint32_t countEntitiesOnTile(GameEntityType entityType) const;
 
     //! \brief Returns true if the given entity is on the tile and false otherwise
     bool isEntityOnTile(GameEntity* entity) const;
 
-    //TODO: see if this function can replace the ones above (if not too much used)
     //! Fills the given vector with corresponding entities on this tile.
-    void fillWithEntities(std::vector<GameEntity*>& entities, SelectionEntityWanted entityWanted, Player* player) const;
+    void fillWithEntities(std::vector<GameEntity*>& entities, SelectionEntityWanted entityWanted, Player* player);
 
     //! \brief Computes the visible tiles and tags them to know which are visible
     void computeVisibleTiles();

@@ -24,8 +24,6 @@
 class TrapBoulder : public Trap
 {
 public:
-    static const std::string MESH_BOULDER;
-
     TrapBoulder(GameMap* gameMap);
 
     virtual const TrapType getType() const

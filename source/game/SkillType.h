@@ -32,6 +32,7 @@ enum class SkillType
     roomArena,
     roomBridgeStone,
     roomBridgeWooden,
+    roomCasino,
     roomCrypt,
     roomDormitory,
     roomHatchery,

@@ -68,7 +68,7 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
             continue;
 
         std::vector<GameEntity*> chickens;
-        tile->fillWithChickenEntities(chickens);
+        tile->fillWithEntities(chickens, SelectionEntityWanted::chicken, creature.getSeat()->getPlayer());
         if(chickens.empty())
             continue;
 
