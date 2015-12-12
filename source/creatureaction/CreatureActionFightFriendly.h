@@ -15,22 +15,23 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CREATUREACTIONFIGHTARENA_H
-#define CREATUREACTIONFIGHTARENA_H
+#ifndef CREATUREACTIONFIGHTFRIENDLY_H
+#define CREATUREACTIONFIGHTFRIENDLY_H
 
 #include "creatureaction/CreatureAction.h"
 #include "entities/GameEntity.h"
 
+class CreatureSkillData;
 class GameEntity;
 
-class CreatureActionFightArena : public CreatureAction, public GameEntityListener
+class CreatureActionFightFriendly : public CreatureAction, public GameEntityListener
 {
 public:
-    CreatureActionFightArena(Creature& creature, GameEntity& entityAttack);
-    virtual ~CreatureActionFightArena();
+    CreatureActionFightFriendly(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter);
+    virtual ~CreatureActionFightFriendly();
 
     CreatureActionType getType() const override
-    { return CreatureActionType::fightArena; }
+    { return CreatureActionType::fightFriendly; }
 
     std::function<bool()> action() override;
 
@@ -40,10 +41,12 @@ public:
     bool notifyPickedUp(GameEntity* entity) override;
     bool notifyDropped(GameEntity* entity) override;
 
-    static bool handleFightArena(Creature& creature, GameEntity* entityAttack);
+    static bool handleFight(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter);
 
 private:
     GameEntity* mEntityAttack;
+    bool mKoOpponent;
+    const std::vector<Tile*> mTilesFilter;
 };
 
-#endif // CREATUREACTIONFIGHTARENA_H
+#endif // CREATUREACTIONFIGHTFRIENDLY_H

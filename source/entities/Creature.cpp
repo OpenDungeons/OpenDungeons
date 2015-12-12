@@ -22,7 +22,6 @@
 #include "creatureaction/CreatureActionClaimWallTile.h"
 #include "creatureaction/CreatureActionDigTile.h"
 #include "creatureaction/CreatureActionFight.h"
-#include "creatureaction/CreatureActionFightArena.h"
 #include "creatureaction/CreatureActionFindHome.h"
 #include "creatureaction/CreatureActionFlee.h"
 #include "creatureaction/CreatureActionGetFee.h"
@@ -1256,7 +1255,8 @@ bool Creature::handleIdleAction()
     return true;
 }
 
-bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData)
+bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObjects, const std::vector<Tile*>& tilesFilter, GameEntity*& attackedEntity,
+        Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData)
 {
     Tile* myTile = getPositionTile();
     if(myTile == nullptr)
@@ -1348,7 +1348,21 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
         int skillRangeMaxInt = static_cast<int>(skillRangeMax);
         int skillRangeMaxIntSquared = skillRangeMaxInt * skillRangeMaxInt;
         int bestScoreAttack = -1;
-        std::vector<Tile*> tiles = getAccessibleVisibleTiles(tileAttackCheck, skillRangeMaxInt);
+        std::vector<Tile*> tiles;
+        if(tilesFilter.empty())
+            tiles = getGameMap()->visibleTiles(tileAttackCheck->getX(), tileAttackCheck->getY(), skillRangeMaxInt);
+        else
+        {
+            float radiusSquared = skillRangeMaxInt * skillRangeMaxInt;
+            for(Tile* tile : tilesFilter)
+            {
+                float dist = Pathfinding::squaredDistanceTile(*tileAttackCheck, *tile);
+                if(dist > radiusSquared)
+                    continue;
+
+                tiles.push_back(tile);
+            }
+        }
         for(Tile* tile : tiles)
         {
             if(tile->isFullTile())
@@ -1390,7 +1404,21 @@ bool Creature::searchBestTargetInList(const std::vector<GameEntity*>& listObject
         int bestScoreFlee = -1;
         int32_t fightIdleDist = getDefinition()->getFightIdleDist();
         Tile* fleeTile = nullptr;
-        std::vector<Tile*> tiles = getAccessibleVisibleTiles(tileEntityFlee, fightIdleDist);
+        std::vector<Tile*> tiles;
+        if(tilesFilter.empty())
+            tiles = getGameMap()->visibleTiles(tileEntityFlee->getX(), tileEntityFlee->getY(), fightIdleDist);
+        else
+        {
+            float radiusSquared = fightIdleDist * fightIdleDist;
+            for(Tile* tile : tilesFilter)
+            {
+                float dist = Pathfinding::squaredDistanceTile(*tileEntityFlee, *tile);
+                if(dist > radiusSquared)
+                    continue;
+
+                tiles.push_back(tile);
+            }
+        }
         int32_t fightIdleDistSquared = fightIdleDist * fightIdleDist;
         for(Tile* tile : tiles)
         {
@@ -3124,51 +3152,6 @@ void Creature::setStrengthModifier(double modifier)
 void Creature::clearStrengthModifier()
 {
     setStrengthModifier(1.0);
-}
-
-std::vector<Tile*> Creature::getAccessibleVisibleTiles(Tile* center, int radius) const
-{
-    // If we are fighting in the arena, the accessible tiles are the arena
-    if(!isActionInList(CreatureActionType::fightArena))
-        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
-
-    // We check if we are in the arena
-    Tile* myTile = getPositionTile();
-    if(myTile == nullptr)
-    {
-        OD_LOG_ERR("name=" + getName() + ", position=" + Helper::toString(getPosition()));
-        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
-    }
-
-    Room* room = myTile->getCoveringRoom();
-    if(room == nullptr)
-    {
-        OD_LOG_ERR("name=" + getName() + ", not on an arena tile=" + Tile::displayAsString(myTile));
-        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
-    }
-    if(room->getType() != RoomType::arena)
-    {
-        OD_LOG_ERR("name=" + getName() + ", not on an arena tile=" + Tile::displayAsString(myTile) + ", room=" + room->getName());
-        return getGameMap()->visibleTiles(center->getX(), center->getY(), radius);
-    }
-
-    float radiusSquared = radius * radius;
-    std::vector<Tile*> allowedTiles;
-    for(Tile* tile : room->getCoveredTiles())
-    {
-        float dist = Pathfinding::squaredDistanceTile(*center, *tile);
-        if(dist > radiusSquared)
-            continue;
-
-        allowedTiles.push_back(tile);
-    }
-
-    return allowedTiles;
-}
-
-void Creature::fightInArena(Creature& opponent)
-{
-    pushAction(Utils::make_unique<CreatureActionFightArena>(*this, opponent));
 }
 
 bool Creature::isWarmup() const

@@ -17,6 +17,7 @@
 
 #include "rooms/RoomCasino.h"
 
+#include "creatureaction/CreatureActionFightFriendly.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/GameEntityType.h"
@@ -32,6 +33,7 @@
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/MakeUnique.h"
 #include "utils/Random.h"
 
 const std::string RoomCasinoName = "Casino";
@@ -476,8 +478,8 @@ bool RoomCasino::useRoom(Creature& creature, bool forced)
         if((opponent != nullptr) && (Random::Uint(0,100) <= 50))
         {
             // We fight for KO
-            creature.fightCreature(*opponent, true);
-            opponent->fightCreature(creature, true);
+            creature.pushAction(Utils::make_unique<CreatureActionFightFriendly>(creature, opponent, true, getCoveredTiles()));
+            opponent->pushAction(Utils::make_unique<CreatureActionFightFriendly>(*opponent, &creature, true, getCoveredTiles()));
         }
         return true;
     }

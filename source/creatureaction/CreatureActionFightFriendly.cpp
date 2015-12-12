@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "creatureaction/CreatureActionFight.h"
+#include "creatureaction/CreatureActionFightFriendly.h"
 
 #include "creatureaction/CreatureActionWalkToTile.h"
 #include "entities/Creature.h"
@@ -28,30 +28,30 @@
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 
-CreatureActionFight::CreatureActionFight(Creature& creature, GameEntity* entityAttack, bool koOpponent) :
+CreatureActionFightFriendly::CreatureActionFightFriendly(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter) :
     CreatureAction(creature),
     mEntityAttack(entityAttack),
-    mKoOpponent(koOpponent)
+    mKoOpponent(koOpponent),
+    mTilesFilter(tilesFilter)
 {
     if(mEntityAttack != nullptr)
         mEntityAttack->addGameEntityListener(this);
 }
 
-CreatureActionFight::~CreatureActionFight()
+CreatureActionFightFriendly::~CreatureActionFightFriendly()
 {
     if(mEntityAttack != nullptr)
         mEntityAttack->removeGameEntityListener(this);
 }
 
-std::function<bool()> CreatureActionFight::action()
+std::function<bool()> CreatureActionFightFriendly::action()
 {
-    return std::bind(&CreatureActionFight::handleFight,
-        std::ref(mCreature), mEntityAttack, mKoOpponent);
+    return std::bind(&CreatureActionFightFriendly::handleFight,
+        std::ref(mCreature), mEntityAttack, mKoOpponent, mTilesFilter);
 }
 
-bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAttack, bool koOpponent)
+bool CreatureActionFightFriendly::handleFight(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter)
 {
-    static const std::vector<Tile*> emptyTiles;
     Tile* myTile = creature.getPositionTile();
     if(myTile == nullptr)
     {
@@ -130,7 +130,7 @@ bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAtta
         Tile* tileAttack = nullptr;
         Tile* tilePosition = nullptr;
         CreatureSkillData* skillData = nullptr;
-        if(creature.searchBestTargetInList(enemyPrioritaryTargets, emptyTiles, entityAttack, tileAttack, tilePosition, skillData))
+        if(creature.searchBestTargetInList(enemyPrioritaryTargets, tilesFilter, entityAttack, tileAttack, tilePosition, skillData))
         {
             if((myTile == tilePosition) &&
                (entityAttack != nullptr) &&
@@ -167,7 +167,7 @@ bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAtta
         Tile* tileAttack = nullptr;
         Tile* tilePosition = nullptr;
         CreatureSkillData* skillData = nullptr;
-        if(creature.searchBestTargetInList(enemySecondaryTargets, emptyTiles, entityAttack, tileAttack, tilePosition, skillData))
+        if(creature.searchBestTargetInList(enemySecondaryTargets, tilesFilter, entityAttack, tileAttack, tilePosition, skillData))
         {
             if((myTile == tilePosition) &&
                (entityAttack != nullptr) &&
@@ -203,12 +203,12 @@ bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAtta
     return true;
 }
 
-std::string CreatureActionFight::getListenerName() const
+std::string CreatureActionFightFriendly::getListenerName() const
 {
     return toString(getType()) + ", creature=" + mCreature.getName();
 }
 
-bool CreatureActionFight::notifyDead(GameEntity* entity)
+bool CreatureActionFightFriendly::notifyDead(GameEntity* entity)
 {
     if(entity == mEntityAttack)
     {
@@ -218,7 +218,7 @@ bool CreatureActionFight::notifyDead(GameEntity* entity)
     return true;
 }
 
-bool CreatureActionFight::notifyRemovedFromGameMap(GameEntity* entity)
+bool CreatureActionFightFriendly::notifyRemovedFromGameMap(GameEntity* entity)
 {
     if(entity == mEntityAttack)
     {
@@ -228,7 +228,7 @@ bool CreatureActionFight::notifyRemovedFromGameMap(GameEntity* entity)
     return true;
 }
 
-bool CreatureActionFight::notifyPickedUp(GameEntity* entity)
+bool CreatureActionFightFriendly::notifyPickedUp(GameEntity* entity)
 {
     if(entity == mEntityAttack)
     {
@@ -238,7 +238,7 @@ bool CreatureActionFight::notifyPickedUp(GameEntity* entity)
     return true;
 }
 
-bool CreatureActionFight::notifyDropped(GameEntity* entity)
+bool CreatureActionFightFriendly::notifyDropped(GameEntity* entity)
 {
     // That should not happen. For now, we only require events for attacked creatures. And when they
     // are picked up, we should have cleared the action queue
