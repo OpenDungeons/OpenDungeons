@@ -1905,8 +1905,8 @@ void Creature::createStatsWindow()
     mStatsWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 380), CEGUI::UDim(0, 400)));
 
     CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
-    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.15, 0)));
-    textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.8, 0)));
+    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.1, 0)));
+    textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.85, 0)));
     textWindow->setProperty("FrameEnabled", "False");
     textWindow->setProperty("BackgroundEnabled", "False");
 
@@ -1954,32 +1954,43 @@ std::string Creature::getStatsText()
 {
     // The creatures are not refreshed at each turn so this information is relevant in the server
     // GameMap only
+    const std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
+    const std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
+
     std::stringstream tempSS;
+    tempSS << formatTitleOn << "Characteristics" << formatTitleOff << std::endl;
     tempSS << "Level: " << getLevel() << std::endl;
     tempSS << "Experience: " << mExp << std::endl;
     tempSS << "HP: " << getHP() << " / " << mMaxHP << std::endl;
+    tempSS << "Gold: " << mGoldCarried << std::endl;
     if (!getDefinition()->isWorker())
     {
         tempSS << "Wakefulness: " << mWakefulness << std::endl;
         tempSS << "Hunger: " << mHunger << std::endl;
     }
-    tempSS << "Move speed (Ground/Water/Lava): " << getMoveSpeedGround() << "/"
-        << getMoveSpeedWater() << "/" << getMoveSpeedLava() << std::endl;
+    tempSS << "Move speed (G/W/L): " << getMoveSpeedGround() << " / "
+        << getMoveSpeedWater() << " / " << getMoveSpeedLava() << std::endl;
     tempSS << "Weapons:" << std::endl;
     if(mWeaponL == nullptr)
-        tempSS << "Left hand: none" << std::endl;
+        tempSS << " - Left: none" << std::endl;
     else
-        tempSS << "Left hand: " << mWeaponL->getName() << "-Atk(Phy/Mag): " << mWeaponL->getPhysicalDamage() << "/" << mWeaponL->getMagicalDamage() << std::endl;
+        tempSS << " - Left: " << mWeaponL->getName() << " | Damage (P/M/E): " << mWeaponL->getPhysicalDamage()
+               << " / " << mWeaponL->getMagicalDamage() << " / " << mWeaponL->getElementDamage() << std::endl;
     if(mWeaponR == nullptr)
-        tempSS << "Right hand: none" << std::endl;
+        tempSS << " - Right: none" << std::endl;
     else
-        tempSS << "Right hand: " << mWeaponR->getName() << "-Atk(Phy/Mag): " << mWeaponR->getPhysicalDamage() << "/" << mWeaponR->getMagicalDamage() << std::endl;
-    tempSS << "Total Defense (Phys/Mag): " << getPhysicalDefense() << "/" << getMagicalDefense() << std::endl;
+        tempSS << " - Right: " << mWeaponR->getName() << " | Damage (P/M/E): " << mWeaponR->getPhysicalDamage()
+               << " / " << mWeaponR->getMagicalDamage() << " / " << mWeaponR->getElementDamage() << std::endl;
+    tempSS << "Defense (P/M/E): " << getPhysicalDefense() << " / " << getMagicalDefense() << " / " << getElementDefense() << std::endl;
     if (getDefinition()->isWorker())
     {
-        tempSS << "Dig Rate: : " << getDigRate() << std::endl;
-        tempSS << "Dance Rate: : " << mClaimRate << std::endl;
+        tempSS << "Dig rate: " << getDigRate() << std::endl;
+        tempSS << "Dance rate: " << mClaimRate << std::endl;
     }
+
+    tempSS << formatTitleOn << "\nDebugging information" << formatTitleOff << std::endl;
+    tempSS << "Seat and team IDs: " << getSeat()->getId() << " / " << getSeat()->getTeamId() << std::endl;
+    tempSS << "Position: " << Helper::toString(getPosition()) << std::endl;
     tempSS << "Actions:";
     for(const std::unique_ptr<CreatureAction>& ca : mActions)
     {
@@ -1989,14 +2000,11 @@ std::string Creature::getStatsText()
     tempSS << "Destinations:";
     for(const Ogre::Vector3& dest : mWalkQueue)
     {
-        tempSS << Helper::toStringWithoutZ(dest) << "/";
+        tempSS << " " << Helper::toStringWithoutZ(dest);
     }
     tempSS << std::endl;
-    tempSS << "Seat id: " << getSeat()->getId() << std::endl;
-    tempSS << "Team id: " << getSeat()->getTeamId() << std::endl;
-    tempSS << "Position: " << Helper::toString(getPosition()) << std::endl;
     tempSS << "Mood: " << CreatureMood::toString(mMoodValue) << std::endl;
-    tempSS << "MoodPoints: " << Helper::toString(mMoodPoints) << std::endl;
+    tempSS << "Mood points: " << Helper::toString(mMoodPoints) << std::endl;
     return tempSS.str();
 }
 
