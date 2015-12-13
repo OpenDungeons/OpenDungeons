@@ -58,8 +58,8 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
     if(creature.getHP() > creature.getMaxHp() * mWeakCoef)
         return true;
 
-    // If we are fighting in the arena, we should not flee
-    if(creature.isActionInList(CreatureActionType::fightArena))
+    // If we are having a friendly fight (in the arena or in a bar) we should not flee
+    if(creature.isActionInList(CreatureActionType::fightFriendly))
         return true;
 
     if(!creature.getVisibleEnemyObjects().empty())

@@ -542,8 +542,6 @@ public:
     inline double getModifierStrength() const
     { return mModifierStrength; }
 
-    void fightInArena(Creature& opponent);
-
     void fight();
 
     void fightCreature(Creature& creature, bool ko);
@@ -564,9 +562,11 @@ public:
     //! be set to the best spot.
     //! If the creature should flee (ranged units attacked by melee), true is returned, positionTile is
     //! set to the tile where it should flee and attackedEntity = nullptr and attackedTile = nullptr
+    //! If tilesFilter is empty, the creature will consider moving on visible tiles. If not, it will consider
+    //! moving on the given tiles only
     //! If no suitable target is found, returns false
-    // TODO: check if we can move it in the creature action
-    bool searchBestTargetInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData);
+    bool searchBestTargetInList(const std::vector<GameEntity*>& listObjects, const std::vector<Tile*>& tilesFilter, GameEntity*& attackedEntity,
+        Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData);
 
     //! \brief returns true if the creature needs to eat. forced should be true if
     //! the creature is forced to eat (ie it has been dropped on a hatchery) and
@@ -759,8 +759,6 @@ private:
     void computeMood();
 
     void computeCreatureOverlayMoodValue();
-
-    std::vector<Tile*> getAccessibleVisibleTiles(Tile* center, int radius) const;
 };
 
 #endif // CREATURE_H

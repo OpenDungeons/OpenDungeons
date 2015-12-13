@@ -277,7 +277,7 @@ set(OD_SOURCEFILES
     ${SRC}/creatureaction/CreatureActionDigTile.cpp
     ${SRC}/creatureaction/CreatureActionEatChicken.cpp
     ${SRC}/creatureaction/CreatureActionFight.cpp
-    ${SRC}/creatureaction/CreatureActionFightArena.cpp
+    ${SRC}/creatureaction/CreatureActionFightFriendly.cpp
     ${SRC}/creatureaction/CreatureActionFindHome.cpp
     ${SRC}/creatureaction/CreatureActionFlee.cpp
     ${SRC}/creatureaction/CreatureActionGetFee.cpp

@@ -18,6 +18,7 @@
 #include "rooms/RoomArena.h"
 
 #include "creatureaction/CreatureAction.h"
+#include "creatureaction/CreatureActionFightFriendly.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
@@ -25,6 +26,7 @@
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
+#include "utils/MakeUnique.h"
 #include "utils/Random.h"
 
 const std::string RoomArenaName = "Arena";
@@ -226,13 +228,13 @@ void RoomArena::doUpkeep()
     }
 
     // Both creatures are set. They should fight if not already
-    if(!mCreatureFighting1->isActionInList(CreatureActionType::fightArena))
+    if(!mCreatureFighting1->isActionInList(CreatureActionType::fightFriendly))
     {
-        mCreatureFighting1->fightInArena(*mCreatureFighting2);
+        mCreatureFighting1->pushAction(Utils::make_unique<CreatureActionFightFriendly>(*mCreatureFighting1, mCreatureFighting2, true, getCoveredTiles()));
     }
-    if(!mCreatureFighting2->isActionInList(CreatureActionType::fightArena))
+    if(!mCreatureFighting2->isActionInList(CreatureActionType::fightFriendly))
     {
-        mCreatureFighting2->fightInArena(*mCreatureFighting1);
+        mCreatureFighting2->pushAction(Utils::make_unique<CreatureActionFightFriendly>(*mCreatureFighting2, mCreatureFighting1, true, getCoveredTiles()));
     }
 }
 
