@@ -101,7 +101,7 @@ public:
     */
     Ogre::Vector3 getCameraViewTarget() const;
 
-    void onMiniMapClick(Ogre ::Vector2 cc);
+    void onMiniMapClick(Ogre::Vector2 cc);
 
     /** \brief Starts the camera moving towards a destination position,
      *  it will stop moving when it gets there.
@@ -127,8 +127,12 @@ public:
 
     void createCameraNode(const std::string& name);
 
-    Ogre::SceneNode* getActiveCameraNode();
+    inline Ogre::SceneNode* getActiveCameraNode() const
+    { return mActiveCameraNode; }
     Ogre::SceneNode* setActiveCameraNode(const Ogre::String& ss);
+
+    const Ogre::Vector3& getActiveCameraPosition() const;
+    const Ogre::Quaternion& getActiveCameraOrientation() const;
 
     //! \brief Sets up the main camera
     void createCamera(const Ogre::String& ss, double nearClip, double farClip);

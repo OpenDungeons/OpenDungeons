@@ -32,15 +32,18 @@ namespace Ogre
     class Quaternion;
 }
 
-namespace InterfaceSounds
+//! \brief Special Relative sounds
+namespace SoundRelativeInterface
 {
-    const std::string Click = "Click";
-    const std::string PickSelector = "PickSelector";
+    const std::string Click = "Interface/Click";
+    const std::string PickSelector = "Interface/PickSelector";
 }
 
-namespace GameSounds
+namespace SoundRelativeKeeperStatements
 {
-    const std::string DepositGold = "DepositGold";
+    const std::string AllyDefeated = "Keeper/AllyDefeated";
+    const std::string Defeat = "Keeper/Defeat";
+    const std::string Lost = "Keeper/Lost";
 }
 
 // The Z value to use for tile positioned sounds.
@@ -85,53 +88,38 @@ private:
     std::string mFilename;
 };
 
-//! \brief The different interface sound types.
-enum class SpatialSoundType
-{
-    Interface = 0,
-    Game,
-    Creatures,
-    Rooms,
-    Traps,
-    Spells,
-    nbSounds
-};
-
-//! \brief Used to transfer SpatialSounds type over the network.
-ODPacket& operator<<(ODPacket& os, const SpatialSoundType& st);
-ODPacket& operator>>(ODPacket& is, SpatialSoundType& st);
-
 //! \brief Helper class to manage sound effects.
 class SoundEffectsManager: public Ogre::Singleton<SoundEffectsManager>
 {
 public:
+    static const std::string DEFAULT_KEEPER_VOICE;
+
     //! \brief Loads every available interface sounds
     SoundEffectsManager();
 
     //! \brief Deletes both sound caches.
     virtual ~SoundEffectsManager();
 
-    //! \brief Init the interface sounds.
-    void initializeSpatialSounds();
-
-    void setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation);
+    void updateListener(float timeSinceLastFrame,
+        const Ogre::Vector3& position, const Ogre::Quaternion& orientation);
 
     //! \brief Plays a spatial sound at the given tile position.
-    void playSpatialSound(SpatialSoundType soundType, const std::string& family,
+    void playSpatialSound(const std::string& family,
         float XPos, float YPos, float height = TILE_ZPOS);
 
     //! \brief Proxy used for sounds that aren't spatial and can be heard everywhere.
-    void playSpatialSound(SpatialSoundType soundType, const std::string& family)
-    { playSpatialSound(soundType, family, 0.0f, 0.0f); }
-
-    void playSpatialSound(SpatialSoundType soundType, const std::string& family, const Ogre::Vector3& position)
-    { playSpatialSound(soundType, family, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
+    void playRelativeSound(const std::string& family);
 
 private:
-    //! \brief Every game sounds (interface or creature). The sounds are read when launching the
+    //! \brief Every spatial game sounds (spells, traps, creatures...). The sounds are read when launching the
     //! game by browsing the sound directory
     //! \note the GameSound here are handled by the game sound cache.
-    std::vector<std::map<std::string, std::vector<GameSound*>>> mSpatialSounds;
+    std::map<std::string, std::vector<GameSound*>> mSpatialSounds;
+
+    //! \brief Every relative (ie not spatial) game sounds (interface, keeper statements, ...). The sounds
+    //! are read when launching the game by browsing the sound directory
+    //! \note the GameSound here are handled by the game sound cache.
+    std::map<std::string, std::vector<GameSound*>> mRelativeSounds;
 
     //! \brief The sound cache, containing the sound references, used by game entities.
     //! \brief The GameSounds here must be deleted at destruction.
@@ -145,9 +133,6 @@ private:
     //! the GameSound* instance is correclty cleared up when quitting.
     //! \warning Returns nullptr if the filename is an invalid/unreadable sound.
     GameSound* getGameSound(const std::string& filename, bool spatialSound = false);
-
-    //! \brief Reads the path associated to the given soundType and fills the corresponding map
-    void readSounds(SpatialSoundType soundType);
 
     //! \brief Recursive function that fills the sound map with sound files found and reads
     //! child directories

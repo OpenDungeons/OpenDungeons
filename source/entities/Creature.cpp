@@ -2774,8 +2774,19 @@ void Creature::fireCreatureSound(CreatureSound sound)
             return;
     }
 
-    getGameMap()->fireSpatialSound(mSeatsWithVisionNotified, SpatialSoundType::Creatures,
-        soundFamily, posTile);
+    std::string soundComplete = "Creatures/" + soundFamily;
+    for(Seat* seat : mSeatsWithVisionNotified)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::playSpatialSound, seat->getPlayer());
+        serverNotification->mPacket << soundComplete << posTile->getX() << posTile->getY();
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }
 
 void Creature::itsPayDay()

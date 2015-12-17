@@ -28,6 +28,7 @@
 #include "render/RenderManager.h"
 #include "rooms/Room.h"
 #include "rooms/RoomType.h"
+#include "sound/SoundEffectsManager.h"
 #include "spells/SpellManager.h"
 #include "spells/SpellType.h"
 #include "traps/Trap.h"
@@ -356,6 +357,7 @@ void Player::notifyNoMoreDungeonTemple()
     {
         // This message will be sent in 1v1 or multiplayer so it should not talk about team. If we want to be
         // more precise, we shall handle the case
+        std::vector<Seat*> seats;
         for(Seat* seat : mGameMap->getSeats())
         {
             if(seat->getPlayer() == nullptr)
@@ -365,14 +367,18 @@ void Player::notifyNoMoreDungeonTemple()
             if(!getSeat()->isAlliedSeat(seat))
                 continue;
 
+            seats.push_back(seat);
+
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, seat->getPlayer());
             serverNotification->mPacket << "You lost the game" << EventShortNoticeType::majorGameEvent;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
+        mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::Lost);
     }
     else
     {
+        std::vector<Seat*> seats;
         for(Seat* seat : mGameMap->getSeats())
         {
             if(seat->getPlayer() == nullptr)
@@ -384,18 +390,24 @@ void Player::notifyNoMoreDungeonTemple()
 
             if(this == seat->getPlayer())
             {
+                // For the current player, we send the defeat message
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotificationType::chatServer, seat->getPlayer());
                 serverNotification->mPacket << "You lost" << EventShortNoticeType::majorGameEvent;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
+
+                mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::Defeat);
                 continue;
             }
+
+            seats.push_back(seat);
 
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, seat->getPlayer());
             serverNotification->mPacket << "An ally has lost" << EventShortNoticeType::majorGameEvent;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
+        mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::AllyDefeated);
     }
 }
 

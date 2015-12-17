@@ -55,7 +55,7 @@ public:
 
     virtual void doUpkeep();
 
-    static void fireSpellSound(Tile* tile, const std::string& soundFamily);
+    static void fireSpellSound(Tile& tile, const std::string& soundFamily);
 
     static std::string getSpellStreamFormat();
 
@@ -67,6 +67,7 @@ protected:
     virtual void exportHeadersToPacket(ODPacket& os) const override;
 
     static std::string formatCastSpell(SpellType type, uint32_t price);
+
 private:
     //! \brief Number of turns the spell should be displayed before automatic deletion.
     //! If < 0, the Spell will not be removed automatically

@@ -131,6 +131,8 @@ public:
     static bool importRoomFromStream(Room& room, std::istream& is);
 
 protected:
+    static void fireRoomSound(Tile& tile, const std::string& soundFamily);
+
     /*! \brief Exports the headers needed to recreate the Room. It allows to extend Room as much as wanted.
      * The content of the Room will be exported by exportToPacket.
      */

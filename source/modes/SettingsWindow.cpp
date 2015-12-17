@@ -147,12 +147,32 @@ void SettingsWindow::initConfig()
 {
     ConfigManager& config = ConfigManager::getSingleton();
 
+    const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
+
     // Game
     CEGUI::Editbox* nicknameEb = static_cast<CEGUI::Editbox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/NicknameEdit"));
     std::string nickname = config.getGameValue(Config::NICKNAME, std::string(), false);
     if (!nickname.empty())
         nicknameEb->setText(reinterpret_cast<const CEGUI::utf8*>(nickname.c_str()));
+
+    CEGUI::Combobox* keeperVoiceCb = static_cast<CEGUI::Combobox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/KeeperVoice"));
+    keeperVoiceCb->resetList();
+    std::string keeperVoice = config.getGameValue(Config::KEEPERVOICE, ConfigManager::DEFAULT_KEEPER_VOICE, false);
+    uint32_t cptVoice = 0;
+    for(const std::string& keeperVoiceAvailable : config.getKeeperVoices())
+    {
+        CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(keeperVoiceAvailable, cptVoice);
+        item->setSelectionBrushImage(selImg);
+        keeperVoiceCb->addItem(item);
+        if(keeperVoiceAvailable == keeperVoice)
+        {
+            keeperVoiceCb->setText(item->getText());
+            keeperVoiceCb->setItemSelectState(item, true);
+        }
+        ++cptVoice;
+    }
 
     // Input
     CEGUI::ToggleButton* keyboardGrabCheckbox = static_cast<CEGUI::ToggleButton*>(
@@ -172,8 +192,6 @@ void SettingsWindow::initConfig()
     Ogre::Root* ogreRoot = Ogre::Root::getSingletonPtr();
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
     Ogre::ConfigOptionMap& options = renderer->getConfigOptions();
-
-    const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
 
     // Get the video settings.
 
@@ -327,6 +345,14 @@ void SettingsWindow::saveConfig()
     CEGUI::Editbox* usernameEb = static_cast<CEGUI::Editbox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/NicknameEdit"));
     config.setGameValue(Config::NICKNAME, usernameEb->getText().c_str());
+
+    CEGUI::Combobox* keeperVoiceCb = static_cast<CEGUI::Combobox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/KeeperVoice"));
+    CEGUI::ListboxItem* keeperVoiceItem = keeperVoiceCb->getSelectedItem();
+    if(keeperVoiceItem != nullptr)
+        config.setGameValue(Config::KEEPERVOICE, keeperVoiceItem->getText().c_str());
+    else
+        config.setGameValue(Config::KEEPERVOICE, "");
 
     // Input
     CEGUI::ToggleButton* keyboardGrabCheckbox = static_cast<CEGUI::ToggleButton*>(

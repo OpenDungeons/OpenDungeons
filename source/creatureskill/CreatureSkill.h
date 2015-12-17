@@ -85,6 +85,8 @@ public:
     //! \brief Read skills data. Returns true if loading is OK and false otherwise
     virtual bool importFromStream(std::istream& is);
 
+protected:
+
 private:
     uint32_t mCooldownNbTurns;
     uint32_t mWarmupNbTurns;

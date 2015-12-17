@@ -1729,8 +1729,7 @@ void Tile::fireTileSound(TileSound sound)
             return;
     }
 
-    getGameMap()->fireSpatialSound(mSeatsWithVision, SpatialSoundType::Game,
-        soundFamily, this);
+    getGameMap()->fireGameSound(*this, soundFamily);
 }
 
 double Tile::getCreatureSpeedDefault(const Creature* creature) const

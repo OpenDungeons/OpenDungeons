@@ -86,6 +86,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "setEntityOpacity";
         case ServerNotificationType::playSpatialSound:
             return "playSpatialSound";
+        case ServerNotificationType::playRelativeSound:
+            return "playRelativeSound";
         case ServerNotificationType::notifyCreatureInfo:
             return "notifyCreatureInfo";
         case ServerNotificationType::refreshCreatureVisDebug:

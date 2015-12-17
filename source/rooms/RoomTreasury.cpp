@@ -347,8 +347,7 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
 
     // Tells the client to play a deposit gold sound. For now, we only send it to the players
     // with vision on tile
-    getGameMap()->fireSpatialSound(tile->getSeatsWithVision(), SpatialSoundType::Game,
-        GameSounds::DepositGold, tile);
+    fireRoomSound(*tile, "Treasury/DepositGold");
 
     return wasDeposited;
 }
