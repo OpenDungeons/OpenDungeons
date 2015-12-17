@@ -2099,6 +2099,10 @@ void GameMap::addWinningSeat(Seat *s)
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
+    std::vector<Seat*> seats;
+    seats.push_back(s);
+    fireRelativeSound(seats, SoundRelativeKeeperStatements::Victory);
+
     mWinningSeats.push_back(s);
 }
 

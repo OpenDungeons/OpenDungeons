@@ -33,6 +33,7 @@
 #include "rooms/Room.h"
 #include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
+#include "sound/SoundEffectsManager.h"
 #include "spawnconditions/SpawnCondition.h"
 #include "traps/Trap.h"
 #include "traps/TrapManager.h"
@@ -156,6 +157,10 @@ unsigned int Seat::checkAllCompletedGoals()
             if ((*currentGoal)->isFailed(*this, *mGameMap))
             {
                 mFailedGoals.push_back(*currentGoal);
+
+                std::vector<Seat*> seats;
+                seats.push_back(this);
+                mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::GoalFailed);
 
                 currentGoal = mCompletedGoals.erase(currentGoal);
 
@@ -528,6 +533,10 @@ unsigned int Seat::checkAllGoals()
 
                 serverNotification->mPacket << "You have met an objective." << EventShortNoticeType::aboutObjectives;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
+
+                std::vector<Seat*> seats;
+                seats.push_back(this);
+                mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::GoalMet);
             }
         }
         else
@@ -552,6 +561,10 @@ unsigned int Seat::checkAllGoals()
 
                     serverNotification->mPacket << "You have FAILED an objective!" << EventShortNoticeType::majorGameEvent;
                     ODServer::getSingleton().queueServerNotification(serverNotification);
+
+                    std::vector<Seat*> seats;
+                    seats.push_back(this);
+                    mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::GoalFailed);
                 }
             }
             else
