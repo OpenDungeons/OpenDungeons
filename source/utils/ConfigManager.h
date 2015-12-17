@@ -211,19 +211,19 @@ public:
     { mUserConfig[Config::Ctg::GAME][param] = value; }
 
     //! \brief Get a config value.
-    inline const std::string& getAudioValue(const std::string& param,
+    inline const std::string getAudioValue(const std::string& param,
                                             const std::string& defaultValue = std::string(),
                                             bool triggerError = true) const
     { return getUserValue(Config::Ctg::AUDIO, param, defaultValue, triggerError); }
-    inline const std::string& getVideoValue(const std::string& param,
+    inline const std::string getVideoValue(const std::string& param,
                                             const std::string& defaultValue = std::string(),
                                             bool triggerError = true) const
     { return getUserValue(Config::Ctg::VIDEO, param, defaultValue, triggerError); }
-    inline const std::string& getInputValue(const std::string& param,
+    inline const std::string getInputValue(const std::string& param,
                                             const std::string& defaultValue = std::string(),
                                             bool triggerError = true) const
     { return getUserValue(Config::Ctg::INPUT, param, defaultValue, triggerError); }
-    inline const std::string& getGameValue(const std::string& param,
+    inline const std::string getGameValue(const std::string& param,
                                            const std::string& defaultValue = std::string(),
                                            bool triggerError = true) const
     { return getUserValue(Config::Ctg::GAME, param, defaultValue, triggerError); }
@@ -262,7 +262,7 @@ private:
     void loadKeeperVoices(const std::string& soundPath);
 
     //! \brief Get a config value.
-    const std::string& getUserValue(Config::Ctg category,
+    const std::string getUserValue(Config::Ctg category,
                                     const std::string& param,
                                     const std::string& defaultValue = std::string(),
                                     bool triggerError = true) const;

@@ -1353,7 +1353,7 @@ bool ConfigManager::saveUserConfig()
     return true;
 }
 
-const std::string& ConfigManager::getUserValue(Config::Ctg category,
+const std::string ConfigManager::getUserValue(Config::Ctg category,
                                                const std::string& param,
                                                const std::string& defaultValue,
                                                bool triggerError) const
