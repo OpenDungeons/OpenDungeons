@@ -59,6 +59,7 @@ GameSound::GameSound(const std::string& filename, bool spatialSound):
     else // Disable attenuation for sounds that must heard the same way everywhere
     {
         // Prevents the sound from being too loud
+        mSound->setRelativeToListener(true);
         mSound->setVolume(30.0f);
         mSound->setAttenuation(0.0f);
     }
