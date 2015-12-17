@@ -70,8 +70,14 @@ public:
     bool isInitialized() const
     { return !(mSoundBuffer == nullptr); }
 
+    bool isPlaying() const
+    { return mSound->getStatus() == sf::SoundSource::Status::Playing; }
+
     //! \brief Play at the given spatial position
     void play(float x, float y, float z);
+
+    void play()
+    { mSound->play(); }
 
     void stop()
     { mSound->stop(); }
@@ -127,6 +133,9 @@ private:
     //! \brief The sound cache, containing the sound references, used by game entities.
     //! \brief The GameSounds here must be deleted at destruction.
     std::map<std::string, GameSound*> mGameSoundCache;
+
+    //! \brief Stores the relative sounds to play. Once a sound has stopped playing, the next one will start
+    std::vector<GameSound*> mRelativeSoundQueue;
 
     //! \brief Returns a game sounds from the cache.
     //! \param filename The sound filename.

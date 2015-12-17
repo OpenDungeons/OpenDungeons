@@ -182,7 +182,20 @@ void SoundEffectsManager::updateListener(float timeSinceLastFrame,
     Ogre::Vector3 vDir = orientation.zAxis();
     sf::Listener::setDirection(-vDir.x, -vDir.y, -vDir.z);
 
-    // TODO: maybe use a vector of currently playing relative sounds to avoid playing them at the same time
+    // We launch the next pending relative sound if any
+    if(mRelativeSoundQueue.empty())
+        return;
+
+    auto it = mRelativeSoundQueue.begin();
+    GameSound* sound = *it;
+    if(sound->isPlaying())
+        return;
+
+    mRelativeSoundQueue.erase(it);
+    if(mRelativeSoundQueue.empty())
+        return;
+
+    mRelativeSoundQueue[0]->play();
 }
 
 void SoundEffectsManager::playSpatialSound(const std::string& family,
@@ -228,7 +241,11 @@ void SoundEffectsManager::playRelativeSound(const std::string& family)
         return;
 
     unsigned int soundId = Random::Uint(0, sounds.size() - 1);
-    sounds[soundId]->play(0, 0, 0);
+    GameSound* sound = sounds[soundId];
+    if(mRelativeSoundQueue.empty())
+        sound->play();
+
+    mRelativeSoundQueue.push_back(sound);
 }
 
 GameSound* SoundEffectsManager::getGameSound(const std::string& filename, bool spatialSound)
