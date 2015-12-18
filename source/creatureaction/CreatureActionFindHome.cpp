@@ -101,7 +101,6 @@ bool CreatureActionFindHome::handleFindHome(Creature& creature, bool forced)
     // Check to see if we can walk to a dormitory that does have an open tile.
     std::vector<Room*> tempRooms = creature.getGameMap()->getRoomsByTypeAndSeat(RoomType::dormitory, creature.getSeat());
     std::vector<Tile*> availableDormitories;
-    // TODO: use GameMap::findBestPath instead if this to avoid computing every path
     for (Room* room : tempRooms)
     {
         if(room->getType() != RoomType::dormitory)

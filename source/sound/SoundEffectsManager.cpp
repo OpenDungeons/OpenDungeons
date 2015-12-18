@@ -112,7 +112,7 @@ SoundEffectsManager::SoundEffectsManager()
     // We read the relative sound directory
     for(const std::string& keeper : ConfigManager::getSingleton().getKeeperVoices())
     {
-        readSounds(mRelativeSounds, soundFolderPath + "relative/" + keeper, keeper, false);
+        readSounds(mRelativeSounds, soundFolderPath + "Relative/" + keeper, keeper, false);
     }
 }
 

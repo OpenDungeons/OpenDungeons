@@ -1694,7 +1694,7 @@ bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
 void ConfigManager::loadKeeperVoices(const std::string& soundPath)
 {
     std::vector<std::string> directories;
-    std::string parentPath = soundPath + "relative";
+    std::string parentPath = soundPath + "Relative";
     if(!Helper::fillDirList(parentPath, directories, false))
     {
         OD_LOG_ERR("Error while loading sounds in directory=" + parentPath);
