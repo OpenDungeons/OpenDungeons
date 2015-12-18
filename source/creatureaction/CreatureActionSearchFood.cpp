@@ -22,6 +22,7 @@
 #include "entities/ChickenEntity.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
+#include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
@@ -97,6 +98,7 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
     std::vector<Room*> hatcheries = creature.getGameMap()->getRoomsByTypeAndSeat(RoomType::hatchery, creature.getSeat());
     if (hatcheries.empty())
     {
+        creature.getSeat()->getPlayer()->notifyCreatureCannotFindFood(creature);
         creature.popAction();
         return true;
     }
@@ -126,6 +128,7 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
 
     if(hatcheriesTiles.empty())
     {
+        creature.getSeat()->getPlayer()->notifyCreatureCannotFindFood(creature);
         creature.popAction();
         return true;
     }

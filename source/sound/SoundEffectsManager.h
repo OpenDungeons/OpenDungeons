@@ -47,6 +47,10 @@ namespace SoundRelativeKeeperStatements
     const std::string Victory = "Keeper/Victory";
     const std::string GoalFailed = "Keeper/GoalFailed";
     const std::string GoalMet = "Keeper/GoalMet";
+    const std::string CreatureNew = "Keeper/CreatureNew";
+    const std::string CreatureNoFood = "Keeper/CreatureNoFood";
+    const std::string CreatureNoBed = "Keeper/CreatureNoBed";
+    const std::string WeAreUnderAttack = "Keeper/WeAreUnderAttack";
 }
 
 // The Z value to use for tile positioned sounds.

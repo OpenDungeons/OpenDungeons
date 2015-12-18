@@ -20,6 +20,7 @@
 #include "creatureaction/CreatureActionWalkToTile.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
+#include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "rooms/Room.h"
@@ -103,6 +104,7 @@ bool CreatureActionFindHome::handleFindHome(Creature& creature, bool forced)
     unsigned int nearestDormitoryDistance = 0;
     bool validPathFound = false;
     std::list<Tile*> tempPath;
+    // TODO: use GameMap::findBestPath instead if this to avoid computing every path
     for (unsigned int i = 0; i < tempRooms.size(); ++i)
     {
         // Get the list of open rooms at the current dormitory and check to see if
@@ -150,6 +152,7 @@ bool CreatureActionFindHome::handleFindHome(Creature& creature, bool forced)
     }
 
     // If we got here there are no reachable dormitory that are unclaimed so we quit trying to find one.
+    creature.getSeat()->getPlayer()->notifyCreatureCannotFindBed(creature);
     creature.popAction();
     return true;
 }
