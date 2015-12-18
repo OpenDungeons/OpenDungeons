@@ -100,59 +100,38 @@ bool CreatureActionFindHome::handleFindHome(Creature& creature, bool forced)
 
     // Check to see if we can walk to a dormitory that does have an open tile.
     std::vector<Room*> tempRooms = creature.getGameMap()->getRoomsByTypeAndSeat(RoomType::dormitory, creature.getSeat());
-    std::random_shuffle(tempRooms.begin(), tempRooms.end());
-    unsigned int nearestDormitoryDistance = 0;
-    bool validPathFound = false;
-    std::list<Tile*> tempPath;
+    std::vector<Tile*> availableDormitories;
     // TODO: use GameMap::findBestPath instead if this to avoid computing every path
-    for (unsigned int i = 0; i < tempRooms.size(); ++i)
+    for (Room* room : tempRooms)
     {
-        // Get the list of open rooms at the current dormitory and check to see if
-        // there is a place where we could put a bed big enough to sleep in.
-        Tile* tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(&creature);
-
-        // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
-        if (tempTile != nullptr)
+        if(room->getType() != RoomType::dormitory)
         {
-            std::list<Tile*> tempPath2 = creature.getGameMap()->path(&creature, tempTile);
-
-            // Find out the minimum valid path length of the paths determined in the above block.
-            if (!validPathFound)
-            {
-                // If the current path is long enough to be valid then record the path and the distance.
-                if (tempPath2.size() >= 2)
-                {
-                    tempPath = tempPath2;
-                    nearestDormitoryDistance = tempPath.size();
-                    validPathFound = true;
-                }
-            }
-            else
-            {
-                // If the current path is long enough to be valid but shorter than the
-                // shortest path seen so far, then record the path and the distance.
-                if (tempPath2.size() >= 2 && tempPath2.size()
-                        < nearestDormitoryDistance)
-                {
-                    tempPath = tempPath2;
-                    nearestDormitoryDistance = tempPath.size();
-                }
-            }
+            OD_LOG_ERR("room=" + room->getName());
+            continue;
         }
+
+        RoomDormitory* dormitory = static_cast<RoomDormitory*>(room);
+        Tile* tile = dormitory->getLocationForBed(&creature);
+        if(tile == nullptr)
+            continue;
+
+        availableDormitories.push_back(tile);
     }
 
     // If we found a valid path to an open room in a dormitory, then start walking along it.
-    if (validPathFound)
+    if (availableDormitories.empty())
     {
-        std::vector<Ogre::Vector3> path;
-        creature.tileToVector3(tempPath, path, true, 0.0);
-        creature.setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
-        creature.pushAction(Utils::make_unique<CreatureActionWalkToTile>(creature));
-        return false;
+        // If we got here there are no reachable dormitory that are unclaimed so we quit trying to find one.
+        creature.getSeat()->getPlayer()->notifyCreatureCannotFindBed(creature);
+        creature.popAction();
+        return true;
     }
 
-    // If we got here there are no reachable dormitory that are unclaimed so we quit trying to find one.
-    creature.getSeat()->getPlayer()->notifyCreatureCannotFindBed(creature);
-    creature.popAction();
-    return true;
+    Tile* choosenTile = nullptr;
+    std::list<Tile*> tempPath = creature.getGameMap()->findBestPath(&creature, myTile, availableDormitories, choosenTile);
+    std::vector<Ogre::Vector3> path;
+    creature.tileToVector3(tempPath, path, true, 0.0);
+    creature.setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
+    creature.pushAction(Utils::make_unique<CreatureActionWalkToTile>(creature));
+    return false;
 }
