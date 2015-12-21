@@ -50,26 +50,100 @@ MenuModeMain::MenuModeMain(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_MAIN),
     mSettings(SettingsWindow(getModeManager().getGui().getGuiSheet(Gui::mainMenu)))
 {
+    CEGUI::Window* rootWin = getModeManager().getGui().getGuiSheet(Gui::mainMenu);
+
     connectModeChangeEvent(Gui::MM_BUTTON_MAPEDITOR, AbstractModeManager::ModeType::MENU_EDITOR_LOAD);
-    connectModeChangeEvent(Gui::MM_BUTTON_START_SKIRMISH, AbstractModeManager::ModeType::MENU_SKIRMISH);
     connectModeChangeEvent(Gui::MM_BUTTON_START_REPLAY, AbstractModeManager::ModeType::MENU_REPLAY);
-    connectModeChangeEvent(Gui::MM_BUTTON_START_MULTIPLAYER_CLIENT, AbstractModeManager::ModeType::MENU_MULTIPLAYER_CLIENT);
-    connectModeChangeEvent(Gui::MM_BUTTON_START_MULTIPLAYER_SERVER, AbstractModeManager::ModeType::MENU_MULTIPLAYER_SERVER);
-    connectModeChangeEvent(Gui::MM_BUTTON_LOAD_GAME, AbstractModeManager::ModeType::MENU_LOAD_SAVEDGAME);
-    connectModeChangeEvent("StartMasterServerHostButton", AbstractModeManager::ModeType::MENU_MASTERSERVER_HOST);
-    connectModeChangeEvent("StartMasterServerJoinButton", AbstractModeManager::ModeType::MENU_MASTERSERVER_JOIN);
+
     addEventConnection(
-        getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild(Gui::MM_BUTTON_QUIT)->subscribeEvent(
+        rootWin->getChild(Gui::MM_BUTTON_QUIT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&MenuModeMain::quitButtonPressed, this)
         )
     );
 
-    CEGUI::Window* rootWin = getModeManager().getGui().getGuiSheet(Gui::mainMenu);
     addEventConnection(
         rootWin->getChild("SettingsButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&MenuModeMain::toggleSettings, this)
+        )
+    );
+
+    // Skirmish & sub-menu events
+    addEventConnection(
+        rootWin->getChild(Gui::MM_BUTTON_START_SKIRMISH)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeMain::openSkirmishSubMenu, this)
+        )
+    );
+    CEGUI::Window* skirmishWin = rootWin->getChild("SkirmishSubMenuWindow");
+    addEventConnection(
+        skirmishWin->getChild("QuitSkirmishMenuButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeMain::closeSkirmishSubMenu, this)
+        )
+    );
+    addEventConnection(
+        skirmishWin->getChild("__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeMain::closeSkirmishSubMenu, this)
+        )
+    );
+    addEventConnection(
+        skirmishWin->getChild("StartSkirmishButton")->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(&MenuModeMain::startSkirmish, this)
+        )
+    );
+    addEventConnection(
+        skirmishWin->getChild("LoadSkirmishButton")->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(&MenuModeMain::loadSkirmish, this)
+        )
+    );
+
+    // Multiplayer & sub-menu events
+    addEventConnection(
+        rootWin->getChild("MultiplayerModeButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeMain::openMultiplayerSubMenu, this)
+        )
+    );
+    CEGUI::Window* multiplayerWin = rootWin->getChild("MultiplayerSubMenuWindow");
+    addEventConnection(
+        multiplayerWin->getChild("QuitMultiplayerMenuButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeMain::closeMultiplayerSubMenu, this)
+        )
+    );
+    addEventConnection(
+        multiplayerWin->getChild("__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeMain::closeMultiplayerSubMenu, this)
+        )
+    );
+    addEventConnection(
+        multiplayerWin->getChild("MasterServerJoinButton")->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(&MenuModeMain::joinMasterServerGame, this)
+        )
+    );
+    addEventConnection(
+        multiplayerWin->getChild("MasterServerHostButton")->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(&MenuModeMain::hostMasterServerGame, this)
+        )
+    );
+    addEventConnection(
+        multiplayerWin->getChild("MultiplayerServerJoinButton")->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(&MenuModeMain::joinMultiplayerGame, this)
+        )
+    );
+    addEventConnection(
+        multiplayerWin->getChild("MultiplayerServerHostButton")->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(&MenuModeMain::hostMultiplayerGame, this)
         )
     );
 }
@@ -78,6 +152,9 @@ void MenuModeMain::activate()
 {
     // Loads the corresponding Gui sheet.
     getModeManager().getGui().loadGuiSheet(Gui::mainMenu);
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu);
+    window->getChild("SkirmishSubMenuWindow")->hide();
+    window->getChild("MultiplayerSubMenuWindow")->hide();
 
     giveFocus();
 
@@ -115,5 +192,91 @@ bool MenuModeMain::toggleSettings(const CEGUI::EventArgs&)
         mSettings.onCancelSettings();
     else
         mSettings.show();
+    return true;
+}
+
+bool MenuModeMain::openSkirmishSubMenu(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("SkirmishSubMenuWindow");
+    window->show();
+    window->setModalState(true);
+    return true;
+}
+
+bool MenuModeMain::closeSkirmishSubMenu(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("SkirmishSubMenuWindow");
+    window->setModalState(false);
+    window->hide();
+    return true;
+}
+
+bool MenuModeMain::startSkirmish(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("SkirmishSubMenuWindow");
+    window->setModalState(false);
+    window->hide();
+    getModeManager().requestMode(AbstractModeManager::ModeType::MENU_SKIRMISH);
+    return true;
+}
+
+bool MenuModeMain::loadSkirmish(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("SkirmishSubMenuWindow");
+    window->setModalState(false);
+    window->hide();
+    getModeManager().requestMode(AbstractModeManager::ModeType::MENU_LOAD_SAVEDGAME);
+    return true;
+}
+
+bool MenuModeMain::openMultiplayerSubMenu(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("MultiplayerSubMenuWindow");
+    window->show();
+    window->setModalState(true);
+    return true;
+}
+
+bool MenuModeMain::closeMultiplayerSubMenu(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("MultiplayerSubMenuWindow");
+    window->setModalState(false);
+    window->hide();
+    return true;
+}
+
+bool MenuModeMain::joinMasterServerGame(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("MultiplayerSubMenuWindow");
+    window->setModalState(false);
+    window->hide();
+    getModeManager().requestMode(AbstractModeManager::ModeType::MENU_MASTERSERVER_JOIN);
+    return true;
+}
+
+bool MenuModeMain::hostMasterServerGame(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("MultiplayerSubMenuWindow");
+    window->setModalState(false);
+    window->hide();
+    getModeManager().requestMode(AbstractModeManager::ModeType::MENU_MASTERSERVER_HOST);
+    return true;
+}
+
+bool MenuModeMain::joinMultiplayerGame(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("MultiplayerSubMenuWindow");
+    window->setModalState(false);
+    window->hide();
+    getModeManager().requestMode(AbstractModeManager::ModeType::MENU_MULTIPLAYER_CLIENT);
+    return true;
+}
+
+bool MenuModeMain::hostMultiplayerGame(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("MultiplayerSubMenuWindow");
+    window->setModalState(false);
+    window->hide();
+    getModeManager().requestMode(AbstractModeManager::ModeType::MENU_MULTIPLAYER_SERVER);
     return true;
 }
