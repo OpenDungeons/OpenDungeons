@@ -179,11 +179,6 @@ bool MenuModeEditorLoad::updateFilesList(const CEGUI::EventArgs&)
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
-
-            // We save the absolute path
-            boost::filesystem::path p(mFilesList[n]);
-            p = boost::filesystem::canonical(p);
-            mFilesList[n] = p.string();
         }
     }
 
