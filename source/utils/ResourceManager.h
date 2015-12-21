@@ -127,9 +127,10 @@ public:
     inline const std::string& getCeguiLogFile() const
     { return mCeguiLogFile; }
 
-    std::string getLevelPathSkirmish() const;
-
-    std::string getLevelPathMultiplayer() const;
+    std::string getGameLevelPathSkirmish() const;
+    std::string getUserLevelPathSkirmish() const;
+    std::string getGameLevelPathMultiplayer() const;
+    std::string getUserLevelPathMultiplayer() const;
 
     inline bool isServerMode() const
     { return mServerMode; }

@@ -42,6 +42,19 @@ MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager, b
 {
     CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerServerMenu);
 
+    // Fills the Level type combo box with the available level types.
+    const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::MPM_LIST_LEVEL_TYPES));
+    levelTypeCb->resetList();
+
+    CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("Multiplayer Levels", 0);
+    item->setSelectionBrushImage(selImg);
+    levelTypeCb->addItem(item);
+
+    item = new CEGUI::ListboxTextItem("Custom Multiplayer Levels", 1);
+    item->setSelectionBrushImage(selImg);
+    levelTypeCb->addItem(item);
+
     addEventConnection(
         window->getChild(Gui::MPM_BUTTON_SERVER)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
@@ -78,6 +91,13 @@ MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager, b
                                      static_cast<AbstractApplicationMode*>(this))
         )
     );
+
+    addEventConnection(
+        window->getChild(Gui::MPM_LIST_LEVEL_TYPES)->subscribeEvent(
+            CEGUI::Combobox::EventListSelectionAccepted,
+            CEGUI::Event::Subscriber(&MenuModeMultiplayerServer::updateFilesList, this)
+        )
+    );
 }
 
 void MenuModeMultiplayerServer::activate()
@@ -104,14 +124,38 @@ void MenuModeMultiplayerServer::activate()
     if (!nickname.empty())
         editNick->setText(reinterpret_cast<const CEGUI::utf8*>(nickname.c_str()));
 
-    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(mainWin->getChild(Gui::MPM_LIST_LEVELS));
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(mainWin->getChild(Gui::MPM_LIST_LEVEL_TYPES));
+    levelTypeCb->setItemSelectState(static_cast<size_t>(0), true);
 
-    mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("");
+    updateFilesList();
+}
+
+bool MenuModeMultiplayerServer::updateFilesList(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerServerMenu);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(window->getChild(Gui::MPM_LIST_LEVELS));
+
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::MPM_LIST_LEVEL_TYPES));
+
+    CEGUI::Window* loadText = window->getChild(Gui::MPM_TEXT_LOADING);
+    loadText->setText("");
     mFilesList.clear();
     mDescriptionList.clear();
     levelSelectList->resetList();
 
-    std::string levelPath = ResourceManager::getSingleton().getLevelPathMultiplayer();
+    std::string levelPath;
+    size_t selection = levelTypeCb->getItemIndex(levelTypeCb->getSelectedItem());
+    switch (selection)
+    {
+        default:
+        case 0:
+            levelPath = ResourceManager::getSingleton().getGameLevelPathMultiplayer();
+            break;
+        case 1:
+            levelPath = ResourceManager::getSingleton().getUserLevelPathMultiplayer();
+            break;
+    }
+
     if(Helper::fillFilesList(levelPath, mFilesList, LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
@@ -139,6 +183,9 @@ void MenuModeMultiplayerServer::activate()
             levelSelectList->addItem(item);
         }
     }
+
+    updateDescription();
+    return true;
 }
 
 bool MenuModeMultiplayerServer::serverButtonPressed(const CEGUI::EventArgs&)

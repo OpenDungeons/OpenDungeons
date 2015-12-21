@@ -327,7 +327,8 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
     if(itOption != options.end())
     {
         mServerMode = true;
-        std::string filePath = getLevelPathMultiplayer() + itOption->second.as<std::string>();
+        // TODO: Add support to run user multiplayer levels through server mode.
+        std::string filePath = getGameLevelPathMultiplayer() + itOption->second.as<std::string>();
         boost::filesystem::path level(filePath);
         if(!boost::filesystem::exists(level))
         {
@@ -492,12 +493,22 @@ void ResourceManager::buildCommandOptions(boost::program_options::options_descri
     ;
 }
 
-std::string ResourceManager::getLevelPathSkirmish() const
+std::string ResourceManager::getGameLevelPathSkirmish() const
 {
     return getGameDataPath() + "levels/skirmish/";
 }
 
-std::string ResourceManager::getLevelPathMultiplayer() const
+std::string ResourceManager::getGameLevelPathMultiplayer() const
 {
     return getGameDataPath() + "levels/multiplayer/";
+}
+
+std::string ResourceManager::getUserLevelPathSkirmish() const
+{
+    return getUserDataPath() + "levels/skirmish/";
+}
+
+std::string ResourceManager::getUserLevelPathMultiplayer() const
+{
+    return getUserDataPath() + "levels/multiplayer/";
 }

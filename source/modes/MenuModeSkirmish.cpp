@@ -44,12 +44,21 @@ MenuModeSkirmish::MenuModeSkirmish(ModeManager* modeManager):
     // Fills the Level type combo box with the available level types.
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
     CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::SKM_LIST_LEVEL_TYPES));
+    levelTypeCb->resetList();
 
     CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("Skirmish Levels", 0);
     item->setSelectionBrushImage(selImg);
     levelTypeCb->addItem(item);
 
     item = new CEGUI::ListboxTextItem("Multiplayer Levels", 1);
+    item->setSelectionBrushImage(selImg);
+    levelTypeCb->addItem(item);
+
+    item = new CEGUI::ListboxTextItem("Custom Skirmish Levels", 2);
+    item->setSelectionBrushImage(selImg);
+    levelTypeCb->addItem(item);
+
+    item = new CEGUI::ListboxTextItem("Custom Multiplayer Levels", 3);
     item->setSelectionBrushImage(selImg);
     levelTypeCb->addItem(item);
 
@@ -134,17 +143,22 @@ bool MenuModeSkirmish::updateFilesList(const CEGUI::EventArgs&)
     mDescriptionList.clear();
     levelSelectList->resetList();
 
-
     std::string levelPath;
     size_t selection = levelTypeCb->getItemIndex(levelTypeCb->getSelectedItem());
     switch (selection)
     {
         default:
         case 0:
-            levelPath = ResourceManager::getSingleton().getLevelPathSkirmish();
+            levelPath = ResourceManager::getSingleton().getGameLevelPathSkirmish();
             break;
         case 1:
-            levelPath = ResourceManager::getSingleton().getLevelPathMultiplayer();
+            levelPath = ResourceManager::getSingleton().getGameLevelPathMultiplayer();
+            break;
+        case 2:
+            levelPath = ResourceManager::getSingleton().getUserLevelPathSkirmish();
+            break;
+        case 3:
+            levelPath = ResourceManager::getSingleton().getUserLevelPathMultiplayer();
             break;
     }
 

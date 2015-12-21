@@ -131,6 +131,7 @@ public:
     static const std::string MPM_BUTTON_SERVER;
     static const std::string MPM_BUTTON_CLIENT;
     static const std::string MPM_BUTTON_BACK;
+    static const std::string MPM_LIST_LEVEL_TYPES;
     static const std::string MPM_LIST_LEVELS;
     static const std::string MPM_EDIT_IP;
     static const std::string MPM_EDIT_NICK;
