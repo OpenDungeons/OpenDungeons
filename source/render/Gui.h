@@ -51,7 +51,7 @@ public:
         multiplayerClientMenu,
         multiplayerServerMenu,
         multiMasterServerJoinMenu,
-        editorMenu,
+        editorLoadMenu,
         editorModeGui,
         optionsMenu,
         inGameMenu,
@@ -77,7 +77,9 @@ public:
 
     CEGUI::Window* getGuiSheet(guiSheet sheet);
 
-    //Access names of the GUI elements
+    static const std::string LEVEL_EXTENSION;
+
+    // Access names of the GUI elements
     static const std::string ROOT;
     static const std::string DISPLAY_GOLD;
     static const std::string DISPLAY_MANA;
@@ -139,6 +141,7 @@ public:
     static const std::string EDM_BUTTON_LAUNCH;
     static const std::string EDM_BUTTON_BACK;
     static const std::string EDM_LIST_LEVELS;
+    static const std::string EDM_LIST_LEVEL_TYPES;
     static const std::string REM_TEXT_LOADING;
     static const std::string REM_BUTTON_LAUNCH;
     static const std::string REM_BUTTON_DELETE;

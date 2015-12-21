@@ -35,8 +35,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/locale.hpp>
 
-const std::string LEVEL_EXTENSION = ".level";
-
 MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager, bool useMasterServer):
     AbstractApplicationMode(modeManager, useMasterServer ? ModeManager::MENU_MASTERSERVER_HOST : ModeManager::MENU_MULTIPLAYER_SERVER)
 {
@@ -156,7 +154,7 @@ bool MenuModeMultiplayerServer::updateFilesList(const CEGUI::EventArgs&)
             break;
     }
 
-    if(Helper::fillFilesList(levelPath, mFilesList, LEVEL_EXTENSION))
+    if(Helper::fillFilesList(levelPath, mFilesList, Gui::LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {

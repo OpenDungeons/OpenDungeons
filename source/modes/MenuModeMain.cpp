@@ -50,7 +50,7 @@ MenuModeMain::MenuModeMain(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_MAIN),
     mSettings(SettingsWindow(getModeManager().getGui().getGuiSheet(Gui::mainMenu)))
 {
-    connectModeChangeEvent(Gui::MM_BUTTON_MAPEDITOR, AbstractModeManager::ModeType::MENU_EDITOR);
+    connectModeChangeEvent(Gui::MM_BUTTON_MAPEDITOR, AbstractModeManager::ModeType::MENU_EDITOR_LOAD);
     connectModeChangeEvent(Gui::MM_BUTTON_START_SKIRMISH, AbstractModeManager::ModeType::MENU_SKIRMISH);
     connectModeChangeEvent(Gui::MM_BUTTON_START_REPLAY, AbstractModeManager::ModeType::MENU_REPLAY);
     connectModeChangeEvent(Gui::MM_BUTTON_START_MULTIPLAYER_CLIENT, AbstractModeManager::ModeType::MENU_MULTIPLAYER_CLIENT);

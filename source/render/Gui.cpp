@@ -76,7 +76,7 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     mSheets[multiplayerServerMenu] = wmgr->loadLayoutFromFile("MenuMultiplayerServer.layout");
     mSheets[multiMasterServerJoinMenu] = wmgr->loadLayoutFromFile("MenuMasterServerJoin.layout");
     mSheets[editorModeGui] =  wmgr->loadLayoutFromFile("ModeEditor.layout");
-    mSheets[editorMenu] =  wmgr->loadLayoutFromFile("MenuEditor.layout");
+    mSheets[editorLoadMenu] =  wmgr->loadLayoutFromFile("MenuEditorLoad.layout");
     mSheets[configureSeats] =  wmgr->loadLayoutFromFile("MenuConfigureSeats.layout");
     mSheets[replayMenu] =  wmgr->loadLayoutFromFile("MenuReplay.layout");
     mSheets[loadSavedGameMenu] =  wmgr->loadLayoutFromFile("MenuLoad.layout");
@@ -87,7 +87,7 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     mSheets[skirmishMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[multiplayerServerMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[multiplayerClientMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    mSheets[editorMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[editorLoadMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[loadSavedGameMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[multiMasterServerJoinMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
@@ -136,11 +136,12 @@ bool Gui::playButtonClickSound(const CEGUI::EventArgs&)
     return true;
 }
 
+// Level extension constant, used in different GUI modes.
+const std::string Gui::LEVEL_EXTENSION = ".level";
+
 /* These constants are used to access the GUI element
  * NOTE: when add/remove/rename a GUI element, don't forget to change it here
  */
-//TODO: Probably these should be read from a file? Script file?
-
 const std::string Gui::DISPLAY_GOLD = "HorizontalPipe/GoldDisplay";
 const std::string Gui::DISPLAY_MANA = "HorizontalPipe/ManaDisplay";
 const std::string Gui::DISPLAY_TERRITORY = "HorizontalPipe/TerritoryDisplay";
@@ -189,9 +190,10 @@ const std::string Gui::MPM_EDIT_IP = "LevelWindowFrame/IpEdit";
 const std::string Gui::MPM_EDIT_NICK = "LevelWindowFrame/NickEdit";
 
 const std::string Gui::EDM_TEXT_LOADING = "LoadingText";
-const std::string Gui::EDM_BUTTON_LAUNCH = "LevelWindowFrame/LaunchGameButton";
+const std::string Gui::EDM_BUTTON_LAUNCH = "LevelWindowFrame/LaunchEditorButton";
 const std::string Gui::EDM_BUTTON_BACK = "LevelWindowFrame/BackButton";
 const std::string Gui::EDM_LIST_LEVELS = "LevelWindowFrame/LevelSelect";
+const std::string Gui::EDM_LIST_LEVEL_TYPES = "LevelWindowFrame/LevelTypeSelect";
 
 const std::string Gui::EDITOR = "MainTabControl";
 const std::string Gui::EDITOR_LAVA_BUTTON = "MainTabControl/Tiles/LavaButton";

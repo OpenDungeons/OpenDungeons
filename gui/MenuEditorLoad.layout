@@ -31,16 +31,21 @@
         </Window>
         <Window type="OD/FrameWindow" name="LevelWindowFrame" >
             <Property name="Area" value="{{0.5,-315},{0.5,-180},{0.5,315},{0.5,240}}" />
-            <Property name="Text" value="Please choose a Level to edit..." />
+            <Property name="Text" value="Please choose a Level..." />
+            <Property name="MaxSize" value="{{0,790},{0,470}}" />
             <Property name="MinSize" value="{{0,630},{0,420}}" />
             <Property name="AlwaysOnTop" value="True" />
+            <Window type="OD/Combobox" name="LevelTypeSelect" >
+                <Property name="Area" value="{{0,20},{0,35},{0.5,-25},{0,140}}" />
+                <Property name="ReadOnly" value="True" />
+            </Window>
             <Window type="OD/Listbox" name="LevelSelect" >
-                <Property name="Area" value="{{0,15},{0,35},{0.5,-50},{0.7,0}}" />
+                <Property name="Area" value="{{0,15},{0,65},{0.5,-20},{0.7,0}}" />
                 <Property name="ForceVertScrollbar" value="True" />
                 <Property name="Sort" value="True" />
             </Window>
             <Window type="OD/StaticText" name="MapDescriptionText" >
-                <Property name="Area" value="{{0.5,-30},{0,35},{1,-20},{0.7,0}}" />
+                <Property name="Area" value="{{0.5,0},{0,40},{1,-15},{0.7,0}}" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="FrameEnabled" value="False" />
                 <Property name="HorzFormatting" value="WordWrapLeftAligned" />
@@ -48,12 +53,12 @@
                 <Property name="BackgroundEnabled" value="False" />
             </Window>
             <Window type="OD/MainMenuButton" name="BackButton" >
-                <Property name="Area" value="{{0.5,-228},{0.75,0},{0.5,-64},{0.75,80}}" />
+                <Property name="Area" value="{{0.5,-199},{0.75,0},{0.5,-35},{0.75,80}}" />
                 <Property name="Text" value="Back" />
             </Window>
-            <Window type="OD/MainMenuButton" name="LaunchGameButton" >
-                <Property name="Area" value="{{0.5,-2},{0.75,0},{0.5,162},{0.75,80}}" />
-                <Property name="Text" value="Start Editor" />
+            <Window type="OD/MainMenuButton" name="LaunchEditorButton" >
+                <Property name="Area" value="{{0.5,12},{0.75,0},{0.5,176},{0.75,80}}" />
+                <Property name="Text" value="Start" />
             </Window>
         </Window>
     </Window>
