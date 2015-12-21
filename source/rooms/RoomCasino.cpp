@@ -130,7 +130,7 @@ RenderedMovableEntity* RoomCasino::notifyActiveSpotCreated(ActiveSpotPlace place
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             mCreaturesSpots.emplace(std::make_pair(tile, RoomCasinoGame()));
-            return loadBuildingObject(getGameMap(), "Anvil", tile, x, y, 0.0, false);
+            return loadBuildingObject(getGameMap(), "Roulette", tile, x, y, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
