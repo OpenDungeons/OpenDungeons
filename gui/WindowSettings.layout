@@ -124,6 +124,10 @@
                         <Property name="Area" value="{{0,160},{0,40},{0,320},{0,60}}" />
                         <Property name="Text" value="" />
                     </Window>
+                    <Window type="OD/Combobox" name="KeeperVoice" >
+                        <Property name="Area" value="{{0,160},{0,70},{0,320},{0,150}}" />
+                        <Property name="ReadOnly" value="True" />
+                    </Window>
                 </Window>
             </Window>
         </Window>

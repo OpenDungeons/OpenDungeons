@@ -33,6 +33,7 @@
 #include "render/RenderManager.h"
 #include "render/TextRenderer.h"
 #include "sound/MusicPlayer.h"
+#include "sound/SoundEffectsManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
@@ -184,6 +185,11 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
     mCameraManager.updateCameraFrameTime(evt.timeSinceLastFrame);
     mCameraManager.onFrameStarted();
+
+    SoundEffectsManager::getSingleton().updateListener(
+        evt.timeSinceLastFrame,
+        mCameraManager.getActiveCameraPosition(),
+        mCameraManager.getActiveCameraOrientation());
 
     if((currentTurn != -1) && (mGameMap->getGamePaused()) && (!mExitRequested))
         return true;

@@ -34,11 +34,14 @@ const std::string EMPTY_STRING;
 const Ogre::ColourValue DEFAULT_SEAT_COLOURVALUE;
 const std::string ConfigManager::DEFAULT_TILESET_NAME = "Default";
 
+const std::string ConfigManager::DEFAULT_KEEPER_VOICE = "Default";
+
 const std::string ConfigManager::DefaultWorkerCreatureDefinition = "DefaultWorker";
 
 template<> ConfigManager* Ogre::Singleton<ConfigManager>::msSingleton = nullptr;
 
-ConfigManager::ConfigManager(const std::string& configPath, const std::string& userConfigPath) :
+ConfigManager::ConfigManager(const std::string& configPath, const std::string& userConfigPath,
+        const std::string& soundPath) :
     mNetworkPort(0),
     mClientConnectionTimeout(5000),
     mBaseSpawnPoint(10),
@@ -131,6 +134,8 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
 
     if (!userConfigPath.empty())
         loadUserConfig(userConfigPath);
+
+    loadKeeperVoices(soundPath);
 }
 
 ConfigManager::~ConfigManager()
@@ -1348,7 +1353,7 @@ bool ConfigManager::saveUserConfig()
     return true;
 }
 
-const std::string& ConfigManager::getUserValue(Config::Ctg category,
+const std::string ConfigManager::getUserValue(Config::Ctg category,
                                                const std::string& param,
                                                const std::string& defaultValue,
                                                bool triggerError) const
@@ -1684,4 +1689,33 @@ bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
     }
 
     return true;
+}
+
+void ConfigManager::loadKeeperVoices(const std::string& soundPath)
+{
+    std::vector<std::string> directories;
+    std::string parentPath = soundPath + "Relative";
+    if(!Helper::fillDirList(parentPath, directories, false))
+    {
+        OD_LOG_ERR("Error while loading sounds in directory=" + parentPath);
+        return;
+    }
+
+    for(const std::string& directory : directories)
+    {
+        // We add the keeper voice
+        OD_LOG_INF("Keeper voice found=" + directory);
+        mKeeperVoices.push_back(directory);
+    }
+
+    if(mKeeperVoices.empty())
+    {
+        OD_LOG_ERR("No keeper voice found. Relative sounds will not work");
+        return;
+    }
+
+    if(std::find(mKeeperVoices.begin(), mKeeperVoices.end(), ConfigManager::DEFAULT_KEEPER_VOICE) == mKeeperVoices.end())
+    {
+        OD_LOG_ERR("No default keeper voice found");
+    }
 }

@@ -686,6 +686,23 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
     return r1->getName().compare(r2->getName()) < 0;
 }
 
+void Room::fireRoomSound(Tile& tile, const std::string& soundFamily)
+{
+    std::string sound = "Rooms/" + soundFamily;
+    for(Seat* seat : tile.getSeatsWithVision())
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::playSpatialSound, seat->getPlayer());
+        serverNotification->mPacket << sound << tile.getX() << tile.getY();
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+}
+
 bool Room::importRoomFromStream(Room& room, std::istream& is)
 {
     return room.importFromStream(is);

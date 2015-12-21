@@ -1126,14 +1126,8 @@ bool Creature::handleIdleAction()
         (mHomeTile == nullptr) &&
         (Random::Double(0.0, 1.0) < 0.5))
     {
-        // Check to see if there are any dormitory owned by our color that we can reach.
-        std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::dormitory, getSeat());
-        tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
-        if (!tempRooms.empty())
-        {
-            pushAction(Utils::make_unique<CreatureActionFindHome>(*this, false));
-            return true;
-        }
+        pushAction(Utils::make_unique<CreatureActionFindHome>(*this, false));
+        return true;
     }
 
     // If we are sleepy, we go to sleep
@@ -2774,8 +2768,19 @@ void Creature::fireCreatureSound(CreatureSound sound)
             return;
     }
 
-    getGameMap()->fireSpatialSound(mSeatsWithVisionNotified, SpatialSoundType::Creatures,
-        soundFamily, posTile);
+    std::string soundComplete = "Creatures/" + soundFamily;
+    for(Seat* seat : mSeatsWithVisionNotified)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::playSpatialSound, seat->getPlayer());
+        serverNotification->mPacket << soundComplete << posTile->getX() << posTile->getY();
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }
 
 void Creature::itsPayDay()

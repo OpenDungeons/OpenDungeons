@@ -654,13 +654,19 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
 
         case ServerNotificationType::playSpatialSound:
         {
-            SpatialSoundType soundType;
             std::string family;
             int xPos;
             int yPos;
-            OD_ASSERT_TRUE(packetReceived >> soundType >> family >> xPos >> yPos);
-            SoundEffectsManager::getSingleton().playSpatialSound(soundType, family,
-                xPos, yPos);
+            OD_ASSERT_TRUE(packetReceived >> family >> xPos >> yPos);
+            SoundEffectsManager::getSingleton().playSpatialSound(family, xPos, yPos);
+            break;
+        }
+
+        case ServerNotificationType::playRelativeSound:
+        {
+            std::string family;
+            OD_ASSERT_TRUE(packetReceived >> family);
+            SoundEffectsManager::getSingleton().playRelativeSound(family);
             break;
         }
 
@@ -803,8 +809,7 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
             uint32_t nbTiles;
             OD_ASSERT_TRUE(packetReceived >> digSet >> nbTiles);
 
-            SoundEffectsManager::getSingleton().playSpatialSound(SpatialSoundType::Interface,
-                InterfaceSounds::PickSelector);
+            SoundEffectsManager::getSingleton().playRelativeSound(SoundRelativeInterface::PickSelector);
 
             Player* player = getPlayer();
             while(nbTiles > 0)

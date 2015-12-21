@@ -28,6 +28,7 @@
 #include "render/RenderManager.h"
 #include "rooms/Room.h"
 #include "rooms/RoomType.h"
+#include "sound/SoundEffectsManager.h"
 #include "spells/SpellManager.h"
 #include "spells/SpellType.h"
 #include "traps/Trap.h"
@@ -56,6 +57,12 @@ const float NO_WORKER_TIME_COUNT = 60.0f;
 //! \brief The number of seconds the local player will not be notified again if no treasury is available
 const float NO_TREASURY_TIME_COUNT = 30.0f;
 
+//! \brief The number of seconds the local player will not be notified again if a creature cannot find place in a dormitory
+const float CREATURE_CANNOT_FIND_BED_TIME_COUNT = 30.0f;
+
+//! \brief The number of seconds the local player will not be notified again if a creature cannot find place in a dormitory
+const float CREATURE_CANNOT_FIND_FOOD_TIME_COUNT = 30.0f;
+
 Player::Player(GameMap* gameMap, int32_t id) :
     mId(id),
     mGameMap(gameMap),
@@ -64,6 +71,8 @@ Player::Player(GameMap* gameMap, int32_t id) :
     mNoSkillInQueueTime(0.0f),
     mNoWorkerTime(0.0f),
     mNoTreasuryAvailableTime(0.0f),
+    mCreatureCannotFindBed(0.0f),
+    mCreatureCannotFindFood(0.0f),
     mHasLost(false),
     mSpellsCooldown(std::vector<std::pair<uint32_t, float>>(static_cast<uint32_t>(SpellType::nbSpells), std::pair<uint32_t, float>(0,0.0f))),
     mWorkersActions(std::vector<uint32_t>(static_cast<uint32_t>(CreatureActionType::nb), 0))
@@ -356,6 +365,7 @@ void Player::notifyNoMoreDungeonTemple()
     {
         // This message will be sent in 1v1 or multiplayer so it should not talk about team. If we want to be
         // more precise, we shall handle the case
+        std::vector<Seat*> seats;
         for(Seat* seat : mGameMap->getSeats())
         {
             if(seat->getPlayer() == nullptr)
@@ -365,14 +375,18 @@ void Player::notifyNoMoreDungeonTemple()
             if(!getSeat()->isAlliedSeat(seat))
                 continue;
 
+            seats.push_back(seat);
+
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, seat->getPlayer());
             serverNotification->mPacket << "You lost the game" << EventShortNoticeType::majorGameEvent;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
+        mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::Lost);
     }
     else
     {
+        std::vector<Seat*> seats;
         for(Seat* seat : mGameMap->getSeats())
         {
             if(seat->getPlayer() == nullptr)
@@ -384,18 +398,24 @@ void Player::notifyNoMoreDungeonTemple()
 
             if(this == seat->getPlayer())
             {
+                // For the current player, we send the defeat message
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotificationType::chatServer, seat->getPlayer());
                 serverNotification->mPacket << "You lost" << EventShortNoticeType::majorGameEvent;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
+
+                mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::Defeat);
                 continue;
             }
+
+            seats.push_back(seat);
 
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, seat->getPlayer());
             serverNotification->mPacket << "An ally has lost" << EventShortNoticeType::majorGameEvent;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
+        mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::AllyDefeated);
     }
 }
 
@@ -425,6 +445,10 @@ void Player::notifyTeamFighting(Player* player, Tile* tile)
             ServerNotificationType::playerFighting, this);
         serverNotification->mPacket << player->getId();
         ODServer::getSingleton().queueServerNotification(serverNotification);
+
+        std::vector<Seat*> seats;
+        seats.push_back(getSeat());
+        mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::WeAreUnderAttack);
     }
 
     // We add the fight event
@@ -471,6 +495,42 @@ void Player::notifyNoTreasuryAvailable()
             ServerNotificationType::chatServer, this);
         serverNotification->mPacket << chatMsg << EventShortNoticeType::genericGameInfo;
         ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+}
+
+void Player::notifyCreatureCannotFindBed(Creature& creature)
+{
+    if(mCreatureCannotFindBed <= 0.0f)
+    {
+        mCreatureCannotFindBed = CREATURE_CANNOT_FIND_BED_TIME_COUNT;
+
+        std::string chatMsg = creature.getName() + " cannot find room for a bed";
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::chatServer, this);
+        serverNotification->mPacket << chatMsg << EventShortNoticeType::genericGameInfo;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+
+        std::vector<Seat*> seats;
+        seats.push_back(getSeat());
+        mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::CreatureNoBed);
+    }
+}
+
+void Player::notifyCreatureCannotFindFood(Creature& creature)
+{
+    if(mCreatureCannotFindFood <= 0.0f)
+    {
+        mCreatureCannotFindFood = CREATURE_CANNOT_FIND_FOOD_TIME_COUNT;
+
+        std::string chatMsg = creature.getName() + " cannot find food";
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::chatServer, this);
+        serverNotification->mPacket << chatMsg << EventShortNoticeType::genericGameInfo;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+
+        std::vector<Seat*> seats;
+        seats.push_back(getSeat());
+        mGameMap->fireRelativeSound(seats, SoundRelativeKeeperStatements::CreatureNoFood);
     }
 }
 
@@ -661,6 +721,22 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
             mNoTreasuryAvailableTime -= timeSinceLastUpkeep;
         else
             mNoTreasuryAvailableTime = 0.0f;
+    }
+
+    if(mCreatureCannotFindBed > 0.0f)
+    {
+        if(mCreatureCannotFindBed > timeSinceLastUpkeep)
+            mCreatureCannotFindBed -= timeSinceLastUpkeep;
+        else
+            mCreatureCannotFindBed = 0.0f;
+    }
+
+    if(mCreatureCannotFindFood > 0.0f)
+    {
+        if(mCreatureCannotFindFood > timeSinceLastUpkeep)
+            mCreatureCannotFindFood -= timeSinceLastUpkeep;
+        else
+            mCreatureCannotFindFood = 0.0f;
     }
 
     if(isEventListUpdated)

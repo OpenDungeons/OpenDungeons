@@ -636,6 +636,23 @@ bool Trap::shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
     return true;
 }
 
+void Trap::fireTrapSound(Tile& tile, const std::string& soundFamily)
+{
+    std::string sound = "Traps/" + soundFamily;
+    for(Seat* seat : tile.getSeatsWithVision())
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::playSpatialSound, seat->getPlayer());
+        serverNotification->mPacket << sound << tile.getX() << tile.getY();
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+}
+
 bool Trap::importTrapFromStream(Trap& trap, std::istream& is)
 {
     return trap.importFromStream(is);

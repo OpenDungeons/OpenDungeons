@@ -70,7 +70,7 @@ void ODApplication::startServer()
     OD_LOG_INF("Initializing");
 
     Random::initialize();
-    ConfigManager configManager(resMgr.getConfigPath());
+    ConfigManager configManager(resMgr.getConfigPath(), "", resMgr.getSoundPath());
     OD_LOG_INF("Launching server");
 
     const std::string& creator = resMgr.getServerModeCreator();
@@ -111,7 +111,8 @@ void ODApplication::startClient()
     // N.B: We don't use any ogre.cfg file, hence setting the file path value to "".
     Ogre::Root ogreRoot(resMgr.getPluginsPath(), "");
 
-    ConfigManager configManager(resMgr.getConfigPath(), resMgr.getUserCfgFile());
+    ConfigManager configManager(resMgr.getConfigPath(), resMgr.getUserCfgFile(),
+        resMgr.getSoundPath());
 
     if (!configManager.initVideoConfig(ogreRoot))
         return;

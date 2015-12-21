@@ -17,6 +17,7 @@
 
 #include "sound/SoundEffectsManager.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/ResourceManager.h"
 #include "utils/Random.h"
@@ -58,6 +59,7 @@ GameSound::GameSound(const std::string& filename, bool spatialSound):
     else // Disable attenuation for sounds that must heard the same way everywhere
     {
         // Prevents the sound from being too loud
+        mSound->setRelativeToListener(true);
         mSound->setVolume(30.0f);
         mSound->setAttenuation(0.0f);
     }
@@ -101,10 +103,17 @@ void GameSound::play(float x, float y, float z)
 // SoundEffectsManager class
 template<> SoundEffectsManager* Ogre::Singleton<SoundEffectsManager>::msSingleton = nullptr;
 
-SoundEffectsManager::SoundEffectsManager() :
-    mSpatialSounds(static_cast<uint32_t>(SpatialSoundType::nbSounds))
+SoundEffectsManager::SoundEffectsManager()
 {
-    initializeSpatialSounds();
+    const std::string& soundFolderPath = ResourceManager::getSingleton().getSoundPath();
+    // We read the spatial sound directory
+    readSounds(mSpatialSounds, soundFolderPath + "Spatial/", "", true);
+
+    // We read the relative sound directory
+    for(const std::string& keeper : ConfigManager::getSingleton().getKeeperVoices())
+    {
+        readSounds(mRelativeSounds, soundFolderPath + "Relative/" + keeper, keeper, false);
+    }
 }
 
 SoundEffectsManager::~SoundEffectsManager()
@@ -119,67 +128,13 @@ SoundEffectsManager::~SoundEffectsManager()
     }
 }
 
-void SoundEffectsManager::initializeSpatialSounds()
-{
-
-    // We read the sound directory
-    for(uint32_t i = 0; i < static_cast<uint32_t>(SpatialSoundType::nbSounds); ++i)
-    {
-        SpatialSoundType sound = static_cast<SpatialSoundType>(i);
-        readSounds(sound);
-    }
-}
-
-void SoundEffectsManager::readSounds(SpatialSoundType soundType)
-{
-    uint32_t indexSound = static_cast<uint32_t>(soundType);
-    if(indexSound >= mSpatialSounds.size())
-    {
-        OD_LOG_ERR("soundType=" + Helper::toString(indexSound) + ", size=" + Helper::toString(mSpatialSounds.size()));
-        return;
-    }
-
-    std::map<std::string, std::vector<GameSound*>>& soundsFamily = mSpatialSounds[indexSound];
-    const std::string& soundFolderPath = ResourceManager::getSingletonPtr()->getSoundPath();
-    std::string path;
-    bool spatialSound = true;
-    switch(soundType)
-    {
-        case SpatialSoundType::Interface:
-            path = "Interface";
-            spatialSound = false;
-            break;
-        case SpatialSoundType::Game:
-            path = "Game";
-            break;
-        case SpatialSoundType::Creatures:
-            path = "Creatures";
-            break;
-        case SpatialSoundType::Rooms:
-            path = "Rooms";
-            break;
-        case SpatialSoundType::Traps:
-            path = "Traps";
-            break;
-        case SpatialSoundType::Spells:
-            path = "Spells";
-            break;
-        default:
-            OD_LOG_ERR("Unexpected soundType=" + Helper::toString(indexSound));
-            return;
-    }
-
-    OD_LOG_INF("Loading sounds for path=" + path);
-    readSounds(soundsFamily, soundFolderPath + path, "", spatialSound);
-}
-
 void SoundEffectsManager::readSounds(std::map<std::string, std::vector<GameSound*>>& soundsFamily,
         const std::string& parentPath, const std::string& parentFamily, bool spatialSound)
 {
     std::vector<std::string> directories;
     if(!Helper::fillDirList(parentPath, directories, false))
     {
-        OD_LOG_ERR("Error while loading sounds in directory=" + parentPath);
+        OD_LOG_INF("Could not find sounds in directory=" + parentPath);
         return;
     }
 
@@ -217,7 +172,8 @@ void SoundEffectsManager::readSounds(std::map<std::string, std::vector<GameSound
     }
 }
 
-void SoundEffectsManager::setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation)
+void SoundEffectsManager::updateListener(float timeSinceLastFrame,
+        const Ogre::Vector3& position, const Ogre::Quaternion& orientation)
 {
     sf::Listener::setPosition(static_cast<float> (position.x),
                               static_cast<float> (position.y),
@@ -225,35 +181,71 @@ void SoundEffectsManager::setListenerPosition(const Ogre::Vector3& position, con
 
     Ogre::Vector3 vDir = orientation.zAxis();
     sf::Listener::setDirection(-vDir.x, -vDir.y, -vDir.z);
+
+    // We launch the next pending relative sound if any
+    if(mRelativeSoundQueue.empty())
+        return;
+
+    auto it = mRelativeSoundQueue.begin();
+    GameSound* sound = *it;
+    if(sound->isPlaying())
+        return;
+
+    mRelativeSoundQueue.erase(it);
+    if(mRelativeSoundQueue.empty())
+        return;
+
+    mRelativeSoundQueue[0]->play();
 }
 
-void SoundEffectsManager::playSpatialSound(SpatialSoundType soundType, const std::string& family,
+void SoundEffectsManager::playSpatialSound(const std::string& family,
         float XPos, float YPos, float height)
 {
-    uint32_t indexSound = static_cast<uint32_t>(soundType);
-    if(indexSound >= mSpatialSounds.size())
+    auto it = mSpatialSounds.find(family);
+    if(it == mSpatialSounds.end())
     {
-        OD_LOG_ERR("sound=" + Helper::toString(indexSound) + ", size=" + Helper::toString(mSpatialSounds.size()));
-        return;
-    }
-
-    std::map<std::string, std::vector<GameSound*>>& soundsFamily = mSpatialSounds[indexSound];
-    auto it = soundsFamily.find(family);
-    if(it == soundsFamily.end())
-    {
-        OD_LOG_ERR("Couldn't find sound=" + Helper::toString(indexSound) + " family=" + family);
+        OD_LOG_ERR("Couldn't find sound family=" + family);
         return;
     }
 
     std::vector<GameSound*>& sounds = it->second;
     if(sounds.empty())
     {
-        OD_LOG_ERR("No sound found for sound=" + Helper::toString(indexSound) + " family=" + family);
+        OD_LOG_ERR("No sound found for sound family=" + family);
         return;
     }
 
     unsigned int soundId = Random::Uint(0, sounds.size() - 1);
     sounds[soundId]->play(XPos, YPos, height);
+}
+
+void SoundEffectsManager::playRelativeSound(const std::string& family)
+{
+    // We search for the selected sound in the currently selected voice group. If we cannot
+    // find it, we fall down to the default group. That allows to create new voice groups that
+    // do not have to have sound for every event
+    std::string keeperVoice = ConfigManager::getSingleton().getGameValue(Config::KEEPERVOICE);
+    auto it = mRelativeSounds.find(keeperVoice + "/" + family);
+    if(it == mRelativeSounds.end())
+    {
+        it = mRelativeSounds.find(ConfigManager::DEFAULT_KEEPER_VOICE + "/" + family);
+        if(it == mRelativeSounds.end())
+        {
+            OD_LOG_ERR("Couldn't find sound family=" + family);
+            return;
+        }
+    }
+
+    std::vector<GameSound*>& sounds = it->second;
+    if(sounds.empty())
+        return;
+
+    unsigned int soundId = Random::Uint(0, sounds.size() - 1);
+    GameSound* sound = sounds[soundId];
+    if(mRelativeSoundQueue.empty())
+        sound->play();
+
+    mRelativeSoundQueue.push_back(sound);
 }
 
 GameSound* SoundEffectsManager::getGameSound(const std::string& filename, bool spatialSound)
@@ -279,18 +271,4 @@ GameSound* SoundEffectsManager::getGameSound(const std::string& filename, bool s
     }
 
     return it->second;
-}
-
-ODPacket& operator<<(ODPacket& os, const SpatialSoundType& st)
-{
-    os << static_cast<int32_t>(st);
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, SpatialSoundType& st)
-{
-    int32_t tmp;
-    is >> tmp;
-    st = static_cast<SpatialSoundType>(tmp);
-    return is;
 }

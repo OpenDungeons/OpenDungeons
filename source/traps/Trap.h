@@ -212,6 +212,8 @@ public:
     static bool importTrapFromStream(Trap& trap, std::istream& is);
 
 protected:
+    static void fireTrapSound(Tile& tile, const std::string& soundFamily);
+
     virtual void exportHeadersToStream(std::ostream& os) const override;
     virtual void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const override;
     virtual bool importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData) override;

@@ -22,7 +22,7 @@
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
 #include "gamemap/GameMap.h"
-#include "sound/SoundEffectsManager.h"
+#include "spells/Spell.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 

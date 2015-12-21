@@ -204,7 +204,7 @@ bool SpellCreatureDefense::castSpell(GameMap* gameMap, Player* player, ODPacket&
     CreatureEffectDefense* effect = new CreatureEffectDefense(duration, value, 0.0, 0.0, "SpellCreatureDefense");
     creature->addCreatureEffect(effect);
 
-    gameMap->fireSpatialSound(pos->getSeatsWithVision(), SpatialSoundType::Spells, "Defense", pos);
+    fireSpellSound(*pos, "Defense");
 
     return true;
 }

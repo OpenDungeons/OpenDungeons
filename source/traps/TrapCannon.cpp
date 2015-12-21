@@ -159,8 +159,7 @@ bool TrapCannon::shoot(Tile* tile)
     // it has been added
     missile->doUpkeep();
 
-    getGameMap()->fireSpatialSound(tile->getSeatsWithVision(), SpatialSoundType::Traps,
-        "CannonFire", tile);
+    fireTrapSound(*tile, "Cannon/Fire");
 
     return true;
 }

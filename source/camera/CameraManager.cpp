@@ -22,7 +22,6 @@
 #include "camera/CameraManager.h"
 
 #include "gamemap/TileContainer.h"
-#include "sound/SoundEffectsManager.h"
 #include "utils/LogManager.h"
 #include <OgreCamera.h>
 #include <OgreSceneNode.h>
@@ -164,9 +163,14 @@ void CameraManager::createViewport(Ogre::RenderWindow* renderWindow)
     OD_LOG_INF("Creating viewport...");
 }
 
-Ogre::SceneNode* CameraManager::getActiveCameraNode()
+const Ogre::Vector3& CameraManager::getActiveCameraPosition() const
 {
-    return mActiveCameraNode;
+    return getActiveCameraNode()->getPosition();
+}
+
+const Ogre::Quaternion& CameraManager::getActiveCameraOrientation() const
+{
+    return getActiveCameraNode()->getOrientation();
 }
 
 Ogre::SceneNode* CameraManager::setActiveCameraNode(const Ogre::String& ss)
@@ -395,9 +399,6 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
 
     // Move the camera to the new location
     getActiveCameraNode()->setPosition(newPosition);
-
-    SoundEffectsManager::getSingleton().setListenerPosition(
-        newPosition,  getActiveCameraNode()->getOrientation());
 }
 
 Ogre::Vector3 CameraManager::getCameraViewTarget() const

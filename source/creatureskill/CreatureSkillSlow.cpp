@@ -23,7 +23,7 @@
 #include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
-#include "sound/SoundEffectsManager.h"
+#include "spells/Spell.h"
 #include "utils/LogManager.h"
 
 #include <istream>

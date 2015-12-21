@@ -57,7 +57,6 @@ class TileSetValue;
 enum class GameEntityType;
 enum class FloodFillType;
 enum class RoomType;
-enum class SpatialSoundType;
 enum class SpellType;
 enum class TrapType;
 
@@ -534,11 +533,11 @@ public:
     const std::vector<int>& getTeamIds() const
     { return mTeamIds; }
 
-    //! \brief Fires to the human seats in the given seat vector the spatial sound. This
-    //! function is provided to gather calls asking to play a sound (since they have many
-    //! origins
-    void fireSpatialSound(const std::vector<Seat*>& seats, SpatialSoundType soundType,
-        const std::string& soundFamily, Tile* tile);
+    //! \brief Fires to the human seats in the given tile the game sound corresponding to the family
+    void fireGameSound(Tile& tile, const std::string& soundFamily);
+
+    //! \brief Convenience function to send a relative sound to the human seats in the given list
+    void fireRelativeSound(const std::vector<Seat*>& seats, const std::string& soundFamily);
 
 private:
     //! \brief Tells whether this game map instance is used as a reference by the server-side,

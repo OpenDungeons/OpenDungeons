@@ -180,6 +180,12 @@ public:
     //! Should be called on the server game map for human players only
     void notifyNoTreasuryAvailable();
 
+    //! \brief Notify the player that a creature cannot find a bed
+    void notifyCreatureCannotFindBed(Creature& creature);
+
+    //! \brief Notify the player that a creature cannot find a bed
+    void notifyCreatureCannotFindFood(Creature& creature);
+
     void fireEvents();
 
     //! \brief Called on client side to update the current list of events. Note that
@@ -254,6 +260,14 @@ private:
     //! \brief This counter tells for how much time is left before considering
     //! the player should be notified again that he has no free space to store gold.
     float mNoTreasuryAvailableTime;
+
+    //! \brief This counter tells how much time is left before considering
+    //! the player should be notified again that a creature cannot find place in a dormitory.
+    float mCreatureCannotFindBed;
+
+    //! \brief This counter tells how much time is left before considering
+    //! the player should be notified again that a creature cannot find place in a hatchery.
+    float mCreatureCannotFindFood;
 
     bool mHasLost;
 

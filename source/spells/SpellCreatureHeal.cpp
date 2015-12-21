@@ -267,8 +267,7 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
 
     for(Tile* tile : affectedTiles)
     {
-        gameMap->fireSpatialSound(tile->getSeatsWithVision(), SpatialSoundType::Spells,
-            "Heal", tile);
+        fireSpellSound(*tile, "Heal");
     }
 
     return true;

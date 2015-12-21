@@ -22,7 +22,7 @@
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
-#include "sound/SoundEffectsManager.h"
+#include "spells/Spell.h"
 
 #include <istream>
 
@@ -66,7 +66,7 @@ bool CreatureSkillHasteSelf::tryUseSupport(GameMap& gameMap, Creature* creature)
 
     for(Tile* tile : creature->getCoveredTiles())
     {
-        gameMap.fireSpatialSound(tile->getSeatsWithVision(), SpatialSoundType::Spells, "Haste", tile);
+        Spell::fireSpellSound(*tile, "Haste");
     }
 
     return true;

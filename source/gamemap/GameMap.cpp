@@ -2099,6 +2099,10 @@ void GameMap::addWinningSeat(Seat *s)
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
+    std::vector<Seat*> seats;
+    seats.push_back(s);
+    fireRelativeSound(seats, SoundRelativeKeeperStatements::Victory);
+
     mWinningSeats.push_back(s);
 }
 
@@ -3211,8 +3215,24 @@ void GameMap::notifySeatsConfigured()
     enableFloodFill();
 }
 
-void GameMap::fireSpatialSound(const std::vector<Seat*>& seats, SpatialSoundType soundType,
-        const std::string& soundFamily, Tile* tile)
+void GameMap::fireGameSound(Tile& tile, const std::string& soundFamily)
+{
+    std::string sound = "Game/" + soundFamily;
+    for(Seat* seat : tile.getSeatsWithVision())
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::playSpatialSound, seat->getPlayer());
+        serverNotification->mPacket << sound << tile.getX() << tile.getY();
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+}
+
+void GameMap::fireRelativeSound(const std::vector<Seat*>& seats, const std::string& soundFamily)
 {
     for(Seat* seat : seats)
     {
@@ -3222,8 +3242,8 @@ void GameMap::fireSpatialSound(const std::vector<Seat*>& seats, SpatialSoundType
             continue;
 
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::playSpatialSound, seat->getPlayer());
-        serverNotification->mPacket << soundType << soundFamily << tile->getX() << tile->getY();
+            ServerNotificationType::playRelativeSound, seat->getPlayer());
+        serverNotification->mPacket << soundFamily;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }

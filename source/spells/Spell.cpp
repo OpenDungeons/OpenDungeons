@@ -181,9 +181,10 @@ std::string Spell::formatCastSpell(SpellType type, uint32_t price)
     return "Cast " + SpellManager::getSpellReadableName(type) + " [" + Helper::toString(price)+ " Mana]";
 }
 
-void Spell::fireSpellSound(Tile* tile, const std::string& soundFamily)
+void Spell::fireSpellSound(Tile& tile, const std::string& soundFamily)
 {
-    for(Seat* seat : tile->getSeatsWithVision())
+    std::string sound = "Spells/" + soundFamily;
+    for(Seat* seat : tile.getSeatsWithVision())
     {
         if(seat->getPlayer() == nullptr)
             continue;
@@ -192,7 +193,7 @@ void Spell::fireSpellSound(Tile* tile, const std::string& soundFamily)
 
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::playSpatialSound, seat->getPlayer());
-        serverNotification->mPacket << SpatialSoundType::Spells << soundFamily << tile->getX() << tile->getY();
+        serverNotification->mPacket << sound << tile.getX() << tile.getY();
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }

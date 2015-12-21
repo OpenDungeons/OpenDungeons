@@ -58,6 +58,7 @@ const std::string KEYBOARD_GRAB = "Keyboard Grab";
 const std::string MOUSE_GRAB = "Mouse Grab";
 // Game
 const std::string NICKNAME = "Nickname";
+const std::string KEEPERVOICE = "KeeperVoice";
 }
 
 //! \brief This class is used to manage global configuration such as network configuration, global creature stats, ...
@@ -70,11 +71,13 @@ public:
     //! \param userConfigPath The user profile config path or empty if not used.
     //! \note In server mode, the configuration doesn't load the user config and thus,
     //! doesn't set the userConfigPath.
-    ConfigManager(const std::string& configPath, const std::string& userConfigPath = std::string());
+    ConfigManager(const std::string& configPath, const std::string& userConfigPath,
+        const std::string& soundPath);
     ~ConfigManager();
 
     static const std::string DefaultWorkerCreatureDefinition;
     static const std::string DEFAULT_TILESET_NAME;
+    static const std::string DEFAULT_KEEPER_VOICE;
 
     const Ogre::ColourValue& getColorFromId(const std::string& id) const;
     inline const std::map<std::string, CreatureDefinition*>& getCreatureDefinitions() const
@@ -208,19 +211,19 @@ public:
     { mUserConfig[Config::Ctg::GAME][param] = value; }
 
     //! \brief Get a config value.
-    inline const std::string& getAudioValue(const std::string& param,
+    inline const std::string getAudioValue(const std::string& param,
                                             const std::string& defaultValue = std::string(),
                                             bool triggerError = true) const
     { return getUserValue(Config::Ctg::AUDIO, param, defaultValue, triggerError); }
-    inline const std::string& getVideoValue(const std::string& param,
+    inline const std::string getVideoValue(const std::string& param,
                                             const std::string& defaultValue = std::string(),
                                             bool triggerError = true) const
     { return getUserValue(Config::Ctg::VIDEO, param, defaultValue, triggerError); }
-    inline const std::string& getInputValue(const std::string& param,
+    inline const std::string getInputValue(const std::string& param,
                                             const std::string& defaultValue = std::string(),
                                             bool triggerError = true) const
     { return getUserValue(Config::Ctg::INPUT, param, defaultValue, triggerError); }
-    inline const std::string& getGameValue(const std::string& param,
+    inline const std::string getGameValue(const std::string& param,
                                            const std::string& defaultValue = std::string(),
                                            bool triggerError = true) const
     { return getUserValue(Config::Ctg::GAME, param, defaultValue, triggerError); }
@@ -231,6 +234,9 @@ public:
     //! \brief Tries to restore the previous video config
     //! To be called at startup once the user config has been loaded.
     bool initVideoConfig(Ogre::Root& ogreRoot);
+
+    const std::vector<std::string>& getKeeperVoices() const
+    { return mKeeperVoices; }
 
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
@@ -253,8 +259,10 @@ private:
     //! \brief Loads the user configuration values, and use default ones if it cannot do it.
     void loadUserConfig(const std::string& fileName);
 
+    void loadKeeperVoices(const std::string& soundPath);
+
     //! \brief Get a config value.
-    const std::string& getUserValue(Config::Ctg category,
+    const std::string getUserValue(Config::Ctg category,
                                     const std::string& param,
                                     const std::string& defaultValue = std::string(),
                                     bool triggerError = true) const;
@@ -320,6 +328,9 @@ private:
     //! \brief User config values
     //! < category, < param, value > >
     std::vector< std::map<std::string, std::string> > mUserConfig;
+
+    //! \brief List of the found keeper voices (in the relative sound folder)
+    std::vector<std::string> mKeeperVoices;
 };
 
 #endif //CONFIGMANAGER_H

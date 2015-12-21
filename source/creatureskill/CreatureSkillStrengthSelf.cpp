@@ -23,7 +23,7 @@
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
-#include "sound/SoundEffectsManager.h"
+#include "spells/Spell.h"
 
 #include <istream>
 
@@ -71,7 +71,7 @@ bool CreatureSkillStrengthSelf::tryUseSupport(GameMap& gameMap, Creature* creatu
 
     for(Tile* tile : creature->getCoveredTiles())
     {
-        gameMap.fireSpatialSound(tile->getSeatsWithVision(), SpatialSoundType::Spells, "Heal", tile);
+        Spell::fireSpellSound(*tile, "Heal");
     }
 
     return true;
