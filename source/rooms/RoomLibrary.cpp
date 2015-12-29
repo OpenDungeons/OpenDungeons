@@ -110,8 +110,9 @@ class RoomLibraryFactory : public RoomFactory
 static RoomRegister reg(new RoomLibraryFactory);
 }
 
-const Ogre::Real OFFSET_CREATURE = 0.3;
-const Ogre::Real OFFSET_SPOT = 0.3;
+static const Ogre::Real OFFSET_CREATURE = 0.3;
+static const Ogre::Real OFFSET_SPOT = 0.3;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomLibrary::RoomLibrary(GameMap* gameMap) :
     Room(gameMap),
@@ -134,25 +135,25 @@ BuildingObject* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile
             y += OFFSET_SPOT;
             mUnusedSpots.push_back(tile);
             if (Random::Int(0, 100) > 50)
-                return loadBuildingObject(getGameMap(), "Podium", tile, x, y, 45.0, false);
+                return loadBuildingObject(getGameMap(), "Podium", tile, x, y, 45.0, SCALE, false);
             else
-                return loadBuildingObject(getGameMap(), "Bookcase", tile, x, y, 45.0, false);
+                return loadBuildingObject(getGameMap(), "Bookcase", tile, x, y, 45.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 90.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 270.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 0.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 180.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 180.0, SCALE, false);
         }
         default:
             break;

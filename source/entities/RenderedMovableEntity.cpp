@@ -43,7 +43,7 @@
 
 const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX = "RenderedMovableEntity_";
 
-const Ogre::Vector3 SCALE(0.7,0.7,0.7);
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, const std::string& nMeshName,
         Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :

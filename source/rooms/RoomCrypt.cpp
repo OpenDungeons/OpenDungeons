@@ -108,8 +108,9 @@ class RoomCryptFactory : public RoomFactory
 static RoomRegister reg(new RoomCryptFactory);
 }
 
-const int32_t OFFSET_TILE_X = 0;
-const int32_t OFFSET_TILE_Y = -1;
+static const int32_t OFFSET_TILE_X = 0;
+static const int32_t OFFSET_TILE_Y = -1;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomCrypt::RoomCrypt(GameMap* gameMap) :
     Room(gameMap),
@@ -127,27 +128,27 @@ BuildingObject* RoomCrypt::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* 
             mRottingCreatures[tile] = std::pair<Creature*,int32_t>(nullptr, -1);
             int rnd = Random::Int(0, 100);
             if (rnd < 33)
-                return loadBuildingObject(getGameMap(), "KnightCoffin", tile, 0.0, false);
+                return loadBuildingObject(getGameMap(), "KnightCoffin", tile, 0.0, SCALE, false);
             else if (rnd < 66)
-                return loadBuildingObject(getGameMap(), "CelticCross", tile, 0.0, false);
+                return loadBuildingObject(getGameMap(), "CelticCross", tile, 0.0, SCALE, false);
             else
-                return loadBuildingObject(getGameMap(), "StoneCoffin", tile, 0.0, false);
+                return loadBuildingObject(getGameMap(), "StoneCoffin", tile, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue", tile, 90.0, false);
+            return loadBuildingObject(getGameMap(), "KnightStatue", tile, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue", tile, 270.0, false);
+            return loadBuildingObject(getGameMap(), "KnightStatue", tile, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 0.0, false);
+            return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 180.0, false);
+            return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 180.0, SCALE, false);
         }
         default:
             break;

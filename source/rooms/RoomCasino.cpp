@@ -113,7 +113,8 @@ class RoomCasinoFactory : public RoomFactory
 static RoomRegister reg(new RoomCasinoFactory);
 }
 
-const Ogre::Real OFFSET_CREATURE = 0.3;
+static const Ogre::Real OFFSET_CREATURE = 0.3;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomCasino::RoomCasino(GameMap* gameMap) :
     Room(gameMap)
@@ -130,23 +131,23 @@ BuildingObject* RoomCasino::notifyActiveSpotCreated(ActiveSpotPlace place, Tile*
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             mCreaturesSpots.emplace(std::make_pair(tile, RoomCasinoGame()));
-            return loadBuildingObject(getGameMap(), "Roulette", tile, x, y, 0.0, false);
+            return loadBuildingObject(getGameMap(), "Roulette", tile, x, y, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 90.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 270.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 0.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 180.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 180.0, SCALE, false);
         }
         default:
             break;

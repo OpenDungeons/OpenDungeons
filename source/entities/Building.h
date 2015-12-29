@@ -99,10 +99,10 @@ public:
      *  if the tile is nullptr the object appears in the building's center, the rotation angle is given in degrees.
      */
     BuildingObject* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-        Tile* targetTile, double rotationAngle, bool hideCoveredTile, float opacity = 1.0f,
+        Tile* targetTile, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity = 1.0f,
         const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
     BuildingObject* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-        Tile* targetTile, double x, double y, double rotationAngle, bool hideCoveredTile, float opacity = 1.0f,
+        Tile* targetTile, double x, double y, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity = 1.0f,
         const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
     Tile* getCentralTile();
 

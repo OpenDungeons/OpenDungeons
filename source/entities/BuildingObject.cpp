@@ -29,9 +29,10 @@
 #include <iostream>
 
 BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
-        const Ogre::Vector3& position, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
+        const Ogre::Vector3& position, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
         const std::string& initialAnimationState, bool initialAnimationLoop) :
-    RenderedMovableEntity(gameMap, isOnServerMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity)
+    RenderedMovableEntity(gameMap, isOnServerMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity),
+    mScale(scale)
 {
     mPosition = position;
     mPrevAnimationState = initialAnimationState;
@@ -39,7 +40,8 @@ BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap, const std::
 }
 
 BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap) :
-    RenderedMovableEntity(gameMap, isOnServerMap)
+    RenderedMovableEntity(gameMap, isOnServerMap),
+    mScale(1.0f, 1.0f, 1.0f)
 {
 }
 
@@ -53,4 +55,38 @@ BuildingObject* BuildingObject::getBuildingObjectFromPacket(GameMap* gameMap, OD
     BuildingObject* obj = new BuildingObject(gameMap, false);
     obj->importFromPacket(is);
     return obj;
+}
+
+void BuildingObject::exportToPacket(ODPacket& os, const Seat* seat) const
+{
+    RenderedMovableEntity::exportToPacket(os, seat);
+    os << mScale;
+}
+
+void BuildingObject::importFromPacket(ODPacket& is)
+{
+    RenderedMovableEntity::importFromPacket(is);
+    OD_ASSERT_TRUE(is >> mScale);
+}
+
+void BuildingObject::exportToStream(std::ostream& os) const
+{
+    RenderedMovableEntity::exportToStream(os);
+    os << mScale.x;
+    os << mScale.y;
+    os << mScale.z;
+}
+
+bool BuildingObject::importFromStream(std::istream& is)
+{
+    if(!RenderedMovableEntity::importFromStream(is))
+        return false;
+    if(!(is >> mScale.x))
+        return false;
+    if(!(is >> mScale.y))
+        return false;
+    if(!(is >> mScale.z))
+        return false;
+
+    return true;
 }

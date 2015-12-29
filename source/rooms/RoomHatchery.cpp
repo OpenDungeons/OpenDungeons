@@ -107,6 +107,8 @@ class RoomHatcheryFactory : public RoomFactory
 static RoomRegister reg(new RoomHatcheryFactory);
 }
 
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
+
 RoomHatchery::RoomHatchery(GameMap* gameMap) :
     Room(gameMap),
     mSpawnChickenCooldown(0)
@@ -118,7 +120,7 @@ BuildingObject* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace place, Til
 {
     // We add chicken coops on center tiles only
     if(place == ActiveSpotPlace::activeSpotCenter)
-        return loadBuildingObject(getGameMap(), "ChickenCoop", tile, 0.0, false);
+        return loadBuildingObject(getGameMap(), "ChickenCoop", tile, 0.0, SCALE, false);
 
     return nullptr;
 }

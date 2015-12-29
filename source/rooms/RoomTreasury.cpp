@@ -234,6 +234,7 @@ static RoomRegister reg(new RoomTreasuryFactory);
 }
 
 static const int maxGoldinTile = 1000;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomTreasury::RoomTreasury(GameMap* gameMap) :
     Room(gameMap),
@@ -414,7 +415,7 @@ void RoomTreasury::updateMeshesForTile(Tile* tile, RoomTreasuryTileData* roomTre
         posX += Random::Double(-offset, offset);
         posY += Random::Double(-offset, offset);
         double angle = Random::Double(0.0, 360);
-        BuildingObject* ro = loadBuildingObject(getGameMap(), newMeshName, tile, posX, posY, angle, false);
+        BuildingObject* ro = loadBuildingObject(getGameMap(), newMeshName, tile, posX, posY, angle, SCALE, false);
         addBuildingObject(tile, ro);
     }
 

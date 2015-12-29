@@ -106,8 +106,9 @@ class RoomTrainingHallFactory : public RoomFactory
 static RoomRegister reg(new RoomTrainingHallFactory);
 }
 
-const Ogre::Real RoomTrainingHall::OFFSET_CREATURE = 0.3;
-const Ogre::Real RoomTrainingHall::OFFSET_DUMMY = 0.3;
+static const Ogre::Real OFFSET_CREATURE = 0.3;
+static const Ogre::Real OFFSET_DUMMY = 0.3;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomTrainingHall::RoomTrainingHall(GameMap* gameMap) :
     Room(gameMap),
@@ -146,13 +147,13 @@ BuildingObject* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place,
             switch(Random::Int(1, 4))
             {
                 case 1:
-                    return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 0.0, false);
+                    return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 0.0, SCALE, false);
                 case 2:
-                    return loadBuildingObject(getGameMap(), "TrainingDummy2", tile, x, y, 0.0, false);
+                    return loadBuildingObject(getGameMap(), "TrainingDummy2", tile, x, y, 0.0, SCALE, false);
                 case 3:
-                    return loadBuildingObject(getGameMap(), "TrainingDummy3", tile, x, y, 0.0, false);
+                    return loadBuildingObject(getGameMap(), "TrainingDummy3", tile, x, y, 0.0, SCALE, false);
                 case 4:
-                    return loadBuildingObject(getGameMap(), "TrainingDummy4", tile, x, y, 0.0, false);
+                    return loadBuildingObject(getGameMap(), "TrainingDummy4", tile, x, y, 0.0, SCALE, false);
                 default:
                     break;
             }
@@ -161,25 +162,25 @@ BuildingObject* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place,
         {
             x -= OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 90.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
             x += OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 270.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
             y += OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 0.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
             y -= OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 180.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 180.0, SCALE, false);
         }
         default:
             break;

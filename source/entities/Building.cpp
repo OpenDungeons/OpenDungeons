@@ -29,7 +29,7 @@
 
 const double Building::DEFAULT_TILE_HP = 10.0;
 
-const Ogre::Vector3 SCALE(RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
+static const Ogre::Vector3 SCALE(RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
         RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
         RenderManager::BLENDER_UNITS_PER_OGRE_UNIT);
 
@@ -167,7 +167,7 @@ BuildingObject* Building::getBuildingObjectFromTile(Tile* tile)
 }
 
 BuildingObject* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-    Tile* targetTile, double rotationAngle, bool hideCoveredTile, float opacity,
+    Tile* targetTile, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
     const std::string& initialAnimationState, bool initialAnimationLoop)
 {
     if (targetTile == nullptr)
@@ -180,12 +180,12 @@ BuildingObject* Building::loadBuildingObject(GameMap* gameMap, const std::string
     }
 
     return loadBuildingObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->getX()),
-        static_cast<double>(targetTile->getY()), rotationAngle, hideCoveredTile, opacity,
+        static_cast<double>(targetTile->getY()), rotationAngle, scale, hideCoveredTile, opacity,
         initialAnimationState, initialAnimationLoop);
 }
 
 BuildingObject* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-    Tile* targetTile, double x, double y, double rotationAngle, bool hideCoveredTile, float opacity,
+    Tile* targetTile, double x, double y, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
     const std::string& initialAnimationState, bool initialAnimationLoop)
 {
     std::string baseName;
@@ -196,7 +196,7 @@ BuildingObject* Building::loadBuildingObject(GameMap* gameMap, const std::string
 
     Ogre::Vector3 position(static_cast<Ogre::Real>(x), static_cast<Ogre::Real>(y), 0);
     BuildingObject* obj = new BuildingObject(gameMap, getIsOnServerMap(), baseName, meshName,
-        position, static_cast<Ogre::Real>(rotationAngle), hideCoveredTile, opacity,
+        position, static_cast<Ogre::Real>(rotationAngle), scale, hideCoveredTile, opacity,
         initialAnimationState, initialAnimationLoop);
 
     return obj;

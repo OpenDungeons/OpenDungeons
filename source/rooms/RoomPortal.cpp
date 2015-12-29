@@ -96,7 +96,8 @@ class RoomPortalFactory : public RoomFactory
 static RoomRegister reg(new RoomPortalFactory);
 }
 
-const double CLAIMED_VALUE_PER_TILE = 1.0;
+static const double CLAIMED_VALUE_PER_TILE = 1.0;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomPortal::RoomPortal(GameMap* gameMap) :
         Room(gameMap),
@@ -193,7 +194,7 @@ void RoomPortal::updatePortalPosition()
     if (centralTile == nullptr)
         return;
 
-    mPortalObject = new PersistentObject(getGameMap(), true, getName(), "PortalObject", centralTile, 0.0, false);
+    mPortalObject = new PersistentObject(getGameMap(), true, getName(), "PortalObject", centralTile, 0.0, SCALE, false);
     addBuildingObject(centralTile, mPortalObject);
 
     mPortalObject->setAnimationState("Idle");
