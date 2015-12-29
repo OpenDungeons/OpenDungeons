@@ -118,7 +118,7 @@ RoomCrypt::RoomCrypt(GameMap* gameMap) :
     setMeshName("Crypt");
 }
 
-RenderedMovableEntity* RoomCrypt::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomCrypt::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {

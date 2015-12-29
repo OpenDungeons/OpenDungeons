@@ -125,7 +125,7 @@ private:
     uint32_t mSpawnCountdown;
     uint32_t mSearchFoeCountdown;
     uint32_t mTurnsBetween2Waves;
-    RenderedMovableEntity* mPortalObject;
+    BuildingObject* mPortalObject;
 
     double mClaimedValue;
 

@@ -238,7 +238,7 @@ void RoomArena::doUpkeep()
     }
 }
 
-RenderedMovableEntity* RoomArena::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomArena::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
     Ogre::Real y = static_cast<Ogre::Real>(tile->getY());

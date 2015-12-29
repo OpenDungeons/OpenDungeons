@@ -17,10 +17,10 @@
 
 #include "rooms/RoomPortal.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/PersistentObject.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -167,12 +167,12 @@ void RoomPortal::updateActiveSpots()
                 updatePortalPosition();
             else
             {
-                for(std::pair<Tile* const, RenderedMovableEntity*>& p : mBuildingObjects)
+                for(auto& p : mBuildingObjects)
                 {
                     if(p.second == nullptr)
                         continue;
 
-                    // We take the first RenderedMovableEntity. Note that we cannot use
+                    // We take the first BuildingObject. Note that we cannot use
                     // the central tile because after saving a game, the central tile may
                     // not be the same if some tiles have been destroyed
                     mPortalObject = p.second;

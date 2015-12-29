@@ -17,10 +17,10 @@
 
 #include "rooms/RoomDormitory.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/GameEntityType.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
@@ -245,7 +245,7 @@ void RoomDormitory::createBed(Tile* sleepTile, int x, int y, int width, int heig
     // Add the model
     double xMesh = static_cast<double>(x) + (static_cast<double>(width) / 2.0) - 0.5;
     double yMesh = static_cast<double>(y) + (static_cast<double>(height) / 2.0) - 0.5;
-    RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), c->getDefinition()->getBedMeshName(), sleepTile, xMesh, yMesh, rotationAngle, false);
+    BuildingObject* ro = loadBuildingObject(getGameMap(), c->getDefinition()->getBedMeshName(), sleepTile, xMesh, yMesh, rotationAngle, false);
     addBuildingObject(sleepTile, ro);
     ro->createMesh();
     // Save the info for later...
@@ -275,7 +275,7 @@ bool RoomDormitory::releaseTileForSleeping(Tile* t, Creature* c)
     c->setHomeTile(nullptr);
 
     // Make the building object delete itself and remove it from the map
-    RenderedMovableEntity* roomObject = getBuildingObjectFromTile(homeTile);
+    BuildingObject* roomObject = getBuildingObjectFromTile(homeTile);
     removeBuildingObject(roomObject);
 
     // Remove the bedinfo as well

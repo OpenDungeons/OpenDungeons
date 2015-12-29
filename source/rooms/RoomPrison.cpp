@@ -118,7 +118,7 @@ RoomPrison::RoomPrison(GameMap* gameMap) :
     setMeshName("PrisonGround");
 }
 
-RenderedMovableEntity* RoomPrison::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomPrison::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {

@@ -17,10 +17,10 @@
 
 #include "rooms/RoomLibrary.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/GameEntityType.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/SkillEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
@@ -120,7 +120,7 @@ RoomLibrary::RoomLibrary(GameMap* gameMap) :
     setMeshName("Library");
 }
 
-RenderedMovableEntity* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {
@@ -343,7 +343,7 @@ bool RoomLibrary::useRoom(Creature& creature, bool forced)
     Ogre::Real wantedY = -1;
     getCreatureWantedPos(&creature, tileSpot, wantedX, wantedY);
 
-    RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
+    BuildingObject* ro = getBuildingObjectFromTile(tileSpot);
     if(ro == nullptr)
     {
         OD_LOG_ERR("unexpected null building object");

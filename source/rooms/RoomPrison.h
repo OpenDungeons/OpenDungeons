@@ -48,7 +48,7 @@ public:
     static const RoomType mRoomType;
 
 protected:
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
+    virtual BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
 private:
     std::vector<Creature*> mPendingPrisoners;
 };

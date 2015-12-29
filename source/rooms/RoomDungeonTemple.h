@@ -51,7 +51,7 @@ protected:
 
 private:
     //! \brief The reference of the temple object
-    RenderedMovableEntity* mTempleObject;
+    BuildingObject* mTempleObject;
 
     //! \brief Updates the temple mesh position.
     void updateTemplePosition();

@@ -18,10 +18,10 @@
 #include "rooms/RoomCasino.h"
 
 #include "creatureaction/CreatureActionFightFriendly.h"
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/GameEntityType.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/SkillEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
@@ -121,7 +121,7 @@ RoomCasino::RoomCasino(GameMap* gameMap) :
     setMeshName("Casino");
 }
 
-RenderedMovableEntity* RoomCasino::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomCasino::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {
@@ -359,7 +359,7 @@ void RoomCasino::doUpkeep()
             continue;
 
         Tile* tileSpot = p.first;
-        RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
+        BuildingObject* ro = getBuildingObjectFromTile(tileSpot);
         if(ro == nullptr)
         {
             OD_LOG_ERR("unexpected null building object");

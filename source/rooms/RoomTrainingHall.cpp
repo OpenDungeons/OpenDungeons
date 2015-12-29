@@ -17,9 +17,9 @@
 
 #include "rooms/RoomTrainingHall.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
@@ -133,7 +133,7 @@ void RoomTrainingHall::absorbRoom(Room *r)
     OD_ASSERT_TRUE_MSG(roomAbs->mCreaturesDummies.empty(), "room=" + getName() + ", roomAbs=" + roomAbs->getName());
 }
 
-RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
     Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
@@ -359,7 +359,7 @@ bool RoomTrainingHall::useRoom(Creature& creature, bool forced)
     Ogre::Real wantedX = static_cast<Ogre::Real>(tileSpot->getX());
     Ogre::Real wantedY = static_cast<Ogre::Real>(tileSpot->getY()) - OFFSET_CREATURE;
 
-    RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
+    BuildingObject* ro = getBuildingObjectFromTile(tileSpot);
     if(ro == nullptr)
     {
         OD_LOG_ERR("unexpected null building object");

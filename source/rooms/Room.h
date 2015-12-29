@@ -23,12 +23,12 @@
 #include <string>
 #include <iosfwd>
 
+class BuildingObject;
 class GameMap;
 class InputCommand;
 class InputManager;
 class ODPacket;
 class Seat;
-class RenderedMovableEntity;
 
 enum class RoomType;
 
@@ -160,7 +160,7 @@ protected:
     //! \brief The number of active spots.
     unsigned int mNumActiveSpots;
 
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 
     //! \brief This function will be called when reordering room is needed (for example if another room has been absorbed)

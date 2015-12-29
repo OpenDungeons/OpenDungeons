@@ -17,10 +17,10 @@
 
 #include "traps/Trap.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
 #include "entities/GameEntityType.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
 #include "game/Player.h"
@@ -112,7 +112,7 @@ void Trap::doUpkeep()
     // We remove trap entities if we can
     for(auto it = mTrapEntitiesWaitingRemove.begin(); it != mTrapEntitiesWaitingRemove.end();)
     {
-        RenderedMovableEntity* trapEntity = *it;
+        BuildingObject* trapEntity = *it;
         if(!trapEntity->notifyRemoveAsked())
         {
             ++it;
@@ -192,7 +192,7 @@ void Trap::updateActiveSpots()
         TrapTileData* trapTileData = static_cast<TrapTileData*>(p.second);
         if(trapTileData->getTrapEntity() == nullptr)
         {
-            RenderedMovableEntity* obj = notifyActiveSpotCreated(p.first);
+            BuildingObject* obj = notifyActiveSpotCreated(p.first);
             if(obj == nullptr)
                 continue;
 
@@ -207,7 +207,7 @@ void Trap::updateActiveSpots()
             if(it == mBuildingObjects.end())
                 continue;
 
-            RenderedMovableEntity* trapEntity = it->second;
+            BuildingObject* trapEntity = it->second;
             if(trapEntity->notifyRemoveAsked())
                 removeBuildingObject(p.first);
             else
@@ -218,7 +218,7 @@ void Trap::updateActiveSpots()
     }
 }
 
-RenderedMovableEntity* Trap::notifyActiveSpotCreated(Tile* tile)
+BuildingObject* Trap::notifyActiveSpotCreated(Tile* tile)
 {
     TrapEntity* trapEntity = getTrapEntity(tile);
     if(trapEntity == nullptr)
@@ -249,7 +249,7 @@ void Trap::activate(Tile* tile)
     trapTileData->setNbShootsBeforeDeactivation(mNbShootsBeforeDeactivation);
     trapTileData->setReloadTime(0);
 
-    RenderedMovableEntity* entity = getBuildingObjectFromTile(tile);
+    BuildingObject* entity = getBuildingObjectFromTile(tile);
     if (entity == nullptr)
         return;
 
@@ -264,7 +264,7 @@ void Trap::deactivate(Tile* tile)
     TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData[tile]);
     trapTileData->setActivated(false);
 
-    RenderedMovableEntity* entity = getBuildingObjectFromTile(tile);
+    BuildingObject* entity = getBuildingObjectFromTile(tile);
     if (entity == nullptr)
         return;
 

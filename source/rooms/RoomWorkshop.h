@@ -66,7 +66,7 @@ protected:
     bool importFromStream(std::istream& is) override;
 
     RoomWorkshopTileData* createTileData(Tile* tile) override;
-    RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
+    BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
     void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
     //!\brief checks if a tile is available in the workshop to place a new crafted trap

@@ -18,7 +18,7 @@
 #ifndef PERSISTENTOBJECT_H
 #define PERSISTENTOBJECT_H
 
-#include "entities/RenderedMovableEntity.h"
+#include "entities/BuildingObject.h"
 
 #include <string>
 #include <iosfwd>
@@ -26,7 +26,7 @@
 class Seat;
 class ODPacket;
 
-/*! PersistentObject is a RenderedMovableEntity that stays displayed when vision is
+/*! PersistentObject is a BuildingObject that stays displayed when vision is
  *  lost (however, the object is not refreshed for clients without vision ie animation
  *  changes). Note that Persistent objects will be removed from the clients if they are
  *  removed from the server gamemap. That means that buildings that use them and want them
@@ -38,7 +38,7 @@ class ODPacket;
  *  PersistentObject he had already seen, we will remove it from the player gamemap and
  *  recreate it.
 */
-class PersistentObject: public RenderedMovableEntity
+class PersistentObject: public BuildingObject
 {
 public:
     PersistentObject(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,

@@ -17,6 +17,7 @@
 
 #include "rooms/RoomWorkshop.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -124,7 +125,7 @@ RoomWorkshop::RoomWorkshop(GameMap* gameMap) :
     setMeshName("Workshop");
 }
 
-RenderedMovableEntity* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {
@@ -440,7 +441,7 @@ bool RoomWorkshop::useRoom(Creature& creature, bool forced)
     Ogre::Real wantedY = -1;
     getCreatureWantedPos(&creature, tileSpot, wantedX, wantedY);
 
-    RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
+    BuildingObject* ro = getBuildingObjectFromTile(tileSpot);
     if(ro == nullptr)
     {
         OD_LOG_ERR("unexpected null building object");

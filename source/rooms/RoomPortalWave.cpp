@@ -217,12 +217,12 @@ void RoomPortalWave::updateActiveSpots()
                 updatePortalPosition();
             else
             {
-                for(std::pair<Tile* const, RenderedMovableEntity*>& p : mBuildingObjects)
+                for(auto& p : mBuildingObjects)
                 {
                     if(p.second == nullptr)
                         continue;
 
-                    // We take the first RenderedMovableEntity. Note that we cannot use
+                    // We take the first BuildingObject. Note that we cannot use
                     // the central tile because after saving a game, the central tile may
                     // not be the same if some tiles have been destroyed
                     mPortalObject = p.second;

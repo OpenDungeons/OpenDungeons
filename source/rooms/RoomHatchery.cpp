@@ -114,7 +114,7 @@ RoomHatchery::RoomHatchery(GameMap* gameMap) :
     setMeshName("Farm");
 }
 
-RenderedMovableEntity* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     // We add chicken coops on center tiles only
     if(place == ActiveSpotPlace::activeSpotCenter)
