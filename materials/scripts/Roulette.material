@@ -1,5 +1,3 @@
-Roulette.png
-
 // Roulette genrated by blender2ogre 0.6.0
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
 material Roulette : RTSS/NormalMapping_MultiPass
