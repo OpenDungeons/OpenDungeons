@@ -6,15 +6,13 @@
         <Property name="Text" value="" />
         <Property name="FrameEnabled" value="False" />
         <Property name="BackgroundEnabled" value="False" />
-        <Window type="OD/IconButton" name="StartSkirmishButton" >
-            <Property name="Area" value="{{0.5,-80},{0,40},{0.5,80},{0,73}}" />
-            <Property name="Text" value="Start Skirmish ..." />
-            <Property name="IconImage" value="OpenDungeonsIcons/FighterButton" />
+        <Window type="OD/MainMenuButton" name="StartSkirmishButton" >
+            <Property name="Area" value="{{0.5,-80},{0,20},{0.5,100},{0,100}}" />
+            <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/FighterButton'][vert-alignment='centre']Start Skirmish ..." />
         </Window>
-        <Window type="OD/IconButton" name="LoadSkirmishButton" >
-            <Property name="Area" value="{{0.5,-80},{0,83},{0.5,80},{0,116}}" />
-            <Property name="Text" value="Load Skirmish ..." />
-            <Property name="IconImage" value="OpenDungeonsIcons/LoadIcon" />
+        <Window type="OD/MainMenuButton" name="LoadSkirmishButton" >
+            <Property name="Area" value="{{0.5,-80},{0,90},{0.5,100},{0,170}}" />
+            <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/LoadIcon'][vert-alignment='centre']Load Skirmish ..." />
         </Window>
     </Window>
 </GUILayout>

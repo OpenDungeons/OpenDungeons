@@ -160,16 +160,26 @@ bool MenuModeMain::toggleSettings(const CEGUI::EventArgs&)
 
 bool MenuModeMain::toggleSkirmishSubMenu(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("SkirmishSubMenuWindow");
+    CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::mainMenu);
+    OD_ASSERT_TRUE(mainWin);
+    CEGUI::Window* window = mainWin->getChild("SkirmishSubMenuWindow");
     OD_ASSERT_TRUE(window);
     window->setVisible(!window->isVisible());
+    window = mainWin->getChild("MultiplayerSubMenuWindow");
+    OD_ASSERT_TRUE(window);
+    window->hide();
     return true;
 }
 
 bool MenuModeMain::toggleMultiplayerSubMenu(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild("MultiplayerSubMenuWindow");
+    CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::mainMenu);
+    OD_ASSERT_TRUE(mainWin);
+    CEGUI::Window* window = mainWin->getChild("MultiplayerSubMenuWindow");
     OD_ASSERT_TRUE(window);
     window->setVisible(!window->isVisible());
+    window = mainWin->getChild("SkirmishSubMenuWindow");
+    OD_ASSERT_TRUE(window);
+    window->hide();
     return true;
 }
