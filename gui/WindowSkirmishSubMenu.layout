@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout version="4" >
-    <Window type="OD/FrameWindow" name="SkirmishSubMenuWindow" >
-        <Property name="Area" value="{{0.5,-110},{0.5,-95},{0.5,110},{0.5,95}}" />
-        <Property name="Text" value="Skirmish..." />
+    <Window type="OD/StaticText" name="SkirmishSubMenuWindow" >
+        <Property name="Area" value="{{0.0,200},{0.5,-140},{0.0,400},{0.5,45}}" />
+        <Property name="Text" value="" />
         <Property name="SizingEnabled" value="False" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
         <Window type="OD/IconButton" name="StartSkirmishButton" >
             <Property name="Area" value="{{0.5,-80},{0,40},{0.5,80},{0,73}}" />
             <Property name="Text" value="Start Skirmish ..." />
@@ -14,12 +16,6 @@
             <Property name="Area" value="{{0.5,-80},{0,83},{0.5,80},{0,116}}" />
             <Property name="Text" value="Load Skirmish ..." />
             <Property name="IconImage" value="OpenDungeonsIcons/LoadIcon" />
-        </Window>
-        <Window type="OD/IconButton" name="QuitSkirmishMenuButton" >
-            <Property name="Area" value="{{0.5,-80},{0,126},{0.5,80},{0,159}}" />
-            <Property name="Text" value="Cancel" />
-            <Property name="IconImage" value="OpenDungeonsIcons/AbortIcon" />
-            <Property name="TooltipText" value="Go back to main screen." />
         </Window>
     </Window>
 </GUILayout>

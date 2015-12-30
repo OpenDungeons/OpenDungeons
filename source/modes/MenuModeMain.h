@@ -38,26 +38,18 @@ private:
     //! \brief The Settings window
     SettingsWindow mSettings;
 
-    //! \brief Helper function to connect a button to a mode change
+    //! \brief Helper functions to connect a button to a mode change
     void connectModeChangeEvent(const std::string& buttonName, AbstractModeManager::ModeType mode);
+    void connectModeChangeEvent(CEGUI::Window* button, AbstractModeManager::ModeType mode);
 
     //! \brief Function triggered when pushing a button
     bool quitButtonPressed(const CEGUI::EventArgs&);
     bool toggleSettings(const CEGUI::EventArgs&);
 
-    //! \brief Skirmish sub menu button triggers
-    bool openSkirmishSubMenu(const CEGUI::EventArgs&);
-    bool closeSkirmishSubMenu(const CEGUI::EventArgs&);
-    bool startSkirmish(const CEGUI::EventArgs&);
-    bool loadSkirmish(const CEGUI::EventArgs&);
+    //! \brief Sub menu button triggers
+    bool toggleSkirmishSubMenu(const CEGUI::EventArgs&);
+    bool toggleMultiplayerSubMenu(const CEGUI::EventArgs&);
 
-    //! \brief Multiplayer sub menu button triggers
-    bool openMultiplayerSubMenu(const CEGUI::EventArgs&);
-    bool closeMultiplayerSubMenu(const CEGUI::EventArgs&);
-    bool joinMasterServerGame(const CEGUI::EventArgs&);
-    bool hostMasterServerGame(const CEGUI::EventArgs&);
-    bool joinMultiplayerGame(const CEGUI::EventArgs&);
-    bool hostMultiplayerGame(const CEGUI::EventArgs&);
 };
 
 #endif // MENUMODEMAIN_H

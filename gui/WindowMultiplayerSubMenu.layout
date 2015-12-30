@@ -1,50 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout version="4" >
-    <Window type="OD/FrameWindow" name="MultiplayerSubMenuWindow" >
-        <Property name="Area" value="{{0.5,-110},{0.5,-165},{0.5,110},{0.5,165}}" />
-        <Property name="Text" value="Multiplayer..." />
+    <Window type="OD/StaticText" name="MultiplayerSubMenuWindow" >
+        <Property name="Area" value="{{0.0,200},{0.5,-20},{0.0,400},{0.5,225}}" />
+        <Property name="Text" value="" />
         <Property name="SizingEnabled" value="False" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
 
         <Window type="OD/StaticText" name="MasterServerText" >
-            <Property name="Area" value="{{0.5,-80},{0,40},{0.5,80},{0,73}}" />
+            <Property name="Area" value="{{0.5,-80},{0,0},{0.5,80},{0,33}}" />
             <Property name="FrameEnabled" value="False" />
             <Property name="BackgroundEnabled" value="False" />
             <Property name="Text" value="Master Server Game" />
         </Window>
         <Window type="OD/IconButton" name="MasterServerJoinButton" >
-            <Property name="Area" value="{{0.5,-80},{0,76},{0.5,80},{0,109}}" />
+            <Property name="Area" value="{{0.5,-80},{0,36},{0.5,80},{0,69}}" />
             <Property name="Text" value="Join Game ..." />
             <Property name="IconImage" value="OpenDungeonsIcons/FighterButton" />
         </Window>
         <Window type="OD/IconButton" name="MasterServerHostButton" >
-            <Property name="Area" value="{{0.5,-80},{0,112},{0.5,80},{0,145}}" />
+            <Property name="Area" value="{{0.5,-80},{0,72},{0.5,80},{0,105}}" />
             <Property name="Text" value="Host Game ..." />
             <Property name="IconImage" value="OpenDungeonsIcons/CogIcon" />
         </Window>
 
         <Window type="OD/StaticText" name="StandardServerText" >
-            <Property name="Area" value="{{0.5,-80},{0,148},{0.5,80},{0,182}}" />
+            <Property name="Area" value="{{0.5,-80},{0,108},{0.5,80},{0,142}}" />
             <Property name="FrameEnabled" value="False" />
             <Property name="BackgroundEnabled" value="False" />
             <Property name="Text" value="Multiplayer Game" />
         </Window>
         <Window type="OD/IconButton" name="MultiplayerServerJoinButton" >
-            <Property name="Area" value="{{0.5,-80},{0,185},{0.5,80},{0,218}}" />
+            <Property name="Area" value="{{0.5,-80},{0,145},{0.5,80},{0,178}}" />
             <Property name="Text" value="Join Game ..." />
             <Property name="IconImage" value="OpenDungeonsIcons/FighterButton" />
         </Window>
         <Window type="OD/IconButton" name="MultiplayerServerHostButton" >
-            <Property name="Area" value="{{0.5,-80},{0,222},{0.5,80},{0,255}}" />
+            <Property name="Area" value="{{0.5,-80},{0,182},{0.5,80},{0,215}}" />
             <Property name="Text" value="Host Game ..." />
             <Property name="IconImage" value="OpenDungeonsIcons/CogIcon" />
-        </Window>
-
-        <Window type="OD/IconButton" name="QuitMultiplayerMenuButton" >
-            <Property name="Area" value="{{0.5,-80},{0,274},{0.5,80},{0,304}}" />
-            <Property name="Text" value="Cancel" />
-            <Property name="IconImage" value="OpenDungeonsIcons/AbortIcon" />
-            <Property name="TooltipText" value="Go back to main screen." />
         </Window>
     </Window>
 </GUILayout>

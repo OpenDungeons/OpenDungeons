@@ -24,28 +24,29 @@
         </Window>
 
         <Window type="OD/MainMenuButton" name="StartCampaignButton" >
-            <Property name="Area" value="{{0.5,-80},{0.5,-130},{0.5,80},{0.5,-50}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,-180},{0.0,200},{0.5,-100}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/LibraryButton'][vert-alignment='centre']Campaign" />
-            <Property name="Visible" value="False" />
+            <Property name="Disabled" value="True" />
         </Window>
         <Window type="OD/MainMenuButton" name="StartSkirmishButton" >
-            <Property name="Area" value="{{0.5,-190},{0.5,-40},{0.5,-10},{0.5,40}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,-100},{0.0,200},{0.5,-20}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/FighterButton'][vert-alignment='centre']Skirmish" />
         </Window>
         <Window type="OD/MainMenuButton" name="MultiplayerModeButton" >
-            <Property name="Area" value="{{0.5,-190},{0.5,50},{0.5,-10},{0.5,130}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,-20},{0.0,200},{0.5,60}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/CasinoButton'][vert-alignment='centre']Multiplayer" />
         </Window>
-        <Window type="OD/MainMenuButton" name="MapEditorButton" >
-            <Property name="Area" value="{{0.5,10},{0.5,-40},{0.5,190},{0.5,40}}" />
-            <Property name="Text" value="[image='OpenDungeonsIcons/SpellsButton'][vert-alignment='centre']Map Editor" />
-        </Window>
         <Window type="OD/MainMenuButton" name="StartReplayButton" >
-            <Property name="Area" value="{{0.5,10},{0.5,50},{0.5,190},{0.5,130}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,60},{0.0,200},{0.5,140}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/PortalButton'][vert-alignment='centre']Replay" />
         </Window>
+
+        <Window type="OD/MainMenuButton" name="MapEditorButton" >
+            <Property name="Area" value="{{0.0,20},{0.5,155},{0.0,200},{0.5,235}}" />
+            <Property name="Text" value="[image='OpenDungeonsIcons/SpellsButton'][vert-alignment='centre']Map Editor" />
+        </Window>
         <Window type="OD/MainMenuButton" name="QuitButton" >
-            <Property name="Area" value="{{0.5,-80},{0.5,140},{0.5,80},{0.5,220}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,235},{0.0,200},{0.5,315}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/CryptButton'][vert-alignment='centre']Quit" />
         </Window>
 
