@@ -26,6 +26,7 @@
 #include "render/TextRenderer.h"
 #include "sound/MusicPlayer.h"
 #include "utils/ConfigManager.h"
+#include "utils/LogManager.h"
 
 #include <CEGUI/widgets/PushButton.h>
 
@@ -51,6 +52,7 @@ MenuModeMain::MenuModeMain(ModeManager *modeManager):
     mSettings(SettingsWindow(getModeManager().getGui().getGuiSheet(Gui::mainMenu)))
 {
     CEGUI::Window* rootWin = getModeManager().getGui().getGuiSheet(Gui::mainMenu);
+    OD_ASSERT_TRUE(rootWin != nullptr);
 
     connectModeChangeEvent(Gui::MM_BUTTON_MAPEDITOR, AbstractModeManager::ModeType::MENU_EDITOR_LOAD);
     connectModeChangeEvent(Gui::MM_BUTTON_START_REPLAY, AbstractModeManager::ModeType::MENU_REPLAY);
@@ -153,6 +155,8 @@ void MenuModeMain::activate()
     // Loads the corresponding Gui sheet.
     getModeManager().getGui().loadGuiSheet(Gui::mainMenu);
     CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu);
+    OD_ASSERT_TRUE(window != nullptr);
+
     window->getChild("SkirmishSubMenuWindow")->hide();
     window->getChild("MultiplayerSubMenuWindow")->hide();
 

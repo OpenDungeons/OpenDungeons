@@ -35,6 +35,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/locale.hpp>
 
+const std::string MPM_LIST_LEVEL_TYPES = "LevelWindowFrame/LevelTypeSelect";
+
 MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager, bool useMasterServer):
     AbstractApplicationMode(modeManager, useMasterServer ? ModeManager::MENU_MASTERSERVER_HOST : ModeManager::MENU_MULTIPLAYER_SERVER)
 {
@@ -42,10 +44,10 @@ MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager, b
 
     // Fills the Level type combo box with the available level types.
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
-    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::MPM_LIST_LEVEL_TYPES));
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(MPM_LIST_LEVEL_TYPES));
     levelTypeCb->resetList();
 
-    CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("Multiplayer Levels", 0);
+    CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("Official Multiplayer Levels", 0);
     item->setSelectionBrushImage(selImg);
     levelTypeCb->addItem(item);
 
@@ -91,7 +93,7 @@ MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager, b
     );
 
     addEventConnection(
-        window->getChild(Gui::MPM_LIST_LEVEL_TYPES)->subscribeEvent(
+        window->getChild(MPM_LIST_LEVEL_TYPES)->subscribeEvent(
             CEGUI::Combobox::EventListSelectionAccepted,
             CEGUI::Event::Subscriber(&MenuModeMultiplayerServer::updateFilesList, this)
         )
@@ -122,7 +124,7 @@ void MenuModeMultiplayerServer::activate()
     if (!nickname.empty())
         editNick->setText(reinterpret_cast<const CEGUI::utf8*>(nickname.c_str()));
 
-    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(mainWin->getChild(Gui::MPM_LIST_LEVEL_TYPES));
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(mainWin->getChild(MPM_LIST_LEVEL_TYPES));
     levelTypeCb->setItemSelectState(static_cast<size_t>(0), true);
 
     updateFilesList();
@@ -133,7 +135,7 @@ bool MenuModeMultiplayerServer::updateFilesList(const CEGUI::EventArgs&)
     CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerServerMenu);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(window->getChild(Gui::MPM_LIST_LEVELS));
 
-    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::MPM_LIST_LEVEL_TYPES));
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(MPM_LIST_LEVEL_TYPES));
 
     CEGUI::Window* loadText = window->getChild(Gui::MPM_TEXT_LOADING);
     loadText->setText("");
@@ -154,7 +156,7 @@ bool MenuModeMultiplayerServer::updateFilesList(const CEGUI::EventArgs&)
             break;
     }
 
-    if(Helper::fillFilesList(levelPath, mFilesList, Gui::LEVEL_EXTENSION))
+    if(Helper::fillFilesList(levelPath, mFilesList, MapLoader::LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {

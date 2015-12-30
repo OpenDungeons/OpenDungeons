@@ -136,9 +136,6 @@ bool Gui::playButtonClickSound(const CEGUI::EventArgs&)
     return true;
 }
 
-// Level extension constant, used in different GUI modes.
-const std::string Gui::LEVEL_EXTENSION = ".level";
-
 /* These constants are used to access the GUI element
  * NOTE: when add/remove/rename a GUI element, don't forget to change it here
  */
@@ -184,7 +181,6 @@ const std::string Gui::MPM_TEXT_LOADING = "LoadingText";
 const std::string Gui::MPM_BUTTON_SERVER = "LevelWindowFrame/ServerButton";
 const std::string Gui::MPM_BUTTON_CLIENT = "LevelWindowFrame/ClientButton";
 const std::string Gui::MPM_BUTTON_BACK = "LevelWindowFrame/BackButton";
-const std::string Gui::MPM_LIST_LEVEL_TYPES = "LevelWindowFrame/LevelTypeSelect";
 const std::string Gui::MPM_LIST_LEVELS = "LevelWindowFrame/LevelSelect";
 const std::string Gui::MPM_EDIT_IP = "LevelWindowFrame/IpEdit";
 const std::string Gui::MPM_EDIT_NICK = "LevelWindowFrame/NickEdit";

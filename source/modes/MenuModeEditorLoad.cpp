@@ -154,7 +154,7 @@ bool MenuModeEditorLoad::updateFilesList(const CEGUI::EventArgs&)
             break;
     }
 
-    if(Helper::fillFilesList(levelPath, mFilesList, Gui::LEVEL_EXTENSION))
+    if(Helper::fillFilesList(levelPath, mFilesList, MapLoader::LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {

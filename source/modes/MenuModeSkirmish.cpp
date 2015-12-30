@@ -44,11 +44,11 @@ MenuModeSkirmish::MenuModeSkirmish(ModeManager* modeManager):
     CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::SKM_LIST_LEVEL_TYPES));
     levelTypeCb->resetList();
 
-    CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("Skirmish Levels", 0);
+    CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("Official Skirmish Levels", 0);
     item->setSelectionBrushImage(selImg);
     levelTypeCb->addItem(item);
 
-    item = new CEGUI::ListboxTextItem("Multiplayer Levels", 1);
+    item = new CEGUI::ListboxTextItem("Official Multiplayer Levels", 1);
     item->setSelectionBrushImage(selImg);
     levelTypeCb->addItem(item);
 
@@ -160,7 +160,7 @@ bool MenuModeSkirmish::updateFilesList(const CEGUI::EventArgs&)
             break;
     }
 
-    if(Helper::fillFilesList(levelPath, mFilesList, Gui::LEVEL_EXTENSION))
+    if(Helper::fillFilesList(levelPath, mFilesList, MapLoader::LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
