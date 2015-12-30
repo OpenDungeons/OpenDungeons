@@ -4,7 +4,6 @@
     <Window type="OD/StaticText" name="SkirmishSubMenuWindow" >
         <Property name="Area" value="{{0.0,200},{0.5,-140},{0.0,400},{0.5,45}}" />
         <Property name="Text" value="" />
-        <Property name="SizingEnabled" value="False" />
         <Property name="FrameEnabled" value="False" />
         <Property name="BackgroundEnabled" value="False" />
         <Window type="OD/IconButton" name="StartSkirmishButton" >
