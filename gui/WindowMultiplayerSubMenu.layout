@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/StaticText" name="MultiplayerSubMenuWindow" >
+        <Property name="Area" value="{{0.0,200},{0.5,-80},{0.0,400},{0.5,285}}" />
+        <Property name="Text" value="" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
+
+        <Window type="OD/StaticText" name="MasterServerText" >
+            <Property name="Area" value="{{0.5,-70},{0,0},{0.5,80},{0,33}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="Text" value="Master Server Game" />
+        </Window>
+        <Window type="OD/MainMenuButton" name="MasterServerJoinButton" >
+            <Property name="Area" value="{{0.5,-80},{0,30},{0.5,80},{0,110}}" />
+            <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/FighterButton'][vert-alignment='centre']Join Game ..." />
+        </Window>
+        <Window type="OD/MainMenuButton" name="MasterServerHostButton" >
+            <Property name="Area" value="{{0.5,-80},{0,100},{0.5,80},{0,180}}" />
+            <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/CogIcon'][vert-alignment='centre']Host Game ..." />
+        </Window>
+
+        <Window type="OD/StaticText" name="StandardServerText" >
+            <Property name="Area" value="{{0.5,-70},{0,190},{0.5,80},{0,206}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="Text" value="Multiplayer Game" />
+        </Window>
+        <Window type="OD/MainMenuButton" name="MultiplayerServerJoinButton" >
+            <Property name="Area" value="{{0.5,-80},{0,206},{0.5,80},{0,286}}" />
+            <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/FighterButton'][vert-alignment='centre']Join Game ..." />
+        </Window>
+        <Window type="OD/MainMenuButton" name="MultiplayerServerHostButton" >
+            <Property name="Area" value="{{0.5,-80},{0,276},{0.5,80},{0,356}}" />
+            <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/CogIcon'][vert-alignment='centre']Host Game ..." />
+        </Window>
+    </Window>
+</GUILayout>

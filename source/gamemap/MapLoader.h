@@ -53,6 +53,9 @@ namespace MapLoader
     //! \brief Reads the main user map info. Returns true if the level could be read and levelInfo is set to
     //! corresponding info. Returns false otherwise.
     bool getMapInfo(const std::string& fileName, LevelInfo& levelInfo);
+
+    //! \brief Level extension constant, used in different GUI modes.
+    static const std::string LEVEL_EXTENSION = ".level";
 };
 
 #endif // MAPLOADER_H

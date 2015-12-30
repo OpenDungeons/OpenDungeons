@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "modes/MenuModeSkirmish.h"
+#include "modes/MenuModeEditorLoad.h"
 
 #include "utils/Helper.h"
 #include "render/Gui.h"
@@ -28,27 +28,28 @@
 #include "network/ServerMode.h"
 #include "utils/LogManager.h"
 #include "gamemap/MapLoader.h"
-#include "utils/ConfigManager.h"
 #include "utils/ResourceManager.h"
+#include "utils/ConfigManager.h"
 
 #include <CEGUI/CEGUI.h>
-#include "boost/filesystem.hpp"
 
-MenuModeSkirmish::MenuModeSkirmish(ModeManager* modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_SKIRMISH)
+#include <boost/filesystem.hpp>
+
+MenuModeEditorLoad::MenuModeEditorLoad(ModeManager* modeManager):
+    AbstractApplicationMode(modeManager, ModeManager::MENU_EDITOR_LOAD)
 {
-    CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::skirmishMenu);
+    CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::editorLoadMenu);
 
     // Fills the Level type combo box with the available level types.
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
-    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::SKM_LIST_LEVEL_TYPES));
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::EDM_LIST_LEVEL_TYPES));
     levelTypeCb->resetList();
 
-    CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("Official Skirmish Levels", 0);
+    CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("Skirmish Levels", 0);
     item->setSelectionBrushImage(selImg);
     levelTypeCb->addItem(item);
 
-    item = new CEGUI::ListboxTextItem("Official Multiplayer Levels", 1);
+    item = new CEGUI::ListboxTextItem("Multiplayer Levels", 1);
     item->setSelectionBrushImage(selImg);
     levelTypeCb->addItem(item);
 
@@ -61,25 +62,25 @@ MenuModeSkirmish::MenuModeSkirmish(ModeManager* modeManager):
     levelTypeCb->addItem(item);
 
     addEventConnection(
-        window->getChild(Gui::SKM_BUTTON_LAUNCH)->subscribeEvent(
+        window->getChild(Gui::EDM_BUTTON_LAUNCH)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeSkirmish::launchSelectedButtonPressed, this)
+            CEGUI::Event::Subscriber(&MenuModeEditorLoad::launchSelectedButtonPressed, this)
         )
     );
     addEventConnection(
-        window->getChild(Gui::SKM_LIST_LEVELS)->subscribeEvent(
+        window->getChild(Gui::EDM_LIST_LEVELS)->subscribeEvent(
             CEGUI::Listbox::EventMouseDoubleClick,
-            CEGUI::Event::Subscriber(&MenuModeSkirmish::launchSelectedButtonPressed, this)
+            CEGUI::Event::Subscriber(&MenuModeEditorLoad::launchSelectedButtonPressed, this)
         )
     );
     addEventConnection(
-        window->getChild(Gui::SKM_LIST_LEVELS)->subscribeEvent(
+        window->getChild(Gui::EDM_LIST_LEVELS)->subscribeEvent(
             CEGUI::Listbox::EventMouseClick,
-            CEGUI::Event::Subscriber(&MenuModeSkirmish::updateDescription, this)
+            CEGUI::Event::Subscriber(&MenuModeEditorLoad::updateDescription, this)
         )
     );
     addEventConnection(
-        window->getChild(Gui::SKM_BUTTON_BACK)->subscribeEvent(
+        window->getChild(Gui::EDM_BUTTON_BACK)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
                                      static_cast<AbstractApplicationMode*>(this))
@@ -94,17 +95,17 @@ MenuModeSkirmish::MenuModeSkirmish(ModeManager* modeManager):
     );
 
     addEventConnection(
-        window->getChild(Gui::SKM_LIST_LEVEL_TYPES)->subscribeEvent(
+        window->getChild(Gui::EDM_LIST_LEVEL_TYPES)->subscribeEvent(
             CEGUI::Combobox::EventListSelectionAccepted,
-            CEGUI::Event::Subscriber(&MenuModeSkirmish::updateFilesList, this)
+            CEGUI::Event::Subscriber(&MenuModeEditorLoad::updateFilesList, this)
         )
     );
 }
 
-void MenuModeSkirmish::activate()
+void MenuModeEditorLoad::activate()
 {
     // Loads the corresponding Gui sheet.
-    getModeManager().getGui().loadGuiSheet(Gui::guiSheet::skirmishMenu);
+    getModeManager().getGui().loadGuiSheet(Gui::editorLoadMenu);
 
     giveFocus();
 
@@ -115,27 +116,20 @@ void MenuModeSkirmish::activate()
     gameMap->clearAll();
     gameMap->setGamePaused(true);
 
-    // Select skirmish
     CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(getModeManager().getGui().
-                                       getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVEL_TYPES));
+                                       getGuiSheet(Gui::editorLoadMenu)->getChild(Gui::EDM_LIST_LEVEL_TYPES));
     levelTypeCb->setItemSelectState(static_cast<size_t>(0), true);
     updateFilesList();
-
-    // Set the player name if valid. (Will use the defaut one if not.)
-    ConfigManager& config = ConfigManager::getSingleton();
-    std::string nickname = config.getGameValue(Config::NICKNAME, std::string(), false);
-    if (!nickname.empty())
-        ODFrameListener::getSingleton().getClientGameMap()->setLocalPlayerNick(nickname);
 }
 
-bool MenuModeSkirmish::updateFilesList(const CEGUI::EventArgs&)
+bool MenuModeEditorLoad::updateFilesList(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::skirmishMenu);
-    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(window->getChild(Gui::SKM_LIST_LEVELS));
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::editorLoadMenu);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(window->getChild(Gui::EDM_LIST_LEVELS));
 
-    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::SKM_LIST_LEVEL_TYPES));
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::EDM_LIST_LEVEL_TYPES));
 
-    CEGUI::Window* loadText = window->getChild(Gui::SKM_TEXT_LOADING);
+    CEGUI::Window* loadText = window->getChild(Gui::EDM_TEXT_LOADING);
     loadText->setText("");
     mFilesList.clear();
     mDescriptionList.clear();
@@ -192,30 +186,31 @@ bool MenuModeSkirmish::updateFilesList(const CEGUI::EventArgs&)
     return true;
 }
 
-bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
+bool MenuModeEditorLoad::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu);
-    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(mainWin->getChild(Gui::SKM_LIST_LEVELS));
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::editorLoadMenu);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(window->getChild(Gui::EDM_LIST_LEVELS));
 
     if(levelSelectList->getSelectedCount() == 0)
     {
-        mainWin->getChild(Gui::SKM_TEXT_LOADING)->setText("Please select a level first.");
+        window->getChild(Gui::EDM_TEXT_LOADING)->setText("Please select a level first.");
         return true;
     }
 
-    mainWin->getChild(Gui::SKM_TEXT_LOADING)->setText("Loading...");
+    window->getChild(Gui::EDM_TEXT_LOADING)->setText("Loading...");
 
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
     int id = selItem->getID();
 
     const std::string& level = mFilesList[id];
+
     // In single player mode, we act as a server
-    const std::string& nickname = ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayerNick();
-    if(!ODServer::getSingleton().startServer(nickname, level, ServerMode::ModeGameSinglePlayer, false))
+    ConfigManager& config = ConfigManager::getSingleton();
+    std::string nickname = config.getGameValue(Config::NICKNAME, std::string(), false);
+    if(!ODServer::getSingleton().startServer(nickname, level, ServerMode::ModeEditor, false))
     {
-        OD_LOG_ERR("Could not start server for single player game !!!");
-        mainWin->getChild(Gui::SKM_TEXT_LOADING)->setText("ERROR: Could not start server for single player game !!!");
-        return true;
+        OD_LOG_ERR("Could not start server for editor !!!");
+        window->getChild(Gui::EDM_TEXT_LOADING)->setText("ERROR: Could not start server for editor !!!");
     }
 
     int port = ODServer::getSingleton().getNetworkPort();
@@ -224,20 +219,18 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
         + ResourceManager::getSingleton().buildReplayFilename();
     if(!ODClient::getSingleton().connect("localhost", port, timeout, replayFilename))
     {
-        OD_LOG_ERR("Could not connect to server for single player game !!!");
-        mainWin->getChild(Gui::SKM_TEXT_LOADING)->setText("Error: Couldn't connect to local server!");
+        OD_LOG_ERR("Could not connect to server for editor !!!");
+        window->getChild(Gui::EDM_TEXT_LOADING)->setText("Error: Couldn't connect to local server!");
         return true;
     }
     return true;
 }
 
-bool MenuModeSkirmish::updateDescription(const CEGUI::EventArgs&)
+bool MenuModeEditorLoad::updateDescription(const CEGUI::EventArgs&)
 {
-    // Get the level corresponding id
-    CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu);
-    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(mainWin->getChild(Gui::SKM_LIST_LEVELS));
-
-    CEGUI::Window* descTxt = mainWin->getChild("LevelWindowFrame/MapDescriptionText");
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::editorLoadMenu);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(window->getChild(Gui::SKM_LIST_LEVELS));
+    CEGUI::Window* descTxt = window->getChild("LevelWindowFrame/MapDescriptionText");
 
     if(levelSelectList->getSelectedCount() == 0)
     {
@@ -247,11 +240,11 @@ bool MenuModeSkirmish::updateDescription(const CEGUI::EventArgs&)
 
     getModeManager().getGui().playButtonClickSound();
 
+    // Get the level corresponding id
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
     int id = selItem->getID();
 
     std::string description = mDescriptionList[id];
-    descTxt->setText(reinterpret_cast<const CEGUI::utf8*>(description.c_str()));
-
+    descTxt->setText(description);
     return true;
 }

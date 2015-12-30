@@ -391,7 +391,7 @@ set(OD_SOURCEFILES
     ${SRC}/modes/InputManager.cpp
     ${SRC}/modes/MenuModeMain.cpp
     ${SRC}/modes/MenuModeConfigureSeats.cpp
-    ${SRC}/modes/MenuModeEditor.cpp
+    ${SRC}/modes/MenuModeEditorLoad.cpp
     ${SRC}/modes/MenuModeLoad.cpp
     ${SRC}/modes/MenuModeMasterServerJoin.cpp
     ${SRC}/modes/MenuModeMultiplayerClient.cpp

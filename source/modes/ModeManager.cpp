@@ -24,7 +24,7 @@
 #include "modes/MenuModeMasterServerJoin.h"
 #include "modes/MenuModeMultiplayerClient.h"
 #include "modes/MenuModeMultiplayerServer.h"
-#include "modes/MenuModeEditor.h"
+#include "modes/MenuModeEditorLoad.h"
 #include "modes/MenuModeReplay.h"
 #include "modes/MenuModeLoad.h"
 #include "modes/GameMode.h"
@@ -111,8 +111,8 @@ void ModeManager::checkModeChange()
     case MENU_MULTIPLAYER_SERVER:
         mCurrentApplicationMode = Utils::make_unique<MenuModeMultiplayerServer>(this, false);
         break;
-    case MENU_EDITOR:
-        mCurrentApplicationMode = Utils::make_unique<MenuModeEditor>(this);
+    case MENU_EDITOR_LOAD:
+        mCurrentApplicationMode = Utils::make_unique<MenuModeEditorLoad>(this);
         break;
     case MENU_CONFIGURE_SEATS:
         mCurrentApplicationMode = Utils::make_unique<MenuModeConfigureSeats>(this);

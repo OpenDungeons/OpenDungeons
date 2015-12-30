@@ -38,10 +38,18 @@ private:
     //! \brief The Settings window
     SettingsWindow mSettings;
 
-    //! \brief Helper function to connect a button to a mode change
+    //! \brief Helper functions to connect a button to a mode change
     void connectModeChangeEvent(const std::string& buttonName, AbstractModeManager::ModeType mode);
+    void connectModeChangeEvent(CEGUI::Window* button, AbstractModeManager::ModeType mode);
+
+    //! \brief Function triggered when pushing a button
     bool quitButtonPressed(const CEGUI::EventArgs&);
     bool toggleSettings(const CEGUI::EventArgs&);
+
+    //! \brief Sub menu button triggers
+    bool toggleSkirmishSubMenu(const CEGUI::EventArgs&);
+    bool toggleMultiplayerSubMenu(const CEGUI::EventArgs&);
+
 };
 
 #endif // MENUMODEMAIN_H
