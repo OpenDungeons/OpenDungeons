@@ -355,3 +355,11 @@ void RoomPrison::actionPrisoner(Creature* creature)
     path.push_back(v);
     creature->setWalkPath(EntityAnimation::flee_anim, EntityAnimation::idle_anim, true, true, path);
 }
+
+bool RoomPrison::isInContainment(Creature& creature)
+{
+    if(creature.getSeatPrison() != getSeat())
+        return false;
+
+    return true;
+}

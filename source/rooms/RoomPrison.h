@@ -45,6 +45,8 @@ public:
     Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
 
+    bool isInContainment(Creature& creature) override;
+
     static const RoomType mRoomType;
 
 protected:

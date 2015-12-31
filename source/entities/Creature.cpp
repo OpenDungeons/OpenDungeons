@@ -778,10 +778,10 @@ void Creature::doUpkeep()
             return;
         }
 
+        // We check if the creature is in containment
         Room* roomPrison = myTile->getCoveringRoom();
         if((roomPrison == nullptr) ||
-           (roomPrison->getType() != RoomType::prison) ||
-           (roomPrison->getSeat() != mSeatPrison))
+           (!roomPrison->isInContainment(*this)))
         {
             // it is not standing on a jail. It is free
             mSeatPrison = nullptr;

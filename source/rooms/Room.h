@@ -130,6 +130,9 @@ public:
 
     virtual void creatureDropped(Creature& creature) override;
 
+    virtual bool isInContainment(Creature& creature)
+    { return false; }
+
     static bool importRoomFromStream(Room& room, std::istream& is);
 
 protected:
