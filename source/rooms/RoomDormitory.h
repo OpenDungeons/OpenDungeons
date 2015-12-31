@@ -158,8 +158,10 @@ public:
     bool hasCarryEntitySpot(GameEntity* carriedEntity) override;
     Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
-    bool isRestRoom(Creature& creature) override
-    { return true; }
+    bool shouldStopUseIfHungrySleepy(Creature& creature, bool forced) override
+    { return false; }
+    bool shouldNotUseIfBadMood(Creature& creature, bool forced) override
+    { return false; }
 
     void creatureDropped(Creature& creature) override;
 
