@@ -2440,36 +2440,6 @@ void Creature::notifyEntityCarryOff(const Ogre::Vector3& position)
     addEntityToPositionTile();
 }
 
-bool Creature::canBeCarriedToBuilding(const Building* building) const
-{
-    // If the creature is dead, it can be carried to any crypt
-    if(!isAlive() &&
-       (building->getObjectType() == GameEntityType::room) &&
-       (static_cast<const Room*>(building)->getType() == RoomType::crypt))
-    {
-        return true;
-    }
-
-    // If the creature is ko to death, it can be carried to an enemy prison
-    if((mKoTurnCounter < 0) &&
-       (building->getObjectType() == GameEntityType::room) &&
-       (!building->getSeat()->isAlliedSeat(getSeat())) &&
-       (static_cast<const Room*>(building)->getType() == RoomType::prison))
-    {
-        return true;
-    }
-
-    // If the creature is ko to death, it can be carried to its bed
-    if((mKoTurnCounter < 0) &&
-       (mHomeTile != nullptr) &&
-       (mHomeTile->getCoveringBuilding() == building))
-    {
-        return true;
-    }
-
-    return false;
-}
-
 void Creature::carryEntity(GameEntity* carriedEntity)
 {
     if(!getIsOnServerMap())

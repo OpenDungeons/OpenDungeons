@@ -209,6 +209,9 @@ public:
     inline double getMoveSpeedLava() const
     { return mLavaSpeed; }
 
+    inline int32_t getKoTurnCounter() const
+    { return mKoTurnCounter; }
+
     //! \brief Updates the entity path, movement, and direction, and creature attack time
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
     virtual void update(Ogre::Real timeSinceLastFrame);
@@ -400,7 +403,6 @@ public:
     virtual EntityCarryType getEntityCarryType(Creature* carrier);
     virtual void notifyEntityCarryOn(Creature* carrier);
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
-    bool canBeCarriedToBuilding(const Building* building) const;
 
     bool canSlap(Seat* seat);
     void slap();

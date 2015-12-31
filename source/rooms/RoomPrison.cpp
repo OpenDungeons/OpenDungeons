@@ -249,8 +249,12 @@ bool RoomPrison::hasCarryEntitySpot(GameEntity* carriedEntity)
         return false;
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
-    if(!creature->canBeCarriedToBuilding(this))
-        return false;
+    // Only ko to death enemy creatures should be carried to prison
+    if(creature->getKoTurnCounter() >= 0)
+       return false;
+
+    if(getSeat()->isAlliedSeat(creature->getSeat()))
+       return false;
 
     // We count current prisoners + prisoners on their way
     uint32_t nbCreatures = countPrisoners();

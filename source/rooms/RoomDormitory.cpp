@@ -510,7 +510,15 @@ bool RoomDormitory::hasCarryEntitySpot(GameEntity* carriedEntity)
         return false;
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
-    if(!creature->canBeCarriedToBuilding(this))
+    // Only ko to death creatures owning a bed in this dormitory should be carried here
+    if(creature->getKoTurnCounter() >= 0)
+        return false;
+
+    Tile* homeTile = creature->getHomeTile();
+    if(homeTile == nullptr)
+        return false;
+
+    if(homeTile->getCoveringRoom() != this)
         return false;
 
     return true;

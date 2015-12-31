@@ -275,7 +275,8 @@ bool RoomCrypt::hasCarryEntitySpot(GameEntity* carriedEntity)
         return false;
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
-    if(!creature->canBeCarriedToBuilding(this))
+    // Only dead creatures can be carried to the crypt. Seat doesn't matter
+    if(creature->isAlive())
         return false;
 
     for(std::pair<Tile* const, std::pair<Creature*, int32_t> >& p : mRottingCreatures)
