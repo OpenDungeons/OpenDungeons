@@ -232,3 +232,8 @@ void RoomHatchery::handleCreatureUsingAbsorbedRoom(Creature& creature)
     creature.clearActionQueue();
     creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, true));
 }
+
+void RoomHatchery::creatureDropped(Creature& creature)
+{
+    creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, true));
+}

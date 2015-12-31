@@ -161,6 +161,8 @@ public:
     bool isRestRoom(Creature& creature) override
     { return true; }
 
+    void creatureDropped(Creature& creature) override;
+
     static const RoomType mRoomType;
 
 protected:

@@ -167,6 +167,10 @@ public:
     virtual bool permitsVision(Tile* tile)
     { return true; }
 
+    //! \brief Allows to customize creature behaviour when dropped on the given building
+    virtual void creatureDropped(Creature& creature)
+    {}
+
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;
 

@@ -707,3 +707,8 @@ bool Room::importRoomFromStream(Room& room, std::istream& is)
 {
     return room.importFromStream(is);
 }
+
+void Room::creatureDropped(Creature& creature)
+{
+    creature.pushAction(Utils::make_unique<CreatureActionSearchJob>(creature, true));
+}

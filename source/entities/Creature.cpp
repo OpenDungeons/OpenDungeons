@@ -2348,31 +2348,15 @@ void Creature::drop(const Ogre::Vector3& v)
     }
 
     // Fighters
+    // If we are dropped on a tile with a building, we notify it so that it
+    // can do some special actions
     Tile* tile = getPositionTile();
     if((tile != nullptr) &&
-       (tile->getCoveringRoom() != nullptr))
+       (tile->getCoveringBuilding() != nullptr))
     {
-        Room* room = tile->getCoveringRoom();
-        // we see if we are in an hatchery
-        if(room->getType() == RoomType::hatchery)
-        {
-            pushAction(Utils::make_unique<CreatureActionSearchFood>(*this, true));
-            return;
-        }
-
-        if(room->getType() == RoomType::dormitory)
-        {
-            pushAction(Utils::make_unique<CreatureActionSleep>(*this));
-            pushAction(Utils::make_unique<CreatureActionFindHome>(*this, true));
-            return;
-        }
-
-        // If not, can we work in this room ?
-        if(room->getType() != RoomType::hatchery)
-        {
-            pushAction(Utils::make_unique<CreatureActionSearchJob>(*this, true));
-            return;
-        }
+        Building* building = tile->getCoveringBuilding();
+        building->creatureDropped(*this);
+        return;
     }
 }
 

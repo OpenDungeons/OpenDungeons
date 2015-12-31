@@ -128,6 +128,8 @@ public:
     virtual bool isForcedToWork(Creature& creature) const
     { return false; }
 
+    virtual void creatureDropped(Creature& creature) override;
+
     static bool importRoomFromStream(Room& room, std::istream& is);
 
 protected:

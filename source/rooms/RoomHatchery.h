@@ -42,6 +42,8 @@ public:
     bool useRoom(Creature& creature, bool forced) override;
     void handleCreatureUsingAbsorbedRoom(Creature& creature) override;
 
+    void creatureDropped(Creature& creature) override;
+
     static const RoomType mRoomType;
 
 protected:

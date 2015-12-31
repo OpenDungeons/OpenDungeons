@@ -17,6 +17,8 @@
 
 #include "rooms/RoomDormitory.h"
 
+#include "creatureaction/CreatureActionFindHome.h"
+#include "creatureaction/CreatureActionSleep.h"
 #include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -28,6 +30,7 @@
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/MakeUnique.h"
 
 const std::string RoomDormitoryName = "Dormitory";
 const std::string RoomDormitoryNameDisplay = "Dormitory room";
@@ -552,4 +555,10 @@ void RoomDormitory::notifyCarryingStateChanged(Creature* carrier, GameEntity* ca
         return;
 
     creature->releasedInBed();
+}
+
+void RoomDormitory::creatureDropped(Creature& creature)
+{
+    creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));
+    creature.pushAction(Utils::make_unique<CreatureActionFindHome>(creature, true));
 }
