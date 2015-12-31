@@ -990,11 +990,15 @@ bool Tile::isGroundClaimable(Seat* seat) const
 
 void Tile::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
 {
+    GameEntity::exportToPacketForUpdate(os, seat);
+
     seat->exportTileToPacket(os, this);
 }
 
 void Tile::updateFromPacket(ODPacket& is)
 {
+    GameEntity::updateFromPacket(is);
+
     // This function should read parameters as sent by Tile::exportToPacketForUpdate
     int seatId;
     std::string meshName;

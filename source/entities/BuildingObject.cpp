@@ -19,7 +19,11 @@
 
 #include "entities/GameEntityType.h"
 #include "network/ODPacket.h"
+#include "game/Player.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
 #include "traps/TrapBoulder.h"
 #include "traps/TrapCannon.h"
 #include "traps/TrapSpike.h"
@@ -48,6 +52,31 @@ BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap) :
 GameEntityType BuildingObject::getObjectType() const
 {
     return GameEntityType::buildingObject;
+}
+
+void BuildingObject::doUpkeep()
+{
+    RenderedMovableEntity::doUpkeep();
+
+    for(auto it = mEntityParticleEffects.begin(); it != mEntityParticleEffects.end();)
+    {
+        EntityParticleEffect* effect = *it;
+        if(effect->mNbTurnsEffect < 0)
+        {
+            ++it;
+            continue;
+        }
+
+        if(effect->mNbTurnsEffect > 0)
+        {
+            --effect->mNbTurnsEffect;
+            ++it;
+            continue;
+        }
+
+        it = mEntityParticleEffects.erase(it);
+        delete effect;
+    }
 }
 
 BuildingObject* BuildingObject::getBuildingObjectFromPacket(GameMap* gameMap, ODPacket& is)
@@ -89,4 +118,32 @@ bool BuildingObject::importFromStream(std::istream& is)
         return false;
 
     return true;
+}
+
+void BuildingObject::addParticleEffect(const std::string& effectScript, uint32_t nbTurns)
+{
+    EntityParticleEffect* effect = new EntityParticleEffect(nextParticleSystemsName(), effectScript, nbTurns);
+    mEntityParticleEffects.push_back(effect);
+}
+
+void BuildingObject::fireRefresh()
+{
+    for(Seat* seat : mSeatsWithVisionNotified)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        const std::string& name = getName();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::entitiesRefresh, seat->getPlayer());
+        uint32_t nb = 1;
+        GameEntityType entityType = getObjectType();
+        serverNotification->mPacket << nb;
+        serverNotification->mPacket << entityType;
+        serverNotification->mPacket << name;
+        exportToPacketForUpdate(serverNotification->mPacket, seat);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }

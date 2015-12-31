@@ -42,6 +42,12 @@ public:
     virtual const Ogre::Vector3& getScale() const override
     { return mScale; }
 
+    void doUpkeep() override;
+
+    void addParticleEffect(const std::string& effectScript, uint32_t nbTurns);
+
+    void fireRefresh();
+
     static BuildingObject* getBuildingObjectFromPacket(GameMap* gameMap, ODPacket& is);
 
 protected:

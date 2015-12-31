@@ -59,15 +59,15 @@ enum class EntityCarryType
 
 enum class EntityParticleEffectType
 {
+    basic,
     creature,
-    missile,
     nbEffects
 };
 
 class EntityParticleEffect
 {
 public:
-    EntityParticleEffect(const std::string& name, const std::string& script, uint32_t nbTurnsEffect) :
+    EntityParticleEffect(const std::string& name, const std::string& script, int32_t nbTurnsEffect) :
         mName(name),
         mScript(script),
         mParticleSystem(nullptr),
@@ -77,12 +77,27 @@ public:
     virtual ~EntityParticleEffect()
     {}
 
-    virtual EntityParticleEffectType getEntityParticleEffectType() = 0;
+    //! \brief This function is to be used by Entities that would have more advanced
+    //! effects to know the type (and, thus, allow to cast the effect without using
+    //! dynamic cast
+    virtual EntityParticleEffectType getEntityParticleEffectType() const
+    { return EntityParticleEffectType::basic; }
+
+    //! \brief This functions allow to send the particle effect through the network.
+    //! Note that they are not to be overriden. On client side, we don't have to know
+    //! more than the script to play and how many turns
+    static void exportParticleEffectToPacket(const EntityParticleEffect& effect, ODPacket& os);
+    static EntityParticleEffect* importParticleEffectFromPacket(ODPacket& is);
+    //! \brief This function will check if the corresponding effect is already in the given
+    //! list (depending on its name) and will return nullptr if it is already. It is intended
+    //! to work for updates
+    static EntityParticleEffect* importParticleEffectFromPacketIfNotInList(const std::vector<EntityParticleEffect*>& effects, ODPacket& is);
 
     std::string mName;
     std::string mScript;
     Ogre::ParticleSystem* mParticleSystem;
-    uint32_t mNbTurnsEffect;
+    //! \brief Number of turns the effect will stay on the creature. -1 if always
+    int32_t mNbTurnsEffect;
 };
 
 /*! \brief Allows to subscribe to events happening to a GameEntity.
@@ -233,10 +248,8 @@ class GameEntity
     //! called on server side and the packet should be given to the corresponding entity in updateFromPacket
     //! exportToPacketForUpdate and updateFromPacket works like exportToPacket and importFromPacket but for entities
     //! that already exist on client side and that we only want to update (for example a creature that levels up)
-    virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
-    {}
-    virtual void updateFromPacket(ODPacket& is)
-    {}
+    virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const;
+    virtual void updateFromPacket(ODPacket& is);
 
     //! \brief Get if the object can be attacked or not
     virtual bool isAttackable(Tile* tile, Seat* seat) const

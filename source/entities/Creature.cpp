@@ -379,6 +379,11 @@ void Creature::exportToStream(std::ostream& os) const
     os << "\t" << nbEffects;
     for(EntityParticleEffect* effect : mEntityParticleEffects)
     {
+        // We only save creature particle effects. The other are expected to be re-created
+        // automatically (for example if it is a permanent effect for a creature)
+        if(effect->getEntityParticleEffectType() != EntityParticleEffectType::creature)
+            continue;
+
         CreatureParticuleEffect* creatureParticuleEffect = static_cast<CreatureParticuleEffect*>(effect);
         os << "\t";
         CreatureEffectManager::write(*creatureParticuleEffect->mEffect, os);
@@ -559,15 +564,6 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
         os << mWeaponR->getName();
     else
         os << "none";
-
-    uint32_t nbEffects = mEntityParticleEffects.size();
-    os << nbEffects;
-    for(EntityParticleEffect* effect : mEntityParticleEffects)
-    {
-        os << effect->mName;
-        os << effect->mScript;
-        os << effect->mNbTurnsEffect;
-    }
 }
 
 void Creature::importFromPacket(ODPacket& is)
@@ -620,20 +616,6 @@ void Creature::importFromPacket(ODPacket& is)
         }
     }
 
-    uint32_t nbEffects;
-    OD_ASSERT_TRUE(is >> nbEffects);
-
-    while(nbEffects > 0)
-    {
-        --nbEffects;
-
-        std::string effectName;
-        std::string effectScript;
-        uint32_t nbTurns;
-        OD_ASSERT_TRUE(is >> effectName >> effectScript >> nbTurns);
-        CreatureParticuleEffectClient* effect = new CreatureParticuleEffectClient(effectName, effectScript, nbTurns);
-        mEntityParticleEffects.push_back(effect);
-    }
     setupDefinition(*getGameMap(), *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
 }
 
@@ -1562,6 +1544,8 @@ void Creature::checkLevelUp()
 
 void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
 {
+    MovableGameEntity::exportToPacketForUpdate(os, seat);
+
     int seatId = getSeat()->getId();
     os << mLevel;
     os << seatId;
@@ -1585,15 +1569,6 @@ void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
     os << mLavaSpeed;
     os << mSpeedModifier;
 
-    uint32_t nbCreatureEffect = mEntityParticleEffects.size();
-    os << nbCreatureEffect;
-    for(EntityParticleEffect* effect : mEntityParticleEffects)
-    {
-        os << effect->mName;
-        os << effect->mScript;
-        os << effect->mNbTurnsEffect;
-    }
-
     int seatPrisonId = -1;
     if(mSeatPrison != nullptr)
         seatPrisonId = mSeatPrison->getId();
@@ -1603,6 +1578,8 @@ void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
 
 void Creature::updateFromPacket(ODPacket& is)
 {
+    MovableGameEntity::updateFromPacket(is);
+
     int seatId;
     OD_ASSERT_TRUE(is >> mLevel);
     OD_ASSERT_TRUE(is >> seatId);
@@ -1630,39 +1607,6 @@ void Creature::updateFromPacket(ODPacket& is)
         {
             setSeat(seat);
         }
-    }
-
-    uint32_t nbEffects;
-    OD_ASSERT_TRUE(is >> nbEffects);
-
-    // We copy the list of effects currently on this creature. That will allow to
-    // check if the effect is already known and only display the effect if it is not
-    std::vector<EntityParticleEffect*> currentEffects = mEntityParticleEffects;
-    while(nbEffects > 0)
-    {
-        --nbEffects;
-
-        std::string effectName;
-        std::string effectScript;
-        uint32_t nbTurns;
-        OD_ASSERT_TRUE(is >> effectName >> effectScript >> nbTurns);
-        bool isEffectAlreadyDisplayed = false;
-        for(EntityParticleEffect* effect : currentEffects)
-        {
-            if(effect->mName.compare(effectName) != 0)
-                continue;
-
-            isEffectAlreadyDisplayed = true;
-            break;
-        }
-
-        if(isEffectAlreadyDisplayed)
-            continue;
-
-        CreatureParticuleEffectClient* effect = new CreatureParticuleEffectClient(effectName, effectScript, nbTurns);
-        effect->mParticleSystem = RenderManager::getSingleton().rrEntityAddParticleEffect(this,
-            effect->mName, effect->mScript);
-        mEntityParticleEffects.push_back(effect);
     }
 
     OD_ASSERT_TRUE(is >> seatId);
@@ -2894,15 +2838,7 @@ bool Creature::isForcedToWork() const
     for(EntityParticleEffect* effect : mEntityParticleEffects)
     {
         if(effect->getEntityParticleEffectType() != EntityParticleEffectType::creature)
-        {
-            static bool logMsg = false;
-            if(!logMsg)
-            {
-                logMsg = true;
-                OD_LOG_ERR("Wrong effect on creature name=" + getName() + ", effectName=" + effect->mName + ", effectScript=" + effect->mScript);
-            }
             continue;
-        }
 
         CreatureParticuleEffect* creatureEffect = static_cast<CreatureParticuleEffect*>(effect);
         if(!creatureEffect->mEffect->isForcedToWork(*this))

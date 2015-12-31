@@ -88,6 +88,7 @@ void MapLight::addToGameMap()
 {
     getGameMap()->addMapLight(this);
     getGameMap()->addAnimatedObject(this);
+    getGameMap()->addClientUpkeepEntity(this);
 }
 
 void MapLight::removeFromGameMap()
@@ -96,7 +97,7 @@ void MapLight::removeFromGameMap()
     removeEntityFromPositionTile();
     getGameMap()->removeMapLight(this);
     getGameMap()->removeAnimatedObject(this);
-
+    getGameMap()->removeClientUpkeepEntity(this);
 
     if(!getIsOnServerMap())
         return;

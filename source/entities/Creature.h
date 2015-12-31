@@ -93,22 +93,10 @@ public:
 
     virtual ~CreatureParticuleEffect();
 
-    virtual EntityParticleEffectType getEntityParticleEffectType() override
+    virtual EntityParticleEffectType getEntityParticleEffectType() const override
     { return EntityParticleEffectType::creature; }
 
     CreatureEffect* mEffect;
-};
-
-//! Class used on client side to display the particle effects on the creature
-class CreatureParticuleEffectClient : public EntityParticleEffect
-{
-public:
-    CreatureParticuleEffectClient(const std::string& name, const std::string& script, uint32_t nbTurnsEffect) :
-        EntityParticleEffect(name, script, nbTurnsEffect)
-    {}
-
-    virtual EntityParticleEffectType getEntityParticleEffectType() override
-    { return EntityParticleEffectType::creature; }
 };
 
 /*! \class Creature Creature.h

@@ -95,6 +95,7 @@ void RenderedMovableEntity::addToGameMap()
 {
     getGameMap()->addRenderedMovableEntity(this);
     getGameMap()->addAnimatedObject(this);
+    getGameMap()->addClientUpkeepEntity(this);
 
     if(!getIsOnServerMap())
         return;
@@ -108,6 +109,7 @@ void RenderedMovableEntity::removeFromGameMap()
     removeEntityFromPositionTile();
     getGameMap()->removeRenderedMovableEntity(this);
     getGameMap()->removeAnimatedObject(this);
+    getGameMap()->removeClientUpkeepEntity(this);
 
     if(!getIsOnServerMap())
         return;
@@ -230,7 +232,6 @@ void RenderedMovableEntity::exportToPacket(ODPacket& os, const Seat* seat) const
     os << mOpacity;
     os << mRotationAngle;
     os << mHideCoveredTile;
-
 }
 
 void RenderedMovableEntity::importFromPacket(ODPacket& is)
