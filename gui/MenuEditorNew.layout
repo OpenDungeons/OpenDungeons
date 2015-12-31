@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/StaticImage" name="Background" >
+        <Property name="Area" value="{{0,0},{0,0},{1,2},{1,0}}" />
+        <Property name="Image" value="ODMainMenuBackground/MainMenuBackground" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
+        <Window type="OD/StaticText" name="LoadingText" >
+            <Property name="Area" value="{{0.5,-301},{0.5,240},{0.5,299},{0.5,260}}" />
+            <Property name="Text" value="Loading..." />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="HorzFormatting" value="CentreAligned" />
+            <Property name="BackgroundEnabled" value="False" />
+        </Window>
+        <Window type="OD/StaticImage" name="WelcomeBanner" >
+            <Property name="Area" value="{{0.5,-320},{0,52},{0.5,320},{0,191}}" />
+            <Property name="Image" value="ODLogo/Logo" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+        </Window>
+        <Window type="OD/StaticText" name="VersionText" >
+            <Property name="Area" value="{{0.5,200},{0,171},{0.5,300},{0,191}}" />
+            <Property name="Text" value="undefined" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+        </Window>
+        <Window type="OD/FrameWindow" name="LevelWindowFrame" >
+            <Property name="Area" value="{{0.5,-230},{0.5,-180},{0.5,230},{0.5,240}}" />
+            <Property name="Text" value="Please set your level main properties..." />
+            <Property name="SizingEnabled" value="False" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Window type="OD/StaticText" name="LevelTypeText" >
+                <Property name="Area" value="{{0,15},{0,35},{0,250},{0,60}}" />
+                <Property name="Text" value="Level Type:" />
+                <Property name="FrameEnabled" value="False" />
+                <Property name="BackgroundEnabled" value="False" />
+            </Window>
+            <Window type="OD/Combobox" name="LevelTypeSelect" >
+                <Property name="Area" value="{{0,260},{0,35},{0,440},{0,100}}" />
+                <Property name="ReadOnly" value="True" />
+            </Window>
+            <Window type="OD/StaticText" name="LevelFilenameText" >
+                <Property name="Area" value="{{0,15},{0,65},{0,250},{0,90}}" />
+                <Property name="Text" value="Filename:" />
+                <Property name="FrameEnabled" value="False" />
+                <Property name="BackgroundEnabled" value="False" />
+            </Window>
+            <Window type="OD/Editbox" name="LevelFilenameEdit" >
+                <Property name="Area" value="{{0,260},{0,65},{0,440},{0,90}}" />
+                <Property name="Font" value="LiberationSans-10" />
+            </Window>
+            <Window type="OD/StaticText" name="LevelTitleText" >
+                <Property name="Area" value="{{0,15},{0,95},{0,250},{0,120}}" />
+                <Property name="Text" value="Title:" />
+                <Property name="FrameEnabled" value="False" />
+                <Property name="BackgroundEnabled" value="False" />
+            </Window>
+            <Window type="OD/Editbox" name="LevelTitleEdit" >
+                <Property name="Area" value="{{0,260},{0,95},{0,440},{0,120}}" />
+                <Property name="Font" value="LiberationSans-10" />
+            </Window>
+            <Window type="OD/StaticText" name="LevelSizeText" >
+                <Property name="Area" value="{{0,15},{0,125},{0,250},{0,150}}" />
+                <Property name="Text" value="Map Size (Width x Height):" />
+                <Property name="FrameEnabled" value="False" />
+                <Property name="BackgroundEnabled" value="False" />
+            </Window>
+            <Window type="OD/Editbox" name="LevelWidthEdit" >
+                <Property name="Area" value="{{0,260},{0,125},{0,330},{0,150}}" />
+                <Property name="Font" value="LiberationSans-10" />
+                <Property name="Text" value="100" />
+            </Window>
+            <Window type="OD/StaticText" name="LevelXText" >
+                <Property name="Area" value="{{0,345},{0,125},{0,370},{0,150}}" />
+                <Property name="Text" value="X" />
+                <Property name="FrameEnabled" value="False" />
+                <Property name="BackgroundEnabled" value="False" />
+            </Window>
+            <Window type="OD/Editbox" name="LevelHeightEdit" >
+                <Property name="Area" value="{{0,370},{0,125},{0,440},{0,150}}" />
+                <Property name="Font" value="LiberationSans-10" />
+                <Property name="Text" value="100" />
+            </Window>
+            <Window type="OD/IconButton" name="SkillButton" >
+                <Property name="Area" value="{{0,15},{0,155},{0,145},{0,185}}" />
+                <Property name="Text" value="Edit Skills ..." />
+                <Property name="IconImage" value="OpenDungeonsIcons/SkillIcon" />
+                <Property name="Disabled" value="True" />
+            </Window>
+            <Window type="OD/IconButton" name="SeatButton" >
+                <Property name="Area" value="{{0,150},{0,155},{0,280},{0,185}}" />
+                <Property name="Text" value="Edit Seats ..." />
+                <Property name="IconImage" value="OpenDungeonsIcons/SeatIcon" />
+                <Property name="Disabled" value="True" />
+            </Window>
+            <Window type="OD/IconButton" name="ObjectivesButton" >
+                <Property name="Area" value="{{0,285},{0,155},{0,440},{0,185}}" />
+                <Property name="Text" value="Edit Objectives ..." />
+                <Property name="IconImage" value="OpenDungeonsIcons/ObjectivesIcon" />
+                <Property name="Disabled" value="True" />
+            </Window>
+            <Window type="OD/StaticText" name="LevelDescriptionText" >
+                <Property name="Area" value="{{0,15},{0,190},{0,440},{0,210}}" />
+                <Property name="Text" value="Level Description:" />
+                <Property name="FrameEnabled" value="False" />
+                <Property name="BackgroundEnabled" value="False" />
+            </Window>
+            <Window type="OD/MultiLineEditbox" name="LevelDescriptionEdit" >
+                <Property name="Area" value="{{0,15},{0,215},{0,440},{0,275}}" />
+                <Property name="Font" value="LiberationSans-10" />
+                <Property name="Text" value="" />
+            </Window>
+            <Window type="OD/IconButton" name="BackButton" >
+                <Property name="Area" value="{{0.5,-150},{1.0,-50},{0.5,-50},{1.0,-20}}" />
+                <Property name="Text" value="Back" />
+                <Property name="IconImage" value="OpenDungeonsIcons/AbortIcon" />
+            </Window>
+            <Window type="OD/IconButton" name="LaunchEditorButton" >
+                <Property name="Area" value="{{0.5,-30},{1.0,-50},{0.5,70},{1.0,-20}}" />
+                <Property name="Text" value="Create Level" />
+                <Property name="IconImage" value="OpenDungeonsIcons/CheckIcon" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>

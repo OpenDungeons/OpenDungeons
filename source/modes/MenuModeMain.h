@@ -49,7 +49,7 @@ private:
     //! \brief Sub menu button triggers
     bool toggleSkirmishSubMenu(const CEGUI::EventArgs&);
     bool toggleMultiplayerSubMenu(const CEGUI::EventArgs&);
-
+    bool toggleEditorSubMenu(const CEGUI::EventArgs&);
 };
 
 #endif // MENUMODEMAIN_H

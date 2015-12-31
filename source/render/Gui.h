@@ -51,6 +51,7 @@ public:
         multiplayerClientMenu,
         multiplayerServerMenu,
         multiMasterServerJoinMenu,
+        editorNewMenu,
         editorLoadMenu,
         editorModeGui,
         optionsMenu,
@@ -99,13 +100,6 @@ public:
     static const std::string TAB_COMBAT;
     static const std::string MM_BACKGROUND;
     static const std::string MM_WELCOME_MESSAGE;
-    static const std::string MM_BUTTON_START_SKIRMISH;
-    static const std::string MM_BUTTON_START_REPLAY;
-    static const std::string MM_BUTTON_START_MULTIPLAYER_CLIENT;
-    static const std::string MM_BUTTON_START_MULTIPLAYER_SERVER;
-    static const std::string MM_BUTTON_LOAD_GAME;
-    static const std::string MM_BUTTON_MAPEDITOR;
-    static const std::string MM_BUTTON_QUIT;
     static const std::string EDITOR;
     static const std::string EDITOR_LAVA_BUTTON;
     static const std::string EDITOR_GOLD_BUTTON;
