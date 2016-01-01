@@ -466,7 +466,10 @@ void GameEntity::clientUpkeep()
         EntityParticleEffect* effect = *it;
         // We check if it is a permanent effect
         if(effect->mNbTurnsEffect < 0)
+        {
+            ++it;
             continue;
+        }
 
         // We check if the effect is still active
         if(effect->mNbTurnsEffect > 0)
