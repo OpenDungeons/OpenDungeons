@@ -121,7 +121,11 @@ bool CreatureActionFindHome::handleFindHome(Creature& creature, bool forced)
     if (availableDormitories.empty())
     {
         // If we got here there are no reachable dormitory that are unclaimed so we quit trying to find one.
-        creature.getSeat()->getPlayer()->notifyCreatureCannotFindBed(creature);
+        if((creature.getSeat()->getPlayer() != nullptr) &&
+            (creature.getSeat()->getPlayer()->getIsHuman()))
+        {
+            creature.getSeat()->getPlayer()->notifyCreatureCannotFindBed(creature);
+        }
         creature.popAction();
         return true;
     }
