@@ -35,6 +35,7 @@
     <Image height="64" name="StoneBridgeButton" width="64" xPos="66" yPos="192" />
     <Image height="64" name="ArenaButton" width="64" xPos="448" yPos="192" />
     <Image height="64" name="CasinoButton" width="64" xPos="448" yPos="256" />
+    <Image height="64" name="TortureButton" width="64" xPos="384" yPos="256" />
     <Image height="64" name="WorkshopButton" width="64" xPos="130" yPos="192" />
     <Image height="64" name="TempleButton" width="64" xPos="320" yPos="192" />
     <Image height="64" name="PortalButton" width="64" xPos="384" yPos="192" />

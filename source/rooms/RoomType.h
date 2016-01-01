@@ -40,6 +40,7 @@ enum class RoomType
     bridgeStone,
     arena,
     casino,
+    torture,
     nbRooms     // Must be the last in this enum
 };
 

@@ -165,7 +165,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mDropCooldown            (0),
     mSpeedModifier           (1.0),
     mKoTurnCounter           (0),
-    mSeatPrison              (nullptr)
+    mSeatPrison              (nullptr),
+    mNbTurnsTorture          (0)
 
 {
     //TODO: This should be set in initialiser list in parent classes
@@ -240,7 +241,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mDropCooldown            (0),
     mSpeedModifier           (1.0),
     mKoTurnCounter           (0),
-    mSeatPrison              (nullptr)
+    mSeatPrison              (nullptr),
+    mNbTurnsTorture          (0)
 {
 }
 
@@ -851,7 +853,21 @@ void Creature::doUpkeep()
 
     // If the creature is in jail, it should not auto heal or do anything
     if(mSeatPrison != nullptr)
+    {
+        Tile* myTile = getPositionTile();
+        if(myTile == nullptr)
+        {
+            OD_LOG_ERR("name=" + getName() + ", position=" + Helper::toString(getPosition()));
+            return;
+        }
+
+        // If the creature is in a containment room, it should use it
+        Room* roomPrison = myTile->getCoveringRoom();
+        if((roomPrison != nullptr) && (decreaseJobCooldown()))
+            roomPrison->useRoom(*this, true);
+
         return;
+    }
 
     // If we are not standing somewhere on the map, do nothing.
     if (getPositionTile() == nullptr)
@@ -922,19 +938,7 @@ void Creature::doUpkeep()
             }
 
             Seat* rogueSeat = getGameMap()->getSeatRogue();
-            setSeat(rogueSeat);
-            mMoodValue = CreatureMoodLevel::Neutral;
-            mMoodPoints = 0;
-            mWakefulness = 100;
-            mHunger = 0;
-            clearDestinations(EntityAnimation::idle_anim, true, true);
-            clearActionQueue();
-            mNeedFireRefresh = true;
-            if (getHomeTile() != nullptr)
-            {
-                RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
-                home->releaseTileForSleeping(getHomeTile(), this);
-            }
+            changeSeat(rogueSeat);
         }
     }
 
@@ -3114,4 +3118,24 @@ bool Creature::needsToEat(bool forced) const
         return false;
 
     return true;
+}
+
+void Creature::changeSeat(Seat* newSeat)
+{
+    OD_LOG_INF("creature=" + getName() + " changes side from seatId=" + Helper::toString(getSeat()->getId()) + " to seatId=" + Helper::toString(newSeat->getId()));
+    OD_ASSERT_TRUE_MSG(getSeat() != newSeat, "creature=" + getName() + ", seatId=" + Helper::toString(newSeat->getId()));
+    setSeat(newSeat);
+    mMoodValue = CreatureMoodLevel::Neutral;
+    mMoodPoints = 0;
+    mWakefulness = 100;
+    mHunger = 0;
+    mNbTurnsTorture = 0;
+    clearDestinations(EntityAnimation::idle_anim, true, true);
+    clearActionQueue();
+    mNeedFireRefresh = true;
+    if (getHomeTile() != nullptr)
+    {
+        RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
+        home->releaseTileForSleeping(getHomeTile(), this);
+    }
 }

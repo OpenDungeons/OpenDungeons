@@ -433,9 +433,10 @@ set(OD_SOURCEFILES
     ${SRC}/rooms/RoomPortal.cpp
     ${SRC}/rooms/RoomPortalWave.cpp
     ${SRC}/rooms/RoomPrison.cpp
-    ${SRC}/rooms/RoomType.cpp
+    ${SRC}/rooms/RoomTorture.cpp
     ${SRC}/rooms/RoomTrainingHall.cpp
     ${SRC}/rooms/RoomTreasury.cpp
+    ${SRC}/rooms/RoomType.cpp
     ${SRC}/rooms/RoomWorkshop.cpp
 
     ${SRC}/sound/MusicPlayer.cpp

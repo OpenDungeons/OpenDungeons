@@ -20,8 +20,8 @@ particle_system Flame
         colour_range_start  1 0.2 0.6
         colour_range_end    1 0.6 0.6
         width           1
-        height          1
-        depth           0
+        height          0
+        depth           1
     }
 
     // Make em float upwards

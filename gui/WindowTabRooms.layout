@@ -95,7 +95,14 @@
             <Property name="Area" value="{{0,220},{0,50},{0,260},{0,90}}" />
             <Property name="Visible" value="False" />
             <Property name="NormalImage" value="OpenDungeonsIcons/CasinoButton" />
-            <Property name="TooltipText" value="Build an casino" />
+            <Property name="TooltipText" value="Build a casino" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
+        <Window type="OD/GameTabButton" name="TortureButton" >
+            <Property name="Area" value="{{0,260},{0,50},{0,300},{0,90}}" />
+            <Property name="Visible" value="False" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/TortureButton" />
+            <Property name="TooltipText" value="Build a torture room" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/GameTabButton" name="TempleButton" >

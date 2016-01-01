@@ -342,10 +342,20 @@ SkillManager::SkillManager() :
     mSkills[index] = def;
     lvl3depends.push_back(skill);
 
+    resType = SkillType::roomTorture;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::toString(resType));
+    skill = new Skill(resType, points, lvl3depends);
+    def = new SkillDefRoom("AttackSkills/", "TortureButton", skill, RoomType::torture);
+    def->mapSkill(mSkillsFamily);
+    mSkills[index] = def;
+    lvl4depends.push_back(skill);
+
     // Tech Skills
     lvl1depends.clear();
     lvl2depends.clear();
     lvl3depends.clear();
+    lvl4depends.clear();
 
     resType = SkillType::roomTreasury;
     index = static_cast<uint32_t>(resType);
@@ -422,6 +432,7 @@ SkillManager::SkillManager() :
     lvl1depends.clear();
     lvl2depends.clear();
     lvl3depends.clear();
+    lvl4depends.clear();
 
     // Lvl 1 skills
     resType = SkillType::roomLibrary;
