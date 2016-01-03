@@ -66,9 +66,6 @@ bool CreatureActionSearchEntityToCarry::handleSearchEntityToCarry(Creature& crea
     GameEntity* carryableEntityInMyTile = nullptr;
     for(GameEntity* entity : carryableEntities)
     {
-        // We check that the entity is free to be carried
-        if(entity->getCarryLock(creature))
-            continue;
         // We check that the carryable entity is reachable
         Tile* carryableEntTile = entity->getPositionTile();
         if(!creature.getGameMap()->pathExists(&creature, myTile, carryableEntTile))
