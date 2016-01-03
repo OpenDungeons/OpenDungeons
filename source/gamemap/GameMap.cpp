@@ -613,6 +613,10 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
         if(!creature->getDefinition()->isWorker())
             continue;
 
+        // Creatures in containment cannot be picked up like that
+        if(creature->isInContainment())
+            continue;
+
         if(!creature->tryPickup(seat))
             continue;
 

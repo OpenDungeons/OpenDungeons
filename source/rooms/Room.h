@@ -23,12 +23,12 @@
 #include <string>
 #include <iosfwd>
 
+class BuildingObject;
 class GameMap;
 class InputCommand;
 class InputManager;
 class ODPacket;
 class Seat;
-class RenderedMovableEntity;
 
 enum class RoomType;
 
@@ -75,11 +75,13 @@ public:
     virtual bool useRoom(Creature& creature, bool forced)
     { return false; }
 
-    //! \brief Returns true if the room is for creatures entertainment and false
-    //! otherwise. It will be used by the creature to know if it should stop to use
-    //! the room if hungry/sleepy/bad mood.
-    virtual bool isRestRoom(Creature& creature)
-    { return false; }
+    //! \brief Returns true if the creature should stop using the room if hungry/sleepy
+    virtual bool shouldStopUseIfHungrySleepy(Creature& creature, bool forced)
+    { return true; }
+
+    //! \brief Returns true if the creature should not use room if in bad mood
+    virtual bool shouldNotUseIfBadMood(Creature& creature, bool forced)
+    { return true; }
 
     //! \brief Updates the active spot lists.
     virtual void updateActiveSpots();
@@ -128,6 +130,11 @@ public:
     virtual bool isForcedToWork(Creature& creature) const
     { return false; }
 
+    virtual void creatureDropped(Creature& creature) override;
+
+    virtual bool isInContainment(Creature& creature)
+    { return false; }
+
     static bool importRoomFromStream(Room& room, std::istream& is);
 
 protected:
@@ -160,7 +167,7 @@ protected:
     //! \brief The number of active spots.
     unsigned int mNumActiveSpots;
 
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 
     //! \brief This function will be called when reordering room is needed (for example if another room has been absorbed)

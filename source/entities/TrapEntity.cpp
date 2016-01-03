@@ -27,9 +27,11 @@
 
 #include <iostream>
 
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
+
 TrapEntity::TrapEntity(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
-    PersistentObject(gameMap, isOnServerMap, buildingName, meshName, tile, rotationAngle, hideCoveredTile, opacity)
+    PersistentObject(gameMap, isOnServerMap, buildingName, meshName, tile, rotationAngle, SCALE, hideCoveredTile, opacity)
 {
 }
 

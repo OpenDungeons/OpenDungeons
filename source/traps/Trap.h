@@ -24,6 +24,7 @@
 #include <vector>
 #include <iosfwd>
 
+class BuildingObject;
 class CraftedTrap;
 class Creature;
 class GameMap;
@@ -31,7 +32,6 @@ class InputCommand;
 class InputManager;
 class ODPacket;
 class Player;
-class RenderedMovableEntity;
 class Seat;
 class Tile;
 class TrapEntity;
@@ -220,7 +220,7 @@ protected:
 
     virtual TrapTileData* createTileData(Tile* tile) override;
 
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
+    virtual BuildingObject* notifyActiveSpotCreated(Tile* tile);
     virtual TrapEntity* getTrapEntity(Tile* tile) = 0;
     virtual void notifyActiveSpotRemoved(Tile* tile);
 
@@ -237,7 +237,7 @@ protected:
 
     //! List of traps destroyed but with at least 1 player having vision. They will
     //! get removed when vision is gained by every player having seen it before destruction
-    std::vector<RenderedMovableEntity*> mTrapEntitiesWaitingRemove;
+    std::vector<BuildingObject*> mTrapEntitiesWaitingRemove;
 };
 
 #endif // TRAP_H

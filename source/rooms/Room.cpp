@@ -18,9 +18,9 @@
 #include "rooms/Room.h"
 
 #include "creatureaction/CreatureActionSearchJob.h"
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/GameEntityType.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -455,7 +455,7 @@ void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>
         if(std::find(originalSpotTiles.begin(), originalSpotTiles.end(), tile) == originalSpotTiles.end())
         {
             // The tile do not exist
-            RenderedMovableEntity* ro = notifyActiveSpotCreated(place, tile);
+            BuildingObject* ro = notifyActiveSpotCreated(place, tile);
             if(ro != nullptr)
             {
                 // The room wants to build a room onject. We add it to the gamemap
@@ -476,7 +476,7 @@ void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>
     }
 }
 
-RenderedMovableEntity* Room::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* Room::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     return nullptr;
 }
@@ -706,4 +706,9 @@ void Room::fireRoomSound(Tile& tile, const std::string& soundFamily)
 bool Room::importRoomFromStream(Room& room, std::istream& is)
 {
     return room.importFromStream(is);
+}
+
+void Room::creatureDropped(Creature& creature)
+{
+    creature.pushAction(Utils::make_unique<CreatureActionSearchJob>(creature, true));
 }

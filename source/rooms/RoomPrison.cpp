@@ -109,8 +109,9 @@ class RoomPrisonFactory : public RoomFactory
 static RoomRegister reg(new RoomPrisonFactory);
 }
 
-const int32_t OFFSET_TILE_X = 0;
-const int32_t OFFSET_TILE_Y = -1;
+static const int32_t OFFSET_TILE_X = 0;
+static const int32_t OFFSET_TILE_Y = -1;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomPrison::RoomPrison(GameMap* gameMap) :
     Room(gameMap)
@@ -118,7 +119,7 @@ RoomPrison::RoomPrison(GameMap* gameMap) :
     setMeshName("PrisonGround");
 }
 
-RenderedMovableEntity* RoomPrison::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomPrison::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {
@@ -129,19 +130,19 @@ RenderedMovableEntity* RoomPrison::notifyActiveSpotCreated(ActiveSpotPlace place
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "Skull", tile, 90.0, false);
+            return loadBuildingObject(getGameMap(), "Skull", tile, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "Skull", tile, 270.0, false);
+            return loadBuildingObject(getGameMap(), "Skull", tile, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "Skull", tile, 0.0, false);
+            return loadBuildingObject(getGameMap(), "Skull", tile, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "Skull", tile, 180.0, false);
+            return loadBuildingObject(getGameMap(), "Skull", tile, 180.0, SCALE, false);
         }
         default:
             break;
@@ -248,8 +249,12 @@ bool RoomPrison::hasCarryEntitySpot(GameEntity* carriedEntity)
         return false;
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
-    if(!creature->canBeCarriedToBuilding(this))
-        return false;
+    // Only ko to death enemy creatures should be carried to prison
+    if(creature->getKoTurnCounter() >= 0)
+       return false;
+
+    if(getSeat()->isAlliedSeat(creature->getSeat()))
+       return false;
 
     // We count current prisoners + prisoners on their way
     uint32_t nbCreatures = countPrisoners();
@@ -353,4 +358,12 @@ void RoomPrison::actionPrisoner(Creature* creature)
     std::vector<Ogre::Vector3> path;
     path.push_back(v);
     creature->setWalkPath(EntityAnimation::flee_anim, EntityAnimation::idle_anim, true, true, path);
+}
+
+bool RoomPrison::isInContainment(Creature& creature)
+{
+    if(creature.getSeatPrison() != getSeat())
+        return false;
+
+    return true;
 }

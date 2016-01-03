@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ROOMCASINO_H
-#define ROOMCASINO_H
+#ifndef ROOMTORTURE_H
+#define ROOMTORTURE_H
 
 #include "rooms/Room.h"
 #include "rooms/RoomType.h"
@@ -24,39 +24,32 @@
 class Creature;
 class Tile;
 
-class RoomCasinoGameCreatureInfo
+class RoomTortureCreatureInfo
 {
 public:
-    RoomCasinoGameCreatureInfo(Creature* creature, bool isReadyCreature) :
+    RoomTortureCreatureInfo() :
         mCreature(nullptr),
-        mIsReady(false)
+        mIsReady(false),
+        mState(0)
     {}
 
     Creature* mCreature;
     bool mIsReady;
+    uint32_t mState;
 };
 
-class RoomCasinoGame
+class RoomTorture: public Room
 {
 public:
-    RoomCasinoGame() :
-        mCreature1(nullptr, false),
-        mCreature2(nullptr, false),
-        mCooldown(0)
-    {}
-
-    RoomCasinoGameCreatureInfo mCreature1;
-    RoomCasinoGameCreatureInfo mCreature2;
-    uint32_t mCooldown;
-};
-
-class RoomCasino: public Room
-{
-public:
-    RoomCasino(GameMap* gameMap);
+    RoomTorture(GameMap* gameMap);
 
     RoomType getType() const override
     { return mRoomType; }
+
+    bool shouldStopUseIfHungrySleepy(Creature& creature, bool forced) override
+    { return false; }
+    bool shouldNotUseIfBadMood(Creature& creature, bool forced) override
+    { return false; }
 
     void doUpkeep() override;
     bool hasOpenCreatureSpot(Creature* creature) override;
@@ -65,6 +58,10 @@ public:
     void absorbRoom(Room* room) override;
     bool useRoom(Creature& creature, bool forced) override;
 
+    bool isInContainment(Creature& creature) override;
+
+    void creatureDropped(Creature& creature) override;
+
     static const RoomType mRoomType;
 
 protected:
@@ -72,9 +69,7 @@ protected:
     void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 
 private:
-    void setCreatureWinning(Creature& creature, const Ogre::Vector3& gamePosition);
-    void setCreatureLoosing(Creature& creature, const Ogre::Vector3& gamePosition);
-    std::map<Tile*,RoomCasinoGame> mCreaturesSpots;
+    std::map<Tile*,RoomTortureCreatureInfo> mCreaturesSpots;
 };
 
-#endif // ROOMCASINO_H
+#endif // ROOMTORTURE_H

@@ -19,7 +19,11 @@
 
 #include "entities/GameEntityType.h"
 #include "network/ODPacket.h"
+#include "game/Player.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
 #include "traps/TrapBoulder.h"
 #include "traps/TrapCannon.h"
 #include "traps/TrapSpike.h"
@@ -29,9 +33,10 @@
 #include <iostream>
 
 BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
-        const Ogre::Vector3& position, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
+        const Ogre::Vector3& position, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
         const std::string& initialAnimationState, bool initialAnimationLoop) :
-    RenderedMovableEntity(gameMap, isOnServerMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity)
+    RenderedMovableEntity(gameMap, isOnServerMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity),
+    mScale(scale)
 {
     mPosition = position;
     mPrevAnimationState = initialAnimationState;
@@ -39,7 +44,8 @@ BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap, const std::
 }
 
 BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap) :
-    RenderedMovableEntity(gameMap, isOnServerMap)
+    RenderedMovableEntity(gameMap, isOnServerMap),
+    mScale(1.0f, 1.0f, 1.0f)
 {
 }
 
@@ -48,9 +54,96 @@ GameEntityType BuildingObject::getObjectType() const
     return GameEntityType::buildingObject;
 }
 
+void BuildingObject::doUpkeep()
+{
+    RenderedMovableEntity::doUpkeep();
+
+    for(auto it = mEntityParticleEffects.begin(); it != mEntityParticleEffects.end();)
+    {
+        EntityParticleEffect* effect = *it;
+        if(effect->mNbTurnsEffect < 0)
+        {
+            ++it;
+            continue;
+        }
+
+        if(effect->mNbTurnsEffect > 0)
+        {
+            --effect->mNbTurnsEffect;
+            ++it;
+            continue;
+        }
+
+        it = mEntityParticleEffects.erase(it);
+        delete effect;
+    }
+}
+
 BuildingObject* BuildingObject::getBuildingObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
     BuildingObject* obj = new BuildingObject(gameMap, false);
     obj->importFromPacket(is);
     return obj;
+}
+
+void BuildingObject::exportToPacket(ODPacket& os, const Seat* seat) const
+{
+    RenderedMovableEntity::exportToPacket(os, seat);
+    os << mScale;
+}
+
+void BuildingObject::importFromPacket(ODPacket& is)
+{
+    RenderedMovableEntity::importFromPacket(is);
+    OD_ASSERT_TRUE(is >> mScale);
+}
+
+void BuildingObject::exportToStream(std::ostream& os) const
+{
+    RenderedMovableEntity::exportToStream(os);
+    os << mScale.x;
+    os << mScale.y;
+    os << mScale.z;
+}
+
+bool BuildingObject::importFromStream(std::istream& is)
+{
+    if(!RenderedMovableEntity::importFromStream(is))
+        return false;
+    if(!(is >> mScale.x))
+        return false;
+    if(!(is >> mScale.y))
+        return false;
+    if(!(is >> mScale.z))
+        return false;
+
+    return true;
+}
+
+void BuildingObject::addParticleEffect(const std::string& effectScript, uint32_t nbTurns)
+{
+    EntityParticleEffect* effect = new EntityParticleEffect(nextParticleSystemsName(), effectScript, nbTurns);
+    mEntityParticleEffects.push_back(effect);
+}
+
+void BuildingObject::fireRefresh()
+{
+    for(Seat* seat : mSeatsWithVisionNotified)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        const std::string& name = getName();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::entitiesRefresh, seat->getPlayer());
+        uint32_t nb = 1;
+        GameEntityType entityType = getObjectType();
+        serverNotification->mPacket << nb;
+        serverNotification->mPacket << entityType;
+        serverNotification->mPacket << name;
+        exportToPacketForUpdate(serverNotification->mPacket, seat);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }

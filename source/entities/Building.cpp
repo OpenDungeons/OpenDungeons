@@ -29,7 +29,7 @@
 
 const double Building::DEFAULT_TILE_HP = 10.0;
 
-const Ogre::Vector3 SCALE(RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
+static const Ogre::Vector3 SCALE(RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
         RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
         RenderManager::BLENDER_UNITS_PER_OGRE_UNIT);
 
@@ -80,7 +80,7 @@ const Ogre::Vector3& Building::getScale() const
     return SCALE;
 }
 
-void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
+void Building::addBuildingObject(Tile* targetTile, BuildingObject* obj)
 {
     if(obj == nullptr)
         return;
@@ -97,27 +97,23 @@ void Building::removeBuildingObject(Tile* tile)
     if(it == mBuildingObjects.end())
         return;
 
-    RenderedMovableEntity* obj = it->second;
+    BuildingObject* obj = it->second;
     obj->removeFromGameMap();
     obj->deleteYourself();
     mBuildingObjects.erase(it);
 }
 
-void Building::removeBuildingObject(RenderedMovableEntity* obj)
+void Building::removeBuildingObject(BuildingObject* obj)
 {
-    std::map<Tile*, RenderedMovableEntity*>::iterator it;
-
-    for (it = mBuildingObjects.begin(); it != mBuildingObjects.end(); ++it)
+    for (auto it = mBuildingObjects.begin(); it != mBuildingObjects.end(); ++it)
     {
-        if(it->second == obj)
-            break;
-    }
+        if(it->second != obj)
+            continue;
 
-    if(it != mBuildingObjects.end())
-    {
         obj->removeFromGameMap();
         obj->deleteYourself();
         mBuildingObjects.erase(it);
+        break;
     }
 }
 
@@ -152,27 +148,26 @@ void Building::removeAllBuildingObjects()
     if(mBuildingObjects.empty())
         return;
 
-    for (std::pair<Tile* const, RenderedMovableEntity*>& p : mBuildingObjects)
+    for (auto& p : mBuildingObjects)
     {
-        RenderedMovableEntity* obj = p.second;
-        obj->removeFromGameMap();
-        obj->deleteYourself();
+        p.second->removeFromGameMap();
+        p.second->deleteYourself();
     }
     mBuildingObjects.clear();
 }
 
-RenderedMovableEntity* Building::getBuildingObjectFromTile(Tile* tile)
+BuildingObject* Building::getBuildingObjectFromTile(Tile* tile)
 {
     auto it = mBuildingObjects.find(tile);
     if(it == mBuildingObjects.end())
         return nullptr;
 
-    RenderedMovableEntity* obj = it->second;
+    BuildingObject* obj = it->second;
     return obj;
 }
 
-RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-    Tile* targetTile, double rotationAngle, bool hideCoveredTile, float opacity,
+BuildingObject* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
+    Tile* targetTile, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
     const std::string& initialAnimationState, bool initialAnimationLoop)
 {
     if (targetTile == nullptr)
@@ -185,12 +180,12 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
     }
 
     return loadBuildingObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->getX()),
-        static_cast<double>(targetTile->getY()), rotationAngle, hideCoveredTile, opacity,
+        static_cast<double>(targetTile->getY()), rotationAngle, scale, hideCoveredTile, opacity,
         initialAnimationState, initialAnimationLoop);
 }
 
-RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-    Tile* targetTile, double x, double y, double rotationAngle, bool hideCoveredTile, float opacity,
+BuildingObject* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
+    Tile* targetTile, double x, double y, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
     const std::string& initialAnimationState, bool initialAnimationLoop)
 {
     std::string baseName;
@@ -201,7 +196,7 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
 
     Ogre::Vector3 position(static_cast<Ogre::Real>(x), static_cast<Ogre::Real>(y), 0);
     BuildingObject* obj = new BuildingObject(gameMap, getIsOnServerMap(), baseName, meshName,
-        position, static_cast<Ogre::Real>(rotationAngle), hideCoveredTile, opacity,
+        position, static_cast<Ogre::Real>(rotationAngle), scale, hideCoveredTile, opacity,
         initialAnimationState, initialAnimationLoop);
 
     return obj;

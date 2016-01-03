@@ -165,7 +165,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mDropCooldown            (0),
     mSpeedModifier           (1.0),
     mKoTurnCounter           (0),
-    mSeatPrison              (nullptr)
+    mSeatPrison              (nullptr),
+    mNbTurnsTorture          (0)
 
 {
     //TODO: This should be set in initialiser list in parent classes
@@ -240,7 +241,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mDropCooldown            (0),
     mSpeedModifier           (1.0),
     mKoTurnCounter           (0),
-    mSeatPrison              (nullptr)
+    mSeatPrison              (nullptr),
+    mNbTurnsTorture          (0)
 {
 }
 
@@ -379,6 +381,11 @@ void Creature::exportToStream(std::ostream& os) const
     os << "\t" << nbEffects;
     for(EntityParticleEffect* effect : mEntityParticleEffects)
     {
+        // We only save creature particle effects. The other are expected to be re-created
+        // automatically (for example if it is a permanent effect for a creature)
+        if(effect->getEntityParticleEffectType() != EntityParticleEffectType::creature)
+            continue;
+
         CreatureParticuleEffect* creatureParticuleEffect = static_cast<CreatureParticuleEffect*>(effect);
         os << "\t";
         CreatureEffectManager::write(*creatureParticuleEffect->mEffect, os);
@@ -559,15 +566,6 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
         os << mWeaponR->getName();
     else
         os << "none";
-
-    uint32_t nbEffects = mEntityParticleEffects.size();
-    os << nbEffects;
-    for(EntityParticleEffect* effect : mEntityParticleEffects)
-    {
-        os << effect->mName;
-        os << effect->mScript;
-        os << effect->mNbTurnsEffect;
-    }
 }
 
 void Creature::importFromPacket(ODPacket& is)
@@ -620,20 +618,6 @@ void Creature::importFromPacket(ODPacket& is)
         }
     }
 
-    uint32_t nbEffects;
-    OD_ASSERT_TRUE(is >> nbEffects);
-
-    while(nbEffects > 0)
-    {
-        --nbEffects;
-
-        std::string effectName;
-        std::string effectScript;
-        uint32_t nbTurns;
-        OD_ASSERT_TRUE(is >> effectName >> effectScript >> nbTurns);
-        CreatureParticuleEffectClient* effect = new CreatureParticuleEffectClient(effectName, effectScript, nbTurns);
-        mEntityParticleEffects.push_back(effect);
-    }
     setupDefinition(*getGameMap(), *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
 }
 
@@ -778,10 +762,10 @@ void Creature::doUpkeep()
             return;
         }
 
+        // We check if the creature is in containment
         Room* roomPrison = myTile->getCoveringRoom();
         if((roomPrison == nullptr) ||
-           (roomPrison->getType() != RoomType::prison) ||
-           (roomPrison->getSeat() != mSeatPrison))
+           (!roomPrison->isInContainment(*this)))
         {
             // it is not standing on a jail. It is free
             mSeatPrison = nullptr;
@@ -869,7 +853,21 @@ void Creature::doUpkeep()
 
     // If the creature is in jail, it should not auto heal or do anything
     if(mSeatPrison != nullptr)
+    {
+        Tile* myTile = getPositionTile();
+        if(myTile == nullptr)
+        {
+            OD_LOG_ERR("name=" + getName() + ", position=" + Helper::toString(getPosition()));
+            return;
+        }
+
+        // If the creature is in a containment room, it should use it
+        Room* roomPrison = myTile->getCoveringRoom();
+        if((roomPrison != nullptr) && (decreaseJobCooldown()))
+            roomPrison->useRoom(*this, true);
+
         return;
+    }
 
     // If we are not standing somewhere on the map, do nothing.
     if (getPositionTile() == nullptr)
@@ -940,19 +938,7 @@ void Creature::doUpkeep()
             }
 
             Seat* rogueSeat = getGameMap()->getSeatRogue();
-            setSeat(rogueSeat);
-            mMoodValue = CreatureMoodLevel::Neutral;
-            mMoodPoints = 0;
-            mWakefulness = 100;
-            mHunger = 0;
-            clearDestinations(EntityAnimation::idle_anim, true, true);
-            clearActionQueue();
-            mNeedFireRefresh = true;
-            if (getHomeTile() != nullptr)
-            {
-                RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
-                home->releaseTileForSleeping(getHomeTile(), this);
-            }
+            changeSeat(rogueSeat);
         }
     }
 
@@ -1562,6 +1548,8 @@ void Creature::checkLevelUp()
 
 void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
 {
+    MovableGameEntity::exportToPacketForUpdate(os, seat);
+
     int seatId = getSeat()->getId();
     os << mLevel;
     os << seatId;
@@ -1585,15 +1573,6 @@ void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
     os << mLavaSpeed;
     os << mSpeedModifier;
 
-    uint32_t nbCreatureEffect = mEntityParticleEffects.size();
-    os << nbCreatureEffect;
-    for(EntityParticleEffect* effect : mEntityParticleEffects)
-    {
-        os << effect->mName;
-        os << effect->mScript;
-        os << effect->mNbTurnsEffect;
-    }
-
     int seatPrisonId = -1;
     if(mSeatPrison != nullptr)
         seatPrisonId = mSeatPrison->getId();
@@ -1603,6 +1582,8 @@ void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
 
 void Creature::updateFromPacket(ODPacket& is)
 {
+    MovableGameEntity::updateFromPacket(is);
+
     int seatId;
     OD_ASSERT_TRUE(is >> mLevel);
     OD_ASSERT_TRUE(is >> seatId);
@@ -1630,39 +1611,6 @@ void Creature::updateFromPacket(ODPacket& is)
         {
             setSeat(seat);
         }
-    }
-
-    uint32_t nbEffects;
-    OD_ASSERT_TRUE(is >> nbEffects);
-
-    // We copy the list of effects currently on this creature. That will allow to
-    // check if the effect is already known and only display the effect if it is not
-    std::vector<EntityParticleEffect*> currentEffects = mEntityParticleEffects;
-    while(nbEffects > 0)
-    {
-        --nbEffects;
-
-        std::string effectName;
-        std::string effectScript;
-        uint32_t nbTurns;
-        OD_ASSERT_TRUE(is >> effectName >> effectScript >> nbTurns);
-        bool isEffectAlreadyDisplayed = false;
-        for(EntityParticleEffect* effect : currentEffects)
-        {
-            if(effect->mName.compare(effectName) != 0)
-                continue;
-
-            isEffectAlreadyDisplayed = true;
-            break;
-        }
-
-        if(isEffectAlreadyDisplayed)
-            continue;
-
-        CreatureParticuleEffectClient* effect = new CreatureParticuleEffectClient(effectName, effectScript, nbTurns);
-        effect->mParticleSystem = RenderManager::getSingleton().rrEntityAddParticleEffect(this,
-            effect->mName, effect->mScript);
-        mEntityParticleEffects.push_back(effect);
     }
 
     OD_ASSERT_TRUE(is >> seatId);
@@ -2348,31 +2296,15 @@ void Creature::drop(const Ogre::Vector3& v)
     }
 
     // Fighters
+    // If we are dropped on a tile with a building, we notify it so that it
+    // can do some special actions
     Tile* tile = getPositionTile();
     if((tile != nullptr) &&
-       (tile->getCoveringRoom() != nullptr))
+       (tile->getCoveringBuilding() != nullptr))
     {
-        Room* room = tile->getCoveringRoom();
-        // we see if we are in an hatchery
-        if(room->getType() == RoomType::hatchery)
-        {
-            pushAction(Utils::make_unique<CreatureActionSearchFood>(*this, true));
-            return;
-        }
-
-        if(room->getType() == RoomType::dormitory)
-        {
-            pushAction(Utils::make_unique<CreatureActionSleep>(*this));
-            pushAction(Utils::make_unique<CreatureActionFindHome>(*this, true));
-            return;
-        }
-
-        // If not, can we work in this room ?
-        if(room->getType() != RoomType::hatchery)
-        {
-            pushAction(Utils::make_unique<CreatureActionSearchJob>(*this, true));
-            return;
-        }
+        Building* building = tile->getCoveringBuilding();
+        building->creatureDropped(*this);
+        return;
     }
 }
 
@@ -2454,36 +2386,6 @@ void Creature::notifyEntityCarryOff(const Ogre::Vector3& position)
 {
     mPosition = position;
     addEntityToPositionTile();
-}
-
-bool Creature::canBeCarriedToBuilding(const Building* building) const
-{
-    // If the creature is dead, it can be carried to any crypt
-    if(!isAlive() &&
-       (building->getObjectType() == GameEntityType::room) &&
-       (static_cast<const Room*>(building)->getType() == RoomType::crypt))
-    {
-        return true;
-    }
-
-    // If the creature is ko to death, it can be carried to an enemy prison
-    if((mKoTurnCounter < 0) &&
-       (building->getObjectType() == GameEntityType::room) &&
-       (!building->getSeat()->isAlliedSeat(getSeat())) &&
-       (static_cast<const Room*>(building)->getType() == RoomType::prison))
-    {
-        return true;
-    }
-
-    // If the creature is ko to death, it can be carried to its bed
-    if((mKoTurnCounter < 0) &&
-       (mHomeTile != nullptr) &&
-       (mHomeTile->getCoveringBuilding() == building))
-    {
-        return true;
-    }
-
-    return false;
 }
 
 void Creature::carryEntity(GameEntity* carriedEntity)
@@ -2940,15 +2842,7 @@ bool Creature::isForcedToWork() const
     for(EntityParticleEffect* effect : mEntityParticleEffects)
     {
         if(effect->getEntityParticleEffectType() != EntityParticleEffectType::creature)
-        {
-            static bool logMsg = false;
-            if(!logMsg)
-            {
-                logMsg = true;
-                OD_LOG_ERR("Wrong effect on creature name=" + getName() + ", effectName=" + effect->mName + ", effectScript=" + effect->mScript);
-            }
             continue;
-        }
 
         CreatureParticuleEffect* creatureEffect = static_cast<CreatureParticuleEffect*>(effect);
         if(!creatureEffect->mEffect->isForcedToWork(*this))
@@ -3224,4 +3118,24 @@ bool Creature::needsToEat(bool forced) const
         return false;
 
     return true;
+}
+
+void Creature::changeSeat(Seat* newSeat)
+{
+    OD_LOG_INF("creature=" + getName() + " changes side from seatId=" + Helper::toString(getSeat()->getId()) + " to seatId=" + Helper::toString(newSeat->getId()));
+    OD_ASSERT_TRUE_MSG(getSeat() != newSeat, "creature=" + getName() + ", seatId=" + Helper::toString(newSeat->getId()));
+    setSeat(newSeat);
+    mMoodValue = CreatureMoodLevel::Neutral;
+    mMoodPoints = 0;
+    mWakefulness = 100;
+    mHunger = 0;
+    mNbTurnsTorture = 0;
+    clearDestinations(EntityAnimation::idle_anim, true, true);
+    clearActionQueue();
+    mNeedFireRefresh = true;
+    if (getHomeTile() != nullptr)
+    {
+        RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
+        home->releaseTileForSleeping(getHomeTile(), this);
+    }
 }

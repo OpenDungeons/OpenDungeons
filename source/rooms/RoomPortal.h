@@ -80,7 +80,7 @@ protected:
 private:
     //! \brief Stores the number of turns before spawning the next creature.
     int mSpawnCreatureCountdown;
-    RenderedMovableEntity* mPortalObject;
+    BuildingObject* mPortalObject;
 
     double mClaimedValue;
 

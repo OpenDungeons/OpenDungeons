@@ -17,9 +17,9 @@
 
 #include "rooms/RoomTrainingHall.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
@@ -106,8 +106,9 @@ class RoomTrainingHallFactory : public RoomFactory
 static RoomRegister reg(new RoomTrainingHallFactory);
 }
 
-const Ogre::Real RoomTrainingHall::OFFSET_CREATURE = 0.3;
-const Ogre::Real RoomTrainingHall::OFFSET_DUMMY = 0.3;
+static const Ogre::Real OFFSET_CREATURE = 0.3;
+static const Ogre::Real OFFSET_DUMMY = 0.3;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomTrainingHall::RoomTrainingHall(GameMap* gameMap) :
     Room(gameMap),
@@ -133,7 +134,7 @@ void RoomTrainingHall::absorbRoom(Room *r)
     OD_ASSERT_TRUE_MSG(roomAbs->mCreaturesDummies.empty(), "room=" + getName() + ", roomAbs=" + roomAbs->getName());
 }
 
-RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
     Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
@@ -146,13 +147,13 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             switch(Random::Int(1, 4))
             {
                 case 1:
-                    return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 0.0, false);
+                    return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 0.0, SCALE, false);
                 case 2:
-                    return loadBuildingObject(getGameMap(), "TrainingDummy2", tile, x, y, 0.0, false);
+                    return loadBuildingObject(getGameMap(), "TrainingDummy2", tile, x, y, 0.0, SCALE, false);
                 case 3:
-                    return loadBuildingObject(getGameMap(), "TrainingDummy3", tile, x, y, 0.0, false);
+                    return loadBuildingObject(getGameMap(), "TrainingDummy3", tile, x, y, 0.0, SCALE, false);
                 case 4:
-                    return loadBuildingObject(getGameMap(), "TrainingDummy4", tile, x, y, 0.0, false);
+                    return loadBuildingObject(getGameMap(), "TrainingDummy4", tile, x, y, 0.0, SCALE, false);
                 default:
                     break;
             }
@@ -161,25 +162,25 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
         {
             x -= OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 90.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
             x += OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 270.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
             y += OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 0.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
             y -= OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 180.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 180.0, SCALE, false);
         }
         default:
             break;
@@ -359,7 +360,7 @@ bool RoomTrainingHall::useRoom(Creature& creature, bool forced)
     Ogre::Real wantedX = static_cast<Ogre::Real>(tileSpot->getX());
     Ogre::Real wantedY = static_cast<Ogre::Real>(tileSpot->getY()) - OFFSET_CREATURE;
 
-    RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
+    BuildingObject* ro = getBuildingObjectFromTile(tileSpot);
     if(ro == nullptr)
     {
         OD_LOG_ERR("unexpected null building object");

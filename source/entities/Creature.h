@@ -93,22 +93,10 @@ public:
 
     virtual ~CreatureParticuleEffect();
 
-    virtual EntityParticleEffectType getEntityParticleEffectType() override
+    virtual EntityParticleEffectType getEntityParticleEffectType() const override
     { return EntityParticleEffectType::creature; }
 
     CreatureEffect* mEffect;
-};
-
-//! Class used on client side to display the particle effects on the creature
-class CreatureParticuleEffectClient : public EntityParticleEffect
-{
-public:
-    CreatureParticuleEffectClient(const std::string& name, const std::string& script, uint32_t nbTurnsEffect) :
-        EntityParticleEffect(name, script, nbTurnsEffect)
-    {}
-
-    virtual EntityParticleEffectType getEntityParticleEffectType() override
-    { return EntityParticleEffectType::creature; }
 };
 
 /*! \class Creature Creature.h
@@ -208,6 +196,9 @@ public:
     { return mWaterSpeed; }
     inline double getMoveSpeedLava() const
     { return mLavaSpeed; }
+
+    inline int32_t getKoTurnCounter() const
+    { return mKoTurnCounter; }
 
     //! \brief Updates the entity path, movement, and direction, and creature attack time
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
@@ -400,7 +391,6 @@ public:
     virtual EntityCarryType getEntityCarryType(Creature* carrier);
     virtual void notifyEntityCarryOn(Creature* carrier);
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
-    bool canBeCarriedToBuilding(const Building* building) const;
 
     bool canSlap(Seat* seat);
     void slap();
@@ -529,6 +519,15 @@ public:
     inline Seat* getSeatPrison() const
     { return mSeatPrison; }
 
+    inline bool isInContainment() const
+    { return (mSeatPrison != nullptr); }
+
+    inline int32_t getNbTurnsTorture() const
+    { return mNbTurnsTorture; }
+
+    inline void increaseTurnsTorture()
+    { ++mNbTurnsTorture; }
+
     virtual bool isDangerous(const Creature* creature, int distance) const override;
 
     virtual void clientUpkeep() override;
@@ -572,6 +571,9 @@ public:
     //! the creature is forced to eat (ie it has been dropped on a hatchery) and
     //! false otherwise
     bool needsToEat(bool forced) const;
+
+    //! \brief Called when the creature changes seat (for example when it becomes rogue or after torture)
+    void changeSeat(Seat* newSeat);
 
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
@@ -735,6 +737,10 @@ private:
     //! \brief If nullptr, the creature is not in prison. If not, it is in the prison of
     //! the given seat
     Seat*                           mSeatPrison;
+
+    // TODO: use same for prison to allow to use it in mood modifiers
+    //! \brief allows to know how many turns a creature has been tortured
+    int32_t                         mNbTurnsTorture;
 
     //! \brief Skills the creature can use
     std::vector<CreatureSkillData> mSkillData;

@@ -17,10 +17,12 @@
 
 #include "rooms/RoomDormitory.h"
 
+#include "creatureaction/CreatureActionFindHome.h"
+#include "creatureaction/CreatureActionSleep.h"
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/GameEntityType.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
@@ -28,6 +30,7 @@
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/MakeUnique.h"
 
 const std::string RoomDormitoryName = "Dormitory";
 const std::string RoomDormitoryNameDisplay = "Dormitory room";
@@ -105,6 +108,8 @@ class RoomDormitoryFactory : public RoomFactory
 // Register the factory
 static RoomRegister reg(new RoomDormitoryFactory);
 }
+
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomDormitory::RoomDormitory(GameMap* gameMap) :
     Room(gameMap)
@@ -245,7 +250,7 @@ void RoomDormitory::createBed(Tile* sleepTile, int x, int y, int width, int heig
     // Add the model
     double xMesh = static_cast<double>(x) + (static_cast<double>(width) / 2.0) - 0.5;
     double yMesh = static_cast<double>(y) + (static_cast<double>(height) / 2.0) - 0.5;
-    RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), c->getDefinition()->getBedMeshName(), sleepTile, xMesh, yMesh, rotationAngle, false);
+    BuildingObject* ro = loadBuildingObject(getGameMap(), c->getDefinition()->getBedMeshName(), sleepTile, xMesh, yMesh, rotationAngle, SCALE, false);
     addBuildingObject(sleepTile, ro);
     ro->createMesh();
     // Save the info for later...
@@ -275,7 +280,7 @@ bool RoomDormitory::releaseTileForSleeping(Tile* t, Creature* c)
     c->setHomeTile(nullptr);
 
     // Make the building object delete itself and remove it from the map
-    RenderedMovableEntity* roomObject = getBuildingObjectFromTile(homeTile);
+    BuildingObject* roomObject = getBuildingObjectFromTile(homeTile);
     removeBuildingObject(roomObject);
 
     // Remove the bedinfo as well
@@ -505,7 +510,15 @@ bool RoomDormitory::hasCarryEntitySpot(GameEntity* carriedEntity)
         return false;
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
-    if(!creature->canBeCarriedToBuilding(this))
+    // Only ko to death creatures owning a bed in this dormitory should be carried here
+    if(creature->getKoTurnCounter() >= 0)
+        return false;
+
+    Tile* homeTile = creature->getHomeTile();
+    if(homeTile == nullptr)
+        return false;
+
+    if(homeTile->getCoveringRoom() != this)
         return false;
 
     return true;
@@ -550,4 +563,10 @@ void RoomDormitory::notifyCarryingStateChanged(Creature* carrier, GameEntity* ca
         return;
 
     creature->releasedInBed();
+}
+
+void RoomDormitory::creatureDropped(Creature& creature)
+{
+    creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));
+    creature.pushAction(Utils::make_unique<CreatureActionFindHome>(creature, true));
 }

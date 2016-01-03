@@ -36,16 +36,20 @@ public:
 
     void doUpkeep() override;
     bool hasOpenCreatureSpot(Creature* c) override;
-    bool isRestRoom(Creature& creature) override
-    { return true; }
+    bool shouldStopUseIfHungrySleepy(Creature& creature, bool forced) override
+    { return false; }
+    bool shouldNotUseIfBadMood(Creature& creature, bool forced) override
+    { return false; }
 
     bool useRoom(Creature& creature, bool forced) override;
     void handleCreatureUsingAbsorbedRoom(Creature& creature) override;
 
+    void creatureDropped(Creature& creature) override;
+
     static const RoomType mRoomType;
 
 protected:
-    RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
+    BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
     void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
     uint32_t getNbChickens();

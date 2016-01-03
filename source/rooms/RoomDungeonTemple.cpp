@@ -91,6 +91,8 @@ class RoomDungeonTempleFactory : public RoomFactory
 static RoomRegister reg(new RoomDungeonTempleFactory);
 }
 
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
+
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),
     mTempleObject(nullptr)
@@ -114,12 +116,12 @@ void RoomDungeonTemple::updateActiveSpots()
                 updateTemplePosition();
             else
             {
-                for(std::pair<Tile* const, RenderedMovableEntity*>& p : mBuildingObjects)
+                for(auto& p : mBuildingObjects)
                 {
                     if(p.second == nullptr)
                         continue;
 
-                    // We take the first RenderedMovableEntity. Note that we cannot use
+                    // We take the first BuildingObject. Note that we cannot use
                     // the central tile because after saving a game, the central tile may
                     // not be the same if some tiles have been destroyed
                     mTempleObject = p.second;
@@ -144,7 +146,7 @@ void RoomDungeonTemple::updateTemplePosition()
     if (centralTile == nullptr)
         return;
 
-    mTempleObject = new PersistentObject(getGameMap(), true, getName(), "DungeonTempleObject", centralTile, 0.0, false);
+    mTempleObject = new PersistentObject(getGameMap(), true, getName(), "DungeonTempleObject", centralTile, 0.0, SCALE, false);
     addBuildingObject(centralTile, mTempleObject);
 }
 

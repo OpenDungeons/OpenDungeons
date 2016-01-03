@@ -17,10 +17,10 @@
 
 #include "rooms/RoomPortal.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/PersistentObject.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -96,7 +96,8 @@ class RoomPortalFactory : public RoomFactory
 static RoomRegister reg(new RoomPortalFactory);
 }
 
-const double CLAIMED_VALUE_PER_TILE = 1.0;
+static const double CLAIMED_VALUE_PER_TILE = 1.0;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomPortal::RoomPortal(GameMap* gameMap) :
         Room(gameMap),
@@ -167,12 +168,12 @@ void RoomPortal::updateActiveSpots()
                 updatePortalPosition();
             else
             {
-                for(std::pair<Tile* const, RenderedMovableEntity*>& p : mBuildingObjects)
+                for(auto& p : mBuildingObjects)
                 {
                     if(p.second == nullptr)
                         continue;
 
-                    // We take the first RenderedMovableEntity. Note that we cannot use
+                    // We take the first BuildingObject. Note that we cannot use
                     // the central tile because after saving a game, the central tile may
                     // not be the same if some tiles have been destroyed
                     mPortalObject = p.second;
@@ -193,7 +194,7 @@ void RoomPortal::updatePortalPosition()
     if (centralTile == nullptr)
         return;
 
-    mPortalObject = new PersistentObject(getGameMap(), true, getName(), "PortalObject", centralTile, 0.0, false);
+    mPortalObject = new PersistentObject(getGameMap(), true, getName(), "PortalObject", centralTile, 0.0, SCALE, false);
     addBuildingObject(centralTile, mPortalObject);
 
     mPortalObject->setAnimationState("Idle");

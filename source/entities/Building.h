@@ -25,8 +25,8 @@
 
 #include "entities/GameEntity.h"
 
+class BuildingObject;
 class GameMap;
-class RenderedMovableEntity;
 class Tile;
 class Room;
 class Seat;
@@ -95,14 +95,14 @@ public:
     bool canBuildingBeRemoved();
 
     void removeAllBuildingObjects();
-    /*! \brief Creates a child RenderedMovableEntity mesh using the given mesh name and placing on the target tile,
+    /*! \brief Creates a child BuildingObject mesh using the given mesh name and placing on the target tile,
      *  if the tile is nullptr the object appears in the building's center, the rotation angle is given in degrees.
      */
-    RenderedMovableEntity* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-        Tile* targetTile, double rotationAngle, bool hideCoveredTile, float opacity = 1.0f,
+    BuildingObject* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
+        Tile* targetTile, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity = 1.0f,
         const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
-    RenderedMovableEntity* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-        Tile* targetTile, double x, double y, double rotationAngle, bool hideCoveredTile, float opacity = 1.0f,
+    BuildingObject* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
+        Tile* targetTile, double x, double y, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity = 1.0f,
         const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
     Tile* getCentralTile();
 
@@ -167,6 +167,10 @@ public:
     virtual bool permitsVision(Tile* tile)
     { return true; }
 
+    //! \brief Allows to customize creature behaviour when dropped on the given building
+    virtual void creatureDropped(Creature& creature)
+    {}
+
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;
 
@@ -188,17 +192,17 @@ protected:
     //! child classes can expand TileData and add the data they need
     virtual TileData* createTileData(Tile* tile);
 
-    void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
+    void addBuildingObject(Tile* targetTile, BuildingObject* obj);
     void removeBuildingObject(Tile* tile);
-    void removeBuildingObject(RenderedMovableEntity* obj);
-    RenderedMovableEntity* getBuildingObjectFromTile(Tile* tile);
+    void removeBuildingObject(BuildingObject* obj);
+    BuildingObject* getBuildingObjectFromTile(Tile* tile);
     //! \brief Buildings are handled by the tile, they don't fire add/remove events
     void fireAddEntity(Seat* seat, bool async)
     {}
     void fireRemoveEntity(Seat* seat)
     {}
 
-    std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
+    std::map<Tile*, BuildingObject*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;
     std::vector<Tile*> mCoveredTilesDestroyed;
     std::map<Tile*, TileData*> mTileData;

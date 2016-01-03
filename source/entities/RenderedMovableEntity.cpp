@@ -43,7 +43,7 @@
 
 const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX = "RenderedMovableEntity_";
 
-const Ogre::Vector3 SCALE(0.7,0.7,0.7);
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, const std::string& nMeshName,
         Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
@@ -95,6 +95,7 @@ void RenderedMovableEntity::addToGameMap()
 {
     getGameMap()->addRenderedMovableEntity(this);
     getGameMap()->addAnimatedObject(this);
+    getGameMap()->addClientUpkeepEntity(this);
 
     if(!getIsOnServerMap())
         return;
@@ -108,6 +109,7 @@ void RenderedMovableEntity::removeFromGameMap()
     removeEntityFromPositionTile();
     getGameMap()->removeRenderedMovableEntity(this);
     getGameMap()->removeAnimatedObject(this);
+    getGameMap()->removeClientUpkeepEntity(this);
 
     if(!getIsOnServerMap())
         return;
@@ -230,7 +232,6 @@ void RenderedMovableEntity::exportToPacket(ODPacket& os, const Seat* seat) const
     os << mOpacity;
     os << mRotationAngle;
     os << mHideCoveredTile;
-
 }
 
 void RenderedMovableEntity::importFromPacket(ODPacket& is)

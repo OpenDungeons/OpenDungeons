@@ -35,7 +35,7 @@ MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap, Seat* seat, c
 {
     if(!particleScript.empty())
     {
-        MissileParticuleEffectClient* effect = new MissileParticuleEffectClient(nextParticleSystemsName(), particleScript, -1);
+        EntityParticleEffect* effect = new EntityParticleEffect(nextParticleSystemsName(), particleScript, -1);
         mEntityParticleEffects.push_back(effect);
     }
 }
@@ -107,41 +107,9 @@ bool MissileOneHit::importFromStream(std::istream& is)
         std::string effectScript;
         if(!(is >> effectScript))
             return false;
-        MissileParticuleEffectClient* effect = new MissileParticuleEffectClient(nextParticleSystemsName(), effectScript, -1);
+        EntityParticleEffect* effect = new EntityParticleEffect(nextParticleSystemsName(), effectScript, -1);
         mEntityParticleEffects.push_back(effect);
     }
 
     return true;
-}
-
-void MissileOneHit::exportToPacket(ODPacket& os, const Seat* seat) const
-{
-    MissileObject::exportToPacket(os, seat);
-    uint32_t nbEffects = mEntityParticleEffects.size();
-    os << nbEffects;
-    for(EntityParticleEffect* effect : mEntityParticleEffects)
-    {
-        os << effect->mName;
-        os << effect->mScript;
-        os << effect->mNbTurnsEffect;
-    }
-}
-
-void MissileOneHit::importFromPacket(ODPacket& is)
-{
-    MissileObject::importFromPacket(is);
-    uint32_t nbEffects;
-    OD_ASSERT_TRUE(is >> nbEffects);
-
-    while(nbEffects > 0)
-    {
-        --nbEffects;
-
-        std::string effectName;
-        std::string effectScript;
-        uint32_t nbTurns;
-        OD_ASSERT_TRUE(is >> effectName >> effectScript >> nbTurns);
-        MissileParticuleEffectClient* effect = new MissileParticuleEffectClient(effectName, effectScript, nbTurns);
-        mEntityParticleEffects.push_back(effect);
-    }
 }

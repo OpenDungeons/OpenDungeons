@@ -45,10 +45,12 @@ public:
     Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
 
+    bool isInContainment(Creature& creature) override;
+
     static const RoomType mRoomType;
 
 protected:
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
+    virtual BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
 private:
     std::vector<Creature*> mPendingPrisoners;
 };

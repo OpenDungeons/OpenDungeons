@@ -40,6 +40,7 @@ enum class SkillType
     roomPrison,
     roomTrainingHall,
     roomTreasury,
+    roomTorture,
     roomWorkshop,
 
     // Traps

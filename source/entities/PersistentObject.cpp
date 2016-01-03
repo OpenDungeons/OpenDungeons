@@ -29,18 +29,23 @@
 #include <iostream>
 
 PersistentObject::PersistentObject(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
-        Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
-    RenderedMovableEntity(gameMap, isOnServerMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity),
+        Tile* tile, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity) :
+    BuildingObject(gameMap,
+        isOnServerMap,
+        buildingName,
+        meshName,
+        Ogre::Vector3(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), 0),
+        rotationAngle,
+        scale,
+        hideCoveredTile,
+        opacity),
     mTile(tile),
     mIsWorking(true)
 {
-    mPosition.x = static_cast<Ogre::Real>(mTile->getX());
-    mPosition.y = static_cast<Ogre::Real>(mTile->getY());
-    mPosition.z = 0;
 }
 
 PersistentObject::PersistentObject(GameMap* gameMap, bool isOnServerMap) :
-    RenderedMovableEntity(gameMap, isOnServerMap)
+    BuildingObject(gameMap, isOnServerMap)
 {
 }
 
@@ -139,14 +144,14 @@ void PersistentObject::fireRemoveEntityToSeatsWithVision()
 
 void PersistentObject::exportToPacket(ODPacket& os, const Seat* seat) const
 {
-    RenderedMovableEntity::exportToPacket(os, seat);
+    BuildingObject::exportToPacket(os, seat);
 
     getGameMap()->tileToPacket(os, mTile);
 }
 
 void PersistentObject::importFromPacket(ODPacket& is)
 {
-    RenderedMovableEntity::importFromPacket(is);
+    BuildingObject::importFromPacket(is);
 
     mTile = getGameMap()->tileFromPacket(is);
     if(mTile == nullptr)

@@ -49,7 +49,7 @@ public:
     static const RoomType mRoomType;
 
 protected:
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;
 

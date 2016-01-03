@@ -44,11 +44,9 @@ public:
     static const RoomType mRoomType;
 
 protected:
-    RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
+    BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
     void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
-    static const Ogre::Real OFFSET_CREATURE;
-    static const Ogre::Real OFFSET_DUMMY;
     int32_t nbTurnsNoChangeDummies;
     void refreshCreaturesDummies();
     std::vector<Tile*> mUnusedDummies;

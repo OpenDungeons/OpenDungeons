@@ -33,8 +33,6 @@ const std::string RoomArenaName = "Arena";
 const std::string RoomArenaNameDisplay = "Arena room";
 const RoomType RoomArena::mRoomType = RoomType::arena;
 
-static const Ogre::Real OFFSET_DUMMY = 0.3;
-
 namespace
 {
 class RoomArenaFactory : public RoomFactory
@@ -107,6 +105,9 @@ class RoomArenaFactory : public RoomFactory
 // Register the factory
 static RoomRegister reg(new RoomArenaFactory);
 }
+
+static const Ogre::Real OFFSET_DUMMY = 0.3;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomArena::RoomArena(GameMap* gameMap) :
     Room(gameMap),
@@ -238,7 +239,7 @@ void RoomArena::doUpkeep()
     }
 }
 
-RenderedMovableEntity* RoomArena::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomArena::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
     Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
@@ -252,25 +253,25 @@ RenderedMovableEntity* RoomArena::notifyActiveSpotCreated(ActiveSpotPlace place,
         {
             x -= OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 90.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
             x += OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 270.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
             y += OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 0.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
             y -= OFFSET_DUMMY;
             std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
-            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 180.0, false);
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 180.0, SCALE, false);
         }
         default:
             break;

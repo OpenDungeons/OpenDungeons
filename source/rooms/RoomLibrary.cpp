@@ -17,10 +17,10 @@
 
 #include "rooms/RoomLibrary.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/GameEntityType.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/SkillEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
@@ -110,8 +110,9 @@ class RoomLibraryFactory : public RoomFactory
 static RoomRegister reg(new RoomLibraryFactory);
 }
 
-const Ogre::Real OFFSET_CREATURE = 0.3;
-const Ogre::Real OFFSET_SPOT = 0.3;
+static const Ogre::Real OFFSET_CREATURE = 0.3;
+static const Ogre::Real OFFSET_SPOT = 0.3;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomLibrary::RoomLibrary(GameMap* gameMap) :
     Room(gameMap),
@@ -120,7 +121,7 @@ RoomLibrary::RoomLibrary(GameMap* gameMap) :
     setMeshName("Library");
 }
 
-RenderedMovableEntity* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {
@@ -134,25 +135,25 @@ RenderedMovableEntity* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace plac
             y += OFFSET_SPOT;
             mUnusedSpots.push_back(tile);
             if (Random::Int(0, 100) > 50)
-                return loadBuildingObject(getGameMap(), "Podium", tile, x, y, 45.0, false);
+                return loadBuildingObject(getGameMap(), "Podium", tile, x, y, 45.0, SCALE, false);
             else
-                return loadBuildingObject(getGameMap(), "Bookcase", tile, x, y, 45.0, false);
+                return loadBuildingObject(getGameMap(), "Bookcase", tile, x, y, 45.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 90.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 270.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 0.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 180.0, false);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 180.0, SCALE, false);
         }
         default:
             break;
@@ -343,7 +344,7 @@ bool RoomLibrary::useRoom(Creature& creature, bool forced)
     Ogre::Real wantedY = -1;
     getCreatureWantedPos(&creature, tileSpot, wantedX, wantedY);
 
-    RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
+    BuildingObject* ro = getBuildingObjectFromTile(tileSpot);
     if(ro == nullptr)
     {
         OD_LOG_ERR("unexpected null building object");

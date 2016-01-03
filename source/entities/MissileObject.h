@@ -41,18 +41,6 @@ ODPacket& operator>>(ODPacket& is, MissileObjectType& rot);
 std::ostream& operator<<(std::ostream& os, const MissileObjectType& rot);
 std::istream& operator>>(std::istream& is, MissileObjectType& rot);
 
-//! Class used on client side to display the particle effects on the missile
-class MissileParticuleEffectClient : public EntityParticleEffect
-{
-public:
-    MissileParticuleEffectClient(const std::string& name, const std::string& script, uint32_t nbTurnsEffect) :
-        EntityParticleEffect(name, script, nbTurnsEffect)
-    {}
-
-    virtual EntityParticleEffectType getEntityParticleEffectType() override
-    { return EntityParticleEffectType::missile; }
-};
-
 class MissileObject: public RenderedMovableEntity, public GameEntityListener
 {
 public:

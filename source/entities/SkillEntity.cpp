@@ -32,9 +32,9 @@
 
 #include <iostream>
 
-const std::string EMPTY_STRING;
+static const std::string EMPTY_STRING;
 
-const Ogre::Vector3 SCALE(0.5,0.5,0.5);
+static const Ogre::Vector3 SCALE(0.5,0.5,0.5);
 
 SkillEntity::SkillEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, int32_t skillPoints) :
     RenderedMovableEntity(gameMap, isOnServerMap, libraryName, "Grimoire", 0.0f, false, 1.0f),

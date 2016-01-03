@@ -34,6 +34,50 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+void EntityParticleEffect::exportParticleEffectToPacket(const EntityParticleEffect& effect, ODPacket& os)
+{
+    os << effect.mName;
+    os << effect.mScript;
+    os << effect.mNbTurnsEffect;
+}
+
+EntityParticleEffect* EntityParticleEffect::importParticleEffectFromPacket(ODPacket& is)
+{
+    static const std::vector<EntityParticleEffect*> effects;
+    return importParticleEffectFromPacketIfNotInList(effects, is);
+}
+
+EntityParticleEffect* EntityParticleEffect::importParticleEffectFromPacketIfNotInList(const std::vector<EntityParticleEffect*>& effects, ODPacket& is)
+{
+    std::string name;
+    std::string script;
+    int32_t nbTurnsEffect;
+    if(!(is >> name))
+    {
+        OD_LOG_ERR("error");
+        return nullptr;
+    }
+    if(!(is >> script))
+    {
+        OD_LOG_ERR("error");
+        return nullptr;
+    }
+    if(!(is >> nbTurnsEffect))
+    {
+        OD_LOG_ERR("error");
+        return nullptr;
+    }
+
+    for(EntityParticleEffect* effect : effects)
+    {
+        if(effect->mName == name)
+            return nullptr;
+    }
+
+    EntityParticleEffect* effect = new EntityParticleEffect(name, script, nbTurnsEffect);
+    return effect;
+}
+
 GameEntity::GameEntity(
           GameMap*        gameMap,
           bool            isOnServerMap,
@@ -326,6 +370,11 @@ void GameEntity::exportToPacket(ODPacket& os, const Seat* seat) const
     os << mName;
     os << mMeshName;
     os << mPosition;
+
+    uint32_t nbEffects = mEntityParticleEffects.size();
+    os << nbEffects;
+    for(EntityParticleEffect* effect : mEntityParticleEffects)
+        EntityParticleEffect::exportParticleEffectToPacket(*effect, os);
 }
 
 void GameEntity::importFromPacket(ODPacket& is)
@@ -338,6 +387,20 @@ void GameEntity::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mName);
     OD_ASSERT_TRUE(is >> mMeshName);
     OD_ASSERT_TRUE(is >> mPosition);
+
+    uint32_t nbEffects;
+    OD_ASSERT_TRUE(is >> nbEffects);
+    while(nbEffects > 0)
+    {
+        --nbEffects;
+        EntityParticleEffect* effect = EntityParticleEffect::importParticleEffectFromPacket(is);
+        if(effect == nullptr)
+        {
+            OD_LOG_ERR("entity=" + getName() + ", nbEffects=" + Helper::toString(nbEffects));
+            break;
+        }
+        mEntityParticleEffects.push_back(effect);
+    }
 }
 
 void GameEntity::exportToStream(std::ostream& os) const
@@ -350,6 +413,9 @@ void GameEntity::exportToStream(std::ostream& os) const
     os << mName << "\t";
     os << mMeshName << "\t";
     os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
+
+    // We do not export to stream the particle effects. It is the entity work to know if
+    // they should be exported or not
 }
 
 bool GameEntity::importFromStream(std::istream& is)
@@ -367,6 +433,9 @@ bool GameEntity::importFromStream(std::istream& is)
         return false;
     if(!(is >> mPosition.x >> mPosition.y >> mPosition.z))
         return false;
+
+    // We do not import from stream the particle effects. It is the entity work to know if
+    // they should be imported or not
 
     return true;
 }
@@ -397,7 +466,10 @@ void GameEntity::clientUpkeep()
         EntityParticleEffect* effect = *it;
         // We check if it is a permanent effect
         if(effect->mNbTurnsEffect < 0)
+        {
+            ++it;
             continue;
+        }
 
         // We check if the effect is still active
         if(effect->mNbTurnsEffect > 0)
@@ -503,4 +575,33 @@ void GameEntity::destroyMesh()
     mMeshExists = false;
 
     destroyMeshLocal();
+}
+
+void GameEntity::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
+{
+    uint32_t nbCreatureEffect = mEntityParticleEffects.size();
+    os << nbCreatureEffect;
+    for(EntityParticleEffect* effect : mEntityParticleEffects)
+        EntityParticleEffect::exportParticleEffectToPacket(*effect, os);
+}
+
+void GameEntity::updateFromPacket(ODPacket& is)
+{
+    uint32_t nbEffects;
+    OD_ASSERT_TRUE(is >> nbEffects);
+    // We copy the list of effects currently on this entity. That will allow to
+    // check if the effect is already on it and only display the effect if it is not
+    std::vector<EntityParticleEffect*> currentEffects = mEntityParticleEffects;
+    while(nbEffects > 0)
+    {
+        --nbEffects;
+
+        EntityParticleEffect* effect = EntityParticleEffect::importParticleEffectFromPacketIfNotInList(currentEffects, is);
+        if(effect == nullptr)
+            continue;
+
+        effect->mParticleSystem = RenderManager::getSingleton().rrEntityAddParticleEffect(this,
+            effect->mName, effect->mScript);
+        mEntityParticleEffects.push_back(effect);
+    }
 }

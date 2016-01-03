@@ -39,10 +39,15 @@ CreatureActionUseRoom::CreatureActionUseRoom(Creature& creature, Room& room, boo
     {
         OD_LOG_ERR("creature=" + mCreature.getName() + ", cannot work in room=" + mRoom->getName());
     }
+    else
+    {
+        OD_LOG_INF("creature=" + mCreature.getName() + " starts using room=" + mRoom->getName());
+    }
 }
 
 CreatureActionUseRoom::~CreatureActionUseRoom()
 {
+    OD_LOG_INF("creature=" + mCreature.getName() + " stops using room=" + (mRoom != nullptr ? mRoom->getName() : std::string("unknown")));
     if(mRoom != nullptr)
     {
         mRoom->removeGameEntityListener(this);
@@ -78,7 +83,7 @@ bool CreatureActionUseRoom::handleJob(Creature& creature, Room* room, bool force
 
     // If we are working in the room, we check that our status (mood/hungry/sleepy)
     // allows us to work
-    if(!room->isRestRoom(creature))
+    if(room->shouldNotUseIfBadMood(creature, forced))
     {
         // If we are unhappy, we stop working
         switch(creature.getMoodValue())
@@ -124,9 +129,9 @@ bool CreatureActionUseRoom::handleJob(Creature& creature, Room* room, bool force
         return true;
     }
 
-    if(!room->isRestRoom(creature))
+    if(room->shouldStopUseIfHungrySleepy(creature, forced))
     {
-        // If   we are tired/hungry, we go to bed unless we are forced to work
+        // If we are tired/hungry, we go to bed unless we are forced to work
         bool workForced = room->isForcedToWork(creature);
         if(!workForced)
             workForced = creature.isForcedToWork();
@@ -159,6 +164,7 @@ bool CreatureActionUseRoom::notifyDead(GameEntity* entity)
 {
     if(entity == mRoom)
     {
+        OD_LOG_INF("creature=" + mCreature.getName() + " removed from dead room=" + mRoom->getName());
         mRoom->removeCreatureUsingRoom(&mCreature);
         mRoom = nullptr;
         return false;
@@ -170,6 +176,7 @@ bool CreatureActionUseRoom::notifyRemovedFromGameMap(GameEntity* entity)
 {
     if(entity == mRoom)
     {
+        OD_LOG_INF("creature=" + mCreature.getName() + " removed from removed from gamemap room=" + mRoom->getName());
         mRoom->removeCreatureUsingRoom(&mCreature);
         mRoom = nullptr;
         return false;

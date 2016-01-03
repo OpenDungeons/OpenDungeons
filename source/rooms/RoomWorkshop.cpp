@@ -17,6 +17,7 @@
 
 #include "rooms/RoomWorkshop.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -111,10 +112,11 @@ class RoomWorkshopFactory : public RoomFactory
 static RoomRegister reg(new RoomWorkshopFactory);
 }
 
-const Ogre::Real X_OFFSET_CREATURE = 0.7;
-const Ogre::Real Y_OFFSET_CREATURE = 0.0;
-const Ogre::Real X_OFFSET_SPOT = 0.0;
-const Ogre::Real Y_OFFSET_SPOT = 0.2;
+static const Ogre::Real X_OFFSET_CREATURE = 0.7;
+static const Ogre::Real Y_OFFSET_CREATURE = 0.0;
+static const Ogre::Real X_OFFSET_SPOT = 0.0;
+static const Ogre::Real Y_OFFSET_SPOT = 0.2;
+static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomWorkshop::RoomWorkshop(GameMap* gameMap) :
     Room(gameMap),
@@ -124,7 +126,7 @@ RoomWorkshop::RoomWorkshop(GameMap* gameMap) :
     setMeshName("Workshop");
 }
 
-RenderedMovableEntity* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+BuildingObject* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {
@@ -137,25 +139,25 @@ RenderedMovableEntity* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace pla
             mUnusedSpots.push_back(tile);
             int result = Random::Int(0, 3);
             if(result < 2)
-                return loadBuildingObject(getGameMap(), "WorkshopMachine1", tile, x, y, 30.0, false);
+                return loadBuildingObject(getGameMap(), "WorkshopMachine1", tile, x, y, 30.0, SCALE, false);
             else
-                return loadBuildingObject(getGameMap(), "WorkshopMachine2", tile, x, y, 30.0, false, 1.0, "Loop");
+                return loadBuildingObject(getGameMap(), "WorkshopMachine2", tile, x, y, 30.0, SCALE, false, 1.0, "Loop");
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "Chimney", tile, 90.0, false);
+            return loadBuildingObject(getGameMap(), "Chimney", tile, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "Chimney", tile, 270.0, false);
+            return loadBuildingObject(getGameMap(), "Chimney", tile, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "Grindstone", tile, 180.0, false);
+            return loadBuildingObject(getGameMap(), "Grindstone", tile, 180.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "Anvil", tile, 0.0, false);
+            return loadBuildingObject(getGameMap(), "Anvil", tile, 0.0, SCALE, false);
         }
         default:
             break;
@@ -440,7 +442,7 @@ bool RoomWorkshop::useRoom(Creature& creature, bool forced)
     Ogre::Real wantedY = -1;
     getCreatureWantedPos(&creature, tileSpot, wantedX, wantedY);
 
-    RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
+    BuildingObject* ro = getBuildingObjectFromTile(tileSpot);
     if(ro == nullptr)
     {
         OD_LOG_ERR("unexpected null building object");
