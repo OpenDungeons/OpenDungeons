@@ -76,7 +76,7 @@ Tile::~Tile()
 {
     if(!mEntitiesInTile.empty())
     {
-        OD_LOG_ERR("tile=" + Tile::displayAsString(this) + ", size=" + Helper::toString(mEntitiesInTile.size()));
+        OD_LOG_ERR(getGameMap()->serverStr() + "tile=" + Tile::displayAsString(this) + ", size=" + Helper::toString(mEntitiesInTile.size()));
     }
 }
 
@@ -1339,6 +1339,10 @@ void Tile::fillWithCarryableEntities(Creature* carrier, std::vector<GameEntity*>
             OD_LOG_ERR("unexpected null entity in tile=" + Tile::displayAsString(this));
             continue;
         }
+
+        // We check if the entity is already being handled by another creature
+        if(entity->getCarryLock(*carrier))
+            continue;
 
         if(entity->getEntityCarryType(carrier) == EntityCarryType::notCarryable)
             continue;
