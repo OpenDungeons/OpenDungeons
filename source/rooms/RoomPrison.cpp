@@ -200,6 +200,14 @@ void RoomPrison::doUpkeep()
                 continue;
             }
 
+            // If the creature is dead (by slapping for example), we remove it without
+            // spawning any creature
+            if(!creature->isAlive())
+            {
+                creature->clearActionQueue();
+                continue;
+            }
+
             ++nbCreatures;
             // We slightly damage the prisoner
             double damage = ConfigManager::getSingleton().getRoomConfigDouble("PrisonDamagePerTurn");
