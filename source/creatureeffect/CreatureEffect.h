@@ -55,10 +55,6 @@ public:
     virtual void releaseEffect(Creature& creature)
     {}
 
-    //! \brief Returns true if the creature is forced to work and false otherwise
-    virtual bool isForcedToWork(const Creature& creature) const
-    { return false; }
-
     static void write(const CreatureEffect& effect, std::ostream& os);
     //! loads a CreatureEffect from the given stream. Note that the stream might contain
     //! more data than just the CreatureEffect. Thus, we should not use optional data

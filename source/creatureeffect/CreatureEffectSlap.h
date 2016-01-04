@@ -34,12 +34,9 @@ public:
     virtual ~CreatureEffectSlap()
     {}
 
-    virtual const std::string& getEffectName() const override;
-
-    //! \brief Slapping a creature makes it have to work as long as the effect
-    //! is on the creature
-    virtual bool isForcedToWork(const Creature& creature) const override
-    { return true; }
+    const std::string& getEffectName() const override;
+    void startEffect(Creature& creature) override;
+    void releaseEffect(Creature& creature) override;
 
     static CreatureEffectSlap* load(std::istream& is);
 

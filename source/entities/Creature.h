@@ -485,8 +485,15 @@ public:
     //! Called on server side to add an effect (spell, slap, ...) to this creature
     void addCreatureEffect(CreatureEffect* effect);
 
-    //!\brief Returns true if the creature is forced to work for some reason (like an effect)
-    bool isForcedToWork() const;
+    //!\brief Returns true if the creature has an active slap effect
+    bool hasSlapEffect() const
+    { return mActiveSlapsCount > 0; }
+
+    void addActiveSlapCount()
+    { ++mActiveSlapsCount; }
+
+    void removeActiveSlapCount()
+    { --mActiveSlapsCount; }
 
     virtual void correctEntityMovePosition(Ogre::Vector3& position) override;
 
@@ -749,6 +756,9 @@ private:
 
     //! \brief allows to know how many turns a creature has been in prison
     int32_t                         mNbTurnsPrison;
+
+    //! \brief Counts the number of active slaps affecting the creature
+    uint32_t                        mActiveSlapsCount;
 
     //! \brief Skills the creature can use
     std::vector<CreatureSkillData> mSkillData;

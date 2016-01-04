@@ -134,7 +134,7 @@ bool CreatureActionUseRoom::handleJob(Creature& creature, Room* room, bool force
         // If we are tired/hungry, we go to bed unless we are forced to work
         bool workForced = room->isForcedToWork(creature);
         if(!workForced)
-            workForced = creature.isForcedToWork();
+            workForced = creature.hasSlapEffect();
 
         if (!workForced && (Random::Double(20.0, 30.0) > creature.getWakefulness()))
         {

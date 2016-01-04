@@ -185,7 +185,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mKoTurnCounter           (0),
     mSeatPrison              (nullptr),
     mNbTurnsTorture          (0),
-    mNbTurnsPrison           (0)
+    mNbTurnsPrison           (0),
+    mActiveSlapsCount        (0)
 
 {
     //TODO: This should be set in initialiser list in parent classes
@@ -262,7 +263,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mKoTurnCounter           (0),
     mSeatPrison              (nullptr),
     mNbTurnsTorture          (0),
-    mNbTurnsPrison           (0)
+    mNbTurnsPrison           (0),
+    mActiveSlapsCount        (0)
 {
 }
 
@@ -2853,22 +2855,6 @@ void Creature::addCreatureEffect(CreatureEffect* effect)
     mNeedFireRefresh = true;
 }
 
-bool Creature::isForcedToWork() const
-{
-    for(EntityParticleEffect* effect : mEntityParticleEffects)
-    {
-        if(effect->getEntityParticleEffectType() != EntityParticleEffectType::creature)
-            continue;
-
-        CreatureParticuleEffect* creatureEffect = static_cast<CreatureParticuleEffect*>(effect);
-        if(!creatureEffect->mEffect->isForcedToWork(*this))
-            continue;
-
-        return true;
-    }
-    return false;
-}
-
 bool Creature::isHurt() const
 {
     //On server side, we test HP
@@ -2953,7 +2939,7 @@ void Creature::checkWalkPathValid()
 void Creature::setJobCooldown(int val)
 {
     // If the creature has been slapped, its cooldown is decreased
-    if(isForcedToWork())
+    if(hasSlapEffect())
         val = Helper::round(static_cast<float>(val) * 0.8f);
 
     mJobCooldown = val;
@@ -3150,6 +3136,7 @@ void Creature::changeSeat(Seat* newSeat)
     mHunger = 0;
     mNbTurnsTorture = 0;
     mNbTurnsPrison = 0;
+    mActiveSlapsCount = 0;
     clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
     mNeedFireRefresh = true;
