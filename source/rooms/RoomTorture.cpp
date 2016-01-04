@@ -411,4 +411,5 @@ void RoomTorture::creatureDropped(Creature& creature)
     // considered as searching for a job
     creature.clearActionQueue();
     creature.pushAction(Utils::make_unique<CreatureActionUseRoom>(creature, *this, true));
+    creature.setSeatPrison(getSeat());
 }

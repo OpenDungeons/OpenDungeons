@@ -514,6 +514,8 @@ public:
 
     void releasedInBed();
 
+    void releasedInPrison(Room& prison);
+
     void setSeatPrison(Seat* seat);
 
     inline Seat* getSeatPrison() const

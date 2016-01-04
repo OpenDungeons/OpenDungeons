@@ -2964,14 +2964,19 @@ void Creature::releasedInBed()
     sleep();
 }
 
+void Creature::releasedInPrison(Room& prison)
+{
+    mSeatPrison = prison.getSeat();
+
+    // The creature was released in a prison. Let's set its KO state to 0
+    mKoTurnCounter = 0;
+    computeCreatureOverlayMoodValue();
+}
+
 void Creature::setSeatPrison(Seat* seat)
 {
     if(mSeatPrison == seat)
         return;
-
-    // We reset KO to death counter
-    if(seat != nullptr)
-        mKoTurnCounter = 0;
 
     mSeatPrison = seat;
     mNeedFireRefresh = true;
@@ -3099,7 +3104,6 @@ void Creature::sleep()
 
 void Creature::leaveDungeon()
 {
-    OD_LOG_INF("creature=" + getName() + " wants to leave its dungeon");
     clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionLeaveDungeon>(*this));
