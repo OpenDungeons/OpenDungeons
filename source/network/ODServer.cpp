@@ -1457,6 +1457,21 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 // In editor mode, we save in the original folder
                 levelSave = levelPath;
+
+                // If the level was not a custom one, we save it as a custom one now.
+                // Note: We don't compare for official levels path, as they may be relative and unreliable.
+                std::string levelStr = levelSave.string();
+                ResourceManager& resMgr = ResourceManager::getSingleton();
+                bool skirmishLevelType = (levelStr.find("skirmish") != std::string::npos);
+                if (skirmishLevelType) {
+                    if (levelStr.find(resMgr.getUserLevelPathSkirmish()) == std::string::npos) {
+                        levelSave = boost::filesystem::path(resMgr.getUserLevelPathSkirmish() + fileLevel);
+                    }
+                }
+                else if (levelStr.find(resMgr.getUserLevelPathMultiplayer()) == std::string::npos) {
+                    levelSave = boost::filesystem::path(resMgr.getUserLevelPathMultiplayer() + fileLevel);
+                }
+                std::cout << levelSave.string() << std::endl;
             }
             else
             {
@@ -1530,7 +1545,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if (boost::filesystem::exists(levelSave))
                 boost::filesystem::rename(levelSave, levelSave.string() + ".bak");
 
-            std::string msg = "Map saved successfully";
+            std::string msg = "Map saved successfully as: " + levelSave.string();
             MapLoader::writeGameMapToFile(levelSave.string(), *gameMap);
             // We notify all the players that the game was saved successfully
             ServerNotification notif(ServerNotificationType::chatServer, nullptr);

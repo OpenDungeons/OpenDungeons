@@ -204,7 +204,7 @@ bool MenuModeEditorLoad::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 
     const std::string& level = mFilesList[id];
 
-    // In single player mode, we act as a server
+    // In editor mode, we act as a server
     ConfigManager& config = ConfigManager::getSingleton();
     std::string nickname = config.getGameValue(Config::NICKNAME, std::string(), false);
     if(!ODServer::getSingleton().startServer(nickname, level, ServerMode::ModeEditor, false))

@@ -923,6 +923,7 @@ bool EditorMode::onSaveButtonClickFromOptions(const CEGUI::EventArgs& /*arg*/)
 
 bool EditorMode::showQuitMenu(const CEGUI::EventArgs& /*arg*/)
 {
+    //TODO: Test whether the level was modified and ask accordingly.
     mRootWindow->getChild("ConfirmExit")->show();
     return true;
 }
@@ -935,7 +936,6 @@ bool EditorMode::hideQuitMenu(const CEGUI::EventArgs& /*arg*/)
 
 bool EditorMode::onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/)
 {
-    //TODO: Test whether the level was modified and ask accordingly.
     mModeManager->requestMode(AbstractModeManager::MENU_MAIN);
     return true;
 }
