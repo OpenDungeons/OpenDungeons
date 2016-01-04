@@ -29,10 +29,7 @@
 bool CreatureEffect::upkeepEffect(Creature& creature)
 {
     if(mNbTurnsEffect <= 0)
-    {
-        releaseEffect(creature);
         return false;
-    }
 
     --mNbTurnsEffect;
     applyEffect(creature);

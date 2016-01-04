@@ -44,11 +44,14 @@ public:
     inline const std::string& getParticleEffectScript() const
     { return mParticleEffectScript; }
 
+    //! This function will be called when the effect is added to the creature
+    virtual void startEffect(Creature& creature)
+    {}
+
     //! This function will be called during the creature upkeep
     bool upkeepEffect(Creature& creature);
 
-    //! This function will be called during the creature upkeep before
-    //! the effect is released and deleted
+    //! This function will be called when the effect is released
     virtual void releaseEffect(Creature& creature)
     {}
 

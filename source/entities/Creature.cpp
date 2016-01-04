@@ -115,10 +115,28 @@ enum CreatureMoodEnum
     MoodPrisonFiltersPrisonAllies = KoTemp | InJail
 };
 
+CreatureParticuleEffect::CreatureParticuleEffect(Creature& creature, const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
+        CreatureEffect* effect) :
+    EntityParticleEffect(name, script, nbTurnsEffect),
+    mEffect(effect),
+    mCreature(creature)
+{
+    if(mEffect == nullptr)
+    {
+        OD_LOG_ERR("null effect on creature=" + mCreature.getName() + ", name=" + name + ", script=" + script);
+        return;
+    }
+
+    mEffect->startEffect(mCreature);
+}
+
 CreatureParticuleEffect::~CreatureParticuleEffect()
 {
     if(mEffect != nullptr)
+    {
+        mEffect->releaseEffect(mCreature);
         delete mEffect;
+    }
 
     mEffect = nullptr;
 }
@@ -2828,7 +2846,7 @@ void Creature::addCreatureEffect(CreatureEffect* effect)
 
     OD_LOG_INF("Added CreatureEffect name=" + effectName + " on creature=" + getName());
 
-    CreatureParticuleEffect* particleEffect = new CreatureParticuleEffect(effectName, effect->getParticleEffectScript(),
+    CreatureParticuleEffect* particleEffect = new CreatureParticuleEffect(*this, effectName, effect->getParticleEffectScript(),
         effect->getNbTurnsEffect(), effect);
     mEntityParticleEffects.push_back(particleEffect);
 

@@ -85,11 +85,8 @@ public:
 class CreatureParticuleEffect : public EntityParticleEffect
 {
 public:
-    CreatureParticuleEffect(const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
-            CreatureEffect* effect) :
-        EntityParticleEffect(name, script, nbTurnsEffect),
-        mEffect(effect)
-    {}
+    CreatureParticuleEffect(Creature& creature, const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
+        CreatureEffect* effect);
 
     virtual ~CreatureParticuleEffect();
 
@@ -97,6 +94,7 @@ public:
     { return EntityParticleEffectType::creature; }
 
     CreatureEffect* mEffect;
+    Creature& mCreature;
 };
 
 /*! \class Creature Creature.h
