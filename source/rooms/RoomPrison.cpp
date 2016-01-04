@@ -212,6 +212,7 @@ void RoomPrison::doUpkeep()
             // We slightly damage the prisoner
             double damage = ConfigManager::getSingleton().getRoomConfigDouble("PrisonDamagePerTurn");
             creature->takeDamage(this, damage, 0.0, 0.0, 0.0, creatureTile, false);
+            creature->increaseTurnsPrison();
 
             if(creature->isAlive())
                 continue;

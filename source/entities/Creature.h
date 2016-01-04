@@ -530,6 +530,12 @@ public:
     inline void increaseTurnsTorture()
     { ++mNbTurnsTorture; }
 
+    inline int32_t getNbTurnsPrison() const
+    { return mNbTurnsPrison; }
+
+    inline void increaseTurnsPrison()
+    { ++mNbTurnsPrison; }
+
     virtual bool isDangerous(const Creature* creature, int distance) const override;
 
     virtual void clientUpkeep() override;
@@ -740,9 +746,11 @@ private:
     //! the given seat
     Seat*                           mSeatPrison;
 
-    // TODO: use same for prison to allow to use it in mood modifiers
     //! \brief allows to know how many turns a creature has been tortured
     int32_t                         mNbTurnsTorture;
+
+    //! \brief allows to know how many turns a creature has been in prison
+    int32_t                         mNbTurnsPrison;
 
     //! \brief Skills the creature can use
     std::vector<CreatureSkillData> mSkillData;

@@ -166,7 +166,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mSpeedModifier           (1.0),
     mKoTurnCounter           (0),
     mSeatPrison              (nullptr),
-    mNbTurnsTorture          (0)
+    mNbTurnsTorture          (0),
+    mNbTurnsPrison           (0)
 
 {
     //TODO: This should be set in initialiser list in parent classes
@@ -242,7 +243,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mSpeedModifier           (1.0),
     mKoTurnCounter           (0),
     mSeatPrison              (nullptr),
-    mNbTurnsTorture          (0)
+    mNbTurnsTorture          (0),
+    mNbTurnsPrison           (0)
 {
 }
 
@@ -3129,6 +3131,7 @@ void Creature::changeSeat(Seat* newSeat)
     mWakefulness = 100;
     mHunger = 0;
     mNbTurnsTorture = 0;
+    mNbTurnsPrison = 0;
     clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
     mNeedFireRefresh = true;
