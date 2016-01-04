@@ -38,7 +38,7 @@ public:
     void removeCreatureUsingRoom(Creature* c) override;
     void doUpkeep() override;
 
-    bool isForcedToWork(Creature& creature) const override;
+    bool shouldStopUseIfHungrySleepy(Creature& creature, bool forced);
 
     std::string getListenerName() const override;
     bool notifyDead(GameEntity* entity) override;

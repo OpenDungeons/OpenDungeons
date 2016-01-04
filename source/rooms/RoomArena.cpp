@@ -279,15 +279,15 @@ BuildingObject* RoomArena::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* 
     return nullptr;
 }
 
-bool RoomArena::isForcedToWork(Creature& creature) const
+bool RoomArena::shouldStopUseIfHungrySleepy(Creature& creature, bool forced)
 {
     // If fighting, the creatures in the arena should not stop because hungry/tired
     if(mCreatureFighting1 == nullptr)
-        return false;
+        return true;
     if(mCreatureFighting2 == nullptr)
-        return false;
+        return true;
 
-    return true;
+    return false;
 }
 
 void RoomArena::exportToStream(std::ostream& os) const
