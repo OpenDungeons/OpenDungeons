@@ -33,6 +33,7 @@
 #include "game/Seat.h"
 
 #include <CEGUI/CEGUI.h>
+#include <boost/filesystem.hpp>
 
 const std::string TEXT_LOADING = "LoadingText";
 const std::string BUTTON_LAUNCH = "LevelWindowFrame/LaunchEditorButton";
@@ -93,9 +94,11 @@ void MenuModeEditorNew::activate()
     gameMap->clearAll();
     gameMap->setGamePaused(true);
 
-    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(getModeManager().getGui().
-                                       getGuiSheet(Gui::editorNewMenu)->getChild(LIST_LEVEL_TYPES));
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::editorNewMenu);
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(LIST_LEVEL_TYPES));
     levelTypeCb->setItemSelectState(static_cast<size_t>(0), true);
+
+    window->getChild(TEXT_LOADING)->setText("");
 }
 
 bool MenuModeEditorNew::launchSelectedButtonPressed(const CEGUI::EventArgs&)
@@ -120,19 +123,32 @@ bool MenuModeEditorNew::launchSelectedButtonPressed(const CEGUI::EventArgs&)
             break;
     }
     CEGUI::Editbox* editWin = static_cast<CEGUI::Editbox*>(window->getChild("LevelWindowFrame/LevelFilenameEdit"));
-    // TODO: Check for invalid data
-    std::string level = levelPath + "/" + editWin->getText().c_str();
+    std::string level = editWin->getText().c_str();
+    Helper::trim(level);
+    if (level.empty()) {
+        window->getChild(TEXT_LOADING)->setText("Please set a level filename.");
+        return true;
+    }
+
+    level = levelPath + "/" + level;
+    if (boost::filesystem::exists(level)) {
+        window->getChild(TEXT_LOADING)->setText("The level filename already exists.\nPlease set a different filename.");
+        return true;
+    }
+    if (boost::filesystem::extension(level) != "level") {
+        level.append(".level");
+    }
 
     // Get the map size.
     editWin = static_cast<CEGUI::Editbox*>(window->getChild("LevelWindowFrame/LevelWidthEdit"));
-    std::string width_str = editWin->getText().c_str();
-    uint32_t width = Helper::toUInt32(width_str);
+    std::string widthStr = editWin->getText().c_str();
+    uint32_t width = Helper::toUInt32(widthStr);
     editWin = static_cast<CEGUI::Editbox*>(window->getChild("LevelWindowFrame/LevelHeightEdit"));
-    std::string height_str = editWin->getText().c_str();
-    uint32_t height = Helper::toUInt32(height_str);
+    std::string heightStr = editWin->getText().c_str();
+    uint32_t height = Helper::toUInt32(heightStr);
 
     if (width == 0 || height == 0) {
-        window->getChild(TEXT_LOADING)->setText("Invalid size...");
+        window->getChild(TEXT_LOADING)->setText("Invalid map size.");
         return true;
     }
 
@@ -143,16 +159,27 @@ bool MenuModeEditorNew::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     gameMap->createNewMap(width, height);
     gameMap->setLevelFileName(level);
     editWin = static_cast<CEGUI::Editbox*>(window->getChild("LevelWindowFrame/LevelTitleEdit"));
-    gameMap->setLevelName(editWin->getText().c_str());
+    std::string levelTitle = editWin->getText().c_str();
+    if (levelTitle.empty()) {
+        window->getChild(TEXT_LOADING)->setText("Please set a level title.");
+        return true;
+    }
+    gameMap->setLevelName(levelTitle);
     CEGUI::MultiLineEditbox* meditWin = static_cast<CEGUI::MultiLineEditbox*>(
         window->getChild("LevelWindowFrame/LevelDescriptionEdit"));
     gameMap->setLevelDescription(meditWin->getText().c_str());
 
-    // TODO: Dehardcode this part
-    gameMap->setTileSetName(""); // default one.
+    // We create some basic map at first. The map maker will be able to add/edit map properties
+    // once the map editor has run.
+    gameMap->setTileSetName(std::string()); // default one.
     gameMap->setLevelMusicFile("Searching_yd.ogg");
     gameMap->setLevelFightMusicFile("TheDarkAmulet_MP.ogg");
     Seat* seat = new Seat(gameMap);
+    seat->setId(1);
+    seat->setTeamId(1);
+    seat->setPlayerType("Human");
+    seat->setFaction("Keeper");
+    seat->setColorId("1");
     if(!gameMap->addSeat(seat))
     {
         OD_LOG_WRN("Couldn't add seat id=" + Helper::toString(seat->getId()));
@@ -161,6 +188,7 @@ bool MenuModeEditorNew::launchSelectedButtonPressed(const CEGUI::EventArgs&)
         return true;
     }
 
+    // TODO: This should probably report any error and abort in that case.
     MapLoader::writeGameMapToFile(level, *gameMap);
 
     // In editor mode, we act as a server
@@ -171,6 +199,7 @@ bool MenuModeEditorNew::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     {
         OD_LOG_ERR("Could not start server for editor!!!");
         window->getChild(TEXT_LOADING)->setText("ERROR: Could not start server for editor!!!");
+        return true;
     }
 
     int port = ODServer::getSingleton().getNetworkPort();
@@ -183,5 +212,6 @@ bool MenuModeEditorNew::launchSelectedButtonPressed(const CEGUI::EventArgs&)
         window->getChild(TEXT_LOADING)->setText("Error: Couldn't connect to local server!");
         return true;
     }
+    window->getChild(TEXT_LOADING)->setText("The level was created successfully.");
     return true;
 }
