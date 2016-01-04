@@ -512,11 +512,11 @@ public:
 
     bool isHungry() const;
 
-    void releasedInBed();
+    void resetKoTurns();
 
-    void releasedInPrison(Room& prison);
-
-    void setSeatPrison(Seat* seat);
+    //! \brief Called when the creature is set in jail by dropping or brought by
+    //! a worker. if prison is nullptr, the creature is freed
+    void setInJail(Room* prison);
 
     inline Seat* getSeatPrison() const
     { return mSeatPrison; }

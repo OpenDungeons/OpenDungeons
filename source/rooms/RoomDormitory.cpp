@@ -562,7 +562,8 @@ void RoomDormitory::notifyCarryingStateChanged(Creature* carrier, GameEntity* ca
     if(posTile != creature->getHomeTile())
         return;
 
-    creature->releasedInBed();
+    creature->resetKoTurns();
+    creature->sleep();
 }
 
 void RoomDormitory::creatureDropped(Creature& creature)

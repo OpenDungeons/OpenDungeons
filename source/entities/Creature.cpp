@@ -2955,30 +2955,29 @@ bool Creature::isHungry() const
     return (mOverlayMoodValue & CreatureMoodEnum::Hungry) != 0;
 }
 
-void Creature::releasedInBed()
+void Creature::resetKoTurns()
 {
-    // The creature was released in its bed. Let's set its KO state to 0
     mKoTurnCounter = 0;
-    computeCreatureOverlayMoodValue();
-    // And sleep a bit
-    sleep();
+    mNeedFireRefresh = true;
 }
 
-void Creature::releasedInPrison(Room& prison)
+void Creature::setInJail(Room* prison)
 {
-    mSeatPrison = prison.getSeat();
+    if(prison == nullptr)
+    {
+        if(mSeatPrison == nullptr)
+            return;
 
-    // The creature was released in a prison. Let's set its KO state to 0
-    mKoTurnCounter = 0;
-    computeCreatureOverlayMoodValue();
-}
+        mSeatPrison = nullptr;
+        mNeedFireRefresh = true;
+        return;
+    }
 
-void Creature::setSeatPrison(Seat* seat)
-{
-    if(mSeatPrison == seat)
+    // Creature is set in prison
+    if(mSeatPrison == prison->getSeat())
         return;
 
-    mSeatPrison = seat;
+    mSeatPrison = prison->getSeat();
     mNeedFireRefresh = true;
 }
 
