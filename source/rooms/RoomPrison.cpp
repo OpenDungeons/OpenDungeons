@@ -321,18 +321,19 @@ void RoomPrison::notifyCarryingStateChanged(Creature* carrier, GameEntity* carri
         return;
     }
 
-    // We add the creature to the prison. Note that we do not check if there is enough room because we
-    // want to call setInJail so that everything is correctly set in the creature and that will avoid
-    // to do it twice (because a prisoner can also be dropped and in this case, notifyCarryingStateChanged
-    // will not be called). We will handle if too many prisoners during the upkeep
     Creature* prisonerCreature = static_cast<Creature*>(carriedEntity);
 
     // We check if we were waiting for this creature
     // We release the pending prisoners before pushing the action room to make sure
     // the place is free when we add the creature
     auto it = std::find(mPendingPrisoners.begin(), mPendingPrisoners.end(), prisonerCreature);
-    if(it != mPendingPrisoners.end())
-        mPendingPrisoners.erase(it);
+    if(it == mPendingPrisoners.end())
+    {
+        OD_LOG_ERR("room=" + getName() + ", unexpected creature=" + prisonerCreature->getName());
+        return;
+    }
+
+    mPendingPrisoners.erase(it);
 
     prisonerCreature->clearActionQueue();
     prisonerCreature->pushAction(Utils::make_unique<CreatureActionUseRoom>(*prisonerCreature, *this, true));

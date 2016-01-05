@@ -55,7 +55,7 @@ bool CreatureBehaviourLeaveDungeonWhenFurious::processBehaviour(Creature& creatu
 
     if(!creature.isActionInList(CreatureActionType::leaveDungeon))
     {
-        OD_LOG_INF("creature=" + getName() + " wants to leave its dungeon");
+        OD_LOG_INF("creature=" + creature.getName() + " wants to leave its dungeon");
         creature.leaveDungeon();
     }
 
