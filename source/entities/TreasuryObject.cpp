@@ -221,6 +221,21 @@ void TreasuryObject::notifyEntityCarryOff(const Ogre::Vector3& position)
     addEntityToPositionTile();
 }
 
+int TreasuryObject::stealGold(Creature& creature, int value)
+{
+    if(value > mGoldValue)
+        value = mGoldValue;
+
+    if(value > 0)
+    {
+        // If the gold value is turned to 0, the treasury will be removed during its upkeep
+        mGoldValue -= value;
+        mHasGoldValueChanged = true;
+    }
+
+    return value;
+}
+
 const char* TreasuryObject::getMeshNameForGold(int gold)
 {
     if (gold <= 0)

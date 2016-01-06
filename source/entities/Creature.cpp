@@ -34,6 +34,7 @@
 #include "creatureaction/CreatureActionSearchTileToDig.h"
 #include "creatureaction/CreatureActionSearchWallTileToClaim.h"
 #include "creatureaction/CreatureActionSleep.h"
+#include "creatureaction/CreatureActionStealFreeGold.h"
 #include "creatureaction/CreatureActionWalkToTile.h"
 #include "creaturebehaviour/CreatureBehaviour.h"
 #include "creatureeffect/CreatureEffect.h"
@@ -1154,6 +1155,17 @@ bool Creature::handleIdleAction()
         (Random::Double(70.0, 80.0) < mHunger))
     {
         pushAction(Utils::make_unique<CreatureActionSearchFood>(*this, false));
+        return true;
+    }
+
+    // We try to steal some gold if there is some on the ground
+    // Later, we might want to add a creature definition parameter to make some
+    // creatures more likely to steal gold than others
+    if (!mDefinition->isWorker() &&
+        !hasActionBeenTried(CreatureActionType::stealFreeGold) &&
+        (Random::Uint(0, 10) > 8))
+    {
+        pushAction(Utils::make_unique<CreatureActionStealFreeGold>(*this));
         return true;
     }
 

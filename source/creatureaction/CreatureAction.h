@@ -47,6 +47,7 @@ enum class CreatureActionType
     carryEntity, // (worker only) Carries the entity to some building needing it
     getFee, // (fighter only) Gets the creature fee
     leaveDungeon, // (fighter only) Try to go to the portal to leave the dungeon
+    stealFreeGold, // (fighters only) check in the visible tiles if there is gold not protected by a treasury
     nb // Must be the last value of this enum
 };
 

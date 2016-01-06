@@ -90,6 +90,9 @@ std::string CreatureAction::toString(CreatureActionType actionType)
     case CreatureActionType::leaveDungeon:
         return "leaveDungeon";
 
+    case CreatureActionType::stealFreeGold:
+        return "stealFreeGold";
+
     default:
         assert(false);
         break;

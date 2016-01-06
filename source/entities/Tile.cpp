@@ -1432,6 +1432,13 @@ void Tile::fillWithEntities(std::vector<GameEntity*>& entities, SelectionEntityW
 
                 break;
             }
+            case SelectionEntityWanted::treasuryObjects:
+            {
+                if(entity->getObjectType() != GameEntityType::treasuryObject)
+                    continue;
+
+                break;
+            }
             case SelectionEntityWanted::creatureAliveOwnedHurt:
             {
                 if(entity->getObjectType() != GameEntityType::creature)
