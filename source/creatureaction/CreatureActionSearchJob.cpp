@@ -74,7 +74,7 @@ bool CreatureActionSearchJob::handleSearchJob(Creature& creature, bool forced)
             break;
     }
 
-    bool workForced = creature.isForcedToWork();
+    bool workForced = creature.hasSlapEffect();
     // If we are sleepy, we go to bed unless we have been slapped
     if (!workForced && (Random::Double(20.0, 30.0) > creature.getWakefulness()))
     {

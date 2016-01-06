@@ -45,6 +45,16 @@ const std::string& CreatureEffectSlap::getEffectName() const
     return CreatureEffectSlapName;
 }
 
+void CreatureEffectSlap::startEffect(Creature& creature)
+{
+    creature.addActiveSlapCount();
+}
+
+void CreatureEffectSlap::releaseEffect(Creature& creature)
+{
+    creature.removeActiveSlapCount();
+}
+
 void CreatureEffectSlap::applyEffect(Creature& creature)
 {
     // We do not do anything. Having a CreatureEffectSlap in its effect queue is enough

@@ -44,17 +44,16 @@ public:
     inline const std::string& getParticleEffectScript() const
     { return mParticleEffectScript; }
 
+    //! This function will be called when the effect is added to the creature
+    virtual void startEffect(Creature& creature)
+    {}
+
     //! This function will be called during the creature upkeep
     bool upkeepEffect(Creature& creature);
 
-    //! This function will be called during the creature upkeep before
-    //! the effect is released and deleted
+    //! This function will be called when the effect is released
     virtual void releaseEffect(Creature& creature)
     {}
-
-    //! \brief Returns true if the creature is forced to work and false otherwise
-    virtual bool isForcedToWork(const Creature& creature) const
-    { return false; }
 
     static void write(const CreatureEffect& effect, std::ostream& os);
     //! loads a CreatureEffect from the given stream. Note that the stream might contain

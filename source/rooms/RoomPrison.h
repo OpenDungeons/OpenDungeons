@@ -36,16 +36,21 @@ public:
 
     void doUpkeep() override;
 
-    uint32_t countPrisoners();
+    bool hasOpenCreatureSpot(Creature* creature) override;
+    bool addCreatureUsingRoom(Creature* creature) override;
+    void removeCreatureUsingRoom(Creature* creature) override;
 
-    //! \brief Function called each turn for each prisoner in the jail
-    void actionPrisoner(Creature* creature);
+    uint32_t countPrisoners();
 
     bool hasCarryEntitySpot(GameEntity* carriedEntity) override;
     Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
 
     bool isInContainment(Creature& creature) override;
+
+    bool useRoom(Creature& creature, bool forced) override;
+
+    void creatureDropped(Creature& creature) override;
 
     static const RoomType mRoomType;
 

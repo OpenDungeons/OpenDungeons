@@ -21,6 +21,7 @@
 #include "creaturebehaviour/CreatureBehaviourManager.h"
 #include "entities/Creature.h"
 #include "creaturemood/CreatureMood.h"
+#include "utils/LogManager.h"
 
 const std::string CreatureBehaviourLeaveDungeonWhenFurious::mNameCreatureBehaviourLeaveDungeonWhenFurious = "LeaveDungeonWhenFurious";
 
@@ -54,6 +55,7 @@ bool CreatureBehaviourLeaveDungeonWhenFurious::processBehaviour(Creature& creatu
 
     if(!creature.isActionInList(CreatureActionType::leaveDungeon))
     {
+        OD_LOG_INF("creature=" + creature.getName() + " wants to leave its dungeon");
         creature.leaveDungeon();
     }
 

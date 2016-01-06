@@ -85,11 +85,8 @@ public:
 class CreatureParticuleEffect : public EntityParticleEffect
 {
 public:
-    CreatureParticuleEffect(const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
-            CreatureEffect* effect) :
-        EntityParticleEffect(name, script, nbTurnsEffect),
-        mEffect(effect)
-    {}
+    CreatureParticuleEffect(Creature& creature, const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
+        CreatureEffect* effect);
 
     virtual ~CreatureParticuleEffect();
 
@@ -97,6 +94,7 @@ public:
     { return EntityParticleEffectType::creature; }
 
     CreatureEffect* mEffect;
+    Creature& mCreature;
 };
 
 /*! \class Creature Creature.h
@@ -487,8 +485,15 @@ public:
     //! Called on server side to add an effect (spell, slap, ...) to this creature
     void addCreatureEffect(CreatureEffect* effect);
 
-    //!\brief Returns true if the creature is forced to work for some reason (like an effect)
-    bool isForcedToWork() const;
+    //!\brief Returns true if the creature has an active slap effect
+    bool hasSlapEffect() const
+    { return mActiveSlapsCount > 0; }
+
+    void addActiveSlapCount()
+    { ++mActiveSlapsCount; }
+
+    void removeActiveSlapCount()
+    { --mActiveSlapsCount; }
 
     virtual void correctEntityMovePosition(Ogre::Vector3& position) override;
 
@@ -512,9 +517,11 @@ public:
 
     bool isHungry() const;
 
-    void releasedInBed();
+    void resetKoTurns();
 
-    void setSeatPrison(Seat* seat);
+    //! \brief Called when the creature is set in jail by dropping or brought by
+    //! a worker. if prison is nullptr, the creature is freed
+    void setInJail(Room* prison);
 
     inline Seat* getSeatPrison() const
     { return mSeatPrison; }
@@ -527,6 +534,12 @@ public:
 
     inline void increaseTurnsTorture()
     { ++mNbTurnsTorture; }
+
+    inline int32_t getNbTurnsPrison() const
+    { return mNbTurnsPrison; }
+
+    inline void increaseTurnsPrison()
+    { ++mNbTurnsPrison; }
 
     virtual bool isDangerous(const Creature* creature, int distance) const override;
 
@@ -738,9 +751,14 @@ private:
     //! the given seat
     Seat*                           mSeatPrison;
 
-    // TODO: use same for prison to allow to use it in mood modifiers
     //! \brief allows to know how many turns a creature has been tortured
     int32_t                         mNbTurnsTorture;
+
+    //! \brief allows to know how many turns a creature has been in prison
+    int32_t                         mNbTurnsPrison;
+
+    //! \brief Counts the number of active slaps affecting the creature
+    uint32_t                        mActiveSlapsCount;
 
     //! \brief Skills the creature can use
     std::vector<CreatureSkillData> mSkillData;

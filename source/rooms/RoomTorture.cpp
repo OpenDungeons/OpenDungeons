@@ -239,6 +239,8 @@ bool RoomTorture::addCreatureUsingRoom(Creature* creature)
     if(!Room::addCreatureUsingRoom(creature))
         return false;
 
+    creature->setInJail(this);
+
     infoToUse->mCreature = creature;
     infoToUse->mIsReady = false;
     infoToUse->mState = 0;
@@ -266,6 +268,8 @@ void RoomTorture::removeCreatureUsingRoom(Creature* creature)
         OD_LOG_ERR("room=" + getName() + ", creature=" + creature->getName());
         return;
     }
+
+    creature->setInJail(nullptr);
 
     infoToUse->mCreature = nullptr;
     infoToUse->mIsReady = false;
@@ -331,8 +335,6 @@ bool RoomTorture::useRoom(Creature& creature, bool forced)
             // The creature changes side
             creature.changeSeat(getSeat());
             creature.clearActionQueue();
-            // We release the creature
-            creature.setSeatPrison(nullptr);
 
             // We return false because we don't want to choose an action before a next complete turn
             if((getSeat()->getPlayer() != nullptr) &&

@@ -129,14 +129,11 @@ bool CreatureActionUseRoom::handleJob(Creature& creature, Room* room, bool force
         return true;
     }
 
-    if(room->shouldStopUseIfHungrySleepy(creature, forced))
+    // If we are tired/hungry, we go to bed/eat unless we are forced to work
+    if((room->shouldStopUseIfHungrySleepy(creature, forced)) &&
+       (!creature.hasSlapEffect()))
     {
-        // If we are tired/hungry, we go to bed unless we are forced to work
-        bool workForced = room->isForcedToWork(creature);
-        if(!workForced)
-            workForced = creature.isForcedToWork();
-
-        if (!workForced && (Random::Double(20.0, 30.0) > creature.getWakefulness()))
+        if (Random::Double(20.0, 30.0) > creature.getWakefulness())
         {
             creature.popAction();
             creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));
@@ -144,7 +141,7 @@ bool CreatureActionUseRoom::handleJob(Creature& creature, Room* room, bool force
         }
 
         // If we are hungry, we go to bed unless we have been slapped
-        if (!workForced && (Random::Double(70.0, 80.0) < creature.getHunger()))
+        if (Random::Double(70.0, 80.0) < creature.getHunger())
         {
             creature.popAction();
             creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, false));

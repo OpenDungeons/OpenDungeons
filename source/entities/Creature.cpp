@@ -115,10 +115,28 @@ enum CreatureMoodEnum
     MoodPrisonFiltersPrisonAllies = KoTemp | InJail
 };
 
+CreatureParticuleEffect::CreatureParticuleEffect(Creature& creature, const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
+        CreatureEffect* effect) :
+    EntityParticleEffect(name, script, nbTurnsEffect),
+    mEffect(effect),
+    mCreature(creature)
+{
+    if(mEffect == nullptr)
+    {
+        OD_LOG_ERR("null effect on creature=" + mCreature.getName() + ", name=" + name + ", script=" + script);
+        return;
+    }
+
+    mEffect->startEffect(mCreature);
+}
+
 CreatureParticuleEffect::~CreatureParticuleEffect()
 {
     if(mEffect != nullptr)
+    {
+        mEffect->releaseEffect(mCreature);
         delete mEffect;
+    }
 
     mEffect = nullptr;
 }
@@ -166,7 +184,9 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     mSpeedModifier           (1.0),
     mKoTurnCounter           (0),
     mSeatPrison              (nullptr),
-    mNbTurnsTorture          (0)
+    mNbTurnsTorture          (0),
+    mNbTurnsPrison           (0),
+    mActiveSlapsCount        (0)
 
 {
     //TODO: This should be set in initialiser list in parent classes
@@ -242,7 +262,9 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mSpeedModifier           (1.0),
     mKoTurnCounter           (0),
     mSeatPrison              (nullptr),
-    mNbTurnsTorture          (0)
+    mNbTurnsTorture          (0),
+    mNbTurnsPrison           (0),
+    mActiveSlapsCount        (0)
 {
 }
 
@@ -2826,27 +2848,11 @@ void Creature::addCreatureEffect(CreatureEffect* effect)
 
     OD_LOG_INF("Added CreatureEffect name=" + effectName + " on creature=" + getName());
 
-    CreatureParticuleEffect* particleEffect = new CreatureParticuleEffect(effectName, effect->getParticleEffectScript(),
+    CreatureParticuleEffect* particleEffect = new CreatureParticuleEffect(*this, effectName, effect->getParticleEffectScript(),
         effect->getNbTurnsEffect(), effect);
     mEntityParticleEffects.push_back(particleEffect);
 
     mNeedFireRefresh = true;
-}
-
-bool Creature::isForcedToWork() const
-{
-    for(EntityParticleEffect* effect : mEntityParticleEffects)
-    {
-        if(effect->getEntityParticleEffectType() != EntityParticleEffectType::creature)
-            continue;
-
-        CreatureParticuleEffect* creatureEffect = static_cast<CreatureParticuleEffect*>(effect);
-        if(!creatureEffect->mEffect->isForcedToWork(*this))
-            continue;
-
-        return true;
-    }
-    return false;
 }
 
 bool Creature::isHurt() const
@@ -2933,7 +2939,7 @@ void Creature::checkWalkPathValid()
 void Creature::setJobCooldown(int val)
 {
     // If the creature has been slapped, its cooldown is decreased
-    if(isForcedToWork())
+    if(hasSlapEffect())
         val = Helper::round(static_cast<float>(val) * 0.8f);
 
     mJobCooldown = val;
@@ -2955,25 +2961,29 @@ bool Creature::isHungry() const
     return (mOverlayMoodValue & CreatureMoodEnum::Hungry) != 0;
 }
 
-void Creature::releasedInBed()
+void Creature::resetKoTurns()
 {
-    // The creature was released in its bed. Let's set its KO state to 0
     mKoTurnCounter = 0;
-    computeCreatureOverlayMoodValue();
-    // And sleep a bit
-    sleep();
+    mNeedFireRefresh = true;
 }
 
-void Creature::setSeatPrison(Seat* seat)
+void Creature::setInJail(Room* prison)
 {
-    if(mSeatPrison == seat)
+    if(prison == nullptr)
+    {
+        if(mSeatPrison == nullptr)
+            return;
+
+        mSeatPrison = nullptr;
+        mNeedFireRefresh = true;
+        return;
+    }
+
+    // Creature is set in prison
+    if(mSeatPrison == prison->getSeat())
         return;
 
-    // We reset KO to death counter
-    if(seat != nullptr)
-        mKoTurnCounter = 0;
-
-    mSeatPrison = seat;
+    mSeatPrison = prison->getSeat();
     mNeedFireRefresh = true;
 }
 
@@ -3099,7 +3109,6 @@ void Creature::sleep()
 
 void Creature::leaveDungeon()
 {
-    OD_LOG_INF("creature=" + getName() + " wants to leave its dungeon");
     clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
     pushAction(Utils::make_unique<CreatureActionLeaveDungeon>(*this));
@@ -3126,6 +3135,8 @@ void Creature::changeSeat(Seat* newSeat)
     mWakefulness = 100;
     mHunger = 0;
     mNbTurnsTorture = 0;
+    mNbTurnsPrison = 0;
+    mActiveSlapsCount = 0;
     clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
     mNeedFireRefresh = true;

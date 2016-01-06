@@ -17,6 +17,7 @@
 
 #include "rooms/RoomPrison.h"
 
+#include "creatureaction/CreatureActionUseRoom.h"
 #include "entities/Creature.h"
 #include "entities/GameEntityType.h"
 #include "entities/SmallSpiderEntity.h"
@@ -30,6 +31,7 @@
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/MakeUnique.h"
 #include "utils/Random.h"
 
 const std::string RoomPrisonName = "Prison";
@@ -194,7 +196,15 @@ void RoomPrison::doUpkeep()
             if(nbCreatures >= mCentralActiveSpotTiles.size())
             {
                 // We have more prisoner than room. We free them
-                creature->setSeatPrison(nullptr);
+                creature->clearActionQueue();
+                continue;
+            }
+
+            // If the creature is dead (by slapping for example), we remove it without
+            // spawning any creature
+            if(!creature->isAlive())
+            {
+                creature->clearActionQueue();
                 continue;
             }
 
@@ -202,45 +212,73 @@ void RoomPrison::doUpkeep()
             // We slightly damage the prisoner
             double damage = ConfigManager::getSingleton().getRoomConfigDouble("PrisonDamagePerTurn");
             creature->takeDamage(this, damage, 0.0, 0.0, 0.0, creatureTile, false);
+            creature->increaseTurnsPrison();
 
             if(creature->isAlive())
-                actionPrisoner(creature);
-            else
+                continue;
+
+            // The creature is dead. We can release it
+            OD_LOG_INF("creature=" + creature->getName() + " died in prison=" + getName());
+
+            if((getSeat()->getPlayer() != nullptr) &&
+               (getSeat()->getPlayer()->getIsHuman()))
             {
-                // The creature is dead. We can release it
-                OD_LOG_INF("creature=" + creature->getName() + " died in prison=" + getName());
-
-                if((getSeat()->getPlayer() != nullptr) &&
-                   (getSeat()->getPlayer()->getIsHuman()))
-                {
-                    ServerNotification *serverNotification = new ServerNotification(
-                        ServerNotificationType::chatServer, getSeat()->getPlayer());
-                    std::string msg = "A creature died starving in your prison";
-                    serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
-                    ODServer::getSingleton().queueServerNotification(serverNotification);
-                }
-
-                creature->setSeatPrison(nullptr);
-                creature->removeFromGameMap();
-                creature->deleteYourself();
-
-                const std::string& className = ConfigManager::getSingleton().getRoomConfigString("PrisonSpawnClass");
-                const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(className);
-                if(classToSpawn == nullptr)
-                {
-                    OD_LOG_ERR("className=" + className);
-                    continue;
-                }
-                // Create a new creature and copy over the class-based creature parameters.
-                Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat());
-
-                // Add the creature to the gameMap and create meshes so it is visible.
-                newCreature->addToGameMap();
-                newCreature->setPosition(Ogre::Vector3(creatureTile->getX(), creatureTile->getY(), 0.0f));
-                newCreature->createMesh();
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotificationType::chatServer, getSeat()->getPlayer());
+                std::string msg = "A creature died starving in your prison";
+                serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
             }
+
+            creature->clearActionQueue();
+            creature->removeFromGameMap();
+            creature->deleteYourself();
+
+            const std::string& className = ConfigManager::getSingleton().getRoomConfigString("PrisonSpawnClass");
+            const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(className);
+            if(classToSpawn == nullptr)
+            {
+                OD_LOG_ERR("className=" + className);
+                continue;
+            }
+            // Create a new creature and copy over the class-based creature parameters.
+            Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat());
+
+            // Add the creature to the gameMap and create meshes so it is visible.
+            newCreature->addToGameMap();
+            newCreature->setPosition(Ogre::Vector3(creatureTile->getX(), creatureTile->getY(), 0.0f));
+            newCreature->createMesh();
         }
     }
+}
+
+
+bool RoomPrison::hasOpenCreatureSpot(Creature* creature)
+{
+    // We count current prisoners + prisoners on their way
+    uint32_t nbCreatures = countPrisoners();
+    nbCreatures += mPendingPrisoners.size();
+    if(nbCreatures >= mCentralActiveSpotTiles.size())
+        return false;
+
+    return true;
+}
+
+bool RoomPrison::addCreatureUsingRoom(Creature* creature)
+{
+    if(!Room::addCreatureUsingRoom(creature))
+        return false;
+
+    creature->setInJail(this);
+
+    return true;
+}
+
+void RoomPrison::removeCreatureUsingRoom(Creature* creature)
+{
+    Room::removeCreatureUsingRoom(creature);
+
+    creature->setInJail(nullptr);
 }
 
 bool RoomPrison::hasCarryEntitySpot(GameEntity* carriedEntity)
@@ -249,20 +287,16 @@ bool RoomPrison::hasCarryEntitySpot(GameEntity* carriedEntity)
         return false;
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
+
     // Only ko to death enemy creatures should be carried to prison
     if(creature->getKoTurnCounter() >= 0)
        return false;
 
+    // Only enemy creatures should be brought to prison
     if(getSeat()->isAlliedSeat(creature->getSeat()))
        return false;
 
-    // We count current prisoners + prisoners on their way
-    uint32_t nbCreatures = countPrisoners();
-    nbCreatures += mPendingPrisoners.size();
-    if(nbCreatures >= mCentralActiveSpotTiles.size())
-        return false;
-
-    return true;
+    return hasOpenCreatureSpot(creature);
 }
 
 Tile* RoomPrison::askSpotForCarriedEntity(GameEntity* carriedEntity)
@@ -287,17 +321,23 @@ void RoomPrison::notifyCarryingStateChanged(Creature* carrier, GameEntity* carri
         return;
     }
 
-    // We add the creature to the prison. Note that we do not check if there is enough room because we
-    // want to call setSeatPrison so that everything is correctly set in the creature and that will avoid
-    // to do it twice (because a prisoner can also be dropped and in this case, notifyCarryingStateChanged
-    // will not be called). We will handle if too many prisoners during the upkeep
     Creature* prisonerCreature = static_cast<Creature*>(carriedEntity);
-    prisonerCreature->setSeatPrison(getSeat());
 
     // We check if we were waiting for this creature
+    // We release the pending prisoners before pushing the action room to make sure
+    // the place is free when we add the creature
     auto it = std::find(mPendingPrisoners.begin(), mPendingPrisoners.end(), prisonerCreature);
-    if(it != mPendingPrisoners.end())
-        mPendingPrisoners.erase(it);
+    if(it == mPendingPrisoners.end())
+    {
+        OD_LOG_ERR("room=" + getName() + ", unexpected creature=" + prisonerCreature->getName());
+        return;
+    }
+
+    mPendingPrisoners.erase(it);
+
+    prisonerCreature->clearActionQueue();
+    prisonerCreature->pushAction(Utils::make_unique<CreatureActionUseRoom>(*prisonerCreature, *this, true));
+    prisonerCreature->resetKoTurns();
 }
 
 uint32_t RoomPrison::countPrisoners()
@@ -321,23 +361,24 @@ uint32_t RoomPrison::countPrisoners()
     return nbCreatures;
 }
 
-void RoomPrison::actionPrisoner(Creature* creature)
+bool RoomPrison::isInContainment(Creature& creature)
 {
-    // We move the prisoner if it is not already moving
-    if(creature->isMoving())
-        return;
+    if(creature.getSeatPrison() != getSeat())
+        return false;
 
-    if(creature->isKo())
-        return;
+    return true;
+}
 
+bool RoomPrison::useRoom(Creature& creature, bool forced)
+{
     if(Random::Uint(1, 4) > 1)
-        return;
+        return false;
 
-    Tile* creatureTile = creature->getPositionTile();
+    Tile* creatureTile = creature.getPositionTile();
     if(creatureTile == nullptr)
     {
-        OD_LOG_ERR("creatureName=" + creature->getName() + ", position=" + Helper::toString(creature->getPosition()));
-        return;
+        OD_LOG_ERR("creatureName=" + creature.getName() + ", position=" + Helper::toString(creature.getPosition()));
+        return false;
     }
 
     std::vector<Tile*> availableTiles;
@@ -350,20 +391,32 @@ void RoomPrison::actionPrisoner(Creature* creature)
     }
 
     if(availableTiles.empty())
-        return;
+        return false;
 
     uint32_t index = Random::Uint(0, availableTiles.size() - 1);
     Tile* tileDest = availableTiles[index];
     Ogre::Vector3 v (static_cast<Ogre::Real>(tileDest->getX()), static_cast<Ogre::Real>(tileDest->getY()), 0.0);
     std::vector<Ogre::Vector3> path;
     path.push_back(v);
-    creature->setWalkPath(EntityAnimation::flee_anim, EntityAnimation::idle_anim, true, true, path);
+    creature.setWalkPath(EntityAnimation::flee_anim, EntityAnimation::idle_anim, true, true, path);
+
+    uint32_t nbTurns = Random::Uint(3, 6);
+    creature.setJobCooldown(nbTurns);
+
+    return false;
 }
 
-bool RoomPrison::isInContainment(Creature& creature)
+void RoomPrison::creatureDropped(Creature& creature)
 {
-    if(creature.getSeatPrison() != getSeat())
-        return false;
+    // Owned and enemy creatures can be tortured
+    if((getSeat() != creature.getSeat()) && (getSeat()->isAlliedSeat(creature.getSeat())))
+        return;
 
-    return true;
+    if(!hasOpenCreatureSpot(&creature))
+        return;
+
+    // We only push the use room action. We do not want this creature to be
+    // considered as searching for a job
+    creature.clearActionQueue();
+    creature.pushAction(Utils::make_unique<CreatureActionUseRoom>(creature, *this, true));
 }
