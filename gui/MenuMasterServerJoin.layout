@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout version="4" >
-    <Window type="OD/StaticImage" name="Background" >
-        <Property name="Area" value="{{0,0},{0,0},{1,2},{1,0}}" />
-        <Property name="Image" value="ODMainMenuBackground/MainMenuBackground" />
+    <Window type="DefaultWindow" name="Root" >
+        <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
-        <Property name="FrameEnabled" value="False" />
-        <Property name="BackgroundEnabled" value="False" />
         <Window type="OD/StaticText" name="LoadingText" >
             <Property name="Area" value="{{0.5,-294},{0.5,260},{0.5,306},{0.5,280}}" />
             <Property name="Text" value="Loading..." />

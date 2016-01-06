@@ -284,6 +284,12 @@ void ODFrameListener::printDebugInfo()
     TextRenderer::getSingleton().setText("DebugMessages", infoSS.str());
 }
 
+void ODFrameListener::createMainMenuScene()
+{
+    mCameraManager.resetCamera(Ogre::Vector3(0,-2,1.5), 70);
+    mRenderManager->createMainMenuScene();
+}
+
 void ODFrameListener::resetCamera(const Ogre::Vector3& position)
 {
     mCameraManager.resetCamera(position);

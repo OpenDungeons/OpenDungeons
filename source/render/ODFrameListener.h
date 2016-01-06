@@ -135,6 +135,7 @@ public:
     { return mWindow; }
 
     //! \brief Accessors for camera manager
+    void createMainMenuScene();
     void resetCamera(const Ogre::Vector3& position);
     void moveCamera(CameraManager::Direction direction, double aux = 0.0);
     void setActiveCameraNearClipDistance(Ogre::Real value);

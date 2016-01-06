@@ -124,6 +124,8 @@ void MenuModeMain::activate()
     GameMap* gameMap = ODFrameListener::getSingletonPtr()->getClientGameMap();
     gameMap->clearAll();
     gameMap->setGamePaused(true);
+
+    ODFrameListener::getSingleton().createMainMenuScene();
 }
 
 void MenuModeMain::connectModeChangeEvent(const std::string& buttonName, AbstractModeManager::ModeType mode)
