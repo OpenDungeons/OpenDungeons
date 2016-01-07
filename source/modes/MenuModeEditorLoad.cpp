@@ -122,6 +122,17 @@ void MenuModeEditorLoad::activate()
     updateFilesList();
 }
 
+static bool findFileStemIn(const std::vector<std::string>& fileList, std::string filename)
+{
+    for (const std::string& file : fileList)
+    {
+        if (boost::filesystem::path(file).stem().string() == 
+            boost::filesystem::path(filename).stem().string())
+            return true;
+    }
+    return false;
+}
+
 bool MenuModeEditorLoad::updateFilesList(const CEGUI::EventArgs&)
 {
     CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::editorLoadMenu);
@@ -137,14 +148,18 @@ bool MenuModeEditorLoad::updateFilesList(const CEGUI::EventArgs&)
 
     std::string levelPath;
     size_t selection = levelTypeCb->getItemIndex(levelTypeCb->getSelectedItem());
+    bool officialSkirmishMaps = false;
+    bool officialMultiplayerMaps = false;
     switch (selection)
     {
         default:
         case 0:
             levelPath = ResourceManager::getSingleton().getGameLevelPathSkirmish();
+            officialSkirmishMaps = true;
             break;
         case 1:
             levelPath = ResourceManager::getSingleton().getGameLevelPathMultiplayer();
+            officialMultiplayerMaps = true;
             break;
         case 2:
             levelPath = ResourceManager::getSingleton().getUserLevelPathSkirmish();
@@ -156,6 +171,18 @@ bool MenuModeEditorLoad::updateFilesList(const CEGUI::EventArgs&)
 
     if(Helper::fillFilesList(levelPath, mFilesList, MapHandler::LEVEL_EXTENSION))
     {
+        std::vector<std::string> officialFileList;
+        if (officialSkirmishMaps)
+            levelPath = ResourceManager::getSingleton().getUserLevelPathSkirmish();
+        if (officialMultiplayerMaps)
+            levelPath = ResourceManager::getSingleton().getUserLevelPathMultiplayer();
+
+        if (officialSkirmishMaps || officialMultiplayerMaps)
+        {
+            if (!Helper::fillFilesList(levelPath, officialFileList, MapHandler::LEVEL_EXTENSION))
+                officialFileList.clear();
+        }
+
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
             std::string filename = mFilesList[n];
@@ -163,10 +190,16 @@ bool MenuModeEditorLoad::updateFilesList(const CEGUI::EventArgs&)
             LevelInfo levelInfo;
             std::string mapName;
             std::string mapDescription;
+            bool customMapExists = findFileStemIn(officialFileList, filename);
             if(MapHandler::getMapInfo(filename, levelInfo))
             {
-                mapName = levelInfo.mLevelName;
+                mapName.clear();
+                if (customMapExists)
+                    mapName = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/CogIcon'][vert-alignment='centre'] ";
+                mapName += levelInfo.mLevelName;
                 mapDescription = levelInfo.mLevelDescription;
+                if (customMapExists)
+                    mapDescription += "\n(A custom map exists for this level.)";
             }
             else
             {

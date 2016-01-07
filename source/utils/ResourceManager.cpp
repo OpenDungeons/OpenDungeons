@@ -311,7 +311,7 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
         exit(1);
     }
 
-    mUserSkirmishLevelsPath = mUserDataPath + "levels/skirmish";
+    mUserSkirmishLevelsPath = mUserDataPath + "levels/skirmish/";
     try {
       boost::filesystem::create_directories(mUserSkirmishLevelsPath);
     }
@@ -321,7 +321,7 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
         exit(1);
     }
 
-    mUserMultiplayerLevelsPath = mUserDataPath + "levels/multiplayer";
+    mUserMultiplayerLevelsPath = mUserDataPath + "levels/multiplayer/";
     try {
       boost::filesystem::create_directories(mUserMultiplayerLevelsPath);
     }
