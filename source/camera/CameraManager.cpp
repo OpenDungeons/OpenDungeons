@@ -423,7 +423,7 @@ Ogre::Vector3 CameraManager::getCameraViewTarget() const
     return target;
 }
 
-void CameraManager::resetCamera(const Ogre::Vector3& position)
+void CameraManager::resetCamera(const Ogre::Vector3& position, float angle)
 {
     Ogre::Node* nodeRotation = getActiveCameraNode()->getChild(0);
     nodeRotation->resetOrientation();
@@ -433,7 +433,12 @@ void CameraManager::resetCamera(const Ogre::Vector3& position)
 
     nodeCamera->setPosition(position);
 
-    nodeRotation->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(DEFAULT_X_AXIS_VIEW), Ogre::Node::TS_LOCAL);
+    nodeRotation->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(angle), Ogre::Node::TS_LOCAL);
+}
+
+void CameraManager::resetCamera(const Ogre::Vector3& position)
+{
+    resetCamera(position, DEFAULT_X_AXIS_VIEW);
 }
 
 

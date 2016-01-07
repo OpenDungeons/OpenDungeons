@@ -23,9 +23,10 @@
 #include <string>
 #include <iosfwd>
 
-class Room;
+class Creature;
 class GameMap;
 class ODPacket;
+class Room;
 
 class TreasuryObject: public RenderedMovableEntity
 {
@@ -40,6 +41,11 @@ public:
     virtual bool tryPickup(Seat* seat) override;
     virtual bool tryDrop(Seat* seat, Tile* tile) override;
     void mergeGold(TreasuryObject* obj);
+
+    //! \brief Called when a creature tries to steal gold. value represents
+    //! the amount the creature wants to steal.
+    //! Returns the gold stolen
+    int stealGold(Creature& creature, int value);
 
     virtual EntityCarryType getEntityCarryType(Creature* carrier) override;
     virtual void notifyEntityCarryOn(Creature* carrier) override;

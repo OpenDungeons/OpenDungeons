@@ -73,6 +73,7 @@ enum class SelectionEntityWanted
     any,
     tiles,
     chicken,
+    treasuryObjects,
     creatureAliveOwned,
     creatureAliveOwnedHurt,
     creatureAliveAllied,

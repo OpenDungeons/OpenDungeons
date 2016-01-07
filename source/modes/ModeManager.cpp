@@ -35,14 +35,10 @@
 ModeManager::ModeManager(Ogre::RenderWindow* renderWindow, Gui* gui) :
     mInputManager(renderWindow),
     mGui(gui),
-    mRequestedMode(ModeType::NONE),
+    mRequestedMode(ModeType::MENU_MAIN),
     mStoreCurrentModeAtChange(true)
 {
     mInputManager.mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
-
-    // Loads the main menu
-    mCurrentApplicationMode = Utils::make_unique<MenuModeMain>(this);
-    mCurrentApplicationMode->activate();
 }
 
 ModeManager::~ModeManager()
@@ -81,14 +77,18 @@ void ModeManager::checkModeChange()
     if (mRequestedMode == NONE)
         return;
 
-    if (mCurrentApplicationMode->getModeType() == mRequestedMode)
-        return;
+    ModeType previousMode = NONE;
+    if(mCurrentApplicationMode != nullptr)
+    {
+        if (mCurrentApplicationMode->getModeType() == mRequestedMode)
+            return;
 
-    // Keep the previous mode in mind.
-    ModeType previousMode = mCurrentApplicationMode->getModeType();
+        // Keep the previous mode in mind.
+        previousMode = mCurrentApplicationMode->getModeType();
 
-    mCurrentApplicationMode->deactivate();
-    mCurrentApplicationMode = nullptr;
+        mCurrentApplicationMode->deactivate();
+        mCurrentApplicationMode = nullptr;
+    }
 
     switch(mRequestedMode)
     {

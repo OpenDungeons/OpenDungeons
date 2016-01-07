@@ -76,6 +76,10 @@ public:
     //! \brief setup the scene
     void createScene(Ogre::Viewport*);
 
+    //! \brief setup the main menu scene
+    void createMainMenuScene();
+    void destroyMainMenuScene();
+
     //! \brief Set the entity's opacity
     void setEntityOpacity(Ogre::Entity* ent, float opacity);
 
@@ -162,6 +166,9 @@ private:
     //! \returns The new material name according to the current opacity.
     std::string setMaterialOpacity(const std::string& materialName, float opacity);
 
+    void addEntityToMainMenu(const std::string& meshName, const std::string& entityName,
+        const Ogre::Vector3& scale, const Ogre::Vector3& pos, const std::string& animation);
+
     //! \brief The main scene manager reference. Don't delete it.
     Ogre::SceneManager* mSceneManager;
 
@@ -170,6 +177,7 @@ private:
     Ogre::SceneNode* mRoomSceneNode;
     Ogre::SceneNode* mCreatureSceneNode;
     Ogre::SceneNode* mLightSceneNode;
+    Ogre::SceneNode* mMainMenuSceneNode;
 
     Ogre::AnimationState* mHandAnimationState;
 
@@ -187,6 +195,9 @@ private:
     // and attach them to the keeper hand. This vector allows to keep a track and delete
     // them/recreate when loading a new game
     std::vector<Ogre::SceneNode*> mDummyEntities;
+
+    //! \brief Used to keep the objects from the main scene
+    std::vector<std::pair<Ogre::Entity*,Ogre::AnimationState*>> mMainSceneObjects;
 
     //! \brief True if the creatures are currently displaying their text overlay
     bool mCreatureTextOverlayDisplayed;

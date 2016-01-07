@@ -115,6 +115,7 @@ public:
     void RotateTo(Ogre::Real pitch, Ogre::Real roll);
 
     //! \brief Directly set the new camera position
+    void resetCamera(const Ogre::Vector3& position, float angle);
     void resetCamera(const Ogre::Vector3& position);
 
     /*! \brief tells the camera to move/rotate (or stop) in a specific direction
