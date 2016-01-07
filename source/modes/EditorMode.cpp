@@ -29,7 +29,7 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
-#include "gamemap/MapLoader.h"
+#include "gamemap/MapHandler.h"
 #include "gamemap/Pathfinding.h"
 #include "modes/GameEditorModeConsole.h"
 #include "network/ODClient.h"

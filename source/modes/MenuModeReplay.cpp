@@ -28,7 +28,7 @@
 #include "network/ServerNotification.h"
 #include "ODApplication.h"
 #include "utils/LogManager.h"
-#include "gamemap/MapLoader.h"
+#include "gamemap/MapHandler.h"
 #include "utils/ConfigManager.h"
 #include "utils/ResourceManager.h"
 

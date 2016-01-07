@@ -29,7 +29,7 @@
 #include "game/SkillType.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
-#include "gamemap/MapLoader.h"
+#include "gamemap/MapHandler.h"
 #include "modes/ConsoleCommands.h"
 #include "network/ODClient.h"
 #include "network/ServerMode.h"
@@ -178,7 +178,7 @@ bool ODServer::startServer(const std::string& creator, const std::string& levelF
     if(useMasterServer)
     {
         LevelInfo info;
-        if(!MapLoader::getMapInfo(levelFilename, info))
+        if(!MapHandler::getMapInfo(levelFilename, info))
         {
             info.mLevelName = "No name";
             info.mLevelDescription = "No description";
@@ -1546,7 +1546,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 boost::filesystem::rename(levelSave, levelSave.string() + ".bak");
 
             std::string msg = "Map saved successfully as: " + levelSave.string();
-            if (!MapLoader::writeGameMapToFile(levelSave.string(), *gameMap)) {
+            if (!MapHandler::writeGameMapToFile(levelSave.string(), *gameMap)) {
                 msg = "Couldn't not save map file as: " + levelSave.string() + "\nPlease check logs.";
             }
             // We notify all the players that the game was saved successfully

@@ -27,7 +27,7 @@
 #include "network/ODClient.h"
 #include "network/ServerMode.h"
 #include "utils/LogManager.h"
-#include "gamemap/MapLoader.h"
+#include "gamemap/MapHandler.h"
 #include "utils/ResourceManager.h"
 #include "utils/ConfigManager.h"
 #include "game/Seat.h"
@@ -188,7 +188,7 @@ bool MenuModeEditorNew::launchSelectedButtonPressed(const CEGUI::EventArgs&)
         return true;
     }
 
-    if (!MapLoader::writeGameMapToFile(level, *gameMap)) {
+    if (!MapHandler::writeGameMapToFile(level, *gameMap)) {
         OD_LOG_WRN("Couldn't write new map before loading: " + level);
         window->getChild(TEXT_LOADING)->setText("Couldn't write new map before loading.\nPlease check logs.");
         return true;

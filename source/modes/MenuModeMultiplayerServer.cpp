@@ -27,7 +27,7 @@
 #include "network/ODClient.h"
 #include "network/ServerMode.h"
 #include "utils/LogManager.h"
-#include "gamemap/MapLoader.h"
+#include "gamemap/MapHandler.h"
 #include "utils/ConfigManager.h"
 #include "utils/ResourceManager.h"
 
@@ -156,7 +156,7 @@ bool MenuModeMultiplayerServer::updateFilesList(const CEGUI::EventArgs&)
             break;
     }
 
-    if(Helper::fillFilesList(levelPath, mFilesList, MapLoader::LEVEL_EXTENSION))
+    if(Helper::fillFilesList(levelPath, mFilesList, MapHandler::LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
@@ -165,7 +165,7 @@ bool MenuModeMultiplayerServer::updateFilesList(const CEGUI::EventArgs&)
             LevelInfo levelInfo;
             std::string mapName;
             std::string mapDescription;
-            if(MapLoader::getMapInfo(filename, levelInfo))
+            if(MapHandler::getMapInfo(filename, levelInfo))
             {
                 mapName = levelInfo.mLevelName;
                 mapDescription = levelInfo.mLevelDescription;

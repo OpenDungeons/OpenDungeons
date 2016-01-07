@@ -16,8 +16,8 @@
  */
 
 
-#ifndef MAPLOADER_H
-#define MAPLOADER_H
+#ifndef MAPHANDLER_H
+#define MAPHANDLER_H
 
 #include <string>
 
@@ -38,7 +38,7 @@ struct LevelInfo
     std::string mLevelDescription;
 };
 
-namespace MapLoader
+namespace MapHandler
 {
     bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap);
 
@@ -58,4 +58,4 @@ namespace MapLoader
     static const std::string LEVEL_EXTENSION = ".level";
 };
 
-#endif // MAPLOADER_H
+#endif // MAPHANDLER_H

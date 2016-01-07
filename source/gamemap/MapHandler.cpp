@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gamemap/MapLoader.h"
+#include "gamemap/MapHandler.h"
 
 #include "creaturemood/CreatureMoodManager.h"
 #include "gamemap/GameMap.h"
@@ -51,7 +51,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace MapLoader {
+namespace MapHandler {
 
 bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 {
@@ -944,4 +944,4 @@ bool getMapInfo(const std::string& fileName, LevelInfo& levelInfo)
     return true;
 }
 
-} // Namespace MapLoader
+} // Namespace MapHandler

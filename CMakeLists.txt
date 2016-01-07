@@ -364,7 +364,7 @@ set(OD_SOURCEFILES
     ${SRC}/game/SeatData.cpp
 
     ${SRC}/gamemap/GameMap.cpp
-    ${SRC}/gamemap/MapLoader.cpp
+    ${SRC}/gamemap/MapHandler.cpp
     ${SRC}/gamemap/MiniMap.cpp
     ${SRC}/gamemap/MiniMapCamera.cpp
     ${SRC}/gamemap/TileContainer.cpp
