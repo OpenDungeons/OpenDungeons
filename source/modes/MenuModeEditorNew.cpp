@@ -17,20 +17,21 @@
 
 #include "modes/MenuModeEditorNew.h"
 
-#include "utils/Helper.h"
-#include "render/Gui.h"
 #include "modes/ModeManager.h"
-#include "sound/MusicPlayer.h"
+
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
-#include "render/ODFrameListener.h"
+#include "gamemap/MapHandler.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
 #include "network/ServerMode.h"
-#include "utils/LogManager.h"
-#include "gamemap/MapHandler.h"
-#include "utils/ResourceManager.h"
+#include "render/Gui.h"
+#include "render/ODFrameListener.h"
+#include "sound/MusicPlayer.h"
 #include "utils/ConfigManager.h"
-#include "game/Seat.h"
+#include "utils/Helper.h"
+#include "utils/LogManager.h"
+#include "utils/ResourceManager.h"
 
 #include <CEGUI/CEGUI.h>
 #include <boost/filesystem.hpp>
