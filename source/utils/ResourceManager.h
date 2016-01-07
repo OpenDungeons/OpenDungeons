@@ -128,9 +128,11 @@ public:
     { return mCeguiLogFile; }
 
     std::string getGameLevelPathSkirmish() const;
-    std::string getUserLevelPathSkirmish() const;
+    std::string getUserLevelPathSkirmish() const
+    { return mUserSkirmishLevelsPath; }
     std::string getGameLevelPathMultiplayer() const;
-    std::string getUserLevelPathMultiplayer() const;
+    std::string getUserLevelPathMultiplayer() const
+    { return mUserMultiplayerLevelsPath; }
 
     inline bool isServerMode() const
     { return mServerMode; }
@@ -186,6 +188,8 @@ private:
     std::string mLanguagePath;
     std::string mReplayPath;
     std::string mSaveGamePath;
+    std::string mUserSkirmishLevelsPath;
+    std::string mUserMultiplayerLevelsPath;
 
     static const std::string PLUGINSCFG;
     static const std::string RESOURCECFG;

@@ -311,6 +311,26 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
         exit(1);
     }
 
+    mUserSkirmishLevelsPath = mUserDataPath + "levels/skirmish";
+    try {
+      boost::filesystem::create_directories(mUserSkirmishLevelsPath);
+    }
+    catch (const boost::filesystem::filesystem_error& e) {
+        //TODO - Exit gracefully
+        std::cerr << "Fatal error creating user skirmish levels folder: " << e.what() <<  std::endl;
+        exit(1);
+    }
+
+    mUserMultiplayerLevelsPath = mUserDataPath + "levels/multiplayer";
+    try {
+      boost::filesystem::create_directories(mUserMultiplayerLevelsPath);
+    }
+    catch (const boost::filesystem::filesystem_error& e) {
+        //TODO - Exit gracefully
+        std::cerr << "Fatal error creating user multiplayer levels folder: " << e.what() <<  std::endl;
+        exit(1);
+    }
+
     itOption = options.find("log");
     if(itOption != options.end())
     {
@@ -501,14 +521,4 @@ std::string ResourceManager::getGameLevelPathSkirmish() const
 std::string ResourceManager::getGameLevelPathMultiplayer() const
 {
     return getGameDataPath() + "levels/multiplayer/";
-}
-
-std::string ResourceManager::getUserLevelPathSkirmish() const
-{
-    return getUserDataPath() + "levels/skirmish/";
-}
-
-std::string ResourceManager::getUserLevelPathMultiplayer() const
-{
-    return getUserDataPath() + "levels/multiplayer/";
 }
