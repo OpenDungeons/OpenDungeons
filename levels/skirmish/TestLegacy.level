@@ -6817,7 +6817,7 @@ ProtectDungeonTemple	NULL
 1	Kobold_007	Kobold	193	218	0	Kobold	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Mage	Wizard	193	213	0	Wizard	1	0	max	100	0	0	Staff	none	nullSkillType	none	0
 1	Wiz	Wizard	193	213	0	Wizard	1	0	max	100	0	0	Staff	none	nullSkillType	none	0
-1	King	BigKnight	191	216	0	BigKnight	1	0	max	100	0	0	Roundshield	Staff	nullSkillType	none	0
+1	King	NatureMonster	191	216	0	NatureMonster	1	0	max	100	0	0	Roundshield	Staff	nullSkillType	none	0
 1	Knight_005	Knight	229	138	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	nullSkillType	none	0
 1	Knight_004	Knight	196	200	0	Knight	1	0	max	100	0	0	Longsword	none	nullSkillType	none	0
 1	Knight_006	Knight	199	204	0	Knight	1	0	max	100	0	0	Longsword	Sabre	nullSkillType	none	0

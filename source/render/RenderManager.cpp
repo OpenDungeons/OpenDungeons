@@ -229,12 +229,12 @@ void RenderManager::createMainMenuScene()
         return;
     }
 
-    addEntityToMainMenu("Roach.mesh", "MainMenuRoach", Ogre::Vector3(0.08,0.08,0.08),
+    addEntityToMainMenu("Elf.mesh", "MainMenuElf", Ogre::Vector3(0.08,0.08,0.08),
         Ogre::Vector3(-1,0,0), "Dance");
     addEntityToMainMenu("Troll.mesh", "MainMenuTroll", Ogre::Vector3(0.2,0.2,0.2),
         Ogre::Vector3(0,0,0), "Idle");
-    addEntityToMainMenu("Elf.mesh", "MainMenuElf", Ogre::Vector3(0.08,0.08,0.08),
-        Ogre::Vector3(1,0,0), "Dance");
+    addEntityToMainMenu("NatureMonster.mesh", "MainMenuNatureMonster", Ogre::Vector3(0.04,0.04,0.04),
++        Ogre::Vector3(1,0,0), "Idle");
 
     // Ground
     for(int32_t i = -2; i <= 2; ++i)

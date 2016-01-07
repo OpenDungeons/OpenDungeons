@@ -564,7 +564,7 @@ void addConsoleCommands(ConsoleInterface& cl)
                    {"icanseedeadpeople"});
     cl.addCommand("setcreaturelevel",
                    "Sets the level of a given creature.\n\nExample:\n"
-                   "setlevel BigKnight1 10\n\nThe above command will set the creature \'BigKnight1\' to 10.",
+                   "setlevel NatureMonster1 10\n\nThe above command will set the creature \'NatureMonster1\' to 10.",
                    cSendCmdToServer,
                    cSrvSetCreatureLevel,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});

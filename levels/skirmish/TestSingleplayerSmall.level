@@ -1529,7 +1529,7 @@ DwarfWorker	1
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 1	DefaultWorker1	Kobold.mesh	11	11	0	DefaultWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
 2	DefaultWorker2	Kobold.mesh	12	39	0	DefaultWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
-1	BigKnight1	BigKnight	7	7	0	BigKnight	1	0	10	100	0	0	Longsword	none	nullSkillType	none	0
+1	NatureMonster1	NatureMonster	7	7	0	NatureMonster	1	0	10	100	0	0	Longsword	none	nullSkillType	none	0
 1	BigDragon1	BigDragon	7	9	0	BigDragon	1	0	10	100	0	0	none	none	nullSkillType	none	0
 1	Adventurer2	Adventurer	7	8	0	Adventurer	1	0	10	100	0	0	none	SpecialStaff	nullSkillType	none	0
 2	Adventurer3	Adventurer	7	40	0	Adventurer	1	0	10	100	0	0	none	none	nullSkillType	none	0
@@ -1551,6 +1551,7 @@ DwarfWorker	1
 0	Troll2	Troll.mesh	26	5	0	Troll	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Skeleton1	skeleton.mesh	12	9	0	Skeleton	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Lich1	lich.mesh	13	10	0	Lich	1	0	max	100	0	0	none	none	nullSkillType	none	0
+0	NatureMonster2	Knight.mesh	22	6	0	NatureMonster	1	0	max	100	0	0	RustyShield	RustySword	nullSkillType	none	0
 [/Creatures]
 
 [Spells]

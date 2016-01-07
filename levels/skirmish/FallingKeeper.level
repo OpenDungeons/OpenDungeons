@@ -2173,8 +2173,8 @@ Knight	5
 Knight	5
 Wizard	6
 Wizard	6
-BigKnight	7
-BigKnight	7
+NatureMonster	7
+NatureMonster	7
 [/Creatures]
 [/Wave]
 [Wave]
@@ -2187,10 +2187,10 @@ Knight	7
 Knight	7
 Wizard	8
 Wizard	8
-BigKnight	10
-BigKnight	11
-BigKnight	12
-BigKnight	12
+NatureMonster	10
+NatureMonster	11
+NatureMonster	12
+NatureMonster	12
 [/Creatures]
 [/Wave]
 [/Waves]
