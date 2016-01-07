@@ -17,11 +17,10 @@
 
 #include "modes/MenuModeEditorNew.h"
 
-#include "modes/ModeManager.h"
-
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/MapHandler.h"
+#include "modes/ModeManager.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
 #include "network/ServerMode.h"

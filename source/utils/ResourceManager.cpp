@@ -260,10 +260,12 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
     if (mUserConfigPath.empty())
         mUserConfigPath = "./cfg/";
 
-    try {
+    try
+    {
         boost::filesystem::create_directories(mUserDataPath);
     }
-    catch (const boost::filesystem::filesystem_error& e) {
+    catch (const boost::filesystem::filesystem_error& e)
+    {
         //TODO - Exit gracefully
         std::cerr << "Fatal error creating user data folder: " << e.what() <<  std::endl;
         exit(1);
@@ -271,61 +273,72 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
 
     std::cout << "User data path is: " << mUserDataPath << std::endl;
 
-    try {
+    try
+    {
         boost::filesystem::create_directories(mUserConfigPath);
     }
-    catch (const boost::filesystem::filesystem_error& e) {
+    catch (const boost::filesystem::filesystem_error& e)
+    {
         //TODO - Exit gracefully
         std::cerr << "Fatal error creating user config folder: " << e.what() <<  std::endl;
         exit(1);
     }
-
     std::cout << "User config path is: " << mUserConfigPath << std::endl;
 
-    try {
+    try
+    {
       boost::filesystem::create_directories(mUserDataPath.c_str() + SHADERCACHESUBPATH);
     }
-    catch (const boost::filesystem::filesystem_error& e) {
+    catch (const boost::filesystem::filesystem_error& e)
+    {
         //TODO - Exit gracefully
         std::cerr << "Fatal error creating shader cache folder: " << e.what() <<  std::endl;
         exit(1);
     }
 
     mReplayPath = mUserDataPath + "replay/";
-    try {
+    try
+    {
       boost::filesystem::create_directories(mReplayPath);
     }
-    catch (const boost::filesystem::filesystem_error& e) {
+    catch (const boost::filesystem::filesystem_error& e)
+    {
         //TODO - Exit gracefully
         std::cerr << "Fatal error creating replay folder: " << e.what() <<  std::endl;
         exit(1);
     }
 
     mSaveGamePath = mUserDataPath + "saves/";
-    try {
+    try
+    {
       boost::filesystem::create_directories(mSaveGamePath);
     }
-    catch (const boost::filesystem::filesystem_error& e) {
+    catch (const boost::filesystem::filesystem_error& e)
+    {
         //TODO - Exit gracefully
         std::cerr << "Fatal error creating replay folder: " << e.what() <<  std::endl;
         exit(1);
     }
 
     mUserSkirmishLevelsPath = mUserDataPath + "levels/skirmish/";
-    try {
+    try
+    {
       boost::filesystem::create_directories(mUserSkirmishLevelsPath);
     }
-    catch (const boost::filesystem::filesystem_error& e) {
+    catch (const boost::filesystem::filesystem_error& e)
+    {
         //TODO - Exit gracefully
         std::cerr << "Fatal error creating user skirmish levels folder: " << e.what() <<  std::endl;
         exit(1);
     }
 
     mUserMultiplayerLevelsPath = mUserDataPath + "levels/multiplayer/";
-    try {
+    try
+    {
       boost::filesystem::create_directories(mUserMultiplayerLevelsPath);
     }
-    catch (const boost::filesystem::filesystem_error& e) {
+    catch (const boost::filesystem::filesystem_error& e)
+    {
         //TODO - Exit gracefully
         std::cerr << "Fatal error creating user multiplayer levels folder: " << e.what() <<  std::endl;
         exit(1);

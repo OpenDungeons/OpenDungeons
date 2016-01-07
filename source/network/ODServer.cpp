@@ -1546,7 +1546,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 boost::filesystem::rename(levelSave, levelSave.string() + ".bak");
 
             std::string msg = "Map saved successfully as: " + levelSave.string();
-            if (!MapHandler::writeGameMapToFile(levelSave.string(), *gameMap)) {
+            if (!MapHandler::writeGameMapToFile(levelSave.string(), *gameMap))
+            {
                 msg = "Couldn't not save map file as: " + levelSave.string() + "\nPlease check logs.";
             }
             // We notify all the players that the game was saved successfully
