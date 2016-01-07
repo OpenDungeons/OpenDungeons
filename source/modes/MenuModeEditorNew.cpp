@@ -136,7 +136,7 @@ bool MenuModeEditorNew::launchSelectedButtonPressed(const CEGUI::EventArgs&)
         window->getChild(TEXT_LOADING)->setText("The level filename already exists.\nPlease set a different filename.");
         return true;
     }
-    if (boost::filesystem::extension(level) != "level") {
+    if (boost::filesystem::extension(level) != ".level") {
         level.append(".level");
     }
 
