@@ -42,7 +42,7 @@ namespace MapLoader
 {
     bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap);
 
-    void writeGameMapToFile(const std::string& fileName, GameMap& gameMap);
+    bool writeGameMapToFile(const std::string& fileName, GameMap& gameMap);
 
     bool readGameEntity(GameMap& gameMap, const std::string& item, GameEntityType type, std::stringstream& levelFile);
 

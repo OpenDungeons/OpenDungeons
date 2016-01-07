@@ -188,8 +188,11 @@ bool MenuModeEditorNew::launchSelectedButtonPressed(const CEGUI::EventArgs&)
         return true;
     }
 
-    // TODO: This should probably report any error and abort in that case.
-    MapLoader::writeGameMapToFile(level, *gameMap);
+    if (!MapLoader::writeGameMapToFile(level, *gameMap)) {
+        OD_LOG_WRN("Couldn't write new map before loading: " + level);
+        window->getChild(TEXT_LOADING)->setText("Couldn't write new map before loading.\nPlease check logs.");
+        return true;
+    }
 
     // In editor mode, we act as a server
     window->getChild(TEXT_LOADING)->setText("Loading...");
@@ -197,8 +200,8 @@ bool MenuModeEditorNew::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     std::string nickname = config.getGameValue(Config::NICKNAME, std::string(), false);
     if(!ODServer::getSingleton().startServer(nickname, level, ServerMode::ModeEditor, false))
     {
-        OD_LOG_ERR("Could not start server for editor!!!");
-        window->getChild(TEXT_LOADING)->setText("ERROR: Could not start server for editor!!!");
+        OD_LOG_ERR("Could not start server for editor!");
+        window->getChild(TEXT_LOADING)->setText("ERROR: Could not start server for editor!");
         return true;
     }
 
@@ -208,7 +211,7 @@ bool MenuModeEditorNew::launchSelectedButtonPressed(const CEGUI::EventArgs&)
         + ResourceManager::getSingleton().buildReplayFilename();
     if(!ODClient::getSingleton().connect("localhost", port, timeout, replayFilename))
     {
-        OD_LOG_ERR("Could not connect to server for editor!!!");
+        OD_LOG_ERR("Could not connect to server for editor!");
         window->getChild(TEXT_LOADING)->setText("Error: Couldn't connect to local server!");
         return true;
     }

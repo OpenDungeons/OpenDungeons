@@ -8,7 +8,7 @@
         <Property name="FrameEnabled" value="False" />
         <Property name="BackgroundEnabled" value="False" />
         <Window type="OD/StaticText" name="LoadingText" >
-            <Property name="Area" value="{{0.5,-301},{0.5,240},{0.5,299},{0.5,260}}" />
+            <Property name="Area" value="{{0.5,-301},{0.5,240},{0.5,299},{0.5,280}}" />
             <Property name="Text" value="Loading..." />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="FrameEnabled" value="False" />
