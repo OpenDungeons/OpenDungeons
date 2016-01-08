@@ -178,6 +178,7 @@ textures/
 -> Portal{,Normal}.png                 Yughues                 CC0                     http://opengameart.org/users/yughues
 -> PortalVortex.png
 -> RangerBed*.png                      PantherOne              CC0                     http://opengameart.org/content/tent-pack
+-> Rat*.png                            CDmir                   CC0                     http://opengameart.org/content/evil-giant-rat
 -> Roach*.png                          Danimal, Atmostatic     CC-BY-SA 3.0            http://opengameart.org/content/roach-game-ready-and-animated
 -> Rock.png                            Yughues                 CC0                     http://opengameart.org/users/yughues
 -> Roulette*.png                       hwoarangmy              CC-BY-SA 3.0            Original wood texture from http://opengameart.org/content/supertuxkart-basic-sameless-texture-pack
@@ -298,6 +299,7 @@ PortalObject.*                         Danimal                 CC-BY-SA 3.0     
 Portal.mesh                            Skorpio                 CC-BY-SA 3.0
 PrisonGround.mesh                      Hwoarangmy              CC-BY-SA 3.0
 RangerBed.mesh                         PantherOne              CC0                     http://opengameart.org/content/tent-pack
+Rat.*                                  CDmir                   CC0                     http://opengameart.org/content/evil-giant-rat
 Roach                                  Danimal, Atmostatic     CC-BY-SA 3.0            http://opengameart.org/content/roach-game-ready-and-animated
 Roulette.*                             hwoarangmy              CC-BY-SA 3.0
 Roundshield.mesh                       Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
