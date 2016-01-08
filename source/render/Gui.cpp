@@ -67,8 +67,7 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     context.getMouseCursor().setVisible(true);
     context.setDefaultTooltipType("OD/Tooltip");
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
-    CEGUI::Window* myHide = wmgr->createWindow("DefaultWindow", "DummyWindow");
-    mSheets[hideGui] = myHide;
+    mSheets[hideGui] = wmgr->createWindow("DefaultWindow", "DummyWindow");
     mSheets[inGameMenu] = wmgr->loadLayoutFromFile("ModeGame.layout");
     mSheets[mainMenu] = wmgr->loadLayoutFromFile("MenuMain.layout");
     mSheets[skirmishMenu] = wmgr->loadLayoutFromFile("MenuSkirmish.layout");
@@ -76,6 +75,7 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     mSheets[multiplayerServerMenu] = wmgr->loadLayoutFromFile("MenuMultiplayerServer.layout");
     mSheets[multiMasterServerJoinMenu] = wmgr->loadLayoutFromFile("MenuMasterServerJoin.layout");
     mSheets[editorModeGui] =  wmgr->loadLayoutFromFile("ModeEditor.layout");
+    mSheets[editorNewMenu] =  wmgr->loadLayoutFromFile("MenuEditorNew.layout");
     mSheets[editorLoadMenu] =  wmgr->loadLayoutFromFile("MenuEditorLoad.layout");
     mSheets[configureSeats] =  wmgr->loadLayoutFromFile("MenuConfigureSeats.layout");
     mSheets[replayMenu] =  wmgr->loadLayoutFromFile("MenuReplay.layout");
@@ -87,6 +87,7 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     mSheets[skirmishMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[multiplayerServerMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[multiplayerClientMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[editorNewMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[editorLoadMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[loadSavedGameMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
@@ -160,13 +161,6 @@ const std::string Gui::TAB_COMBAT = "MainTabControl/Combat";
 
 const std::string Gui::MM_BACKGROUND = "Background";
 const std::string Gui::MM_WELCOME_MESSAGE = "WelcomeBanner";
-const std::string Gui::MM_BUTTON_START_SKIRMISH = "StartSkirmishButton";
-const std::string Gui::MM_BUTTON_START_REPLAY = "StartReplayButton";
-const std::string Gui::MM_BUTTON_START_MULTIPLAYER_CLIENT = "StartMultiplayerClientButton";
-const std::string Gui::MM_BUTTON_START_MULTIPLAYER_SERVER = "StartMultiplayerServerButton";
-const std::string Gui::MM_BUTTON_LOAD_GAME = "LoadGameButton";
-const std::string Gui::MM_BUTTON_MAPEDITOR = "MapEditorButton";
-const std::string Gui::MM_BUTTON_QUIT = "QuitButton";
 const std::string Gui::EXIT_CONFIRMATION_POPUP = "ConfirmExit";
 const std::string Gui::EXIT_CONFIRMATION_POPUP_YES_BUTTON = "ConfirmExit/YesOption";
 const std::string Gui::EXIT_CONFIRMATION_POPUP_NO_BUTTON = "ConfirmExit/NoOption";

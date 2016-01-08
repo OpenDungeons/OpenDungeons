@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/StaticText" name="EditorSubMenuWindow" >
+        <Property name="Area" value="{{0.0,200},{0.5,100},{0.0,400},{0.5,285}}" />
+        <Property name="Text" value="" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
+        <Window type="OD/MainMenuButton" name="EditorNewButton" >
+            <Property name="Area" value="{{0.5,-80},{0,20},{0.5,100},{0,100}}" />
+            <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/SpellsButton'][vert-alignment='centre']New Map ..." />
+        </Window>
+        <Window type="OD/MainMenuButton" name="EditorLoadButton" >
+            <Property name="Area" value="{{0.5,-80},{0,90},{0.5,100},{0,170}}" />
+            <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/LoadIcon'][vert-alignment='centre']Load Map ..." />
+        </Window>
+    </Window>
+</GUILayout>

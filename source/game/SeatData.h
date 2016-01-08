@@ -39,6 +39,9 @@ public:
     // Constructors
     SeatData();
 
+    inline void setId(int id)
+    { mId = id; }
+
     inline int getId() const
     { return mId; }
 
@@ -64,6 +67,9 @@ public:
 
     inline void setFaction(const std::string& faction)
     { mFaction = faction; }
+
+    inline void setColorId(const std::string& colorId)
+    { mColorId = colorId; }
 
     inline const std::string& getColorId() const
     { return mColorId; }

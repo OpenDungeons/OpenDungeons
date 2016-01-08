@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gamemap/MapLoader.h"
+#include "gamemap/MapHandler.h"
 
 #include "creaturemood/CreatureMoodManager.h"
 #include "gamemap/GameMap.h"
@@ -51,7 +51,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace MapLoader {
+namespace MapHandler {
 
 bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 {
@@ -231,12 +231,12 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         std::getline(levelFile, nextParam);
         entire_line += nextParam;
 
-        Tile* tempTile = new Tile(&gameMap, true);
+        Tile* tile = new Tile(&gameMap, true);
 
-        Tile::loadFromLine(entire_line, tempTile);
-        tempTile->computeTileVisual();
+        Tile::loadFromLine(entire_line, tile);
+        tile->computeTileVisual();
 
-        gameMap.addTile(tempTile);
+        gameMap.addTile(tile);
     }
 
     gameMap.setAllFullnessAndNeighbors();
@@ -550,10 +550,15 @@ bool readGameEntity(GameMap& gameMap, const std::string& item, GameEntityType ty
     return true;
 }
 
-void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
+bool writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
 {
     std::ofstream levelFile(fileName.c_str(), std::ifstream::out);
-    Tile *tempTile;
+
+    // This is better than checking for .bad(), as it checks every error flags.
+    if (!levelFile.good()) {
+        OD_LOG_WRN("Couldn't open file for writing: " + fileName);
+        return false;
+    }
 
     // Write the identifier string and the version number
     levelFile << ODApplication::VERSIONSTRING
@@ -561,15 +566,17 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
 
     // Write map info
     levelFile << "\n[Info]\n";
-    levelFile << "Name\t" << gameMap.getLevelName() << std::endl;
-    levelFile << "Description\t" << gameMap.getLevelDescription() << std::endl;
-    levelFile << "Music\t" << gameMap.getLevelMusicFile() << std::endl;
-    levelFile << "FightMusic\t" << gameMap.getLevelFightMusicFile() << std::endl;
+    levelFile << "Name\t" << (gameMap.getLevelName().empty() ? "No name" : gameMap.getLevelName()) << std::endl;
+    if (!gameMap.getLevelDescription().empty())
+        levelFile << "Description\t" << gameMap.getLevelDescription() << std::endl;
+    if (!gameMap.getLevelMusicFile().empty())
+        levelFile << "Music\t" << gameMap.getLevelMusicFile() << std::endl;
+    if (!gameMap.getLevelFightMusicFile().empty())
+        levelFile << "FightMusic\t" << gameMap.getLevelFightMusicFile() << std::endl;
     if(!gameMap.getTileSetName().empty())
         levelFile << "TileSet\t" << gameMap.getTileSetName() << std::endl;
 
     levelFile << "[/Info]" << std::endl;
-
 
     // Write out the seats to the file
     levelFile << "\n[Seats]\n";
@@ -605,21 +612,23 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     // Write out the tiles to the file
     levelFile << "# " << Tile::getFormat() << "\n";
 
-    for(int ii = 0; ii < gameMap.getMapSizeX(); ++ii)
+    for(int ii = 0; ii < mapSizeX; ++ii)
     {
-        for(int jj = 0; jj < gameMap.getMapSizeY(); ++jj)
+        for(int jj = 0; jj < mapSizeY; ++jj)
         {
-            tempTile = gameMap.getTile(ii, jj);
-            // Don't save standard tiles as they're auto filled in at load time.
-            if (!tempTile->isClaimed() && tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
+            Tile* tile = gameMap.getTile(ii, jj);
+            if (tile == nullptr)
                 continue;
 
-            Tile::exportToStream(tempTile, levelFile);
+            // Don't save standard tiles as they're auto filled in at load time.
+            if (!tile->isClaimed() && tile->getType() == TileType::dirt && tile->getFullness() >= 100.0)
+                continue;
+
+            Tile::exportToStream(tile, levelFile);
             levelFile << std::endl;
         }
     }
     levelFile << "[/Tiles]" << std::endl;
-
 
     std::vector<Room*> rooms = gameMap.getRooms();
     std::sort(rooms.begin(), rooms.end(), Room::sortForMapSave);
@@ -770,7 +779,13 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     }
     levelFile << "[/Chickens]" << std::endl;
 
+    if (!levelFile.good()) {
+        OD_LOG_WRN("Unexpected failure on file: " + fileName);
+        return false;
+    }
+
     levelFile.close();
+    return true;
 }
 
 bool getMapInfo(const std::string& fileName, LevelInfo& levelInfo)
@@ -929,4 +944,4 @@ bool getMapInfo(const std::string& fileName, LevelInfo& levelInfo)
     return true;
 }
 
-} // Namespace MapLoader
+} // Namespace MapHandler

@@ -28,7 +28,7 @@
 #include "network/ServerMode.h"
 #include "network/ServerNotification.h"
 #include "utils/LogManager.h"
-#include "gamemap/MapLoader.h"
+#include "gamemap/MapHandler.h"
 #include "utils/ConfigManager.h"
 #include "utils/ResourceManager.h"
 
@@ -221,7 +221,7 @@ bool MenuModeLoad::updateDescription(const CEGUI::EventArgs&)
 
     LevelInfo levelInfo;
     std::string mapDescription;
-    if(MapLoader::getMapInfo(filename, levelInfo))
+    if(MapHandler::getMapInfo(filename, levelInfo))
         mapDescription = levelInfo.mLevelDescription;
     else
         mapDescription = "invalid map";

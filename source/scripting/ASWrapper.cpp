@@ -39,7 +39,7 @@
 //#include "gamemap/GameMap.h"
 //#include "utils/Helper.h"
 #include "utils/LogManager.h"
-//#include "gamemap/MapLoader.h"
+//#include "gamemap/MapHandler.h"
 //#include "ODApplication.h"
 //#include "render/ODFrameListener.h"
 //#include "utils/ResourceManager.h"
@@ -321,11 +321,11 @@ void ASWrapper::registerEverything()
     //GameMap helper functions
     r = mEngine->RegisterGlobalFunction(
             "void writeGameMapToFile(string &in, GameMap &in)",
-            asFUNCTION(MapLoader::writeGameMapToFile),
+            asFUNCTION(MapHandler::writeGameMapToFile),
             asCALL_CDECL);
     r = mEngine->RegisterGlobalFunction(
             "void readGameMapFromFile(string &in, GameMap &in)",
-            asFUNCTION(MapLoader::readGameMapFromFile),
+            asFUNCTION(MapHandler::readGameMapFromFile),
             asCALL_CDECL);
 
     //ODFrameListener

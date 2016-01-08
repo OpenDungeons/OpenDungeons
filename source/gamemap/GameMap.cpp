@@ -37,7 +37,7 @@
 #include "game/Skill.h"
 #include "game/SkillType.h"
 #include "game/Seat.h"
-#include "gamemap/MapLoader.h"
+#include "gamemap/MapHandler.h"
 #include "gamemap/Pathfinding.h"
 #include "gamemap/TileSet.h"
 #include "goals/Goal.h"
@@ -204,7 +204,7 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
         delete rogueSeat;
     }
 
-    if (MapLoader::readGameMapFromFile(levelFilepath, *this))
+    if (MapHandler::readGameMapFromFile(levelFilepath, *this))
         setLevelFileName(levelFilepath);
     else
         return false;

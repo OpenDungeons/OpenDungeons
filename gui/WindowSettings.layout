@@ -6,13 +6,15 @@
         <Property name="Text" value="Settings" />
         <Property name="SizingEnabled" value="False" />
         <Property name="AlwaysOnTop" value="True" />
-        <Window type="OD/Button" name="CancelButton" >
+        <Window type="OD/IconButton" name="CancelButton" >
             <Property name="Area" value="{{1,-230},{1,-55},{1,-130},{1,-25}}" />
             <Property name="Text" value="Cancel" />
+            <Property name="IconImage" value="OpenDungeonsIcons/AbortIcon" />
         </Window>
-        <Window type="OD/Button" name="ApplyButton" >
+        <Window type="OD/IconButton" name="ApplyButton" >
             <Property name="Area" value="{{1,-125},{1,-55},{1,-25},{1,-25}}" />
             <Property name="Text" value="Apply" />
+            <Property name="IconImage" value="OpenDungeonsIcons/CheckIcon" />
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
             <Property name="Area" value="{{0,10},{0,20},{1,-10},{1,-70}}" />
