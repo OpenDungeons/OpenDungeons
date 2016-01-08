@@ -114,6 +114,10 @@ bool CreatureActionFindHome::handleFindHome(Creature& creature, bool forced)
         if(tile == nullptr)
             continue;
 
+        // Check if the room is accessible
+        if(!creature.getGameMap()->pathExists(&creature, myTile, tile))
+            continue;
+
         availableDormitories.push_back(tile);
     }
 
