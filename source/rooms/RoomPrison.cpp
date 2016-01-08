@@ -377,7 +377,7 @@ bool RoomPrison::useRoom(Creature& creature, bool forced)
     Tile* creatureTile = creature.getPositionTile();
     if(creatureTile == nullptr)
     {
-        OD_LOG_ERR("creatureName=" + creature.getName() + ", position=" + Helper::toString(creature.getPosition()));
+        OD_LOG_ERR("room=" + getName() + ", creatureName=" + creature.getName() + ", position=" + Helper::toString(creature.getPosition()));
         return false;
     }
 

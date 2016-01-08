@@ -37,6 +37,8 @@ public:
     bool addCreatureUsingRoom(Creature* c) override;
     void removeCreatureUsingRoom(Creature* c) override;
     void doUpkeep() override;
+    bool useRoom(Creature& creature, bool forced) override;
+
 
     bool shouldStopUseIfHungrySleepy(Creature& creature, bool forced);
 
@@ -54,8 +56,7 @@ protected:
     virtual bool importFromStream(std::istream& is) override;
 
 private:
-    Creature* mCreatureFighting1;
-    Creature* mCreatureFighting2;
+    std::vector<Creature*> mCreaturesFighting;
 };
 
 #endif // ROOMARENA_H
