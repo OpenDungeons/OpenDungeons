@@ -109,7 +109,10 @@ textures/
 -> Bookcase*.png
 -> Bookshelf*.png
 -> Boulder.png                         Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59832#p59832
+-> Bow.png                             YD                      CC-0                    http://opengameart.org/content/archery-set
 -> Cannon.png
+-> CasinoBeerStand.png                 Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> CasinoPokerTale.png                 Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Cavehornet*.png                     Skorpio                 CC-BY-SA 3.0, GPLv3+
 -> CelticCross*.png                    Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 -> ChickenCoop*.png                    Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
@@ -120,6 +123,7 @@ textures/
 -> ConcreteDirty*.png                  Sindwiller              CC-BY-SA 3.0            http://opengameart.org/content/dirty-concrete-floor-00
 -> CreatureOverlay*.png                hwoarangmy              CC-BY-SA 3.0
 -> CreatureStunned.png                 Danimal                 CC-BY-SA 3.0
+-> Crossbow.png                        Lamoot                  CC-BY 3.0               http://opengameart.org/content/low-poly-crossbow
 -> Crypt*.png                          Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 -> Defender*.png                       Anthony Myers           CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=61450#p61450
 -> Dirt*.png
@@ -225,12 +229,16 @@ Adventurer.*                           Danimal                 CC-BY-SA 3.0
 AdventurerBed.mesh                     PantherOne              CC0                     http://opengameart.org/content/tent-pack
 Anvil.mesh                             Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 Arena.mesh                             Danimal, hwoarangmy     CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
+ArrowProjectile	                       YD                      CC0                     http://opengameart.org/content/archery-set
 Bed.mesh                               Clint Bellanger         CC0                     http://opengameart.org/content/bed-low-poly
 Bookcase.mesh                          Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Bookshelf.mesh                         Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Boulder.*                              Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59832#p59832
+Bow.*                                  YD                      CC0                     http://opengameart.org/content/archery-set
 Cannon.mesh                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
 Cannonball.mesh                        Andrew Buck             CC-BY-SA 3.0
+CasinoBeerStand.*                      Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
+CasinoPokerTale.*                      Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
 CaveHornet.*                           Skorpio, Danimal        CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 CelticCross.mesh                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 Chicken.*                              Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
@@ -238,6 +246,7 @@ ChickenCoop.mesh                       Dm3d, Danimal           CC-BY-SA 3.0     
 Chimney.mesh                           Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 Claimed_*.mesh                         Skorpio                 CC-BY-SA 3.0, GPLv3+
 Cre_vision_indicator.mesh              Andrew Buck             CC-BY-SA 3.0
+Crossbow.*                             Lamoot                  CC-BY 3.0               http://opengameart.org/content/low-poly-crossbow
 Crypt.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 Defender.*                             Konstantin Maystrenko - Concept  CC-BY 3.0      http://forum.freegamedev.net/viewtopic.php?p=61450#p61450
                                        AnthonyMyers - Modeller

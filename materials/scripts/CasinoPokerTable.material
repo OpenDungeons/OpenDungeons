@@ -1,0 +1,34 @@
+// CasinoPokerTable genrated by blender2ogre 0.6.0
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material CasinoPokerTable : RTSS/NormalMapping_MultiPass
+{
+    receive_shadows on
+
+    technique
+    {
+        pass lighting
+        {
+            // Override the normal map.
+            rtshader_system
+            {
+                lighting_stage normal_map CasinoPokerTableNormal.png object_space 0 bilinear 1 -1.0
+            }
+        }
+
+        pass decal
+        {
+            ambient 0.8 0.8 0.8 1.0
+            diffuse 0.65 0.65 0.65 1.0
+            specular 0.0 0.0 0.0 0.0 2.0
+            emissive 0.0 0.0 0.0 0.0
+
+            texture_unit decalmap
+            {
+                texture CasinoPokerTable.png
+                tex_address_mode wrap
+                scale 1.0 1.0
+                colour_op modulate
+            }
+        }
+    }
+}
