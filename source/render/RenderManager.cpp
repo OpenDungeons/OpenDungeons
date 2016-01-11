@@ -229,12 +229,12 @@ void RenderManager::createMainMenuScene()
         return;
     }
 
-    addEntityToMainMenu("Elf.mesh", "MainMenuElf", Ogre::Vector3(0.08,0.08,0.08),
+    addEntityToMainMenu("Elf.mesh", "MainMenuCreature1", Ogre::Vector3(0.08,0.08,0.08),
         Ogre::Vector3(-1,0,0), "Dance");
-    addEntityToMainMenu("Troll.mesh", "MainMenuTroll", Ogre::Vector3(0.2,0.2,0.2),
+    addEntityToMainMenu("NatureMonster.mesh", "MainMenuNatureCreature2", Ogre::Vector3(0.04,0.04,0.04),
         Ogre::Vector3(0,0,0), "Idle");
-    addEntityToMainMenu("NatureMonster.mesh", "MainMenuNatureMonster", Ogre::Vector3(0.04,0.04,0.04),
-+        Ogre::Vector3(1,0,0), "Idle");
+    addEntityToMainMenu("Rat.mesh", "MainMenuCreature3", Ogre::Vector3(0.2,0.2,0.2),
+        Ogre::Vector3(1,0,0), "Idle");
 
     // Ground
     for(int32_t i = -2; i <= 2; ++i)
@@ -751,7 +751,7 @@ void RenderManager::rrCreateWeapon(Creature* curCreature, const Weapon* curWeapo
     std::string weaponName = curWeapon->getOgreNamePrefix() + hand;
     if(!ent->getSkeleton()->hasBone(weaponName))
     {
-        OD_LOG_INF("WARNING: Tried to add weapons to entity \"" + ent->getName() + " \" using model \"" +
+        OD_LOG_WRN("Tried to add weapons to entity \"" + ent->getName() + " \" using model \"" +
                               ent->getMesh()->getName() + "\" that is missing the required bone \"" +
                               curWeapon->getOgreNamePrefix() + hand + "\"");
         return;

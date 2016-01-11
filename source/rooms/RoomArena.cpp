@@ -23,6 +23,7 @@
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
+#include "gamemap/Pathfinding.h"
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
@@ -110,9 +111,7 @@ static const Ogre::Real OFFSET_DUMMY = 0.3;
 static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomArena::RoomArena(GameMap* gameMap) :
-    Room(gameMap),
-    mCreatureFighting1(nullptr),
-    mCreatureFighting2(nullptr)
+    Room(gameMap)
 {
     setMeshName("Arena");
 }
@@ -128,24 +127,20 @@ void RoomArena::absorbRoom(Room *r)
     Room::absorbRoom(r);
 
     RoomArena* rc = static_cast<RoomArena*>(r);
-    OD_ASSERT_TRUE_MSG(rc->mCreatureFighting1 == nullptr, "room=" + getName() + ", roomAbs=" + rc->getName() + ", creature=" + rc->mCreatureFighting1->getName());
-    OD_ASSERT_TRUE_MSG(rc->mCreatureFighting2 == nullptr, "room=" + getName() + ", roomAbs=" + rc->getName() + ", creature=" + rc->mCreatureFighting2->getName());
+    OD_ASSERT_TRUE_MSG(rc->mCreaturesFighting.empty(), "room=" + getName() + ", roomAbs=" + rc->getName() + ", creature=" + Helper::toString(rc->mCreaturesFighting.size()));
 }
 
 bool RoomArena::hasOpenCreatureSpot(Creature* c)
 {
-    // We do not allow any creature to fight unless we have at least 1 active spot
-    if(mCreatureFighting1 == nullptr)
-        return true;
-
-    if(mCreatureFighting2 == nullptr)
-        return true;
+    // We allow up to number central active spots creatures fighting
+    if(mCreaturesFighting.size() >= mCentralActiveSpotTiles.size())
+        return false;
 
     // We allow using arena only if level is not too high
     if (c->getLevel() >= ConfigManager::getSingleton().getRoomConfigUInt32("ArenaMaxTrainingLevel"))
         return false;
 
-    return false;
+    return true;
 }
 
 bool RoomArena::addCreatureUsingRoom(Creature* creature)
@@ -153,41 +148,23 @@ bool RoomArena::addCreatureUsingRoom(Creature* creature)
     if(!Room::addCreatureUsingRoom(creature))
         return false;
 
-    if(mCreatureFighting1 == nullptr)
-    {
-        mCreatureFighting1 = creature;
-        mCreatureFighting1->addGameEntityListener(this);
-        return true;
-    }
-
-    if(mCreatureFighting2 == nullptr)
-    {
-        mCreatureFighting2 = creature;
-        mCreatureFighting2->addGameEntityListener(this);
-        return true;
-    }
-
-    OD_LOG_ERR("room=" + getName() + ", trying to add creature in unavailable arena creature=" + creature->getName());
-    return false;
+    mCreaturesFighting.push_back(creature);
+    creature->addGameEntityListener(this);
+    return true;
 }
 
 void RoomArena::removeCreatureUsingRoom(Creature* c)
 {
     Room::removeCreatureUsingRoom(c);
-    if(mCreatureFighting1 == c)
+    auto it = std::find(mCreaturesFighting.begin(), mCreaturesFighting.end(), c);
+    if(it == mCreaturesFighting.end())
     {
-        mCreatureFighting1->removeGameEntityListener(this);
-        mCreatureFighting1 = nullptr;
-        return;
-    }
-    if(mCreatureFighting2 == c)
-    {
-        mCreatureFighting2->removeGameEntityListener(this);
-        mCreatureFighting2 = nullptr;
+        OD_LOG_ERR("room=" + getName() + ", trying to remove " + c->getName());
         return;
     }
 
-    OD_LOG_ERR("room=" + getName() + ", removing unexpected creature=" + c->getName());
+    c->removeGameEntityListener(this);
+    mCreaturesFighting.erase(it);
 }
 
 void RoomArena::doUpkeep()
@@ -197,46 +174,94 @@ void RoomArena::doUpkeep()
     if(mCoveredTiles.empty())
         return;
 
-    // If a creature is ko, it should be removed from the arena
-    if((mCreatureFighting1 != nullptr) && (mCreatureFighting1->isKo()))
+    // Check if a creature is ko. We fill a vector with creatures to stop using
+    // the arena because we don't want to make them stop while iterating mCreaturesFighting
+    // as it would invalidate the iterator
+    std::vector<Creature*> creatures;
+    for(Creature* creature : mCreaturesFighting)
     {
-        mCreatureFighting1->clearActionQueue();
-        OD_ASSERT_TRUE_MSG(mCreatureFighting1 == nullptr, "room=" + getName() + ", mCreatureFighting1=" + mCreatureFighting1->getName());
-    }
-    if((mCreatureFighting2 != nullptr) && (mCreatureFighting2->isKo()))
-    {
-        mCreatureFighting2->clearActionQueue();
-        OD_ASSERT_TRUE_MSG(mCreatureFighting2 == nullptr, "room=" + getName() + ", mCreatureFighting2=" + mCreatureFighting2->getName());
+        if(!creature->isKo())
+            continue;
+
+        creatures.push_back(creature);
     }
 
-    // If no creature, nothing to do
-    if((mCreatureFighting1 == nullptr) && (mCreatureFighting2 == nullptr))
+    for(Creature* creature : creatures)
+        creature->clearActionQueue();
+
+    // If less than 2 creatures, nothing to do
+    if(mCreaturesFighting.size() < 2)
         return;
 
-    // If there is only one creature, we move it in the arena
-    if((mCreatureFighting1 == nullptr) || (mCreatureFighting2 == nullptr))
+    // Each creature not already fighting should look for the closest one and fight it
+    for(Creature* creature : mCreaturesFighting)
     {
-        Creature& creature = (mCreatureFighting1 == nullptr ? *mCreatureFighting2 : *mCreatureFighting1);
-        if(creature.isActionInList(CreatureActionType::walkToTile))
-            return;
-        if(creature.isWarmup())
-            return;
+        if(creature->isActionInList(CreatureActionType::fightFriendly))
+            continue;
 
-        // We randomly take a tile from the room and let the creature go
-        uint32_t index = Random::Uint(0, mCoveredTiles.size() - 1);
-        creature.setDestination(mCoveredTiles[index]);
-        return;
+        Tile* tileCreature = creature->getPositionTile();
+        if(tileCreature == nullptr)
+        {
+            OD_LOG_ERR("room=" + getName() + ", creatureName=" + creature->getName() + ", position=" + Helper::toString(creature->getPosition()));
+            continue;
+        }
+
+        double closestDist = 0;
+        Creature* closestOpponent = nullptr;
+        for(Creature* opponent : mCreaturesFighting)
+        {
+            if(opponent == creature)
+                continue;
+
+            Tile* tileOpponent = opponent->getPositionTile();
+            if(tileOpponent == nullptr)
+            {
+                OD_LOG_ERR("room=" + getName() + ", creatureName=" + opponent->getName() + ", position=" + Helper::toString(opponent->getPosition()));
+                continue;
+            }
+
+            double dist = Pathfinding::squaredDistanceTile(*tileCreature, *tileOpponent);
+            if((closestOpponent != nullptr) && (dist >= closestDist))
+                continue;
+
+            closestDist = dist;
+            closestOpponent = opponent;
+        }
+
+        if(closestOpponent == nullptr)
+        {
+            OD_LOG_ERR("room=" + getName() + ", creature=" + creature->getName());
+            continue;
+        }
+
+        creature->pushAction(Utils::make_unique<CreatureActionFightFriendly>(*creature, closestOpponent, true, getCoveredTiles()));
+    }
+}
+
+bool RoomArena::useRoom(Creature& creature, bool forced)
+{
+    // If the creature is alone, it should wander in the room. If it is not, it should wait until there is one ready
+    if(mCreaturesFighting.size() < 2)
+    {
+        std::vector<Tile*> tiles = getCoveredTiles();
+        if(tiles.empty())
+        {
+            OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName());
+            return false;
+        }
+
+        uint32_t index = Random::Uint(0, tiles.size() - 1);
+        Tile* tile = tiles[index];
+        if(!creature.setDestination(tile))
+        {
+            OD_LOG_ERR("room=" + getName() + ", creature=" + creature.getName() + ", tile=" + Tile::displayAsString(tile));
+            return false;
+        }
+        return false;
     }
 
-    // Both creatures are set. They should fight if not already
-    if(!mCreatureFighting1->isActionInList(CreatureActionType::fightFriendly))
-    {
-        mCreatureFighting1->pushAction(Utils::make_unique<CreatureActionFightFriendly>(*mCreatureFighting1, mCreatureFighting2, true, getCoveredTiles()));
-    }
-    if(!mCreatureFighting2->isActionInList(CreatureActionType::fightFriendly))
-    {
-        mCreatureFighting2->pushAction(Utils::make_unique<CreatureActionFightFriendly>(*mCreatureFighting2, mCreatureFighting1, true, getCoveredTiles()));
-    }
+    // We do nothing while waiting
+    return false;
 }
 
 BuildingObject* RoomArena::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
@@ -282,9 +307,8 @@ BuildingObject* RoomArena::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* 
 bool RoomArena::shouldStopUseIfHungrySleepy(Creature& creature, bool forced)
 {
     // If fighting, the creatures in the arena should not stop because hungry/tired
-    if(mCreatureFighting1 == nullptr)
-        return true;
-    if(mCreatureFighting2 == nullptr)
+    // That means it should stop only if alone
+    if(mCreaturesFighting.size() < 2)
         return true;
 
     return false;
@@ -312,14 +336,13 @@ std::string RoomArena::getListenerName() const
 
 bool RoomArena::notifyDead(GameEntity* entity)
 {
-    if(entity == mCreatureFighting1)
+    for(auto it = mCreaturesFighting.begin(); it != mCreaturesFighting.end(); ++it)
     {
-        mCreatureFighting1 = nullptr;
-        return false;
-    }
-    if(entity == mCreatureFighting2)
-    {
-        mCreatureFighting2 = nullptr;
+        Creature* creature = *it;
+        if(creature != entity)
+            continue;
+
+        mCreaturesFighting.erase(it);
         return false;
     }
     return true;
@@ -327,14 +350,13 @@ bool RoomArena::notifyDead(GameEntity* entity)
 
 bool RoomArena::notifyRemovedFromGameMap(GameEntity* entity)
 {
-    if(entity == mCreatureFighting1)
+    for(auto it = mCreaturesFighting.begin(); it != mCreaturesFighting.end(); ++it)
     {
-        mCreatureFighting1 = nullptr;
-        return false;
-    }
-    if(entity == mCreatureFighting2)
-    {
-        mCreatureFighting2 = nullptr;
+        Creature* creature = *it;
+        if(creature != entity)
+            continue;
+
+        mCreaturesFighting.erase(it);
         return false;
     }
     return true;
@@ -342,14 +364,13 @@ bool RoomArena::notifyRemovedFromGameMap(GameEntity* entity)
 
 bool RoomArena::notifyPickedUp(GameEntity* entity)
 {
-    if(entity == mCreatureFighting1)
+    for(auto it = mCreaturesFighting.begin(); it != mCreaturesFighting.end(); ++it)
     {
-        mCreatureFighting1 = nullptr;
-        return false;
-    }
-    if(entity == mCreatureFighting2)
-    {
-        mCreatureFighting2 = nullptr;
+        Creature* creature = *it;
+        if(creature != entity)
+            continue;
+
+        mCreaturesFighting.erase(it);
         return false;
     }
     return true;

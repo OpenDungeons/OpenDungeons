@@ -1305,7 +1305,7 @@ Wizard26	11	4	0
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 1	DefaultWorker2	Kobold.mesh	18	28	0	DefaultWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	DwarfWorker5	Dwarf1.mesh	21	28	0	DwarfWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
-1	Wyvern6	Wyvern.mesh	24	28	0	Wyvern	1	0	max	100	0	300	none	none	nullSkillType	none	0
+1	Rat6	Rat.mesh	24	28	0	Rat	1	0	max	100	0	300	none	none	nullSkillType	none	0
 1	Dragon7	Dragon.mesh	27	28	0	Dragon	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Orc8	Orc.mesh	18	25	0	Orc	1	0	max	100	0	1000	none	none	nullSkillType	none	0
 1	Kreatur9	Kreatur.mesh	21	25	0	Kreatur	1	0	max	100	0	0	none	none	nullSkillType	none	0
@@ -1325,13 +1325,16 @@ Wizard26	11	4	0
 1	Dwarf223	Dwarf2.mesh	24	13	0	Dwarf2	1	0	max	100	0	0	none	Sabre	nullSkillType	none	0
 1	Knight24	Knight.mesh	27	13	0	Knight	1	0	max	100	0	0	RustyShield	RustySword	nullSkillType	none	0
 1	Wizard26	Wizard.mesh	24	33	0	Wizard	1	0	max	100	0	0	none	Staff	nullSkillType	none	0
-1	RunelordDwarf27	RunelordDwarf.mesh	25	31	0	RunelordDwarf	1	0	max	100	0	0	none	Roundshield	nullSkillType	none	0
-1	NatureMonster28	Knight.mesh	22	31	0	NatureMonster	1	0	max	100	0	0	RustyShield	RustySword	nullSkillType	none	0
+1	RunelordDwarf27	RunelordDwarf.mesh	25	31	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	none	nullSkillType	none	0
+1	NatureMonster28	Knight.mesh	22	31	0	NatureMonster	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Defender29	Defender.mesh	19	31	0	Defender	1	0	max	100	0	0	none	none	nullSkillType	none	0
 0	Adventurer1	Adventurer.mesh	1	35	0	Adventurer	1	0	max	100	0	0	none	none	nullSkillType	none	0
+0	Wyvern6	Wyvern.mesh	2	35	0	Wyvern	1	0	max	100	0	300	none	none	nullSkillType	none	0
 1	Roach1	Roach.mesh	28	31	0	Roach	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Lich2	lich.mesh	21	33	0	Lich	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Skeleton3	skeleton.mesh	19	33	0	Skeleton	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	Elf1	Elf.mesh	27	34	0	Elf	1	0	max	100	0	0	Bow	none	nullSkillType	none	0
+1	DarkElf2	DarkElf.mesh	28	33	0	DarkElf	1	0	max	100	0	0	none	Crossbow	nullSkillType	none	0
 [/Creatures]
 
 [Spells]
