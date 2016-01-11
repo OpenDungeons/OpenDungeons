@@ -751,7 +751,7 @@ void RenderManager::rrCreateWeapon(Creature* curCreature, const Weapon* curWeapo
     std::string weaponName = curWeapon->getOgreNamePrefix() + hand;
     if(!ent->getSkeleton()->hasBone(weaponName))
     {
-        OD_LOG_INF("WARNING: Tried to add weapons to entity \"" + ent->getName() + " \" using model \"" +
+        OD_LOG_WRN("Tried to add weapons to entity \"" + ent->getName() + " \" using model \"" +
                               ent->getMesh()->getName() + "\" that is missing the required bone \"" +
                               curWeapon->getOgreNamePrefix() + hand + "\"");
         return;
