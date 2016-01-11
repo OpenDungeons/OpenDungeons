@@ -1325,7 +1325,7 @@ Wizard26	11	4	0
 1	Dwarf223	Dwarf2.mesh	24	13	0	Dwarf2	1	0	max	100	0	0	none	Sabre	nullSkillType	none	0
 1	Knight24	Knight.mesh	27	13	0	Knight	1	0	max	100	0	0	RustyShield	RustySword	nullSkillType	none	0
 1	Wizard26	Wizard.mesh	24	33	0	Wizard	1	0	max	100	0	0	none	Staff	nullSkillType	none	0
-1	RunelordDwarf27	RunelordDwarf.mesh	25	31	0	RunelordDwarf	1	0	max	100	0	0	none	Roundshield	nullSkillType	none	0
+1	RunelordDwarf27	RunelordDwarf.mesh	25	31	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	none	nullSkillType	none	0
 1	NatureMonster28	Knight.mesh	22	31	0	NatureMonster	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Defender29	Defender.mesh	19	31	0	Defender	1	0	max	100	0	0	none	none	nullSkillType	none	0
 0	Adventurer1	Adventurer.mesh	1	35	0	Adventurer	1	0	max	100	0	0	none	none	nullSkillType	none	0
