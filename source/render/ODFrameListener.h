@@ -40,6 +40,7 @@ class GameMap;
 class Gui;
 class ModeManager;
 class RenderManager;
+class RenderSceneGroup;
 
 namespace CEGUI
 {
@@ -74,7 +75,8 @@ friend class ODClient;
 
 public:
     // Constructor takes a RenderWindow because it uses that to determine input context
-    ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem, Gui* gui);
+    ODFrameListener(const std::string& mainSceneFileName, Ogre::RenderWindow* renderWindow,
+        Ogre::OverlaySystem* overLaySystem, Gui* gui);
     virtual ~ODFrameListener();
 
     void requestExit();
@@ -134,8 +136,14 @@ public:
     inline Ogre::RenderWindow* getRenderWindow()
     { return mWindow; }
 
-    //! \brief Accessors for camera manager
+    inline bool getIsMainMenuCreated()
+    { return mIsMainMenuCreated; }
+
     void createMainMenuScene();
+    void freeMainMenuScene();
+    void updateMenuScene(Ogre::Real timeSinceLastFrame);
+
+    //! \brief Accessors for camera manager
     void resetCamera(const Ogre::Vector3& position);
     void moveCamera(CameraManager::Direction direction, double aux = 0.0);
     void setActiveCameraNearClipDistance(Ogre::Real value);
@@ -173,6 +181,7 @@ private:
     std::unique_ptr<RenderManager> mRenderManager;
     std::unique_ptr<GameMap>       mGameMap;
     std::unique_ptr<ModeManager>   mModeManager;
+    std::vector<std::unique_ptr<RenderSceneGroup>>   mMainScene;
 
     bool                 mShowDebugInfo;
     bool                 mContinue;
@@ -188,11 +197,16 @@ private:
 
     FrameRateLimiter mFpsLimiter;
 
+    bool mIsMainMenuCreated;
+
     //! \brief Actually exit application
     void exitApplication();
 
     //! \brief Updates server-turn independent creature animation, audio, and overall rendering.
     void updateAnimations(Ogre::Real timeSinceLastFrame);
+
+    //! \brief Reads the main scene definition
+    void readMainScene(const std::string& fileName);
 };
 
 #endif // __ODFRAMELISTENER_H__

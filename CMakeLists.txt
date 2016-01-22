@@ -420,6 +420,13 @@ set(OD_SOURCEFILES
     ${SRC}/render/RenderManager.cpp
     ${SRC}/render/TextRenderer.cpp
 
+    ${SRC}/renderscene/RenderScene.cpp
+    ${SRC}/renderscene/RenderSceneAddEntity.cpp
+    ${SRC}/renderscene/RenderSceneCameraMove.cpp
+    ${SRC}/renderscene/RenderSceneGroup.cpp
+    ${SRC}/renderscene/RenderSceneManager.cpp
+    ${SRC}/renderscene/RenderSceneAnimationTime.cpp
+
     ${SRC}/rooms/Room.cpp
     ${SRC}/rooms/RoomArena.cpp
     ${SRC}/rooms/RoomBridge.cpp

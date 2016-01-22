@@ -76,10 +76,6 @@ public:
     //! \brief setup the scene
     void createScene(Ogre::Viewport*);
 
-    //! \brief setup the main menu scene
-    void createMainMenuScene();
-    void destroyMainMenuScene();
-
     //! \brief Set the entity's opacity
     void setEntityOpacity(Ogre::Entity* ent, float opacity);
 
@@ -144,6 +140,12 @@ public:
     //! That allows to hide stuff that we don't want to display in the minimap
     void rrMinimapRendering(bool postRender);
 
+    Ogre::Entity* addEntityMenu(const std::string& meshName, const std::string& entityName,
+        const Ogre::Vector3& scale, const Ogre::Vector3& pos);
+    void removeEntityMenu(Ogre::Entity* ent);
+    Ogre::AnimationState* setMenuEntityAnimation(const std::string& entityName, const std::string& animation, bool loop);
+    void updateMenuEntityAnimation(Ogre::AnimationState* animState, Ogre::Real timeSinceLastFrame);
+
 private:
     //! \brief Correctly places entities in hand next to the keeper hand
     void changeRenderQueueRecursive(Ogre::SceneNode* node, uint8_t renderQueueId);
@@ -165,9 +167,6 @@ private:
     //! \brief Makes the material be transparent with the given opacity (0.0f - 1.0f)
     //! \returns The new material name according to the current opacity.
     std::string setMaterialOpacity(const std::string& materialName, float opacity);
-
-    void addEntityToMainMenu(const std::string& meshName, const std::string& entityName,
-        const Ogre::Vector3& scale, const Ogre::Vector3& pos, const std::string& animation);
 
     //! \brief The main scene manager reference. Don't delete it.
     Ogre::SceneManager* mSceneManager;
@@ -195,9 +194,6 @@ private:
     // and attach them to the keeper hand. This vector allows to keep a track and delete
     // them/recreate when loading a new game
     std::vector<Ogre::SceneNode*> mDummyEntities;
-
-    //! \brief Used to keep the objects from the main scene
-    std::vector<std::pair<Ogre::Entity*,Ogre::AnimationState*>> mMainSceneObjects;
 
     //! \brief True if the creatures are currently displaying their text overlay
     bool mCreatureTextOverlayDisplayed;

@@ -164,7 +164,8 @@ void ODApplication::startClient()
     textRenderer.addTextBox(ODApplication::POINTER_INFO_STRING, "",
                                 0, 0, 200, 50, Ogre::ColourValue::White);
 
-    ODFrameListener frameListener(renderWindow, &overlaySystem, &gui);
+    ODFrameListener frameListener(resMgr.getConfigPath() + "mainmenuscene.cfg",
+        renderWindow, &overlaySystem, &gui);
 
     ogreRoot.addFrameListener(&frameListener);
     ogreRoot.startRendering();

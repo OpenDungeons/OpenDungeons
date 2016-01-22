@@ -32,6 +32,7 @@
 #include "render/Gui.h"
 #include "render/RenderManager.h"
 #include "render/TextRenderer.h"
+#include "renderscene/RenderSceneGroup.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
 #include "utils/Helper.h"
@@ -70,7 +71,7 @@ namespace
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem, Gui* gui) :
+ODFrameListener::ODFrameListener(const std::string& mainSceneFileName, Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem, Gui* gui) :
     mInitialized(false),
     mWindow(renderWindow),
     mGui(gui),
@@ -82,7 +83,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mEventMaxTimeDisplay(20.0f),
     mExitRequested(false),
     mCameraManager(mRenderManager->getSceneManager(), mGameMap.get(), renderWindow),
-    mFpsLimiter(DEFAULT_FRAME_RATE)
+    mFpsLimiter(DEFAULT_FRAME_RATE),
+    mIsMainMenuCreated(false)
 {
     OD_LOG_INF("Creating frame listener...");
 
@@ -94,6 +96,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
 
     //Register as a Window listener
     Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
+
+    readMainScene(mainSceneFileName);
 
     mInitialized = true;
 }
@@ -151,6 +155,7 @@ void ODFrameListener::exitApplication()
 
 void ODFrameListener::updateAnimations(Ogre::Real timeSinceLastFrame)
 {
+    updateMenuScene(timeSinceLastFrame);
     MusicPlayer::getSingleton().update(static_cast<float>(timeSinceLastFrame));
     mRenderManager->updateRenderAnimations(timeSinceLastFrame);
     mGameMap->processDeletionQueues();
@@ -286,8 +291,31 @@ void ODFrameListener::printDebugInfo()
 
 void ODFrameListener::createMainMenuScene()
 {
-    mCameraManager.resetCamera(Ogre::Vector3(0,-2,1.5), 70);
-    mRenderManager->createMainMenuScene();
+    if(mIsMainMenuCreated)
+        return;
+
+    mIsMainMenuCreated = true;
+    for(std::unique_ptr<RenderSceneGroup>& sceneGroup : mMainScene)
+        sceneGroup->reset(mCameraManager, *mRenderManager);
+}
+
+void ODFrameListener::freeMainMenuScene()
+{
+    if(!mIsMainMenuCreated)
+        return;
+
+    mIsMainMenuCreated = false;
+    for(std::unique_ptr<RenderSceneGroup>& sceneGroup : mMainScene)
+        sceneGroup->freeGroup(mCameraManager, *mRenderManager);
+}
+
+void ODFrameListener::updateMenuScene(Ogre::Real timeSinceLastFrame)
+{
+    if(!mIsMainMenuCreated)
+        return;
+
+    for(std::unique_ptr<RenderSceneGroup>& sceneGroup : mMainScene)
+        sceneGroup->update(mCameraManager, *mRenderManager, timeSinceLastFrame);
 }
 
 void ODFrameListener::resetCamera(const Ogre::Vector3& position)
@@ -328,4 +356,33 @@ Ogre::Vector3 ODFrameListener::getCameraViewTarget()
 void ODFrameListener::cameraFlyTo(const Ogre::Vector3& destination)
 {
     mCameraManager.flyTo(destination);
+}
+
+void ODFrameListener::readMainScene(const std::string& fileName)
+{
+    OD_LOG_INF("Load main scene file: " + fileName);
+    std::stringstream defFile;
+    if(!Helper::readFileWithoutComments(fileName, defFile))
+    {
+        OD_LOG_ERR("Couldn't read " + fileName);
+        return;
+    }
+
+    mMainScene.clear();
+
+    std::string nextParam;
+    while(true)
+    {
+        if(!defFile.good())
+            break;
+
+        RenderSceneGroup* group = RenderSceneGroup::load(defFile);
+        if(group == nullptr)
+        {
+            OD_LOG_WRN("Invalid User configuration start format. Line was " + nextParam);
+            return;
+        }
+
+        mMainScene.emplace_back(group);
+    }
 }

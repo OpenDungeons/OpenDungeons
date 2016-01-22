@@ -303,6 +303,9 @@ void GameMode::activate()
     Gui& gui = getModeManager().getGui();
     gui.loadGuiSheet(Gui::inGameMenu);
 
+    // We free the menu scene as it is not required anymore
+    ODFrameListener::getSingleton().freeMainMenuScene();
+
     buildPlayerSettingsWindow();
 
     // Hides the exit pop-up and certain buttons only used by the editor.

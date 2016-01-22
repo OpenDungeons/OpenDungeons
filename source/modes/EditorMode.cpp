@@ -184,6 +184,10 @@ void EditorMode::activate()
 {
     // Loads the corresponding Gui sheet.
     getModeManager().getGui().loadGuiSheet(Gui::editorModeGui);
+
+    // We free the menu scene as it is not required anymore
+    ODFrameListener::getSingleton().freeMainMenuScene();
+
     CEGUI::Window* guiSheet = mRootWindow;
     guiSheet->getChild("EditorOptionsWindow")->hide();
     guiSheet->getChild("ConfirmExit")->hide();

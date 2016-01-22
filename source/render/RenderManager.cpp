@@ -105,8 +105,6 @@ RenderManager::~RenderManager()
 
 void RenderManager::initRendererForNewGame(GameMap* gameMap)
 {
-    destroyMainMenuScene();
-
     mCreatureTextOverlayDisplayed = false;
 
     for(Ogre::SceneNode* dummyNode : mDummyEntities)
@@ -221,36 +219,8 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandKeeperNode->setVisible(mHandKeeperHandVisibility == 0);
 }
 
-void RenderManager::createMainMenuScene()
-{
-    if(!mMainSceneObjects.empty())
-    {
-        OD_LOG_INF("Main menu screen already created");
-        return;
-    }
-
-    addEntityToMainMenu("Elf.mesh", "MainMenuCreature1", Ogre::Vector3(0.08,0.08,0.08),
-        Ogre::Vector3(-1,0,0), "Dance");
-    addEntityToMainMenu("NatureMonster.mesh", "MainMenuNatureCreature2", Ogre::Vector3(0.04,0.04,0.04),
-        Ogre::Vector3(0,0,0), "Idle");
-    addEntityToMainMenu("Rat.mesh", "MainMenuCreature3", Ogre::Vector3(0.2,0.2,0.2),
-        Ogre::Vector3(1,0,0), "Idle");
-
-    // Ground
-    for(int32_t i = -2; i <= 2; ++i)
-    {
-        // Wall
-        addEntityToMainMenu("Claimed_fl_1110.mesh", "MainMenuWall" + Helper::toString(i),
-            Ogre::Vector3(0.4,0.4,0.5), Ogre::Vector3(i,1,0), "");
-
-        // Ground
-        addEntityToMainMenu("Dirt_gd_1111.mesh", "MainMenuGround" + Helper::toString(i),
-            Ogre::Vector3(0.4,0.4,0.5), Ogre::Vector3(i,0,0), "");
-    }
-}
-
-void RenderManager::addEntityToMainMenu(const std::string& meshName, const std::string& entityName,
-        const Ogre::Vector3& scale, const Ogre::Vector3& pos, const std::string& animation)
+Ogre::Entity* RenderManager::addEntityMenu(const std::string& meshName, const std::string& entityName,
+        const Ogre::Vector3& scale, const Ogre::Vector3& pos)
 {
     Ogre::Entity* ent = mSceneManager->createEntity(entityName, meshName);
     Ogre::MeshPtr meshPtr = ent->getMesh();
@@ -265,39 +235,38 @@ void RenderManager::addEntityToMainMenu(const std::string& meshName, const std::
     node->setScale(scale);
     node->setPosition(pos);
 
-    Ogre::AnimationState* animState = nullptr;
-    if(!animation.empty())
-    {
-        animState = ent->getAnimationState(animation);
-        animState->setTimePosition(0);
-        animState->setLoop(true);
-        animState->setEnabled(true);
-    }
-    mMainSceneObjects.emplace_back(ent, animState);
+    return ent;
 }
 
-void RenderManager::destroyMainMenuScene()
+void RenderManager::removeEntityMenu(Ogre::Entity* ent)
 {
-    for(std::pair<Ogre::Entity*,Ogre::AnimationState*>& p : mMainSceneObjects)
-    {
-        Ogre::Entity* ent = p.first;
-        Ogre::SceneNode* entNode = mSceneManager->getSceneNode(ent->getName() + "_node");
-        entNode->detachObject(ent);
-        mMainMenuSceneNode->removeChild(entNode);
-        mSceneManager->destroyEntity(ent);
-        mSceneManager->destroySceneNode(entNode->getName());
-    }
-    mMainSceneObjects.clear();
+    Ogre::SceneNode* entNode = mSceneManager->getSceneNode(ent->getName() + "_node");
+    entNode->detachObject(ent);
+    mMainMenuSceneNode->removeChild(entNode);
+    mSceneManager->destroyEntity(ent);
+    mSceneManager->destroySceneNode(entNode->getName());
+}
 
-    // Here, the main menu scene node should be empty. If it is not, we log the error
-    for(uint32_t i = 0; i < mMainMenuSceneNode->numChildren(); ++i)
+Ogre::AnimationState* RenderManager::setMenuEntityAnimation(const std::string& entityName, const std::string& animation, bool loop)
+{
+    Ogre::Entity* ent = mSceneManager->getEntity(entityName);
+    if(!ent->hasAnimationState(animation))
     {
-        Ogre::SceneNode* childNode = dynamic_cast<Ogre::SceneNode *>(mMainMenuSceneNode->getChild(i));
-        if(childNode == nullptr)
-            continue;
-
-        OD_LOG_ERR("Unexpected node name=" + childNode->getName());
+        OD_LOG_ERR("Entity=" + ent->getName() + ", has no animation=" + animation);
+        return nullptr;
     }
+
+    Ogre::AnimationState* animState = ent->getAnimationState(animation);
+    animState->setTimePosition(0);
+    animState->setLoop(loop);
+    animState->setEnabled(true);
+
+    return animState;
+}
+
+void RenderManager::updateMenuEntityAnimation(Ogre::AnimationState* animState, Ogre::Real timeSinceLastFrame)
+{
+    animState->addTime(timeSinceLastFrame);
 }
 
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
@@ -312,14 +281,6 @@ void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
             mHandAnimationState->setTimePosition(0);
             mHandAnimationState->setLoop(true);
         }
-    }
-
-    for(std::pair<Ogre::Entity*,Ogre::AnimationState*>& p : mMainSceneObjects)
-    {
-        if(p.second == nullptr)
-            continue;
-
-        p.second->addTime(timeSinceLastFrame);
     }
 }
 

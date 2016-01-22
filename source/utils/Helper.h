@@ -126,6 +126,8 @@ namespace Helper
     //! Returns true is the file could be open and false if an error occurs
     bool readFileWithoutComments(const std::string& fileName, std::stringstream& stream);
 
+    bool readNextLineNotEmpty(std::istream& is, std::string& line);
+
     std::string toString(float f, unsigned short precision = 6);
     std::string toString(double d, unsigned short precision = 6);
     std::string toString(int8_t d);
