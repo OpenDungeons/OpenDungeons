@@ -103,22 +103,19 @@ RenderManager::~RenderManager()
 {
 }
 
-void RenderManager::initRendererForNewGame(GameMap* gameMap)
+void RenderManager::initGameRenderer(GameMap* gameMap)
 {
     mCreatureTextOverlayDisplayed = false;
 
-    for(Ogre::SceneNode* dummyNode : mDummyEntities)
+    // Create the light which follows the single tile selection mesh
+    if(mHandLight == nullptr)
     {
-        Ogre::Entity* dummyEnt = mSceneManager->getEntity(dummyNode->getName() + "Ent");
-        if(dummyEnt != nullptr)
-        {
-            dummyNode->detachObject(dummyEnt);
-            mSceneManager->destroyEntity(dummyEnt);
-        }
-        mHandKeeperNode->removeChild(dummyNode);
-        mSceneManager->destroySceneNode(dummyNode);
+        mHandLight = mSceneManager->createLight("MouseLight");
+        mHandLight->setType(Ogre::Light::LT_POINT);
+        mHandLight->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
+        mHandLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
+        mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
     }
-    mDummyEntities.clear();
 
     //Add a too small to be visible dummy dirt tile to the hand node
     //so that there will always be a dirt tile "visible"
@@ -151,6 +148,29 @@ void RenderManager::initRendererForNewGame(GameMap* gameMap)
         dummyEnt->setCastShadows(false);
         dummyNode->attachObject(dummyEnt);
         mDummyEntities.push_back(dummyNode);
+    }
+}
+
+void RenderManager::stopGameRenderer(GameMap* gameMap)
+{
+    for(Ogre::SceneNode* dummyNode : mDummyEntities)
+    {
+        Ogre::Entity* dummyEnt = mSceneManager->getEntity(dummyNode->getName() + "Ent");
+        if(dummyEnt != nullptr)
+        {
+            dummyNode->detachObject(dummyEnt);
+            mSceneManager->destroyEntity(dummyEnt);
+        }
+        mHandKeeperNode->removeChild(dummyNode);
+        mSceneManager->destroySceneNode(dummyNode);
+    }
+    mDummyEntities.clear();
+
+    // Remove the light following the keeper hand
+    if(mHandLight != nullptr)
+    {
+        mSceneManager->destroyLight(mHandLight);
+        mHandLight = nullptr;
     }
 }
 
@@ -208,13 +228,6 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandKeeperNode->setPosition(0.0f, 0.0f, -KEEPER_HAND_POS_Z);
     handKeeperOverlay->add3D(mHandKeeperNode);
     handKeeperOverlay->show();
-
-    // Create the light which follows the single tile selection mesh
-    mHandLight = mSceneManager->createLight("MouseLight");
-    mHandLight->setType(Ogre::Light::LT_POINT);
-    mHandLight->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-    mHandLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-    mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
 
     mHandKeeperNode->setVisible(mHandKeeperHandVisibility == 0);
 }
@@ -1387,7 +1400,8 @@ void RenderManager::moveCursor(float relX, float relY)
 
 void RenderManager::moveWorldCoords(Ogre::Real x, Ogre::Real y)
 {
-    mHandLight->setPosition(x, y, KEEPER_HAND_WORLD_Z);
+    if(mHandLight != nullptr)
+        mHandLight->setPosition(x, y, KEEPER_HAND_WORLD_Z);
 }
 
 void RenderManager::entitySlapped()
@@ -1442,7 +1456,9 @@ std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialN
 
 void RenderManager::rrMinimapRendering(bool postRender)
 {
-    mHandLight->setVisible(postRender);
+    if(mHandLight != nullptr)
+        mHandLight->setVisible(postRender);
+
     mLightSceneNode->setVisible(postRender);
 }
 

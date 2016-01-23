@@ -68,7 +68,8 @@ public:
     void updateRenderAnimations(Ogre::Real timeSinceLastFrame);
 
     //! \brief Initialize the renderer when a new game (Game or Editor) is launched
-    void initRendererForNewGame(GameMap* gameMap);
+    void initGameRenderer(GameMap* gameMap);
+    void stopGameRenderer(GameMap* gameMap);
 
     //! \brief starts the compositor compositorName.
     void triggerCompositor(const std::string& compositorName);

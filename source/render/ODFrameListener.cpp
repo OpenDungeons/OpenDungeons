@@ -289,6 +289,16 @@ void ODFrameListener::printDebugInfo()
     TextRenderer::getSingleton().setText("DebugMessages", infoSS.str());
 }
 
+void ODFrameListener::initGameRenderer()
+{
+    mRenderManager->initGameRenderer(mGameMap.get());
+}
+
+void ODFrameListener::stopGameRenderer()
+{
+    mRenderManager->stopGameRenderer(mGameMap.get());
+}
+
 void ODFrameListener::createMainMenuScene()
 {
     if(mIsMainMenuCreated)

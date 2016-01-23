@@ -139,6 +139,8 @@ public:
     inline bool getIsMainMenuCreated()
     { return mIsMainMenuCreated; }
 
+    void initGameRenderer();
+    void stopGameRenderer();
     void createMainMenuScene();
     void freeMainMenuScene();
     void updateMenuScene(Ogre::Real timeSinceLastFrame);
