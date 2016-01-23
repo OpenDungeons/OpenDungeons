@@ -149,7 +149,9 @@ public:
         const Ogre::Vector3& scale, const Ogre::Vector3& pos);
     void removeEntityMenu(Ogre::Entity* ent);
     Ogre::AnimationState* setMenuEntityAnimation(const std::string& entityName, const std::string& animation, bool loop);
-    void updateMenuEntityAnimation(Ogre::AnimationState* animState, Ogre::Real timeSinceLastFrame);
+    //! \brief Called to update the given animation with the given time. Returns true if animation ended and
+    //! false otherwise
+    bool updateMenuEntityAnimation(Ogre::AnimationState* animState, Ogre::Real timeSinceLastFrame);
 
 private:
     //! \brief Correctly places entities in hand next to the keeper hand

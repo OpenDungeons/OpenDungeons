@@ -312,9 +312,10 @@ Ogre::AnimationState* RenderManager::setMenuEntityAnimation(const std::string& e
     return animState;
 }
 
-void RenderManager::updateMenuEntityAnimation(Ogre::AnimationState* animState, Ogre::Real timeSinceLastFrame)
+bool RenderManager::updateMenuEntityAnimation(Ogre::AnimationState* animState, Ogre::Real timeSinceLastFrame)
 {
     animState->addTime(timeSinceLastFrame);
+    return animState->hasEnded();
 }
 
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)

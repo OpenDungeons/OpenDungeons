@@ -15,21 +15,19 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RENDERSCENEANIMATIONTIME_H
-#define RENDERSCENEANIMATIONTIME_H
+#ifndef RENDERSCENEANIMATIONONCE_H
+#define RENDERSCENEANIMATIONONCE_H
 
 #include "renderscene/RenderScene.h"
 
-class RenderSceneAnimationTime : public RenderScene
+class RenderSceneAnimationOnce : public RenderScene
 {
 public:
-    RenderSceneAnimationTime() :
-        mTotalLenght(0),
-        mLenght(0),
+    RenderSceneAnimationOnce() :
         mAnimState(nullptr)
     {}
 
-    virtual ~RenderSceneAnimationTime()
+    virtual ~RenderSceneAnimationOnce()
     {}
 
     const std::string& getModifierName() const override;
@@ -44,11 +42,9 @@ public:
 private:
     std::string mName;
     std::string mAnimation;
-    Ogre::Real mTotalLenght;
 
     // Temporary ressources
-    Ogre::Real mLenght;
     Ogre::AnimationState* mAnimState;
 };
 
-#endif // RENDERSCENEANIMATIONTIME_H
+#endif // RENDERSCENEANIMATIONONCE_H

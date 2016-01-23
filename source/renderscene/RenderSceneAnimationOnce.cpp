@@ -15,66 +15,62 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "renderscene/RenderSceneAnimationTime.h"
+#include "renderscene/RenderSceneAnimationOnce.h"
 
 #include "camera/CameraManager.h"
 #include "render/RenderManager.h"
 #include "renderscene/RenderSceneManager.h"
+#include "utils/LogManager.h"
 
-static const std::string RenderSceneAnimationName = "AnimationTime";
+static const std::string RenderSceneSetAnimationName = "AnimationOnce";
 
 namespace
 {
-class RenderSceneAnimationFactory : public RenderSceneFactory
+class RenderSceneSetAnimationFactory : public RenderSceneFactory
 {
     RenderScene* createRenderScene() const override
-    { return new RenderSceneAnimationTime; }
+    { return new RenderSceneAnimationOnce; }
 
     const std::string& getRenderSceneName() const override
     {
-        return RenderSceneAnimationName;
+        return RenderSceneSetAnimationName;
     }
 };
 
 // Register the factory
-static RenderSceneRegister reg(new RenderSceneAnimationFactory);
+static RenderSceneRegister reg(new RenderSceneSetAnimationFactory);
 }
 
-const std::string& RenderSceneAnimationTime::getModifierName() const
+const std::string& RenderSceneAnimationOnce::getModifierName() const
 {
-    return RenderSceneAnimationName;
+    return RenderSceneSetAnimationName;
 }
 
-bool RenderSceneAnimationTime::activate(CameraManager& cameraManager, RenderManager& renderManager)
+bool RenderSceneAnimationOnce::activate(CameraManager& cameraManager, RenderManager& renderManager)
 {
-    mAnimState = renderManager.setMenuEntityAnimation(mName, mAnimation, true);
-    mLenght = 0;
-
-    return (mTotalLenght == 0);
-}
-
-bool RenderSceneAnimationTime::update(CameraManager& cameraManager, RenderManager& renderManager,
-        Ogre::Real timeSinceLastFrame)
-{
-    if(mTotalLenght >= 0)
-    {
-        mLenght += timeSinceLastFrame;
-        if(mLenght >= mTotalLenght)
-            return true;
-    }
-
-    renderManager.updateMenuEntityAnimation(mAnimState, timeSinceLastFrame);
+    mAnimState = renderManager.setMenuEntityAnimation(mName, mAnimation, false);
     return false;
 }
 
-void RenderSceneAnimationTime::freeRessources(CameraManager& cameraManager, RenderManager& renderManager)
+bool RenderSceneAnimationOnce::update(CameraManager& cameraManager, RenderManager& renderManager,
+        Ogre::Real timeSinceLastFrame)
 {
-    mLenght = 0;
+    if(mAnimState == nullptr)
+    {
+        OD_LOG_WRN("No animation state for entity=" + mName + ", anim=" + mAnimation);
+        return true;
+    }
+
+    return renderManager.updateMenuEntityAnimation(mAnimState, timeSinceLastFrame);
+}
+
+void RenderSceneAnimationOnce::freeRessources(CameraManager& cameraManager, RenderManager& renderManager)
+{
     // No need to free the animation state. It will be freed by the entity
     mAnimState = nullptr;
 }
 
-bool RenderSceneAnimationTime::importFromStream(std::istream& is)
+bool RenderSceneAnimationOnce::importFromStream(std::istream& is)
 {
     if(!RenderScene::importFromStream(is))
         return false;
@@ -82,8 +78,6 @@ bool RenderSceneAnimationTime::importFromStream(std::istream& is)
     if(!(is >> mName))
         return false;
     if(!(is >> mAnimation))
-        return false;
-    if(!(is >> mTotalLenght))
         return false;
 
     return true;
