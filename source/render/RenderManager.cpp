@@ -318,6 +318,40 @@ bool RenderManager::updateMenuEntityAnimation(Ogre::AnimationState* animState, O
     return animState->hasEnded();
 }
 
+Ogre::SceneNode* RenderManager::getMenuEntityNode(const std::string& entityName, Ogre::Vector3& pos)
+{
+    std::string nodeName = entityName + "_node";
+    if(!mSceneManager->hasSceneNode(nodeName))
+    {
+        OD_LOG_ERR("No node for entityName=" + entityName + ", node name=" + nodeName);
+        return nullptr;
+    }
+
+    Ogre::SceneNode* node = mSceneManager->getSceneNode(nodeName);
+    pos = node->getPosition();
+    return node;
+}
+
+void RenderManager::updateMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& pos)
+{
+    node->setPosition(pos);
+}
+
+void RenderManager::orientMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& direction)
+{
+    Ogre::Vector3 tempVector = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
+
+    // Work around 180 degree quaternion rotation quirk
+    if ((1.0f + tempVector.dotProduct(direction)) < 0.0001f)
+    {
+        node->roll(Ogre::Degree(180));
+    }
+    else
+    {
+        node->rotate(tempVector.getRotationTo(direction));
+    }
+}
+
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
 {
     if(mHandAnimationState != nullptr)

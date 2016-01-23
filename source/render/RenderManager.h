@@ -152,6 +152,11 @@ public:
     //! \brief Called to update the given animation with the given time. Returns true if animation ended and
     //! false otherwise
     bool updateMenuEntityAnimation(Ogre::AnimationState* animState, Ogre::Real timeSinceLastFrame);
+    //! \brief Returns the scene node related to the given entity name. pos will be set to the current position
+    //! of the node
+    Ogre::SceneNode* getMenuEntityNode(const std::string& entityName, Ogre::Vector3& pos);
+    void updateMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& pos);
+    void orientMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& direction);
 
 private:
     //! \brief Correctly places entities in hand next to the keeper hand
