@@ -141,6 +141,10 @@ public:
     //! That allows to hide stuff that we don't want to display in the minimap
     void rrMinimapRendering(bool postRender);
 
+    Ogre::Light* addPointLightMenu(const std::string& name, const Ogre::Vector3& pos,
+        const Ogre::ColourValue& diffuse, const Ogre::ColourValue& specular, Ogre::Real attenuationRange,
+        Ogre::Real attenuationConstant, Ogre::Real attenuationLinear, Ogre::Real attenuationQuadratic);
+    void removePointLightMenu(Ogre::Light* light);
     Ogre::Entity* addEntityMenu(const std::string& meshName, const std::string& entityName,
         const Ogre::Vector3& scale, const Ogre::Vector3& pos);
     void removeEntityMenu(Ogre::Entity* ent);

@@ -232,9 +232,38 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandKeeperNode->setVisible(mHandKeeperHandVisibility == 0);
 }
 
+Ogre::Light* RenderManager::addPointLightMenu(const std::string& name, const Ogre::Vector3& pos,
+        const Ogre::ColourValue& diffuse, const Ogre::ColourValue& specular, Ogre::Real attenuationRange,
+        Ogre::Real attenuationConstant, Ogre::Real attenuationLinear, Ogre::Real attenuationQuadratic)
+{
+    if(mSceneManager->hasLight(name))
+    {
+        OD_LOG_ERR("There is already a light=" + name);
+        return nullptr;
+    }
+
+    Ogre::Light* light = mSceneManager->createLight(name);
+    light->setType(Ogre::Light::LT_POINT);
+    light->setDiffuseColour(diffuse);
+    light->setSpecularColour(specular);
+    light->setAttenuation(attenuationRange, attenuationConstant, attenuationLinear, attenuationQuadratic);
+    return light;
+}
+
+void RenderManager::removePointLightMenu(Ogre::Light* light)
+{
+    mSceneManager->destroyLight(light);
+}
+
 Ogre::Entity* RenderManager::addEntityMenu(const std::string& meshName, const std::string& entityName,
         const Ogre::Vector3& scale, const Ogre::Vector3& pos)
 {
+    if(mSceneManager->hasEntity(entityName))
+    {
+        OD_LOG_ERR("There is already an entity=" + entityName);
+        return nullptr;
+    }
+
     Ogre::Entity* ent = mSceneManager->createEntity(entityName, meshName);
     Ogre::MeshPtr meshPtr = ent->getMesh();
     unsigned short src, dest;
@@ -262,6 +291,12 @@ void RenderManager::removeEntityMenu(Ogre::Entity* ent)
 
 Ogre::AnimationState* RenderManager::setMenuEntityAnimation(const std::string& entityName, const std::string& animation, bool loop)
 {
+    if(!mSceneManager->hasEntity(entityName))
+    {
+        OD_LOG_ERR("There is no entity=" + entityName);
+        return nullptr;
+    }
+
     Ogre::Entity* ent = mSceneManager->getEntity(entityName);
     if(!ent->hasAnimationState(animation))
     {
