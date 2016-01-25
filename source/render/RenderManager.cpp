@@ -347,6 +347,23 @@ void RenderManager::orientMenuEntityPosition(Ogre::SceneNode* node, const Ogre::
     }
 }
 
+Ogre::ParticleSystem* RenderManager::addEntityParticleEffectMenu(Ogre::SceneNode* node,
+        const std::string& particleName, const std::string& particleScript)
+{
+    Ogre::ParticleSystem* particleSystem = mSceneManager->createParticleSystem(particleName, particleScript);
+
+    node->attachObject(particleSystem);
+
+    return particleSystem;
+}
+
+void RenderManager::removeEntityParticleEffectMenu(Ogre::SceneNode* node,
+        Ogre::ParticleSystem* particleSystem)
+{
+    node->detachObject(particleSystem);
+    mSceneManager->destroyParticleSystem(particleSystem);
+}
+
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
 {
     if(mHandAnimationState != nullptr)

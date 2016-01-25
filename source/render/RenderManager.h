@@ -157,6 +157,10 @@ public:
     Ogre::SceneNode* getMenuEntityNode(const std::string& entityName, Ogre::Vector3& pos);
     void updateMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& pos);
     void orientMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& direction);
+    Ogre::ParticleSystem* addEntityParticleEffectMenu(Ogre::SceneNode* node,
+        const std::string& particleName, const std::string& particleScript);
+    void removeEntityParticleEffectMenu(Ogre::SceneNode* node,
+        Ogre::ParticleSystem* particleSystem);
 
 private:
     //! \brief Correctly places entities in hand next to the keeper hand
