@@ -53,6 +53,8 @@ public:
 
 private:
     std::vector<RenderScene*> mScenes;
+    bool mIsRepeat;
+    uint32_t mIndexSceneRepeat;
     uint32_t mIndexScene;
 };
 

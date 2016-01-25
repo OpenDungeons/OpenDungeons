@@ -23,6 +23,8 @@
 #include "utils/LogManager.h"
 
 RenderSceneGroup::RenderSceneGroup() :
+    mIsRepeat(false),
+    mIndexSceneRepeat(0),
     mIndexScene(0)
 {
 }
@@ -61,6 +63,13 @@ RenderSceneGroup* RenderSceneGroup::load(std::istream& defFile)
 
         if(nextParam == "[/RenderSceneGroup]")
             return group;
+
+        if(nextParam == "*Repeat")
+        {
+            group->mIsRepeat = true;
+            group->mIndexSceneRepeat = group->mScenes.size();
+            continue;
+        }
 
         std::stringstream ss(nextParam);
         RenderScene* scene = RenderSceneManager::load(ss);
@@ -111,7 +120,22 @@ void RenderSceneGroup::update(CameraManager& cameraManager, RenderManager& rende
         Ogre::Real timeSinceLastFrame)
 {
     if(mIndexScene >= mScenes.size())
+    {
+        if(!mIsRepeat)
+            return;
+
+        mIndexScene = mIndexSceneRepeat;
+        while(mIndexScene < mScenes.size())
+        {
+            RenderScene* scene = mScenes.at(mIndexScene);
+            if(!scene->activate(cameraManager, renderManager))
+                return;
+
+            ++mIndexScene;
+        }
+
         return;
+    }
 
     RenderScene* scene = mScenes.at(mIndexScene);
     if(!scene->update(cameraManager, renderManager, timeSinceLastFrame))
