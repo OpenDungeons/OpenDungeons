@@ -304,12 +304,7 @@ Ogre::AnimationState* RenderManager::setMenuEntityAnimation(const std::string& e
         return nullptr;
     }
 
-    Ogre::AnimationState* animState = ent->getAnimationState(animation);
-    animState->setTimePosition(0);
-    animState->setLoop(loop);
-    animState->setEnabled(true);
-
-    return animState;
+    return setEntityAnimation(ent, animation, loop);
 }
 
 bool RenderManager::updateMenuEntityAnimation(Ogre::AnimationState* animState, Ogre::Real timeSinceLastFrame)
@@ -360,9 +355,7 @@ void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
         if(mHandAnimationState->hasEnded())
         {
             Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
-            mHandAnimationState = ent->getAnimationState("Idle");
-            mHandAnimationState->setTimePosition(0);
-            mHandAnimationState->setLoop(true);
+            mHandAnimationState = setEntityAnimation(ent, "Idle", true);
         }
     }
 }
@@ -904,12 +897,7 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
 {
     Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
     if(ent->hasAnimationState("Pickup"))
-    {
-        mHandAnimationState = ent->getAnimationState("Pickup");
-        mHandAnimationState->setTimePosition(0);
-        mHandAnimationState->setLoop(false);
-        mHandAnimationState->setEnabled(true);
-    }
+        mHandAnimationState = setEntityAnimation(ent, "Pickup", false);
 
     // Detach the entity from its scene node
     Ogre::SceneNode* curEntityNode = curEntity->getEntityNode();
@@ -932,12 +920,7 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
 {
     Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
     if(ent->hasAnimationState("Drop"))
-    {
-        mHandAnimationState = ent->getAnimationState("Drop");
-        mHandAnimationState->setTimePosition(0);
-        mHandAnimationState->setLoop(false);
-        mHandAnimationState->setEnabled(true);
-    }
+        mHandAnimationState = setEntityAnimation(ent, "Drop", false);
 
     // Detach the entity from the "hand" scene node
     Ogre::SceneNode* curEntityNode = curEntity->getEntityNode();
@@ -1105,21 +1088,11 @@ void RenderManager::rrSetObjectAnimationState(MovableGameEntity* curAnimatedObje
         }
     }
 
-    if (objectEntity->getSkeleton()->hasAnimation(anim))
-    {
-        // Disable the animation for all of the animations on this entity.
-        Ogre::AnimationStateIterator animationStateIterator(
-            objectEntity->getAllAnimationStates()->getAnimationStateIterator());
-        while (animationStateIterator.hasMoreElements())
-        {
-            animationStateIterator.getNext()->setEnabled(false);
-        }
+    if (!objectEntity->getSkeleton()->hasAnimation(anim))
+        return;
 
-        curAnimatedObject->setAnimationState(objectEntity->getAnimationState(anim));
-        curAnimatedObject->getAnimationState()->setTimePosition(0);
-        curAnimatedObject->getAnimationState()->setLoop(loop);
-        curAnimatedObject->getAnimationState()->setEnabled(true);
-    }
+    Ogre::AnimationState* animState = setEntityAnimation(objectEntity, anim, loop);
+    curAnimatedObject->setAnimationState(animState);
 }
 void RenderManager::rrMoveEntity(GameEntity* entity, const Ogre::Vector3& position)
 {
@@ -1178,12 +1151,15 @@ std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshN
         return "\nNo skeleton for " + meshName;
 
     std::string ret;
-    Ogre::AnimationStateIterator animationStateIterator(
-            objectEntity->getAllAnimationStates()->getAnimationStateIterator());
-    while (animationStateIterator.hasMoreElements())
+    Ogre::AnimationStateSet* animationSet = objectEntity->getAllAnimationStates();
+    if(animationSet != nullptr)
     {
-        std::string animName = animationStateIterator.getNext()->getAnimationName();
-        ret += "\nAnimation: " + animName;
+        for(Ogre::AnimationStateIterator asi =
+            animationSet->getAnimationStateIterator(); asi.hasMoreElements(); asi.moveNext())
+        {
+            std::string animName = asi.peekNextValue()->getAnimationName();
+            ret += "\nAnimation: " + animName;
+        }
     }
 
     Ogre::Skeleton::BoneIterator boneIterator = objectEntity->getSkeleton()->getBoneIterator();
@@ -1478,12 +1454,7 @@ void RenderManager::entitySlapped()
 {
     Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
     if(ent->hasAnimationState("Slap"))
-    {
-        mHandAnimationState = ent->getAnimationState("Slap");
-        mHandAnimationState->setTimePosition(0);
-        mHandAnimationState->setLoop(false);
-        mHandAnimationState->setEnabled(true);
-    }
+        mHandAnimationState = setEntityAnimation(ent, "Slap", false);
 }
 
 std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialNameBase,
@@ -1548,4 +1519,24 @@ void RenderManager::changeRenderQueueRecursive(Ogre::SceneNode* node, uint8_t re
 
         changeRenderQueueRecursive(childNode, renderQueueId);
     }
+}
+
+Ogre::AnimationState* RenderManager::setEntityAnimation(Ogre::Entity* ent, const std::string& animation, bool loop)
+{
+    Ogre::AnimationStateSet* animationSet = ent->getAllAnimationStates();
+    if(animationSet == nullptr)
+        return nullptr;
+
+    for(Ogre::AnimationStateIterator asi =
+        animationSet->getAnimationStateIterator(); asi.hasMoreElements(); asi.moveNext())
+    {
+        asi.peekNextValue()->setEnabled(false);
+    }
+
+    Ogre::AnimationState* animState = ent->getAnimationState(animation);
+    animState->setTimePosition(0);
+    animState->setLoop(loop);
+    animState->setEnabled(true);
+
+    return animState;
 }

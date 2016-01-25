@@ -180,6 +180,9 @@ private:
     //! \returns The new material name according to the current opacity.
     std::string setMaterialOpacity(const std::string& materialName, float opacity);
 
+    //! \brief Disables all animations of the given entity and starts the given one
+    Ogre::AnimationState* setEntityAnimation(Ogre::Entity* ent, const std::string& animation, bool loop);
+
     //! \brief The main scene manager reference. Don't delete it.
     Ogre::SceneManager* mSceneManager;
 
