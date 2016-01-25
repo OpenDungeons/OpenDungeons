@@ -429,6 +429,7 @@ set(OD_SOURCEFILES
     ${SRC}/renderscene/RenderSceneAnimationOnce.cpp
     ${SRC}/renderscene/RenderSceneAnimationTime.cpp
     ${SRC}/renderscene/RenderSceneMoveEntity.cpp
+    ${SRC}/renderscene/RenderSceneWait.cpp
 
     ${SRC}/rooms/Room.cpp
     ${SRC}/rooms/RoomArena.cpp

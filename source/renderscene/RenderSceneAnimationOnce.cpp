@@ -49,6 +49,9 @@ const std::string& RenderSceneAnimationOnce::getModifierName() const
 bool RenderSceneAnimationOnce::activate(CameraManager& cameraManager, RenderManager& renderManager)
 {
     mAnimState = renderManager.setMenuEntityAnimation(mName, mAnimation, false);
+    if(mAnimState == nullptr)
+        return true;
+
     return false;
 }
 

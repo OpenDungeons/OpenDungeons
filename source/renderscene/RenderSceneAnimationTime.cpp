@@ -49,6 +49,8 @@ bool RenderSceneAnimationTime::activate(CameraManager& cameraManager, RenderMana
 {
     mAnimState = renderManager.setMenuEntityAnimation(mName, mAnimation, true);
     mLenght = 0;
+    if(mAnimState == nullptr)
+        return true;
 
     return (mTotalLenght == 0);
 }
