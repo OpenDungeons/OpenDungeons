@@ -71,7 +71,7 @@ LogSinkOgre::LogSinkOgre(const std::string& userDataPath)
     /* Using a separate log if ogre doesn't have thread support as
     * as log writes from ogre itself won't be thread-safe in this case.
     */
-    mGameLog = mLogManager->createLog(userDataPath + GAMELOG_NAME);
+    mGameLog = mLogManager->createLog(userDataPath + LogManager::GAMELOG_NAME);
 #else
     mGameLog = mLogManager->createLog(userDataPath, true, true, false);
 #endif
