@@ -188,6 +188,19 @@ namespace Helper
         return true;
     }
 
+    // TODO: use this everywhere we can
+    bool readNextLineNotEmpty(std::istream& is, std::string& line)
+    {
+        while (is.good())
+        {
+            std::getline(is, line);
+            trim(line);
+            if(!line.empty())
+                return true;
+        }
+        return false;
+    }
+
     std::string toString(void* p)
     {
         std::stringstream stream;

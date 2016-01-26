@@ -54,6 +54,8 @@ void ODApplication::startGame(boost::program_options::variables_map& options)
     ResourceManager resMgr(options);
 
     LogManager logMgr;
+    logMgr.setLevel(resMgr.getLogLevel());
+
     logMgr.addSink(std::unique_ptr<LogSink>(new LogSinkConsole()));
     logMgr.addSink(std::unique_ptr<LogSink>(new LogSinkFile(resMgr.getLogFile())));
 
@@ -164,7 +166,8 @@ void ODApplication::startClient()
     textRenderer.addTextBox(ODApplication::POINTER_INFO_STRING, "",
                                 0, 0, 200, 50, Ogre::ColourValue::White);
 
-    ODFrameListener frameListener(renderWindow, &overlaySystem, &gui);
+    ODFrameListener frameListener(resMgr.getConfigPath() + "mainmenuscene.cfg",
+        renderWindow, &overlaySystem, &gui);
 
     ogreRoot.addFrameListener(&frameListener);
     ogreRoot.startRendering();

@@ -79,6 +79,7 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
     if (!gameMap)
         return false;
 
+    OD_LOG_DBG("processMessage type=" + ServerNotification::typeString(cmd));
     switch(cmd)
     {
         case ServerNotificationType::loadLevel:
@@ -364,7 +365,7 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
             }
 
             // We reset the renderer
-            RenderManager::getSingleton().initRendererForNewGame(gameMap);
+            ODFrameListener::getSingleton().initGameRenderer();
 
             // Move camera to starting position
             Ogre::Real startX = static_cast<Ogre::Real>(tempSeat->mStartingX);

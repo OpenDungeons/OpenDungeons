@@ -103,24 +103,19 @@ RenderManager::~RenderManager()
 {
 }
 
-void RenderManager::initRendererForNewGame(GameMap* gameMap)
+void RenderManager::initGameRenderer(GameMap* gameMap)
 {
-    destroyMainMenuScene();
-
     mCreatureTextOverlayDisplayed = false;
 
-    for(Ogre::SceneNode* dummyNode : mDummyEntities)
+    // Create the light which follows the single tile selection mesh
+    if(mHandLight == nullptr)
     {
-        Ogre::Entity* dummyEnt = mSceneManager->getEntity(dummyNode->getName() + "Ent");
-        if(dummyEnt != nullptr)
-        {
-            dummyNode->detachObject(dummyEnt);
-            mSceneManager->destroyEntity(dummyEnt);
-        }
-        mHandKeeperNode->removeChild(dummyNode);
-        mSceneManager->destroySceneNode(dummyNode);
+        mHandLight = mSceneManager->createLight("MouseLight");
+        mHandLight->setType(Ogre::Light::LT_POINT);
+        mHandLight->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
+        mHandLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
+        mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
     }
-    mDummyEntities.clear();
 
     //Add a too small to be visible dummy dirt tile to the hand node
     //so that there will always be a dirt tile "visible"
@@ -153,6 +148,29 @@ void RenderManager::initRendererForNewGame(GameMap* gameMap)
         dummyEnt->setCastShadows(false);
         dummyNode->attachObject(dummyEnt);
         mDummyEntities.push_back(dummyNode);
+    }
+}
+
+void RenderManager::stopGameRenderer(GameMap* gameMap)
+{
+    for(Ogre::SceneNode* dummyNode : mDummyEntities)
+    {
+        Ogre::Entity* dummyEnt = mSceneManager->getEntity(dummyNode->getName() + "Ent");
+        if(dummyEnt != nullptr)
+        {
+            dummyNode->detachObject(dummyEnt);
+            mSceneManager->destroyEntity(dummyEnt);
+        }
+        mHandKeeperNode->removeChild(dummyNode);
+        mSceneManager->destroySceneNode(dummyNode);
+    }
+    mDummyEntities.clear();
+
+    // Remove the light following the keeper hand
+    if(mHandLight != nullptr)
+    {
+        mSceneManager->destroyLight(mHandLight);
+        mHandLight = nullptr;
     }
 }
 
@@ -211,47 +229,41 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     handKeeperOverlay->add3D(mHandKeeperNode);
     handKeeperOverlay->show();
 
-    // Create the light which follows the single tile selection mesh
-    mHandLight = mSceneManager->createLight("MouseLight");
-    mHandLight->setType(Ogre::Light::LT_POINT);
-    mHandLight->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-    mHandLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-    mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
-
     mHandKeeperNode->setVisible(mHandKeeperHandVisibility == 0);
 }
 
-void RenderManager::createMainMenuScene()
+Ogre::Light* RenderManager::addPointLightMenu(const std::string& name, const Ogre::Vector3& pos,
+        const Ogre::ColourValue& diffuse, const Ogre::ColourValue& specular, Ogre::Real attenuationRange,
+        Ogre::Real attenuationConstant, Ogre::Real attenuationLinear, Ogre::Real attenuationQuadratic)
 {
-    if(!mMainSceneObjects.empty())
+    if(mSceneManager->hasLight(name))
     {
-        OD_LOG_INF("Main menu screen already created");
-        return;
+        OD_LOG_ERR("There is already a light=" + name);
+        return nullptr;
     }
 
-    addEntityToMainMenu("Elf.mesh", "MainMenuCreature1", Ogre::Vector3(0.08,0.08,0.08),
-        Ogre::Vector3(-1,0,0), "Dance");
-    addEntityToMainMenu("NatureMonster.mesh", "MainMenuNatureCreature2", Ogre::Vector3(0.04,0.04,0.04),
-        Ogre::Vector3(0,0,0), "Idle");
-    addEntityToMainMenu("Rat.mesh", "MainMenuCreature3", Ogre::Vector3(0.2,0.2,0.2),
-        Ogre::Vector3(1,0,0), "Idle");
-
-    // Ground
-    for(int32_t i = -2; i <= 2; ++i)
-    {
-        // Wall
-        addEntityToMainMenu("Claimed_fl_1110.mesh", "MainMenuWall" + Helper::toString(i),
-            Ogre::Vector3(0.4,0.4,0.5), Ogre::Vector3(i,1,0), "");
-
-        // Ground
-        addEntityToMainMenu("Dirt_gd_1111.mesh", "MainMenuGround" + Helper::toString(i),
-            Ogre::Vector3(0.4,0.4,0.5), Ogre::Vector3(i,0,0), "");
-    }
+    Ogre::Light* light = mSceneManager->createLight(name);
+    light->setType(Ogre::Light::LT_POINT);
+    light->setDiffuseColour(diffuse);
+    light->setSpecularColour(specular);
+    light->setAttenuation(attenuationRange, attenuationConstant, attenuationLinear, attenuationQuadratic);
+    return light;
 }
 
-void RenderManager::addEntityToMainMenu(const std::string& meshName, const std::string& entityName,
-        const Ogre::Vector3& scale, const Ogre::Vector3& pos, const std::string& animation)
+void RenderManager::removePointLightMenu(Ogre::Light* light)
 {
+    mSceneManager->destroyLight(light);
+}
+
+Ogre::Entity* RenderManager::addEntityMenu(const std::string& meshName, const std::string& entityName,
+        const Ogre::Vector3& scale, const Ogre::Vector3& pos)
+{
+    if(mSceneManager->hasEntity(entityName))
+    {
+        OD_LOG_ERR("There is already an entity=" + entityName);
+        return nullptr;
+    }
+
     Ogre::Entity* ent = mSceneManager->createEntity(entityName, meshName);
     Ogre::MeshPtr meshPtr = ent->getMesh();
     unsigned short src, dest;
@@ -265,39 +277,91 @@ void RenderManager::addEntityToMainMenu(const std::string& meshName, const std::
     node->setScale(scale);
     node->setPosition(pos);
 
-    Ogre::AnimationState* animState = nullptr;
-    if(!animation.empty())
-    {
-        animState = ent->getAnimationState(animation);
-        animState->setTimePosition(0);
-        animState->setLoop(true);
-        animState->setEnabled(true);
-    }
-    mMainSceneObjects.emplace_back(ent, animState);
+    return ent;
 }
 
-void RenderManager::destroyMainMenuScene()
+void RenderManager::removeEntityMenu(Ogre::Entity* ent)
 {
-    for(std::pair<Ogre::Entity*,Ogre::AnimationState*>& p : mMainSceneObjects)
-    {
-        Ogre::Entity* ent = p.first;
-        Ogre::SceneNode* entNode = mSceneManager->getSceneNode(ent->getName() + "_node");
-        entNode->detachObject(ent);
-        mMainMenuSceneNode->removeChild(entNode);
-        mSceneManager->destroyEntity(ent);
-        mSceneManager->destroySceneNode(entNode->getName());
-    }
-    mMainSceneObjects.clear();
+    Ogre::SceneNode* entNode = mSceneManager->getSceneNode(ent->getName() + "_node");
+    entNode->detachObject(ent);
+    mMainMenuSceneNode->removeChild(entNode);
+    mSceneManager->destroyEntity(ent);
+    mSceneManager->destroySceneNode(entNode->getName());
+}
 
-    // Here, the main menu scene node should be empty. If it is not, we log the error
-    for(uint32_t i = 0; i < mMainMenuSceneNode->numChildren(); ++i)
+Ogre::AnimationState* RenderManager::setMenuEntityAnimation(const std::string& entityName, const std::string& animation, bool loop)
+{
+    if(!mSceneManager->hasEntity(entityName))
     {
-        Ogre::SceneNode* childNode = dynamic_cast<Ogre::SceneNode *>(mMainMenuSceneNode->getChild(i));
-        if(childNode == nullptr)
-            continue;
-
-        OD_LOG_ERR("Unexpected node name=" + childNode->getName());
+        OD_LOG_ERR("There is no entity=" + entityName);
+        return nullptr;
     }
+
+    Ogre::Entity* ent = mSceneManager->getEntity(entityName);
+    if(!ent->hasAnimationState(animation))
+    {
+        OD_LOG_ERR("Entity=" + ent->getName() + ", has no animation=" + animation);
+        return nullptr;
+    }
+
+    return setEntityAnimation(ent, animation, loop);
+}
+
+bool RenderManager::updateMenuEntityAnimation(Ogre::AnimationState* animState, Ogre::Real timeSinceLastFrame)
+{
+    animState->addTime(timeSinceLastFrame);
+    return animState->hasEnded();
+}
+
+Ogre::SceneNode* RenderManager::getMenuEntityNode(const std::string& entityName, Ogre::Vector3& pos)
+{
+    std::string nodeName = entityName + "_node";
+    if(!mSceneManager->hasSceneNode(nodeName))
+    {
+        OD_LOG_ERR("No node for entityName=" + entityName + ", node name=" + nodeName);
+        return nullptr;
+    }
+
+    Ogre::SceneNode* node = mSceneManager->getSceneNode(nodeName);
+    pos = node->getPosition();
+    return node;
+}
+
+void RenderManager::updateMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& pos)
+{
+    node->setPosition(pos);
+}
+
+void RenderManager::orientMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& direction)
+{
+    Ogre::Vector3 tempVector = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
+
+    // Work around 180 degree quaternion rotation quirk
+    if ((1.0f + tempVector.dotProduct(direction)) < 0.0001f)
+    {
+        node->roll(Ogre::Degree(180));
+    }
+    else
+    {
+        node->rotate(tempVector.getRotationTo(direction));
+    }
+}
+
+Ogre::ParticleSystem* RenderManager::addEntityParticleEffectMenu(Ogre::SceneNode* node,
+        const std::string& particleName, const std::string& particleScript)
+{
+    Ogre::ParticleSystem* particleSystem = mSceneManager->createParticleSystem(particleName, particleScript);
+
+    node->attachObject(particleSystem);
+
+    return particleSystem;
+}
+
+void RenderManager::removeEntityParticleEffectMenu(Ogre::SceneNode* node,
+        Ogre::ParticleSystem* particleSystem)
+{
+    node->detachObject(particleSystem);
+    mSceneManager->destroyParticleSystem(particleSystem);
 }
 
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
@@ -308,18 +372,8 @@ void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
         if(mHandAnimationState->hasEnded())
         {
             Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
-            mHandAnimationState = ent->getAnimationState("Idle");
-            mHandAnimationState->setTimePosition(0);
-            mHandAnimationState->setLoop(true);
+            mHandAnimationState = setEntityAnimation(ent, "Idle", true);
         }
-    }
-
-    for(std::pair<Ogre::Entity*,Ogre::AnimationState*>& p : mMainSceneObjects)
-    {
-        if(p.second == nullptr)
-            continue;
-
-        p.second->addTime(timeSinceLastFrame);
     }
 }
 
@@ -860,12 +914,7 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
 {
     Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
     if(ent->hasAnimationState("Pickup"))
-    {
-        mHandAnimationState = ent->getAnimationState("Pickup");
-        mHandAnimationState->setTimePosition(0);
-        mHandAnimationState->setLoop(false);
-        mHandAnimationState->setEnabled(true);
-    }
+        mHandAnimationState = setEntityAnimation(ent, "Pickup", false);
 
     // Detach the entity from its scene node
     Ogre::SceneNode* curEntityNode = curEntity->getEntityNode();
@@ -888,12 +937,7 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
 {
     Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
     if(ent->hasAnimationState("Drop"))
-    {
-        mHandAnimationState = ent->getAnimationState("Drop");
-        mHandAnimationState->setTimePosition(0);
-        mHandAnimationState->setLoop(false);
-        mHandAnimationState->setEnabled(true);
-    }
+        mHandAnimationState = setEntityAnimation(ent, "Drop", false);
 
     // Detach the entity from the "hand" scene node
     Ogre::SceneNode* curEntityNode = curEntity->getEntityNode();
@@ -1061,21 +1105,11 @@ void RenderManager::rrSetObjectAnimationState(MovableGameEntity* curAnimatedObje
         }
     }
 
-    if (objectEntity->getSkeleton()->hasAnimation(anim))
-    {
-        // Disable the animation for all of the animations on this entity.
-        Ogre::AnimationStateIterator animationStateIterator(
-            objectEntity->getAllAnimationStates()->getAnimationStateIterator());
-        while (animationStateIterator.hasMoreElements())
-        {
-            animationStateIterator.getNext()->setEnabled(false);
-        }
+    if (!objectEntity->getSkeleton()->hasAnimation(anim))
+        return;
 
-        curAnimatedObject->setAnimationState(objectEntity->getAnimationState(anim));
-        curAnimatedObject->getAnimationState()->setTimePosition(0);
-        curAnimatedObject->getAnimationState()->setLoop(loop);
-        curAnimatedObject->getAnimationState()->setEnabled(true);
-    }
+    Ogre::AnimationState* animState = setEntityAnimation(objectEntity, anim, loop);
+    curAnimatedObject->setAnimationState(animState);
 }
 void RenderManager::rrMoveEntity(GameEntity* entity, const Ogre::Vector3& position)
 {
@@ -1134,12 +1168,15 @@ std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshN
         return "\nNo skeleton for " + meshName;
 
     std::string ret;
-    Ogre::AnimationStateIterator animationStateIterator(
-            objectEntity->getAllAnimationStates()->getAnimationStateIterator());
-    while (animationStateIterator.hasMoreElements())
+    Ogre::AnimationStateSet* animationSet = objectEntity->getAllAnimationStates();
+    if(animationSet != nullptr)
     {
-        std::string animName = animationStateIterator.getNext()->getAnimationName();
-        ret += "\nAnimation: " + animName;
+        for(Ogre::AnimationStateIterator asi =
+            animationSet->getAnimationStateIterator(); asi.hasMoreElements(); asi.moveNext())
+        {
+            std::string animName = asi.peekNextValue()->getAnimationName();
+            ret += "\nAnimation: " + animName;
+        }
     }
 
     Ogre::Skeleton::BoneIterator boneIterator = objectEntity->getSkeleton()->getBoneIterator();
@@ -1426,19 +1463,15 @@ void RenderManager::moveCursor(float relX, float relY)
 
 void RenderManager::moveWorldCoords(Ogre::Real x, Ogre::Real y)
 {
-    mHandLight->setPosition(x, y, KEEPER_HAND_WORLD_Z);
+    if(mHandLight != nullptr)
+        mHandLight->setPosition(x, y, KEEPER_HAND_WORLD_Z);
 }
 
 void RenderManager::entitySlapped()
 {
     Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
     if(ent->hasAnimationState("Slap"))
-    {
-        mHandAnimationState = ent->getAnimationState("Slap");
-        mHandAnimationState->setTimePosition(0);
-        mHandAnimationState->setLoop(false);
-        mHandAnimationState->setEnabled(true);
-    }
+        mHandAnimationState = setEntityAnimation(ent, "Slap", false);
 }
 
 std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialNameBase,
@@ -1481,7 +1514,9 @@ std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialN
 
 void RenderManager::rrMinimapRendering(bool postRender)
 {
-    mHandLight->setVisible(postRender);
+    if(mHandLight != nullptr)
+        mHandLight->setVisible(postRender);
+
     mLightSceneNode->setVisible(postRender);
 }
 
@@ -1501,4 +1536,24 @@ void RenderManager::changeRenderQueueRecursive(Ogre::SceneNode* node, uint8_t re
 
         changeRenderQueueRecursive(childNode, renderQueueId);
     }
+}
+
+Ogre::AnimationState* RenderManager::setEntityAnimation(Ogre::Entity* ent, const std::string& animation, bool loop)
+{
+    Ogre::AnimationStateSet* animationSet = ent->getAllAnimationStates();
+    if(animationSet == nullptr)
+        return nullptr;
+
+    for(Ogre::AnimationStateIterator asi =
+        animationSet->getAnimationStateIterator(); asi.hasMoreElements(); asi.moveNext())
+    {
+        asi.peekNextValue()->setEnabled(false);
+    }
+
+    Ogre::AnimationState* animState = ent->getAnimationState(animation);
+    animState->setTimePosition(0);
+    animState->setLoop(loop);
+    animState->setEnabled(true);
+
+    return animState;
 }

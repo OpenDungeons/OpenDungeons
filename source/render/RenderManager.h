@@ -68,17 +68,14 @@ public:
     void updateRenderAnimations(Ogre::Real timeSinceLastFrame);
 
     //! \brief Initialize the renderer when a new game (Game or Editor) is launched
-    void initRendererForNewGame(GameMap* gameMap);
+    void initGameRenderer(GameMap* gameMap);
+    void stopGameRenderer(GameMap* gameMap);
 
     //! \brief starts the compositor compositorName.
     void triggerCompositor(const std::string& compositorName);
 
     //! \brief setup the scene
     void createScene(Ogre::Viewport*);
-
-    //! \brief setup the main menu scene
-    void createMainMenuScene();
-    void destroyMainMenuScene();
 
     //! \brief Set the entity's opacity
     void setEntityOpacity(Ogre::Entity* ent, float opacity);
@@ -144,6 +141,27 @@ public:
     //! That allows to hide stuff that we don't want to display in the minimap
     void rrMinimapRendering(bool postRender);
 
+    Ogre::Light* addPointLightMenu(const std::string& name, const Ogre::Vector3& pos,
+        const Ogre::ColourValue& diffuse, const Ogre::ColourValue& specular, Ogre::Real attenuationRange,
+        Ogre::Real attenuationConstant, Ogre::Real attenuationLinear, Ogre::Real attenuationQuadratic);
+    void removePointLightMenu(Ogre::Light* light);
+    Ogre::Entity* addEntityMenu(const std::string& meshName, const std::string& entityName,
+        const Ogre::Vector3& scale, const Ogre::Vector3& pos);
+    void removeEntityMenu(Ogre::Entity* ent);
+    Ogre::AnimationState* setMenuEntityAnimation(const std::string& entityName, const std::string& animation, bool loop);
+    //! \brief Called to update the given animation with the given time. Returns true if animation ended and
+    //! false otherwise
+    bool updateMenuEntityAnimation(Ogre::AnimationState* animState, Ogre::Real timeSinceLastFrame);
+    //! \brief Returns the scene node related to the given entity name. pos will be set to the current position
+    //! of the node
+    Ogre::SceneNode* getMenuEntityNode(const std::string& entityName, Ogre::Vector3& pos);
+    void updateMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& pos);
+    void orientMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& direction);
+    Ogre::ParticleSystem* addEntityParticleEffectMenu(Ogre::SceneNode* node,
+        const std::string& particleName, const std::string& particleScript);
+    void removeEntityParticleEffectMenu(Ogre::SceneNode* node,
+        Ogre::ParticleSystem* particleSystem);
+
 private:
     //! \brief Correctly places entities in hand next to the keeper hand
     void changeRenderQueueRecursive(Ogre::SceneNode* node, uint8_t renderQueueId);
@@ -166,8 +184,8 @@ private:
     //! \returns The new material name according to the current opacity.
     std::string setMaterialOpacity(const std::string& materialName, float opacity);
 
-    void addEntityToMainMenu(const std::string& meshName, const std::string& entityName,
-        const Ogre::Vector3& scale, const Ogre::Vector3& pos, const std::string& animation);
+    //! \brief Disables all animations of the given entity and starts the given one
+    Ogre::AnimationState* setEntityAnimation(Ogre::Entity* ent, const std::string& animation, bool loop);
 
     //! \brief The main scene manager reference. Don't delete it.
     Ogre::SceneManager* mSceneManager;
@@ -195,9 +213,6 @@ private:
     // and attach them to the keeper hand. This vector allows to keep a track and delete
     // them/recreate when loading a new game
     std::vector<Ogre::SceneNode*> mDummyEntities;
-
-    //! \brief Used to keep the objects from the main scene
-    std::vector<std::pair<Ogre::Entity*,Ogre::AnimationState*>> mMainSceneObjects;
 
     //! \brief True if the creatures are currently displaying their text overlay
     bool mCreatureTextOverlayDisplayed;

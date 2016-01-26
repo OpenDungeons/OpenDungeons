@@ -161,6 +161,7 @@ void MenuModeMain::activate()
     gameMap->clearAll();
     gameMap->setGamePaused(true);
 
+    ODFrameListener::getSingleton().stopGameRenderer();
     ODFrameListener::getSingleton().createMainMenuScene();
 }
 

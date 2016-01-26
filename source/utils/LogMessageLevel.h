@@ -23,23 +23,25 @@ enum class LogMessageLevel
     TRIVIAL,
     NORMAL,
     WARNING,
-    CRITICAL
+    CRITICAL,
+    NB_LEVELS
 };
 
 inline const char* LogMessageLevelToString(LogMessageLevel level)
 {
-    if (level > LogMessageLevel::CRITICAL)
+    switch(level)
     {
-        return "<Invalid>";
+        case LogMessageLevel::TRIVIAL:
+            return "TRIVIAL";
+        case LogMessageLevel::NORMAL:
+            return "NORMAL";
+        case LogMessageLevel::WARNING:
+            return "WARNING";
+        case LogMessageLevel::CRITICAL:
+            return "CRITICAL";
+        default:
+            return "<Invalid>";
     }
-
-    static const char* LevelToStringMap[] = {
-        "TRIVIAL",
-        "NORMAL",
-        "WARNING",
-        "CRITICAL"
-    };
-    return LevelToStringMap[static_cast<size_t>(level)];
 }
 
 #endif // _LOGMESSAGELEVEL_H_
