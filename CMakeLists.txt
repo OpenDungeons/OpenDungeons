@@ -420,7 +420,6 @@ set(OD_SOURCEFILES
     ${SRC}/render/RenderManager.cpp
     ${SRC}/render/TextRenderer.cpp
 
-    ${SRC}/renderscene/RenderScene.cpp
     ${SRC}/renderscene/RenderSceneAddEntity.cpp
     ${SRC}/renderscene/RenderSceneAddParticleEffect.cpp
     ${SRC}/renderscene/RenderSceneAddPointLight.cpp
