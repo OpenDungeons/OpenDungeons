@@ -41,6 +41,8 @@ class variables_map;
 }
 }
 
+enum class LogMessageLevel;
+
 //!\brief class that handle OD ressources. Note that this class might be created before the
 //! LogManager because it handles the log filename. Thus, it should not use LogManager.
 class ResourceManager : public Ogre::Singleton<ResourceManager>
@@ -146,6 +148,9 @@ public:
     inline int32_t getForcedNetworkPort() const
     { return mForcedNetworkPort; }
 
+    inline LogMessageLevel getLogLevel() const
+    { return mLogLevel; }
+
 private:
     //! \brief used when the executable is launched in server mode
     bool mServerMode;
@@ -154,6 +159,9 @@ private:
 
     //! \brief used when the network port is forced
     int32_t mForcedNetworkPort;
+
+    //! \brief The log level
+    LogMessageLevel mLogLevel;
 
     //! \brief The application data path
     //! \example "/usr/share/game/opendungeons" on linux

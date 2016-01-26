@@ -54,6 +54,8 @@ void ODApplication::startGame(boost::program_options::variables_map& options)
     ResourceManager resMgr(options);
 
     LogManager logMgr;
+    logMgr.setLevel(resMgr.getLogLevel());
+
     logMgr.addSink(std::unique_ptr<LogSink>(new LogSinkConsole()));
     logMgr.addSink(std::unique_ptr<LogSink>(new LogSinkFile(resMgr.getLogFile())));
 
