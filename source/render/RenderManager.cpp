@@ -121,16 +121,17 @@ void RenderManager::initGameRenderer(GameMap* gameMap)
     //so that there will always be a dirt tile "visible"
     //This is an ugly workaround for issue where destroying some entities messes
     //up the lighing for some of the rtshader materials.
-    Ogre::SceneNode* dummyNode;
-    Ogre::Entity* dummyEnt;
-    dummyNode = mHandKeeperNode->createChildSceneNode("DummyNodeTile");
-    dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
     const std::string& defaultTileMesh = gameMap->getMeshForDefaultTile();
-    dummyEnt = mSceneManager->createEntity(dummyNode->getName() + "Ent", defaultTileMesh);
-    dummyEnt->setLightMask(0);
-    dummyEnt->setCastShadows(false);
-    dummyNode->attachObject(dummyEnt);
-    mDummyEntities.push_back(dummyNode);
+    if(!mSceneManager->hasEntity(defaultTileMesh + "_dummyEnt"))
+    {
+        Ogre::SceneNode* dummyNode = mHandKeeperNode->createChildSceneNode(defaultTileMesh + "_dummyNode");
+        dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
+        Ogre::Entity* dummyEnt = mSceneManager->createEntity(defaultTileMesh + "_dummyEnt", defaultTileMesh);
+        dummyEnt->setLightMask(0);
+        dummyEnt->setCastShadows(false);
+        dummyNode->attachObject(dummyEnt);
+        mDummyEntities.push_back(dummyNode);
+    }
 
     // We load every creature class and attach them to the keeper hand.
     // That's an ugly workaround to avoid a crash that occurs when CEGUI refreshes
@@ -141,9 +142,13 @@ void RenderManager::initGameRenderer(GameMap* gameMap)
     for(uint32_t i = 0; i < gameMap->numClassDescriptions(); ++i)
     {
         const CreatureDefinition* def = gameMap->getClassDescription(i);
-        dummyNode = mHandKeeperNode->createChildSceneNode("Dummy_" + def->getClassName());
+        // We check if the mesh is already loaded. If not, we load it
+        if(mSceneManager->hasEntity(def->getClassName() + "_dummyEnt"))
+            continue;
+
+        Ogre::SceneNode* dummyNode = mHandKeeperNode->createChildSceneNode(def->getClassName() + "_dummyNode");
         dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
-        dummyEnt = mSceneManager->createEntity(dummyNode->getName() + "Ent", def->getMeshName());
+        Ogre::Entity* dummyEnt = mSceneManager->createEntity(def->getClassName() + "_dummyEnt", def->getMeshName());
         dummyEnt->setLightMask(0);
         dummyEnt->setCastShadows(false);
         dummyNode->attachObject(dummyEnt);
@@ -153,18 +158,8 @@ void RenderManager::initGameRenderer(GameMap* gameMap)
 
 void RenderManager::stopGameRenderer(GameMap* gameMap)
 {
-    for(Ogre::SceneNode* dummyNode : mDummyEntities)
-    {
-        Ogre::Entity* dummyEnt = mSceneManager->getEntity(dummyNode->getName() + "Ent");
-        if(dummyEnt != nullptr)
-        {
-            dummyNode->detachObject(dummyEnt);
-            mSceneManager->destroyEntity(dummyEnt);
-        }
-        mHandKeeperNode->removeChild(dummyNode);
-        mSceneManager->destroySceneNode(dummyNode);
-    }
-    mDummyEntities.clear();
+    // We do not remove the entities from mDummyEntities as it is a workaround avoiding a crash and removing
+    // them can cause the crash to happen
 
     // Remove the light following the keeper hand
     if(mHandLight != nullptr)
