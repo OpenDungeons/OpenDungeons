@@ -62,14 +62,19 @@ public:
 
     void creatureDropped(Creature& creature) override;
 
+    void restoreInitialEntityState() override;
+
     static const RoomType mRoomType;
 
 protected:
     BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
     void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
+    void exportToStream(std::ostream& os) const override;
+    bool importFromStream(std::istream& is) override;
 
 private:
     std::map<Tile*,RoomTortureCreatureInfo> mCreaturesSpots;
+    std::vector<std::string> mPrisonersLoad;
 };
 
 #endif // ROOMTORTURE_H
