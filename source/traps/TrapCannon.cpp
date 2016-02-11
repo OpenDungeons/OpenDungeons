@@ -168,3 +168,18 @@ TrapEntity* TrapCannon::getTrapEntity(Tile* tile)
 {
     return new TrapEntity(getGameMap(), true, getName(), reg.getTrapFactory()->getMeshName(), tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }
+
+double TrapCannon::getPhysicalDefense() const
+{
+    return ConfigManager::getSingleton().getTrapConfigUInt32("CannonPhyDef");
+}
+
+double TrapCannon::getMagicalDefense() const
+{
+    return ConfigManager::getSingleton().getTrapConfigUInt32("CannonMagDef");
+}
+
+double TrapCannon::getElementDefense() const
+{
+    return ConfigManager::getSingleton().getTrapConfigUInt32("CannonEleDef");
+}

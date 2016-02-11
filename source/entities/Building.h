@@ -121,6 +121,13 @@ public:
     uint32_t numCoveredTiles() const override
     { return mCoveredTiles.size(); }
 
+    virtual double getPhysicalDefense() const
+    { return 0.0; }
+    virtual double getMagicalDefense() const
+    { return 0.0; }
+    virtual double getElementDefense() const
+    { return 0.0; }
+
     virtual void clearCoveredTiles();
     double getHP(Tile *tile) const;
     double takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,

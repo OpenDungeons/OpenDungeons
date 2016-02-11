@@ -28,19 +28,23 @@ class TrapCannon : public Trap
 public:
     TrapCannon(GameMap* gameMap);
 
-    virtual const TrapType getType() const
+    virtual const TrapType getType() const override
     { return TrapType::cannon; }
 
-    virtual bool shoot(Tile* tile);
+    virtual bool shoot(Tile* tile) override;
 
     virtual bool displayTileMesh() const override
     { return true; }
 
     //! \brief The cannon should show the ground tile under.
-    virtual bool shouldDisplayGroundTile() const
+    virtual bool shouldDisplayGroundTile() const override
     { return true; }
 
-    virtual TrapEntity* getTrapEntity(Tile* tile);
+    virtual double getPhysicalDefense() const override;
+    virtual double getMagicalDefense() const override;
+    virtual double getElementDefense() const override;
+
+    virtual TrapEntity* getTrapEntity(Tile* tile) override;
 
     static const TrapType mTrapType;
 

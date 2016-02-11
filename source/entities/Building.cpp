@@ -314,6 +314,16 @@ double Building::takeDamage(GameEntity* attacker, double absoluteDamage, double 
     }
 
     TileData* tileData = it->second;
+    double def;
+    def = getPhysicalDefense();
+    physicalDamage = (def > physicalDamage ? 0.0 : physicalDamage - def);
+
+    def = getMagicalDefense();
+    magicalDamage = (def > magicalDamage ? 0.0 : magicalDamage - def);
+
+    def = getElementDefense();
+    elementDamage = (def > elementDamage ? 0.0 : elementDamage - def);
+
     double damageDone = std::min(tileData->mHP, absoluteDamage + physicalDamage + magicalDamage + elementDamage);
     tileData->mHP -= damageDone;
 
