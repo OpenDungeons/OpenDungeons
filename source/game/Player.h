@@ -87,6 +87,18 @@ private:
     float mTimeRemain;
 };
 
+class PlayerSpellData
+{
+public:
+    PlayerSpellData(uint32_t cooldownNbTurnPending, float cooldownTimePendingTurn) :
+        mCooldownNbTurnPending(cooldownNbTurnPending),
+        mCooldownTimePendingTurn(cooldownTimePendingTurn)
+    {}
+
+    uint32_t mCooldownNbTurnPending;
+    float mCooldownTimePendingTurn;
+};
+
 /*! \brief The player class contains information about a human, or computer, player in the game.
  *
  * When a new player joins a game being hosted on a server the server will
@@ -207,6 +219,7 @@ public:
     //! \brief Gets the spell cooldown as a smooth value 0 being no cooldown and 1
     //! max cooldown for the given spell
     float getSpellCooldownSmooth(SpellType spellType) const;
+    float getSpellCooldownSmoothTime(SpellType spellType) const;
 
     void setSpellCooldownTurns(SpellType spellType, uint32_t cooldown);
 
@@ -278,7 +291,7 @@ private:
     //! the first value is the cooldown in turn. The second is the smooth time (set to
     //! 1 turn duration at each refresh)
     //! Note that the second value is used on client side only
-    std::vector<std::pair<uint32_t, float>> mSpellsCooldown;
+    std::vector<PlayerSpellData> mSpellsCooldown;
 
     //! \brief Used to know what the workers are doing. That will help to change
     //! probability to choose the action to do

@@ -119,12 +119,11 @@ void SpellManager::write(const Spell& spell, std::ostream& os)
 void SpellManager::checkSpellCast(GameMap* gameMap, SpellType type, const InputManager& inputManager, InputCommand& inputCommand)
 {
     Player* player = gameMap->getLocalPlayer();
-    uint32_t cooldown = player->getSpellCooldownTurns(type);
+    float cooldown = player->getSpellCooldownSmoothTime(type);
     if(cooldown > 0)
     {
-        double remainingTime = static_cast<double>(cooldown) / ODApplication::turnsPerSecond;
         std::string errorStr = getSpellNameFromSpellType(type)
-            + " (" + Helper::toString(remainingTime, 2)+ " s)";
+            + " (" + Helper::toString(cooldown, 2)+ " s)";
 
         inputCommand.displayText(Ogre::ColourValue::Red, errorStr);
         return;

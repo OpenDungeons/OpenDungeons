@@ -252,6 +252,71 @@ void RoomPrison::doUpkeep()
     }
 }
 
+void RoomPrison::exportToStream(std::ostream& os) const
+{
+    Room::exportToStream(os);
+
+    std::vector<Creature*> creatures;
+    for(Tile* tile : mCoveredTiles)
+    {
+        for(GameEntity* entity : tile->getEntitiesInTile())
+        {
+            if(entity->getObjectType() != GameEntityType::creature)
+                continue;
+
+            Creature* creature = static_cast<Creature*>(entity);
+            if(creature->getSeatPrison() != getSeat())
+                continue;
+
+            creatures.push_back(creature);
+        }
+    }
+
+    uint32_t nb = creatures.size();
+    os << nb;
+    for(Creature* creature : creatures)
+    {
+        os << "\t" << creature->getName();
+    }
+    os << "\n";
+}
+
+bool RoomPrison::importFromStream(std::istream& is)
+{
+    if(!Room::importFromStream(is))
+        return false;
+
+    uint32_t nb;
+    if(!(is >> nb))
+        return false;
+    while(nb > 0)
+    {
+        std::string creatureName;
+        if(!(is >> creatureName))
+            return false;
+
+        mPrisonersLoad.push_back(creatureName);
+        nb--;
+    }
+
+    return true;
+}
+
+void RoomPrison::restoreInitialEntityState()
+{
+    for(const std::string& creatureName : mPrisonersLoad)
+    {
+        Creature* creature = getGameMap()->getCreature(creatureName);
+        if(creature == nullptr)
+        {
+            OD_LOG_ERR("creatureName=" + creatureName);
+            continue;
+        }
+
+        creature->clearActionQueue();
+        creature->pushAction(Utils::make_unique<CreatureActionUseRoom>(*creature, *this, true));
+    }
+}
 
 bool RoomPrison::hasOpenCreatureSpot(Creature* creature)
 {

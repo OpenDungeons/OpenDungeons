@@ -52,12 +52,19 @@ public:
 
     void creatureDropped(Creature& creature) override;
 
+    void restoreInitialEntityState() override;
+
     static const RoomType mRoomType;
 
 protected:
     virtual BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
+    void exportToStream(std::ostream& os) const override;
+    bool importFromStream(std::istream& is) override;
+
 private:
     std::vector<Creature*> mPendingPrisoners;
+    //! \brief Used at map loading to save creatures in prison
+    std::vector<std::string> mPrisonersLoad;
 };
 
 #endif // ROOMPRISON_H
