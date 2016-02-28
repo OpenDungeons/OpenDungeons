@@ -402,6 +402,29 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
         }
     }
 
+    if(!mServerMode)
+    {
+        itOption = options.find("serversave");
+        if(itOption != options.end())
+        {
+            mServerMode = true;
+            std::string filePath = mSaveGamePath + itOption->second.as<std::string>();
+            boost::filesystem::path level(filePath);
+            if(!boost::filesystem::exists(level))
+            {
+                std::cerr << "Wanted level not found: " << filePath <<  std::endl;
+                exit(1);
+            }
+            mServerModeLevel = level.string();
+
+            auto it2 = options.find("mscreator");
+            if(it2 != options.end())
+            {
+                mServerModeCreator = it2->second.as<std::string>();
+            }
+        }
+    }
+
     itOption = options.find("port");
     if(itOption != options.end())
         mForcedNetworkPort = itOption->second.as<int32_t>();
@@ -550,8 +573,9 @@ void ResourceManager::buildCommandOptions(boost::program_options::options_descri
         ("log", boost::program_options::value<std::string>(), "log file to use")
         ("server", boost::program_options::value<std::string>(), "Launches the game on server mode and opens the given level from official levels path")
         ("servercustom", boost::program_options::value<std::string>(), "Launches the game on server mode and opens the given level from custom levels path")
+        ("serversave", boost::program_options::value<std::string>(), "Launches the game on server mode and opens the given saved game")
         ("appData", boost::program_options::value<std::string>(), "Sets appData to the given path (where logs, replays, ... are saved)")
-        ("mscreator", boost::program_options::value<std::string>(), "Sets the creator for this map to connect to the master server. The server or servercustom option needs to be on")
+        ("mscreator", boost::program_options::value<std::string>(), "Sets the creator for this map to connect to the master server. server/servercustom/serversave option needs to be on")
         ("port", boost::program_options::value<int32_t>(), "Sets the port used. Note that the port is used for both single and multi player")
         ("loglevel", boost::program_options::value<int32_t>(), "Sets the log level (between 0=Trivial and 3=Critical)")
     ;
