@@ -266,6 +266,7 @@ set(OD_SOURCEFILES
     ${SRC}/ai/AIManager.cpp
     ${SRC}/ai/BaseAI.cpp
     ${SRC}/ai/KeeperAI.cpp
+    ${SRC}/ai/KeeperAIType.cpp
 
     ${SRC}/camera/CameraManager.cpp
     ${SRC}/camera/HermiteCatmullSpline.cpp

@@ -24,6 +24,7 @@
 
 #include "gamemap/GameMap.h"
 
+#include "ai/KeeperAIType.h"
 #include "creatureaction/CreatureAction.h"
 #include "creaturemood/CreatureMood.h"
 #include "entities/Creature.h"
@@ -1643,15 +1644,16 @@ bool GameMap::addPlayer(Player* player)
     return true;
 }
 
-bool GameMap::assignAI(Player& player, const std::string& aiType, const std::string& parameters)
+bool GameMap::assignAI(Player& player, KeeperAIType aiType)
 {
-    if (mAiManager.assignAI(player, aiType, parameters))
+    std::string typeString = KeeperAITypes::toString(aiType);
+    if (mAiManager.assignAI(player, aiType))
     {
-        OD_LOG_INF("Assign AI: " + aiType + ", to player: " + player.getNick());
+        OD_LOG_INF("Assign AI: " + typeString + ", to player: " + player.getNick());
         return true;
     }
 
-    OD_LOG_INF("Couldn't assign AI: " + aiType + ", to player: " + player.getNick());
+    OD_LOG_INF("Couldn't assign AI: " + typeString + ", to player: " + player.getNick());
     return false;
 }
 

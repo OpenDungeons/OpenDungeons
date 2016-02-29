@@ -15,47 +15,23 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ai/AIManager.h"
+#ifndef KEEPERAITYPE_H
+#define KEEPERAITYPE_H
 
-#include "ai/KeeperAI.h"
-#include "game/Player.h"
+#include <string>
 
-#include "utils/LogManager.h"
-
-AIManager::AIManager(GameMap& gameMap)
-    : mGameMap(gameMap)
+enum class KeeperAIType
 {
+   easy,
+   normal,
+   nbAI              // Must be the last in this enum
+};
+
+namespace KeeperAITypes
+{
+    KeeperAIType fromString(const std::string& type);
+    std::string toString(KeeperAIType type);
 }
 
-AIManager::~AIManager()
-{
-    clearAIList();
-}
 
-bool AIManager::assignAI(Player& player, KeeperAIType type, const std::string& params)
-{
-    BaseAI* ai = BaseAI::getAi(mGameMap, player, type);
-    if(ai == nullptr)
-        return false;
-
-    mAiList.push_back(ai);
-    return true;
-}
-
-bool AIManager::doTurn(double timeSinceLastTurn)
-{
-    for(BaseAI* ai : mAiList)
-    {
-        ai->doTurn(timeSinceLastTurn);
-    }
-    return true;
-}
-
-void AIManager::clearAIList()
-{
-    for(BaseAI* ai : mAiList)
-    {
-        delete ai;
-    }
-    mAiList.clear();
-}
+#endif // KEEPERAITYPE_H

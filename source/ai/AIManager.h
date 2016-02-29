@@ -25,6 +25,8 @@ class BaseAI;
 class GameMap;
 class Player;
 
+enum class KeeperAIType;
+
 class AIManager
 {
 
@@ -34,7 +36,7 @@ public:
     AIManager(GameMap& gameMap);
     virtual ~AIManager();
 
-    bool assignAI(Player& player, const std::string& type, const std::string& params = std::string());
+    bool assignAI(Player& player, KeeperAIType type, const std::string& params = std::string());
     bool doTurn(double timeSinceLastTurn);
     void clearAIList();
 

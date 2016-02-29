@@ -15,47 +15,36 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ai/AIManager.h"
+#include "ai/KeeperAIType.h"
 
-#include "ai/KeeperAI.h"
-#include "game/Player.h"
-
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-AIManager::AIManager(GameMap& gameMap)
-    : mGameMap(gameMap)
+namespace KeeperAITypes
 {
-}
-
-AIManager::~AIManager()
+KeeperAIType fromString(const std::string& type)
 {
-    clearAIList();
-}
-
-bool AIManager::assignAI(Player& player, KeeperAIType type, const std::string& params)
-{
-    BaseAI* ai = BaseAI::getAi(mGameMap, player, type);
-    if(ai == nullptr)
-        return false;
-
-    mAiList.push_back(ai);
-    return true;
-}
-
-bool AIManager::doTurn(double timeSinceLastTurn)
-{
-    for(BaseAI* ai : mAiList)
+    for(uint32_t i = 0; i < static_cast<uint32_t>(KeeperAIType::nbAI); ++i)
     {
-        ai->doTurn(timeSinceLastTurn);
+        KeeperAIType t = static_cast<KeeperAIType>(i);
+        if(type.compare(toString(t)) == 0)
+            return t;
     }
-    return true;
+    OD_LOG_ERR("Asked wrong value for AI type=" + type);
+    return KeeperAIType::nbAI;
 }
 
-void AIManager::clearAIList()
+std::string toString(KeeperAIType type)
 {
-    for(BaseAI* ai : mAiList)
+    switch(type)
     {
-        delete ai;
+        case KeeperAIType::easy:
+            return "easy";
+        case KeeperAIType::normal:
+            return "normal";
+        default:
+            break;
     }
-    mAiList.clear();
+    return "Wrong value=" + Helper::toString(static_cast<uint32_t>(type));
 }
+} //namespace KeeperAITypes

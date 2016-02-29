@@ -17,6 +17,7 @@
 
 #include "network/ODServer.h"
 
+#include "ai/KeeperAIType.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/GameEntityType.h"
@@ -1034,7 +1035,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                         aiPlayer->setNick("Keeper AI " + Helper::toString(seatId));
                         gameMap->addPlayer(aiPlayer);
                         seat->setPlayer(aiPlayer);
-                        gameMap->assignAI(*aiPlayer, "KeeperAI");
+                        gameMap->assignAI(*aiPlayer, KeeperAIType::normal);
                         break;
                     }
                     default:

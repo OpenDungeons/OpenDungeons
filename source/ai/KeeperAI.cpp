@@ -48,8 +48,8 @@ static const std::vector<RoomType> wantedBuildings = {
 };
 
 
-KeeperAI::KeeperAI(GameMap& gameMap, Player& player, const std::string& parameters):
-    BaseAI(gameMap, player, parameters),
+KeeperAI::KeeperAI(GameMap& gameMap, Player& player):
+    BaseAI(gameMap, player),
     mCooldownCheckTreasury(0),
     mCooldownLookingForRooms(0),
     mRoomPosX(-1),

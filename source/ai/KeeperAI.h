@@ -26,7 +26,7 @@ class KeeperAI : public BaseAI
 {
 
 public:
-    KeeperAI(GameMap& gameMap, Player& player, const std::string& parameters = std::string());
+    KeeperAI(GameMap& gameMap, Player& player);
     virtual bool doTurn(double timeSinceLastTurn);
 
 protected:
