@@ -88,9 +88,6 @@ void DoorEntity::slap()
     if(!getIsOnServerMap())
         return;
 
-    // TODO : We notify the trap that it should change the floodfill for owning seat. It should be
-    // handled in the trap because we want to remind if a door is open/closed when saving a game. And
-    // saving it in the trap is the easiest
     Trap* trap = getGameMap()->getTrapByName(mBaseName);
     if(trap == nullptr)
     {
@@ -117,6 +114,9 @@ void DoorEntity::slap()
         return;
     }
 
+    // We notify the trap that it should change the floodfill for owning seat. It should be
+    // handled in the trap because we want to remind if a door is open/closed when saving a game. And
+    // saving it in the trap is the easiest
     TrapDoor* trapDoor = static_cast<TrapDoor*>(trap);
     trapDoor->notifyDoorSlapped(this, posTile);
 }
