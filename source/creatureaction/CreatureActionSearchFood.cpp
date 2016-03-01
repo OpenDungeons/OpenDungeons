@@ -128,7 +128,11 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
 
     if(hatcheriesTiles.empty())
     {
-        creature.getSeat()->getPlayer()->notifyCreatureCannotFindFood(creature);
+        if((creature.getSeat()->getPlayer() != nullptr) &&
+            (creature.getSeat()->getPlayer()->getIsHuman()))
+        {
+            creature.getSeat()->getPlayer()->notifyCreatureCannotFindFood(creature);
+        }
         creature.popAction();
         return true;
     }

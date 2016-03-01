@@ -21,10 +21,10 @@
 #include "utils/LogManager.h"
 
 ServerNotification::ServerNotification(ServerNotificationType type,
-    Player* concernedPlayer)
+    Player* concernedPlayer) :
+        mType(type),
+        mConcernedPlayer(concernedPlayer)
 {
-    mType = type;
-    mConcernedPlayer = concernedPlayer;
     mPacket << type;
 }
 
