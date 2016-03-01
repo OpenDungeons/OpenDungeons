@@ -31,6 +31,8 @@ std::string ClientNotification::typeString(ClientNotificationType type)
     {
         case ClientNotificationType::hello:
             return "hello";
+        case ClientNotificationType::levelOK:
+            return "levelOK";
         case ClientNotificationType::setNick:
             return "setNick";
         case ClientNotificationType::chat:
