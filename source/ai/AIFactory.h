@@ -15,24 +15,18 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KEEPERAITYPE_H
-#define KEEPERAITYPE_H
+#ifndef AIFACTORY_H
+#define AIFACTORY_H
 
-#include <string>
+class BaseAI;
+class GameMap;
+class Player;
 
-enum class KeeperAIType
+enum class KeeperAIType;
+
+namespace AIFactory
 {
-   easy,
-   normal,
-   nbAI              // Must be the last in this enum
-};
-
-namespace KeeperAITypes
-{
-    KeeperAIType fromString(const std::string& type);
-    const std::string& toString(KeeperAIType type);
-    const std::string& toDisplayableString(KeeperAIType type);
+    BaseAI* getAI(GameMap& gameMap, Player& player, KeeperAIType type);
 }
 
-
-#endif // KEEPERAITYPE_H
+#endif // AIFACTORY_H

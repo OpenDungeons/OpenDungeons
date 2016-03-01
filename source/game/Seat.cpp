@@ -17,6 +17,7 @@
 
 #include "game/Seat.h"
 
+#include "ai/KeeperAIType.h"
 #include "entities/Building.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/GameEntityType.h"
@@ -50,6 +51,8 @@ const std::string Seat::PLAYER_TYPE_AI = "AI";
 const std::string Seat::PLAYER_TYPE_INACTIVE = "Inactive";
 const std::string Seat::PLAYER_TYPE_CHOICE = "Choice";
 const std::string Seat::PLAYER_FACTION_CHOICE = "Choice";
+
+const int32_t Seat::PLAYER_TYPE_INACTIVE_ID = 0;
 
 TileStateNotified::TileStateNotified():
     mTileVisual(TileVisual::nullTileVisual),
@@ -1919,4 +1922,18 @@ void Seat::setPlayerSettings(bool koCreatures)
 
     serverNotification->mPacket << mKoCreatures;
     ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+KeeperAIType Seat::playerIdToAIType(int32_t playerId)
+{
+    int32_t value = playerId - Seat::PLAYER_TYPE_INACTIVE_ID - 1;
+    if(value >= static_cast<int32_t>(KeeperAIType::nbAI))
+        return KeeperAIType::nbAI;
+
+    return static_cast<KeeperAIType>(value);
+}
+
+int32_t Seat::aITypeToPlayerId(KeeperAIType type)
+{
+    return static_cast<int32_t>(type) + Seat::PLAYER_TYPE_INACTIVE_ID + 1;
 }

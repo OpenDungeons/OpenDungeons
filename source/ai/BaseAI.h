@@ -44,8 +44,6 @@ public:
      */
     virtual bool doTurn(double timeSinceLastTurn) = 0;
 
-    static BaseAI* getAi(GameMap& gameMap, Player& player, KeeperAIType type);
-
 protected:
     BaseAI(GameMap& gameMap, Player& player);
 

@@ -15,24 +15,26 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KEEPERAITYPE_H
-#define KEEPERAITYPE_H
+#include "ai/AIFactory.h"
 
-#include <string>
+#include "ai/KeeperAI.h"
+#include "ai/KeeperAIType.h"
+#include "utils/LogManager.h"
 
-enum class KeeperAIType
+namespace AIFactory
 {
-   easy,
-   normal,
-   nbAI              // Must be the last in this enum
-};
-
-namespace KeeperAITypes
+BaseAI* getAI(GameMap& gameMap, Player& player, KeeperAIType type)
 {
-    KeeperAIType fromString(const std::string& type);
-    const std::string& toString(KeeperAIType type);
-    const std::string& toDisplayableString(KeeperAIType type);
+    switch(type)
+    {
+        case KeeperAIType::easy:
+            return new KeeperAI(gameMap, player, 30, 50, 30, 50, 60, 80);
+        case KeeperAIType::normal:
+            return new KeeperAI(gameMap, player, 0, 5, 0, 5, 30, 50);
+        default:
+            break;
+    }
+    OD_LOG_ERR("Asked wrong AI type=" + KeeperAITypes::toString(type));
+    return nullptr;
 }
-
-
-#endif // KEEPERAITYPE_H
+} // namespace AIFactory

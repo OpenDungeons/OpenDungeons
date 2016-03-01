@@ -263,6 +263,7 @@ message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 set(OD_SOURCEFILES
 
     #OpenDungeons sources
+    ${SRC}/ai/AIFactory.cpp
     ${SRC}/ai/AIManager.cpp
     ${SRC}/ai/BaseAI.cpp
     ${SRC}/ai/KeeperAI.cpp

@@ -473,18 +473,3 @@ bool BaseAI::digWayToTile(Tile* tileStart, Tile* tileEnd)
 
     return true;
 }
-
-BaseAI* BaseAI::getAi(GameMap& gameMap, Player& player, KeeperAIType type)
-{
-    switch(type)
-    {
-        case KeeperAIType::easy:
-            return new KeeperAI(gameMap, player);
-        case KeeperAIType::normal:
-            return new KeeperAI(gameMap, player);
-        default:
-            break;
-    }
-    OD_LOG_ERR("Asked wrong AI type=" + Helper::toString(static_cast<uint32_t>(type)));
-    return nullptr;
-}

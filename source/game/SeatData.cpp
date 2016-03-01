@@ -48,10 +48,14 @@ SeatData::SeatData() :
 
 void SeatData::setTeamId(int teamId)
 {
-    OD_ASSERT_TRUE_MSG(std::find(mAvailableTeamIds.begin(), mAvailableTeamIds.end(),
-        teamId) != mAvailableTeamIds.end(), "Unknown team id=" + Helper::toString(teamId)
-        + ", for seat id=" + Helper::toString(getId()));
-    OD_ASSERT_TRUE_MSG(teamId != 0 || mId == 0, "Invalid rogue team id for seat id=" + Helper::toString(getId()));
+    if(std::find(mAvailableTeamIds.begin(), mAvailableTeamIds.end(), teamId) == mAvailableTeamIds.end())
+    {
+        OD_LOG_ERR("Unknown team id=" + Helper::toString(teamId) + ", for seat id=" + Helper::toString(getId()));
+    }
+    if((teamId == 0) && (mId != 0))
+    {
+        OD_LOG_ERR("Invalid rogue team id for seat id=" + Helper::toString(getId()));
+    }
     mTeamId = teamId;
 }
 

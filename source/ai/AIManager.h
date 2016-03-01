@@ -36,7 +36,7 @@ public:
     AIManager(GameMap& gameMap);
     virtual ~AIManager();
 
-    bool assignAI(Player& player, KeeperAIType type, const std::string& params = std::string());
+    bool assignAI(Player& player, KeeperAIType type);
     bool doTurn(double timeSinceLastTurn);
     void clearAIList();
 

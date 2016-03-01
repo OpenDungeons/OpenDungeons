@@ -34,17 +34,47 @@ KeeperAIType fromString(const std::string& type)
     return KeeperAIType::nbAI;
 }
 
-std::string toString(KeeperAIType type)
+const std::string& toString(KeeperAIType type)
 {
     switch(type)
     {
         case KeeperAIType::easy:
-            return "easy";
+        {
+            static const std::string str = "easy";
+            return str;
+        }
         case KeeperAIType::normal:
-            return "normal";
+        {
+            static const std::string str = "normal";
+            return str;
+        }
         default:
             break;
     }
-    return "Wrong value=" + Helper::toString(static_cast<uint32_t>(type));
+    OD_LOG_ERR("Wrong enum value=" + Helper::toString(static_cast<uint32_t>(type)));
+    static const std::string str = "Wrong value";
+    return str;
+}
+
+const std::string& toDisplayableString(KeeperAIType type)
+{
+    switch(type)
+    {
+        case KeeperAIType::easy:
+        {
+            static const std::string str = "AI Easy";
+            return str;
+        }
+        case KeeperAIType::normal:
+        {
+            static const std::string str = "AI Normal";
+            return str;
+        }
+        default:
+            break;
+    }
+    OD_LOG_ERR("Wrong enum value=" + KeeperAITypes::toString(type));
+    static const std::string str = "AI Wrong value";
+    return str;
 }
 } //namespace KeeperAITypes

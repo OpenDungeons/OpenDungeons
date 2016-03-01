@@ -26,7 +26,9 @@ class KeeperAI : public BaseAI
 {
 
 public:
-    KeeperAI(GameMap& gameMap, Player& player);
+    KeeperAI(GameMap& gameMap, Player& player, int cooldownDefenseMin, int cooldownDefenseMax,
+             int cooldownSaveWoundedCreaturesMin, int cooldownSaveWoundedCreaturesMax,
+             int cooldownLookingForRoomsMin, int cooldownLookingForRoomsMax);
     virtual bool doTurn(double timeSinceLastTurn);
 
 protected:
@@ -84,14 +86,21 @@ private:
 
     int mCooldownCheckTreasury;
     int mCooldownLookingForRooms;
+    int mCooldownLookingForRoomsMin;
+    int mCooldownLookingForRoomsMax;
     int mRoomPosX;
     int mRoomPosY;
     int mRoomSize;
     bool mNoMoreReachableGold;
     int mCooldownLookingForGold;
     int mCooldownDefense;
+    int mCooldownDefenseMin;
+    int mCooldownDefenseMax;
     int mCooldownWorkers;
     int mCooldownRepairRooms;
+    int mCooldownSaveWoundedCreatures;
+    int mCooldownSaveWoundedCreaturesMin;
+    int mCooldownSaveWoundedCreaturesMax;
     bool mIsFirstUpkeepDone;
 };
 

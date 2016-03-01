@@ -48,18 +48,27 @@ static const std::vector<RoomType> wantedBuildings = {
 };
 
 
-KeeperAI::KeeperAI(GameMap& gameMap, Player& player):
+KeeperAI::KeeperAI(GameMap& gameMap, Player& player, int cooldownDefenseMin, int cooldownDefenseMax,
+             int cooldownSaveWoundedCreaturesMin, int cooldownSaveWoundedCreaturesMax,
+             int cooldownLookingForRoomsMin, int cooldownLookingForRoomsMax):
     BaseAI(gameMap, player),
     mCooldownCheckTreasury(0),
     mCooldownLookingForRooms(0),
+    mCooldownLookingForRoomsMin(cooldownLookingForRoomsMin),
+    mCooldownLookingForRoomsMax(cooldownLookingForRoomsMax),
     mRoomPosX(-1),
     mRoomPosY(-1),
     mRoomSize(-1),
     mNoMoreReachableGold(false),
     mCooldownLookingForGold(0),
     mCooldownDefense(0),
+    mCooldownDefenseMin(cooldownDefenseMin),
+    mCooldownDefenseMax(cooldownDefenseMax),
     mCooldownWorkers(0),
     mCooldownRepairRooms(0),
+    mCooldownSaveWoundedCreatures(0),
+    mCooldownSaveWoundedCreaturesMin(cooldownSaveWoundedCreaturesMin),
+    mCooldownSaveWoundedCreaturesMax(cooldownSaveWoundedCreaturesMax),
     mIsFirstUpkeepDone(false)
 {
 }
@@ -280,7 +289,7 @@ bool KeeperAI::handleRooms()
         return false;
     }
 
-    mCooldownLookingForRooms = Random::Int(30,60);
+    mCooldownLookingForRooms = Random::Int(mCooldownLookingForRoomsMin, mCooldownLookingForRoomsMax);
 
     // We check if the last built room is done
     if(mRoomSize != -1)
@@ -593,6 +602,13 @@ bool KeeperAI::checkNeedRoom(RoomType roomType)
 
 void KeeperAI::saveWoundedCreatures()
 {
+    if(mCooldownSaveWoundedCreatures > 0)
+    {
+        --mCooldownSaveWoundedCreatures;
+        return;
+    }
+    mCooldownSaveWoundedCreatures = Random::Int(mCooldownSaveWoundedCreaturesMin, mCooldownSaveWoundedCreaturesMax);
+
     Tile* dungeonTempleTile = getDungeonTemple()->getCentralTile();
     if(dungeonTempleTile == nullptr)
     {
@@ -634,6 +650,7 @@ void KeeperAI::handleDefense()
         --mCooldownDefense;
         return;
     }
+    mCooldownDefense = Random::Int(mCooldownDefenseMin, mCooldownDefenseMax);
 
     Seat* seat = mPlayer.getSeat();
     // We drop creatures nearby owned or allied attacked creatures
@@ -675,7 +692,6 @@ void KeeperAI::handleDefense()
             {
                 mPlayer.pickUpEntity(creatureToDrop);
                 mPlayer.dropHand(neigh);
-                mCooldownDefense = Random::Int(0,5);
                 return;
             }
         }

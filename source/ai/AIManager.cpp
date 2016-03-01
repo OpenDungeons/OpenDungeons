@@ -17,10 +17,8 @@
 
 #include "ai/AIManager.h"
 
-#include "ai/KeeperAI.h"
-#include "game/Player.h"
-
-#include "utils/LogManager.h"
+#include "ai/AIFactory.h"
+#include "ai/BaseAI.h"
 
 AIManager::AIManager(GameMap& gameMap)
     : mGameMap(gameMap)
@@ -32,9 +30,9 @@ AIManager::~AIManager()
     clearAIList();
 }
 
-bool AIManager::assignAI(Player& player, KeeperAIType type, const std::string& params)
+bool AIManager::assignAI(Player& player, KeeperAIType type)
 {
-    BaseAI* ai = BaseAI::getAi(mGameMap, player, type);
+    BaseAI* ai = AIFactory::getAI(mGameMap, player, type);
     if(ai == nullptr)
         return false;
 
