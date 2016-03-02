@@ -527,9 +527,12 @@ void Creature::updateScale()
 
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
-    //TODO - Handle load errors
     Creature* creature = new Creature(gameMap, true);
-    creature->importFromStream(is);
+    if(!creature->importFromStream(is))
+    {
+        delete creature;
+        return nullptr;
+    }
     return creature;
 }
 
