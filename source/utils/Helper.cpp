@@ -188,7 +188,6 @@ namespace Helper
         return true;
     }
 
-    // TODO: use this everywhere we can
     bool readNextLineNotEmpty(std::istream& is, std::string& line)
     {
         while (is.good())
