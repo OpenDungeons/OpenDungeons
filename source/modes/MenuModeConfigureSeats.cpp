@@ -17,8 +17,8 @@
 
 #include "gamemap/GameMap.h"
 
+#include "ai/KeeperAIType.h"
 #include "game/Seat.h"
-
 #include "modes/MenuModeConfigureSeats.h"
 #include "modes/ModeManager.h"
 #include "network/ChatEventMessage.h"
@@ -27,7 +27,6 @@
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
 #include "sound/MusicPlayer.h"
-
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 #include "utils/Helper.h"
@@ -201,7 +200,7 @@ void MenuModeConfigureSeats::activate()
         combo->setSortingEnabled(true);
         if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) == 0)
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(seat->getPlayerType(), 0);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(Seat::PLAYER_TYPE_INACTIVE, Seat::PLAYER_TYPE_INACTIVE_ID);
             item->setSelectionBrushImage(selImg);
             combo->addItem(item);
             combo->setText(item->getText());
@@ -209,17 +208,25 @@ void MenuModeConfigureSeats::activate()
         }
         else if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_AI) == 0)
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(seat->getPlayerType(), 1);
-            item->setSelectionBrushImage(selImg);
-            combo->addItem(item);
-            combo->setText(item->getText());
-            combo->setEnabled(false);
+            for(uint32_t i = 0; i < static_cast<uint32_t>(KeeperAIType::nbAI); ++i)
+            {
+                KeeperAIType type = static_cast<KeeperAIType>(i);
+                int32_t id = Seat::aITypeToPlayerId(type);
+                CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(KeeperAITypes::toDisplayableString(type), id);
+                item->setSelectionBrushImage(selImg);
+                combo->addItem(item);
+            }
         }
         else if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_CHOICE) == 0)
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(Seat::PLAYER_TYPE_AI, 1);
-            item->setSelectionBrushImage(selImg);
-            combo->addItem(item);
+            for(uint32_t i = 0; i < static_cast<uint32_t>(KeeperAIType::nbAI); ++i)
+            {
+                KeeperAIType type = static_cast<KeeperAIType>(i);
+                int32_t id = Seat::aITypeToPlayerId(type);
+                CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(KeeperAITypes::toDisplayableString(type), id);
+                item->setSelectionBrushImage(selImg);
+                combo->addItem(item);
+            }
         }
         combo->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, CEGUI::SubscriberSlot(&MenuModeConfigureSeats::comboChanged, this));
 
@@ -311,12 +318,8 @@ bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
         for(int seatId : mSeatIds)
         {
             Seat* seat = gameMap->getSeatById(seatId);
-            // We only add players to combos where a human player can play
-            if((seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) == 0) ||
-               (seat->getPlayerType().compare(Seat::PLAYER_TYPE_AI) == 0))
-            {
+            if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) == 0)
                 continue;
-            }
 
             std::string name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
             CEGUI::Combobox* combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
@@ -476,11 +479,8 @@ void MenuModeConfigureSeats::activatePlayerConfig()
         combo = static_cast<CEGUI::Combobox*>(listPlayersWindow->getChild(name));
         if(enabled)
         {
-            if((seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) != 0) &&
-               (seat->getPlayerType().compare(Seat::PLAYER_TYPE_AI) != 0))
-            {
+            if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) != 0)
                 combo->setEnabled(enabled);
-            }
         }
         else
             combo->setEnabled(enabled);

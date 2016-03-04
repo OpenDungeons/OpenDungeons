@@ -49,10 +49,8 @@ namespace MasterServer
         std::string line;
         while(!ss.eof())
         {
-            std::getline(ss, line);
-            Helper::trim(line);
-            if(line.empty())
-                continue;
+            if(!Helper::readNextLineNotEmpty(ss, line))
+                break;
 
             std::vector<std::string> elems = Helper::split(line, ';');
             if(elems.size() != 7)

@@ -31,6 +31,8 @@ std::string ClientNotification::typeString(ClientNotificationType type)
     {
         case ClientNotificationType::hello:
             return "hello";
+        case ClientNotificationType::levelOK:
+            return "levelOK";
         case ClientNotificationType::setNick:
             return "setNick";
         case ClientNotificationType::chat:
@@ -67,6 +69,8 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "askPickupWorker";
         case ClientNotificationType::askPickupFighter:
             return "askPickupFighter";
+        case ClientNotificationType::askSlapEntity:
+            return "askSlapEntity";
         case ClientNotificationType::askCastSpell:
             return "askCastSpell";
         case ClientNotificationType::askSetSkillTree:

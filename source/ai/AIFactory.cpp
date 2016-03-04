@@ -15,45 +15,26 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ai/AIManager.h"
-
 #include "ai/AIFactory.h"
-#include "ai/BaseAI.h"
 
-AIManager::AIManager(GameMap& gameMap)
-    : mGameMap(gameMap)
+#include "ai/KeeperAI.h"
+#include "ai/KeeperAIType.h"
+#include "utils/LogManager.h"
+
+namespace AIFactory
 {
-}
-
-AIManager::~AIManager()
+BaseAI* createAI(GameMap& gameMap, Player& player, KeeperAIType type)
 {
-    clearAIList();
-}
-
-bool AIManager::assignAI(Player& player, KeeperAIType type)
-{
-    BaseAI* ai = AIFactory::createAI(mGameMap, player, type);
-    if(ai == nullptr)
-        return false;
-
-    mAiList.push_back(ai);
-    return true;
-}
-
-bool AIManager::doTurn(double timeSinceLastTurn)
-{
-    for(BaseAI* ai : mAiList)
+    switch(type)
     {
-        ai->doTurn(timeSinceLastTurn);
+        case KeeperAIType::easy:
+            return new KeeperAI(gameMap, player, 30, 50, 30, 50, 60, 80);
+        case KeeperAIType::normal:
+            return new KeeperAI(gameMap, player, 0, 5, 0, 5, 30, 50);
+        default:
+            break;
     }
-    return true;
+    OD_LOG_ERR("Asked wrong AI type=" + KeeperAITypes::toString(type));
+    return nullptr;
 }
-
-void AIManager::clearAIList()
-{
-    for(BaseAI* ai : mAiList)
-    {
-        delete ai;
-    }
-    mAiList.clear();
-}
+} // namespace AIFactory

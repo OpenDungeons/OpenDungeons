@@ -15,45 +15,18 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ai/AIManager.h"
+#ifndef AIFACTORY_H
+#define AIFACTORY_H
 
-#include "ai/AIFactory.h"
-#include "ai/BaseAI.h"
+class BaseAI;
+class GameMap;
+class Player;
 
-AIManager::AIManager(GameMap& gameMap)
-    : mGameMap(gameMap)
+enum class KeeperAIType;
+
+namespace AIFactory
 {
+    BaseAI* createAI(GameMap& gameMap, Player& player, KeeperAIType type);
 }
 
-AIManager::~AIManager()
-{
-    clearAIList();
-}
-
-bool AIManager::assignAI(Player& player, KeeperAIType type)
-{
-    BaseAI* ai = AIFactory::createAI(mGameMap, player, type);
-    if(ai == nullptr)
-        return false;
-
-    mAiList.push_back(ai);
-    return true;
-}
-
-bool AIManager::doTurn(double timeSinceLastTurn)
-{
-    for(BaseAI* ai : mAiList)
-    {
-        ai->doTurn(timeSinceLastTurn);
-    }
-    return true;
-}
-
-void AIManager::clearAIList()
-{
-    for(BaseAI* ai : mAiList)
-    {
-        delete ai;
-    }
-    mAiList.clear();
-}
+#endif // AIFACTORY_H

@@ -163,6 +163,12 @@ Command::Result cSrvAddCreature(const Command::ArgumentList_t& args, ConsoleInte
     std::string str = boost::algorithm::join(tmp, "\t");
     std::stringstream ss(str);
     Creature* creature = Creature::getCreatureFromStream(&gameMap, ss);
+    if(creature == nullptr)
+    {
+        OD_LOG_INF("Cannot creature proper creature from string=" + str);
+        return Command::Result::FAILED;
+    }
+
     creature->addToGameMap();
     //Set up definition for creature. This was previously done in createMesh for some reason.
     creature->setupDefinition(gameMap, *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());

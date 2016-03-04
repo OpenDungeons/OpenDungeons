@@ -56,6 +56,7 @@ class TileSetValue;
 
 enum class GameEntityType;
 enum class FloodFillType;
+enum class KeeperAIType;
 enum class RoomType;
 enum class SpellType;
 enum class TrapType;
@@ -261,7 +262,7 @@ public:
     bool addPlayer(Player *player);
 
     //! \brief Assigns an ai to the chosen player
-    bool assignAI(Player& player, const std::string& aiType, const std::string& parameters = std::string());
+    bool assignAI(Player& player, KeeperAIType aiType);
 
     //! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
     Player* getPlayer(const std::string& cName) const;

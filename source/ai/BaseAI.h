@@ -28,10 +28,11 @@ class Room;
 class Tile;
 class Seat;
 
+enum class KeeperAIType;
+
 class BaseAI
 {
 public:
-    BaseAI(GameMap& gameMap, Player& player, const std::string& parameters = std::string());
     virtual ~BaseAI()
     {}
 
@@ -44,7 +45,8 @@ public:
     virtual bool doTurn(double timeSinceLastTurn) = 0;
 
 protected:
-    virtual bool initialize(const std::string& parameters);
+    BaseAI(GameMap& gameMap, Player& player);
+
     Room* getDungeonTemple();
 
     //! \brief Searches for the best place where to place a room around the given tile. It will take

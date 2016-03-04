@@ -17,6 +17,7 @@
 
 #include "network/ODServer.h"
 
+#include "ai/KeeperAIType.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/GameEntityType.h"
@@ -63,6 +64,8 @@ static const double MASTER_SERVER_UPDATE_PERIOD_MS = 30000.0;
 static const int32_t MASTER_SERVER_STATUS_PENDING = 0;
 static const int32_t MASTER_SERVER_STATUS_STARTED = 1;
 static const int32_t MASTER_SERVER_STATUS_FINISHED = 2;
+
+static const int32_t PLAYER_ID_HUMAN_MIN = static_cast<int32_t>(KeeperAIType::nbAI) + Seat::PLAYER_TYPE_INACTIVE_ID + 1;
 
 template<> ODServer* Ogre::Singleton<ODServer>::msSingleton = nullptr;
 
@@ -161,9 +164,9 @@ bool ODServer::startServer(const std::string& creator, const std::string& levelF
 
         // Player type
         if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) == 0)
-            seat->setConfigPlayerId(0);
+            seat->setConfigPlayerId(Seat::PLAYER_TYPE_INACTIVE_ID);
         else if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_AI) == 0)
-            seat->setConfigPlayerId(1);
+            seat->setConfigPlayerId(Seat::aITypeToPlayerId(KeeperAIType::normal));
         else if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_HUMAN) == 0)
             ++nbSeatsHuman;
 
@@ -212,10 +215,11 @@ bool ODServer::startServer(const std::string& creator, const std::string& levelF
         // Player type to AI
         if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_CHOICE) == 0)
         {
+            // We set default AI value
             if(nbSeatsHuman == 0)
                 ++nbSeatsHuman;
             else
-                seat->setConfigPlayerId(1);
+                seat->setConfigPlayerId(Seat::aITypeToPlayerId(KeeperAIType::normal));
         }
 
         // Player team to first one available
@@ -625,7 +629,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     mPlayerConfig = nullptr;
             }
 
-            if(seat->getConfigPlayerId() < 10)
+            if(seat->getConfigPlayerId() < PLAYER_ID_HUMAN_MIN)
                 continue;
 
             otherHumanConnected = getClientFromPlayerId(seat->getConfigPlayerId());
@@ -783,7 +787,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> clientNick);
 
             // NOTE : playerId 0 is reserved for inactive players and 1 is reserved for AI
-            int32_t playerId = mUniqueNumberPlayer + 10;
+            int32_t playerId = mUniqueNumberPlayer + PLAYER_ID_HUMAN_MIN;
             mUniqueNumberPlayer++;
             Player* curPlayer = new Player(gameMap, playerId);
             curPlayer->setNick(clientNick);
@@ -1014,43 +1018,47 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 seat->setFaction(factions[seat->getConfigFactionIndex()]);
 
                 int seatId = seat->getId();
-                switch(seat->getConfigPlayerId())
+                int32_t playerId = seat->getConfigPlayerId();
+                if(playerId == Seat::PLAYER_TYPE_INACTIVE_ID)
                 {
-                    case 0:
+                    // It is an inactive player
+                    Player* inactivePlayer = new Player(gameMap, 0);
+                    inactivePlayer->setNick("Inactive AI " + Helper::toString(seatId));
+                    gameMap->addPlayer(inactivePlayer);
+                    seat->setPlayer(inactivePlayer);
+                }
+                else if(playerId < PLAYER_ID_HUMAN_MIN)
+                {
+                    // It is an AI
+                    KeeperAIType aiType = Seat::playerIdToAIType(playerId);
+                    if(aiType >= KeeperAIType::nbAI)
                     {
-                        // It is an inactive player
-                        Player* inactivePlayer = new Player(gameMap, 0);
-                        inactivePlayer->setNick("Inactive AI " + Helper::toString(seatId));
-                        gameMap->addPlayer(inactivePlayer);
-                        seat->setPlayer(inactivePlayer);
-                        break;
+                        OD_LOG_ERR("Wrong value for keeper seatId=" + Helper::toString(seat->getId())
+                            + ", ConfigPlayerId=" + Helper::toString(playerId));
+
+                        // Default to normal
+                        aiType = KeeperAIType::normal;
                     }
-                    case 1:
+                    // We set player id = 0 for AI players. ID is only used during seat configuration phase
+                    // During the game, one should use the seat ID to identify a player
+                    Player* aiPlayer = new Player(gameMap, 0);
+                    aiPlayer->setNick("Keeper AI " + KeeperAITypes::toString(aiType) + " " + Helper::toString(seatId));
+                    gameMap->addPlayer(aiPlayer);
+                    seat->setPlayer(aiPlayer);
+                    gameMap->assignAI(*aiPlayer, aiType);
+                }
+                else
+                {
+                    // Human player
+                    for (ODSocketClient* client : mSockClients)
                     {
-                        // It is an AI
-                        // We set player id = 0 for AI players. ID is only used during seat configuration phase
-                        // During the game, one should use the seat ID to identify a player
-                        Player* aiPlayer = new Player(gameMap, 0);
-                        aiPlayer->setNick("Keeper AI " + Helper::toString(seatId));
-                        gameMap->addPlayer(aiPlayer);
-                        seat->setPlayer(aiPlayer);
-                        gameMap->assignAI(*aiPlayer, "KeeperAI");
-                        break;
-                    }
-                    default:
-                    {
-                        // Human player
-                        for (ODSocketClient* client : mSockClients)
+                        if((client->getState().compare("ready") == 0) &&
+                           (client->getPlayer()->getId() == seat->getConfigPlayerId()))
                         {
-                            if((client->getState().compare("ready") == 0) &&
-                               (client->getPlayer()->getId() == seat->getConfigPlayerId()))
-                            {
-                                seat->setPlayer(client->getPlayer());
-                                gameMap->addPlayer(client->getPlayer());
-                                break;
-                            }
+                            seat->setPlayer(client->getPlayer());
+                            gameMap->addPlayer(client->getPlayer());
+                            break;
                         }
-                        break;
                     }
                 }
                 seat->setTeamId(seat->getConfigTeamId());

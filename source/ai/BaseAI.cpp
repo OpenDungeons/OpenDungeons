@@ -17,6 +17,8 @@
 
 #include "ai/BaseAI.h"
 
+#include "ai/KeeperAI.h"
+#include "ai/KeeperAIType.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 
@@ -28,20 +30,16 @@
 
 #include "rooms/Room.h"
 #include "rooms/RoomType.h"
+#include "utils/Helper.h"
+#include "utils/LogManager.h"
 
 const int32_t pointsPerWallSpot = 50;
 const int32_t handicapPerTileOffset = 20;
 
-BaseAI::BaseAI(GameMap& gameMap, Player& player, const std::string& parameters):
+BaseAI::BaseAI(GameMap& gameMap, Player& player):
     mGameMap(gameMap),
     mPlayer(player)
 {
-    initialize(parameters);
-}
-
-bool BaseAI::initialize(const std::string& parameters)
-{
-    return true;
 }
 
 Room* BaseAI::getDungeonTemple()
@@ -475,4 +473,3 @@ bool BaseAI::digWayToTile(Tile* tileStart, Tile* tileEnd)
 
     return true;
 }
-

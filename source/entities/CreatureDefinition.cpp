@@ -1093,13 +1093,8 @@ void CreatureDefinition::loadCreatureSkills(std::stringstream& defFile, Creature
     std::getline(defFile, nextParam);
     while (defFile.good())
     {
-        std::getline(defFile, nextParam);
-        if(!defFile.good())
+        if(!Helper::readNextLineNotEmpty(defFile, nextParam))
             break;
-
-        Helper::trim(nextParam);
-        if(nextParam.empty())
-            continue;
 
         if (nextParam == "[/CreatureSkills]"||
             nextParam == "[/Creature]" || nextParam == "[/Creatures]")
@@ -1138,13 +1133,8 @@ void CreatureDefinition::loadCreatureBehaviours(std::stringstream& defFile, Crea
     std::getline(defFile, nextParam);
     while (defFile.good())
     {
-        std::getline(defFile, nextParam);
-        if(!defFile.good())
+        if(!Helper::readNextLineNotEmpty(defFile, nextParam))
             break;
-
-        Helper::trim(nextParam);
-        if(nextParam.empty())
-            continue;
 
         if (nextParam == "[/CreatureBehaviours]" ||
             nextParam == "[/Creature]" || nextParam == "[/Creatures]")
@@ -1183,13 +1173,8 @@ void CreatureDefinition::loadCreatureMoods(std::stringstream& defFile, CreatureD
     std::getline(defFile, nextParam);
     while (defFile.good())
     {
-        std::getline(defFile, nextParam);
-        if(!defFile.good())
+        if(!Helper::readNextLineNotEmpty(defFile, nextParam))
             break;
-
-        Helper::trim(nextParam);
-        if(nextParam.empty())
-            continue;
 
         if (nextParam == "[/MoodModifiers]" ||
             nextParam == "[/Creature]" || nextParam == "[/Creatures]")

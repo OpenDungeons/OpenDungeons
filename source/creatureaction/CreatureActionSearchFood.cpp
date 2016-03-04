@@ -98,7 +98,11 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
     std::vector<Room*> hatcheries = creature.getGameMap()->getRoomsByTypeAndSeat(RoomType::hatchery, creature.getSeat());
     if (hatcheries.empty())
     {
-        creature.getSeat()->getPlayer()->notifyCreatureCannotFindFood(creature);
+        if((creature.getSeat()->getPlayer() != nullptr) &&
+            (creature.getSeat()->getPlayer()->getIsHuman()))
+        {
+            creature.getSeat()->getPlayer()->notifyCreatureCannotFindFood(creature);
+        }
         creature.popAction();
         return true;
     }
@@ -128,7 +132,11 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
 
     if(hatcheriesTiles.empty())
     {
-        creature.getSeat()->getPlayer()->notifyCreatureCannotFindFood(creature);
+        if((creature.getSeat()->getPlayer() != nullptr) &&
+            (creature.getSeat()->getPlayer()->getIsHuman()))
+        {
+            creature.getSeat()->getPlayer()->notifyCreatureCannotFindFood(creature);
+        }
         creature.popAction();
         return true;
     }

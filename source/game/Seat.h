@@ -38,9 +38,10 @@ class Skill;
 class Seat;
 class Tile;
 
+enum class KeeperAIType;
+enum class RoomType;
 enum class SkillType;
 enum class SpellType;
-enum class RoomType;
 enum class TileVisual;
 enum class TrapType;
 
@@ -311,7 +312,13 @@ public:
     static const std::string PLAYER_TYPE_INACTIVE;
     static const std::string PLAYER_TYPE_CHOICE;
 
+    static const int32_t PLAYER_TYPE_INACTIVE_ID;
+
     static const std::string PLAYER_FACTION_CHOICE;
+
+    //! \brief Converts PlayerID used in the GUI into keeper AI enum
+    static KeeperAIType playerIdToAIType(int32_t playerId);
+    static int32_t aITypeToPlayerId(KeeperAIType type);
 
 private:
     //! \brief The game map this seat belongs to
