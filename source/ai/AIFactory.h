@@ -26,7 +26,7 @@ enum class KeeperAIType;
 
 namespace AIFactory
 {
-    BaseAI* getAI(GameMap& gameMap, Player& player, KeeperAIType type);
+    BaseAI* createAI(GameMap& gameMap, Player& player, KeeperAIType type);
 }
 
 #endif // AIFACTORY_H

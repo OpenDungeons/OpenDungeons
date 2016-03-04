@@ -23,7 +23,7 @@
 
 namespace AIFactory
 {
-BaseAI* getAI(GameMap& gameMap, Player& player, KeeperAIType type)
+BaseAI* createAI(GameMap& gameMap, Player& player, KeeperAIType type)
 {
     switch(type)
     {

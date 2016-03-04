@@ -32,7 +32,7 @@ AIManager::~AIManager()
 
 bool AIManager::assignAI(Player& player, KeeperAIType type)
 {
-    BaseAI* ai = AIFactory::getAI(mGameMap, player, type);
+    BaseAI* ai = AIFactory::createAI(mGameMap, player, type);
     if(ai == nullptr)
         return false;
 
