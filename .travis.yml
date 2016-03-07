@@ -27,6 +27,8 @@ before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update -qq
   - sudo apt-get install -qq libois-dev libfreetype6-dev libopenal-dev libexpat1-dev libsilly-dev
+# Boost
+  - sudo apt-get install -qq libboost-filesystem-dev libboost-locale-dev libboost-program-options-dev libboost-date-time-dev libboost-thread-dev libboost-system-dev libboost-test-dev
   - sudo apt-get install -qq g++-4.8 gcc-4.8
   - sudo apt-get install -qq libogre-1.9-dev
   - sudo apt-get install --only-upgrade cmake
@@ -34,18 +36,10 @@ before_install:
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90
   - sudo apt-get install libstdc++-4.8-dev
   - gcc --version
-# Boost needs to be compiled
-  - wget http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.bz2/download -O /tmp/boost-trunk.tar.bz2
 # CEGUI is not packaged. We need to compile it ourself. Note that we could also compile it and download binaries if need be
   - wget http://sourceforge.net/projects/crayzedsgui/files/cegui-0.8.4.tar.bz2/download -O /tmp/cegui.tar.bz2
 # We download SFML binaries
   - wget http://mirror2.sfml-dev.org/files/SFML-2.3.1-linux-gcc-64-bit.tar.gz -O /tmp/sfml.tar.gz
-  - cd /tmp
-  - export BOOST_ROOT="/tmp/boost-trunk"
-  - mkdir -p $BOOST_ROOT
-  - tar jxf boost-trunk.tar.bz2 --strip-components=1 -C $BOOST_ROOT
-  - (cd $BOOST_ROOT; ./bootstrap.sh --with-libraries=chrono,filesystem,locale,system,program_options,test,thread)
-  - (cd $BOOST_ROOT; ./b2 threading=multi --prefix=$BOOST_ROOT -d0 install)
   - cd /tmp
   - sudo tar -xjf cegui.tar.bz2
   - cd cegui-0.8.4
