@@ -23,8 +23,9 @@ before_install:
   - sudo apt-get install -qq libois-dev libfreetype6-dev libopenal-dev libexpat1-dev libsilly-dev
 # Boost
   - sudo apt-get install -qq libboost-filesystem-dev libboost-locale-dev libboost-program-options-dev libboost-date-time-dev libboost-thread-dev libboost-system-dev libboost-test-dev
-  - sudo apt-get install -qq g++-4.8 gcc-4.8
   - sudo apt-get install -qq libogre-1.9-dev
+  - sudo apt-get install -qq libsfml-dev
+  - sudo apt-get install -qq g++-4.8 gcc-4.8
   - sudo apt-get install --only-upgrade cmake
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90
