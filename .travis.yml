@@ -1,10 +1,10 @@
+
+dist: trusty
+
 os:
   - linux
 # would be nice to check build with osx
 #  - osx
-
-language:
-  - cpp
 
 compiler:
   - gcc
@@ -28,7 +28,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq libois-dev libfreetype6-dev libopenal-dev libexpat1-dev libsilly-dev
   - sudo apt-get install -qq g++-4.8 gcc-4.8
-  - sudo apt-get install -qq libogre-dev
+  - sudo apt-get install -qq libogre-1.9-dev
   - sudo apt-get install --only-upgrade cmake
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90
