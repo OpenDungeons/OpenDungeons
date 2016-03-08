@@ -434,6 +434,7 @@ set(OD_SOURCEFILES
     ${SRC}/renderscene/RenderSceneAnimationTime.cpp
     ${SRC}/renderscene/RenderSceneMoveEntity.cpp
     ${SRC}/renderscene/RenderSceneSyncWait.cpp
+    ${SRC}/renderscene/RenderSceneSyncWaitAnimation.cpp
     ${SRC}/renderscene/RenderSceneSyncPost.cpp
     ${SRC}/renderscene/RenderSceneWait.cpp
 
