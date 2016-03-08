@@ -428,6 +428,7 @@ set(OD_SOURCEFILES
     ${SRC}/renderscene/RenderSceneCameraMove.cpp
     ${SRC}/renderscene/RenderSceneGroup.cpp
     ${SRC}/renderscene/RenderSceneManager.cpp
+    ${SRC}/renderscene/RenderSceneMenu.cpp
     ${SRC}/renderscene/RenderSceneAnimationOnce.cpp
     ${SRC}/renderscene/RenderSceneAnimationTime.cpp
     ${SRC}/renderscene/RenderSceneMoveEntity.cpp
