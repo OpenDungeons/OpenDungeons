@@ -422,6 +422,7 @@ set(OD_SOURCEFILES
     ${SRC}/render/RenderManager.cpp
     ${SRC}/render/TextRenderer.cpp
 
+    ${SRC}/renderscene/RenderScene.cpp
     ${SRC}/renderscene/RenderSceneAddEntity.cpp
     ${SRC}/renderscene/RenderSceneAddParticleEffect.cpp
     ${SRC}/renderscene/RenderSceneAddPointLight.cpp
@@ -432,6 +433,8 @@ set(OD_SOURCEFILES
     ${SRC}/renderscene/RenderSceneAnimationOnce.cpp
     ${SRC}/renderscene/RenderSceneAnimationTime.cpp
     ${SRC}/renderscene/RenderSceneMoveEntity.cpp
+    ${SRC}/renderscene/RenderSceneSyncWait.cpp
+    ${SRC}/renderscene/RenderSceneSyncPost.cpp
     ${SRC}/renderscene/RenderSceneWait.cpp
 
     ${SRC}/rooms/Room.cpp

@@ -151,3 +151,15 @@ void RenderSceneGroup::update(CameraManager& cameraManager, RenderManager& rende
         ++mIndexScene;
     }
 }
+
+void RenderSceneGroup::setRenderSceneListener(RenderSceneListener* listener)
+{
+    for(RenderScene* scene : mScenes)
+        scene->setRenderSceneListener(listener);
+}
+
+void RenderSceneGroup::notifySyncPost(const std::string& event)
+{
+    for(RenderScene* scene : mScenes)
+        scene->notifySyncPost(event);
+}

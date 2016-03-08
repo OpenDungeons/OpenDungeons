@@ -17,6 +17,7 @@
 
 #include "renderscene/RenderSceneMenu.h"
 
+#include "renderscene/RenderScene.h"
 #include "renderscene/RenderSceneGroup.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -31,6 +32,12 @@ RenderSceneMenu::~RenderSceneMenu()
         delete sceneGroup;
 
     mSceneGroups.clear();
+}
+
+void RenderSceneMenu::dispatchSyncPost(const std::string& event)
+{
+    for(RenderSceneGroup* sceneGroup : mSceneGroups)
+        sceneGroup->notifySyncPost(event);
 }
 
 void RenderSceneMenu::resetMenu(CameraManager& cameraManager, RenderManager& renderManager)
@@ -80,6 +87,7 @@ void RenderSceneMenu::readSceneMenu(const std::string& fileName)
             return;
         }
 
+        group->setRenderSceneListener(this);
         mSceneGroups.emplace_back(group);
     }
 }

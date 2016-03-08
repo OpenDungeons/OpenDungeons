@@ -22,17 +22,21 @@ class CameraManager;
 class RenderManager;
 class RenderSceneGroup;
 
+#include "renderscene/RenderScene.h"
+
 #include <OgrePrerequisites.h>
 
 #include <string>
 
 //! \brief This class is basically used to store the needed scenes to display a menu
-class RenderSceneMenu
+class RenderSceneMenu : public RenderSceneListener
 {
 public:
     // Constructors
     RenderSceneMenu();
     virtual ~RenderSceneMenu();
+
+    void dispatchSyncPost(const std::string& event) override;
 
     void resetMenu(CameraManager& cameraManager, RenderManager& renderManager);
     void freeMenu(CameraManager& cameraManager, RenderManager& renderManager);
@@ -42,6 +46,7 @@ public:
 
 private:
     std::vector<RenderSceneGroup*> mSceneGroups;
+    RenderSceneListener* mRenderSceneListener;
 };
 
 #endif // RENDERSCENEMENU_H
