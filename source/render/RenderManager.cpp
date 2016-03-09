@@ -346,9 +346,7 @@ Ogre::ParticleSystem* RenderManager::addEntityParticleEffectMenu(Ogre::SceneNode
         const std::string& particleName, const std::string& particleScript)
 {
     Ogre::ParticleSystem* particleSystem = mSceneManager->createParticleSystem(particleName, particleScript);
-
     node->attachObject(particleSystem);
-
     return particleSystem;
 }
 
@@ -356,6 +354,37 @@ void RenderManager::removeEntityParticleEffectMenu(Ogre::SceneNode* node,
         Ogre::ParticleSystem* particleSystem)
 {
     node->detachObject(particleSystem);
+    mSceneManager->destroyParticleSystem(particleSystem);
+}
+
+Ogre::ParticleSystem* RenderManager::addEntityParticleEffectBoneMenu(const std::string& entityName,
+        const std::string& boneName, const std::string& particleName, const std::string& particleScript)
+{
+    if(!mSceneManager->hasEntity(entityName))
+    {
+        OD_LOG_ERR("Cannot find entityName=" + entityName);
+        return nullptr;
+    }
+
+    Ogre::ParticleSystem* particleSystem = mSceneManager->createParticleSystem(particleName, particleScript);
+
+    Ogre::Entity* ent = mSceneManager->getEntity(entityName);
+    ent->attachObjectToBone(boneName, particleSystem);
+
+    return particleSystem;
+}
+
+void RenderManager::removeEntityParticleEffectBoneMenu(const std::string& entityName,
+        Ogre::ParticleSystem* particleSystem)
+{
+    if(!mSceneManager->hasEntity(entityName))
+    {
+        OD_LOG_ERR("Cannot find entityName=" + entityName);
+        return;
+    }
+
+    Ogre::Entity* ent = mSceneManager->getEntity(entityName);
+    ent->detachObjectFromBone(particleSystem);
     mSceneManager->destroyParticleSystem(particleSystem);
 }
 

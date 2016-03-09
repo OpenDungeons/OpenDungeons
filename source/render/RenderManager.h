@@ -161,6 +161,10 @@ public:
         const std::string& particleName, const std::string& particleScript);
     void removeEntityParticleEffectMenu(Ogre::SceneNode* node,
         Ogre::ParticleSystem* particleSystem);
+    Ogre::ParticleSystem* addEntityParticleEffectBoneMenu(const std::string& entityName,
+        const std::string& boneName, const std::string& particleName, const std::string& particleScript);
+    void removeEntityParticleEffectBoneMenu(const std::string& entityName,
+        Ogre::ParticleSystem* particleSystem);
 
 private:
     //! \brief Correctly places entities in hand next to the keeper hand

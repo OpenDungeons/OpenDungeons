@@ -425,6 +425,7 @@ set(OD_SOURCEFILES
     ${SRC}/renderscene/RenderScene.cpp
     ${SRC}/renderscene/RenderSceneAddEntity.cpp
     ${SRC}/renderscene/RenderSceneAddParticleEffect.cpp
+    ${SRC}/renderscene/RenderSceneAddParticleEffectBone.cpp
     ${SRC}/renderscene/RenderSceneAddPointLight.cpp
     ${SRC}/renderscene/RenderSceneCameraMove.cpp
     ${SRC}/renderscene/RenderSceneGroup.cpp
