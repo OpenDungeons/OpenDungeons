@@ -1539,16 +1539,26 @@ Ogre::AnimationState* RenderManager::setEntityAnimation(Ogre::Entity* ent, const
     if(animationSet == nullptr)
         return nullptr;
 
+    Ogre::AnimationState* animState = nullptr;
+
     for(Ogre::AnimationStateIterator asi =
         animationSet->getAnimationStateIterator(); asi.hasMoreElements(); asi.moveNext())
     {
-        asi.peekNextValue()->setEnabled(false);
-    }
+        Ogre::AnimationState* as = asi.peekNextValue();
+        if(as->getAnimationName() == animation)
+        {
+            // We we are not currently playing the animation or if we
+            // are not looped, we start the animation from the beginning
+            if(!as->getEnabled() || !loop)
+                as->setTimePosition(0);
 
-    Ogre::AnimationState* animState = ent->getAnimationState(animation);
-    animState->setTimePosition(0);
-    animState->setLoop(loop);
-    animState->setEnabled(true);
+            as->setLoop(loop);
+            as->setEnabled(true);
+            animState = as;
+            continue;
+        }
+        as->setEnabled(false);
+    }
 
     return animState;
 }
