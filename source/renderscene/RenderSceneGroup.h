@@ -28,6 +28,7 @@
 class CameraManager;
 class RenderManager;
 class RenderScene;
+class RenderSceneListener;
 
 class RenderSceneGroup
 {
@@ -48,6 +49,12 @@ public:
     //! \brief Called at each frame
     void update(CameraManager& cameraManager, RenderManager& renderManager,
         Ogre::Real timeSinceLastFrame);
+
+    void setRenderSceneListener(RenderSceneListener* listener);
+
+    //! \brief Called when a sync post event occurs. It should notify every current
+    //! render scene.
+    void notifySyncPost(const std::string& event);
 
     static RenderSceneGroup* load(std::istream& defFile);
 

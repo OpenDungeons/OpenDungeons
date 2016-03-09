@@ -422,15 +422,20 @@ set(OD_SOURCEFILES
     ${SRC}/render/RenderManager.cpp
     ${SRC}/render/TextRenderer.cpp
 
+    ${SRC}/renderscene/RenderScene.cpp
     ${SRC}/renderscene/RenderSceneAddEntity.cpp
     ${SRC}/renderscene/RenderSceneAddParticleEffect.cpp
     ${SRC}/renderscene/RenderSceneAddPointLight.cpp
     ${SRC}/renderscene/RenderSceneCameraMove.cpp
     ${SRC}/renderscene/RenderSceneGroup.cpp
     ${SRC}/renderscene/RenderSceneManager.cpp
+    ${SRC}/renderscene/RenderSceneMenu.cpp
     ${SRC}/renderscene/RenderSceneAnimationOnce.cpp
     ${SRC}/renderscene/RenderSceneAnimationTime.cpp
     ${SRC}/renderscene/RenderSceneMoveEntity.cpp
+    ${SRC}/renderscene/RenderSceneSyncWait.cpp
+    ${SRC}/renderscene/RenderSceneSyncWaitAnimation.cpp
+    ${SRC}/renderscene/RenderSceneSyncPost.cpp
     ${SRC}/renderscene/RenderSceneWait.cpp
 
     ${SRC}/rooms/Room.cpp

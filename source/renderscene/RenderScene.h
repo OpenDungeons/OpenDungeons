@@ -28,11 +28,18 @@
 class CameraManager;
 class RenderManager;
 
+class RenderSceneListener
+{
+public:
+    virtual void dispatchSyncPost(const std::string& event) = 0;
+};
+
 class RenderScene
 {
 public:
     // Constructors
-    RenderScene()
+    RenderScene() :
+        mListener(nullptr)
     {}
 
     virtual ~RenderScene()
@@ -63,6 +70,18 @@ public:
     //! \brief Can be overriden to read additional parameters from the stream
     virtual bool importFromStream(std::istream& file)
     { return true; }
+
+    void setRenderSceneListener(RenderSceneListener* listener)
+    { mListener = listener; }
+
+    virtual void notifySyncPost(const std::string& event)
+    {}
+
+protected:
+    void fireSyncPost(const std::string& event);
+
+private:
+    RenderSceneListener* mListener;
 };
 
 #endif // RENDERSCENE_H

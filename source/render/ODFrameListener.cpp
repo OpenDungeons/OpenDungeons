@@ -32,7 +32,7 @@
 #include "render/Gui.h"
 #include "render/RenderManager.h"
 #include "render/TextRenderer.h"
-#include "renderscene/RenderSceneGroup.h"
+#include "renderscene/RenderSceneMenu.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
 #include "utils/Helper.h"
@@ -77,7 +77,8 @@ ODFrameListener::ODFrameListener(const std::string& mainSceneFileName, Ogre::Ren
     mGui(gui),
     mRenderManager(Utils::make_unique<RenderManager>(overLaySystem)),
     mGameMap(Utils::make_unique<GameMap>(false)),
-    mModeManager(new ModeManager(renderWindow, gui)),
+    mModeManager(Utils::make_unique<ModeManager>(renderWindow, gui)),
+    mMainScene(Utils::make_unique<RenderSceneMenu>()),
     mShowDebugInfo(false),
     mContinue(true),
     mEventMaxTimeDisplay(20.0f),
@@ -305,8 +306,7 @@ void ODFrameListener::createMainMenuScene()
         return;
 
     mIsMainMenuCreated = true;
-    for(std::unique_ptr<RenderSceneGroup>& sceneGroup : mMainScene)
-        sceneGroup->reset(mCameraManager, *mRenderManager);
+    mMainScene->resetMenu(mCameraManager, *mRenderManager);
 }
 
 void ODFrameListener::freeMainMenuScene()
@@ -315,8 +315,7 @@ void ODFrameListener::freeMainMenuScene()
         return;
 
     mIsMainMenuCreated = false;
-    for(std::unique_ptr<RenderSceneGroup>& sceneGroup : mMainScene)
-        sceneGroup->freeGroup(mCameraManager, *mRenderManager);
+    mMainScene->freeMenu(mCameraManager, *mRenderManager);
 }
 
 void ODFrameListener::updateMenuScene(Ogre::Real timeSinceLastFrame)
@@ -324,8 +323,7 @@ void ODFrameListener::updateMenuScene(Ogre::Real timeSinceLastFrame)
     if(!mIsMainMenuCreated)
         return;
 
-    for(std::unique_ptr<RenderSceneGroup>& sceneGroup : mMainScene)
-        sceneGroup->update(mCameraManager, *mRenderManager, timeSinceLastFrame);
+    mMainScene->updateMenu(mCameraManager, *mRenderManager, timeSinceLastFrame);
 }
 
 void ODFrameListener::resetCamera(const Ogre::Vector3& position)
@@ -371,28 +369,5 @@ void ODFrameListener::cameraFlyTo(const Ogre::Vector3& destination)
 void ODFrameListener::readMainScene(const std::string& fileName)
 {
     OD_LOG_INF("Load main scene file: " + fileName);
-    std::stringstream defFile;
-    if(!Helper::readFileWithoutComments(fileName, defFile))
-    {
-        OD_LOG_ERR("Couldn't read " + fileName);
-        return;
-    }
-
-    mMainScene.clear();
-
-    std::string nextParam;
-    while(true)
-    {
-        if(!defFile.good())
-            break;
-
-        RenderSceneGroup* group = RenderSceneGroup::load(defFile);
-        if(group == nullptr)
-        {
-            OD_LOG_WRN("Invalid User configuration start format. Line was " + nextParam);
-            return;
-        }
-
-        mMainScene.emplace_back(group);
-    }
+    mMainScene->readSceneMenu(fileName);
 }

@@ -40,7 +40,7 @@ class GameMap;
 class Gui;
 class ModeManager;
 class RenderManager;
-class RenderSceneGroup;
+class RenderSceneMenu;
 
 namespace CEGUI
 {
@@ -183,7 +183,7 @@ private:
     std::unique_ptr<RenderManager> mRenderManager;
     std::unique_ptr<GameMap>       mGameMap;
     std::unique_ptr<ModeManager>   mModeManager;
-    std::vector<std::unique_ptr<RenderSceneGroup>>   mMainScene;
+    std::unique_ptr<RenderSceneMenu>   mMainScene;
 
     bool                 mShowDebugInfo;
     bool                 mContinue;
