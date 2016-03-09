@@ -19,26 +19,20 @@ compiler:
     #- binutils-dev
 
 before_install:
-  - export HOME_DIR=`pwd`; gcc --version
+  - gcc --version
   - sudo apt-get update -qq
 # OD dependencies
-  - sudo apt-get install -y cmake libogre-1.9-dev libsfml-dev libois-dev
+  - sudo apt-get install -y cmake pkg-config libogre-1.9-dev libopenal-dev libsfml-dev libois-dev
   - sudo apt-get install -y libboost-filesystem-dev libboost-locale-dev libboost-program-options-dev libboost-date-time-dev libboost-thread-dev libboost-system-dev libboost-test-dev
-# CEGUI dependencies
-  - sudo apt-get install -y libfreetype6-dev libopenal-dev libexpat1-dev libsilly-dev
-# CEGUI is not packaged. We need to compile it ourself. Note that we could also compile it and download binaries if need be
-  - wget http://sourceforge.net/projects/crayzedsgui/files/cegui-0.8.4.tar.bz2/download -O /tmp/cegui.tar.bz2
-  - cd /tmp
-  - sudo tar -xjf cegui.tar.bz2
-  - cd cegui-0.8.4
-  - sudo cmake . -DCEGUI_HAS_FREETYPE=ON -DCEGUI_BUILD_IMAGECODEC_SILLY=ON -DCEGUI_BUILD_XMLPARSER_EXPAT=ON -DCEGUI_BUILD_RENDERER_OGRE=ON -DCEGUI_BUILD_PYTHON_MODULES=OFF -DCEGUI_SAMPLES_ENABLED=OFF
-  - sudo make install
-  - cd $HOME_DIR
+# Install CEGUI from GetDeb
+  - wget -q -O - http://archive.getdeb.net/getdeb-archive.key | sudo apt-key add -
+  - sudo sh -c 'echo "deb http://archive.getdeb.net/ubuntu trusty-getdeb games" >> /etc/apt/sources.list.d/getdeb.list'
+  - sudo apt-get update -qq; sudo apt-get install -y libcegui-0.8-dev
 
 script:
-  - cmake . -DOD_BUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./install-root
-  - make -j2 && make install
-  - find ./install-root
+  - cmake . -DOD_BUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release
+  - make -j2
+  - make install DESTDIR=./install-root
   - ./scripts/unix/run_unit_tests.sh
 
 #cache: apt
