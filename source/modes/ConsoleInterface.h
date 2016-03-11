@@ -76,9 +76,12 @@ public:
     Command::Result tryExecuteServerCommand(const std::vector<std::string>& args, GameMap& gameMap);
 
     //! \brief Try to complete the command from the string prefix.
-    //! \returns The completed string if the lookup succeeds, boost::none if the lookup
-    //! fails or there are multiple alternatives.
-    boost::optional<const String_t&> tryCompleteCommand(const String_t& prefix);
+    //! \returns true if we found at least 1 matching command and completedCmd will
+    //! be set to the closest one
+    //! For example, if available commands are "listname" and "listfirstnames", if
+    //! the prefix is "li", this function will return true and completedCmd will be
+    //! set to "list"
+    bool tryCompleteCommand(const String_t& prefix, String_t& completedCmd);
 
     //! \brief Try to scroll up in the command history.
     //! \returns The previous command if it exists, otherwise boost::none

@@ -88,10 +88,10 @@ bool GameEditorModeConsole::keyPressed(const OIS::KeyEvent &arg)
     {
         case OIS::KC_TAB:
         {
-            if(auto completed = mConsoleInterface.tryCompleteCommand(mEditboxWindow->getText().c_str()))
-            {
-                mEditboxWindow->setText(completed.get());
-            }
+            ConsoleInterface::String_t completed;
+            if(mConsoleInterface.tryCompleteCommand(mEditboxWindow->getText().c_str(), completed))
+                mEditboxWindow->setText(completed);
+
             mEditboxWindow->setCaretIndex(mEditboxWindow->getText().length());
             break;
         }
