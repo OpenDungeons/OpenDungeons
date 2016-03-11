@@ -475,6 +475,13 @@ public:
 
     void fireCreatureRefreshIfNeeded();
 
+    void fireChatMsgTookFee(int goldTaken);
+    void fireChatMsgLeftDungeon();
+    void fireChatMsgLeavingDungeon();
+    void fireChatMsgBecameRogue();
+    void fireChatMsgUnhappy();
+    void fireChatMsgFurious();
+
     //! \brief Load creature definition according to @mDefinitionString
     //! This should be called before createMesh. This was formerly in CreateMesh
     //! but is now split out since this is needed on the server, while the mesh isn't.

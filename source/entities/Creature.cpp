@@ -953,15 +953,7 @@ void Creature::doUpkeep()
         if(mNbTurnFurious >= ConfigManager::getSingleton().getNbTurnsFuriousMax())
         {
             // We couldn't leave the dungeon in time, we become rogue
-            if((getSeat()->getPlayer() != nullptr) &&
-               (getSeat()->getPlayer()->getIsHuman()))
-            {
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotificationType::chatServer, getSeat()->getPlayer());
-                std::string msg = getName() + " is not under your control anymore !";
-                serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
+            fireChatMsgBecameRogue();
 
             Seat* rogueSeat = getGameMap()->getSeatRogue();
             changeSeat(rogueSeat);
@@ -2608,6 +2600,108 @@ void Creature::fireCreatureRefreshIfNeeded()
     }
 }
 
+void Creature::fireChatMsgTookFee(int goldTaken)
+{
+    if(getSeat()->getPlayer() == nullptr)
+        return;
+    if(!getSeat()->getPlayer()->getIsHuman())
+        return;
+    if(getSeat()->getPlayer()->getHasLost())
+        return;
+
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::chatServer, getSeat()->getPlayer());
+    std::string msg;
+    // We don't display the same message if we have taken all our fee or only a part of it
+    if(getGoldFee() <= 0)
+        msg = getName() + " took its fee: " + Helper::toString(goldTaken);
+    else
+        msg = getName() + " took " + Helper::toString(goldTaken) + " from its fee";
+
+    serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void Creature::fireChatMsgLeftDungeon()
+{
+    if(getSeat()->getPlayer() == nullptr)
+        return;
+    if(!getSeat()->getPlayer()->getIsHuman())
+        return;
+    if(getSeat()->getPlayer()->getHasLost())
+        return;
+
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::chatServer, getSeat()->getPlayer());
+    std::string msg = getName() + " left your dungeon";
+    serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void Creature::fireChatMsgLeavingDungeon()
+{
+    if(getSeat()->getPlayer() == nullptr)
+        return;
+    if(!getSeat()->getPlayer()->getIsHuman())
+        return;
+    if(getSeat()->getPlayer()->getHasLost())
+        return;
+
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::chatServer, getSeat()->getPlayer());
+    std::string msg = getName() + " is leaving your dungeon";
+    serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void Creature::fireChatMsgBecameRogue()
+{
+    if(getSeat()->getPlayer() == nullptr)
+        return;
+    if(!getSeat()->getPlayer()->getIsHuman())
+        return;
+    if(getSeat()->getPlayer()->getHasLost())
+        return;
+
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::chatServer, getSeat()->getPlayer());
+    std::string msg = getName() + " is not under your control anymore !";
+    serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void Creature::fireChatMsgUnhappy()
+{
+    if(getSeat()->getPlayer() == nullptr)
+        return;
+    if(!getSeat()->getPlayer()->getIsHuman())
+        return;
+    if(getSeat()->getPlayer()->getHasLost())
+        return;
+
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::chatServer, getSeat()->getPlayer());
+    std::string msg = getName() + " is unhappy !";
+    serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void Creature::fireChatMsgFurious()
+{
+    if(getSeat()->getPlayer() == nullptr)
+        return;
+    if(!getSeat()->getPlayer()->getIsHuman())
+        return;
+    if(getSeat()->getPlayer()->getHasLost())
+        return;
+
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::chatServer, getSeat()->getPlayer());
+    std::string msg = getName() + " is furious !";
+    serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
 void Creature::setupDefinition(GameMap& gameMap, const CreatureDefinition& defaultWorkerCreatureDefinition)
 {
     bool setHpToStrHp = false;
@@ -2756,29 +2850,13 @@ void Creature::computeMood()
        (oldMoodValue < CreatureMoodLevel::Furious))
     {
         // We became unhappy
-        if((getSeat()->getPlayer() != nullptr) &&
-           (getSeat()->getPlayer()->getIsHuman()))
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotificationType::chatServer, getSeat()->getPlayer());
-            std::string msg = getName() + " is furious !";
-            serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
+        fireChatMsgFurious();
     }
     else if((mMoodValue > CreatureMoodLevel::Neutral) &&
        (oldMoodValue <= CreatureMoodLevel::Neutral))
     {
         // We became unhappy
-        if((getSeat()->getPlayer() != nullptr) &&
-           (getSeat()->getPlayer()->getIsHuman()))
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotificationType::chatServer, getSeat()->getPlayer());
-            std::string msg = getName() + " is unhappy !";
-            serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
+        fireChatMsgUnhappy();
     }
 }
 

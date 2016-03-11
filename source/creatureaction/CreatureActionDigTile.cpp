@@ -200,7 +200,8 @@ bool CreatureActionDigTile::handleDigTile(Creature& creature, Tile& tileDig)
         }
 
         if((creature.getSeat()->getPlayer() != nullptr) &&
-            (creature.getSeat()->getPlayer()->getIsHuman()))
+            creature.getSeat()->getPlayer()->getIsHuman() &&
+            !creature.getSeat()->getPlayer()->getHasLost())
         {
             creature.getSeat()->getPlayer()->notifyNoTreasuryAvailable();
         }

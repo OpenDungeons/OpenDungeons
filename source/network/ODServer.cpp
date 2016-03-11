@@ -1330,6 +1330,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // If the player is human and do not own a workshop, we warn him
             if(!player->getIsHuman())
                 break;
+            if(player->getHasLost())
+                break;
 
             std::vector<Room*> rooms = gameMap->getRoomsByTypeAndSeat(RoomType::workshop, player->getSeat());
             if(!rooms.empty())

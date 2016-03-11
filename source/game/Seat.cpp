@@ -529,7 +529,10 @@ unsigned int Seat::checkAllGoals()
             mHasGoalsChanged = true;
 
             // Tells the player an objective has been met.
-            if(mGameMap->getTurnNumber() > 5 && getPlayer() != nullptr && getPlayer()->getIsHuman())
+            if((mGameMap->getTurnNumber() > 5) &&
+               (getPlayer() != nullptr) &&
+               getPlayer()->getIsHuman() &&
+               !getPlayer()->getHasLost())
             {
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotificationType::chatServer, getPlayer());
@@ -557,7 +560,10 @@ unsigned int Seat::checkAllGoals()
                 mHasGoalsChanged = true;
 
                 // Tells the player an objective has been failed.
-                if(mGameMap->getTurnNumber() > 5 && getPlayer() != nullptr && getPlayer()->getIsHuman())
+                if((mGameMap->getTurnNumber() > 5) &&
+                   (getPlayer() != nullptr) &&
+                   getPlayer()->getIsHuman() &&
+                   !getPlayer()->getHasLost())
                 {
                     ServerNotification *serverNotification = new ServerNotification(
                         ServerNotificationType::chatServer, getPlayer());
@@ -1280,7 +1286,9 @@ bool Seat::addSkill(SkillType type)
     setSkillsDone(skillDone);
 
     // Tells the player a new room/trap/spell is available.
-    if(getPlayer() != nullptr && getPlayer()->getIsHuman())
+    if((getPlayer() != nullptr) &&
+       getPlayer()->getIsHuman() &&
+       !getPlayer()->getHasLost())
     {
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::chatServer, getPlayer());
@@ -1377,6 +1385,8 @@ void Seat::setNextSkill(SkillType skilledType)
         if(getPlayer() == nullptr)
             return;
         if(!getPlayer()->getIsHuman())
+            return;
+        if(getPlayer()->getHasLost())
             return;
         if(getNbRooms(RoomType::library) <= 0)
             return;

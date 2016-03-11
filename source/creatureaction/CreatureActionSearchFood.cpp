@@ -99,7 +99,8 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
     if (hatcheries.empty())
     {
         if((creature.getSeat()->getPlayer() != nullptr) &&
-            (creature.getSeat()->getPlayer()->getIsHuman()))
+            creature.getSeat()->getPlayer()->getIsHuman() &&
+            !creature.getSeat()->getPlayer()->getHasLost())
         {
             creature.getSeat()->getPlayer()->notifyCreatureCannotFindFood(creature);
         }
@@ -133,7 +134,8 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
     if(hatcheriesTiles.empty())
     {
         if((creature.getSeat()->getPlayer() != nullptr) &&
-            (creature.getSeat()->getPlayer()->getIsHuman()))
+            creature.getSeat()->getPlayer()->getIsHuman() &&
+            !creature.getSeat()->getPlayer()->getHasLost())
         {
             creature.getSeat()->getPlayer()->notifyCreatureCannotFindFood(creature);
         }

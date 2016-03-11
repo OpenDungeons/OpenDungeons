@@ -221,7 +221,8 @@ void RoomPrison::doUpkeep()
             OD_LOG_INF("creature=" + creature->getName() + " died in prison=" + getName());
 
             if((getSeat()->getPlayer() != nullptr) &&
-               (getSeat()->getPlayer()->getIsHuman()))
+               getSeat()->getPlayer()->getIsHuman() &&
+               !getSeat()->getPlayer()->getHasLost())
             {
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotificationType::chatServer, getSeat()->getPlayer());
