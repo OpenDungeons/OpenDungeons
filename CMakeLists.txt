@@ -425,6 +425,7 @@ set(OD_SOURCEFILES
     ${SRC}/renderscene/RenderScene.cpp
     ${SRC}/renderscene/RenderSceneAddEntity.cpp
     ${SRC}/renderscene/RenderSceneAddParticleEffect.cpp
+    ${SRC}/renderscene/RenderSceneAddParticleEffectBone.cpp
     ${SRC}/renderscene/RenderSceneAddPointLight.cpp
     ${SRC}/renderscene/RenderSceneCameraMove.cpp
     ${SRC}/renderscene/RenderSceneGroup.cpp
@@ -433,6 +434,7 @@ set(OD_SOURCEFILES
     ${SRC}/renderscene/RenderSceneAnimationOnce.cpp
     ${SRC}/renderscene/RenderSceneAnimationTime.cpp
     ${SRC}/renderscene/RenderSceneMoveEntity.cpp
+    ${SRC}/renderscene/RenderScenePosEntity.cpp
     ${SRC}/renderscene/RenderSceneSyncWait.cpp
     ${SRC}/renderscene/RenderSceneSyncWaitAnimation.cpp
     ${SRC}/renderscene/RenderSceneSyncPost.cpp
