@@ -1,0 +1,481 @@
+OpenDungeons_Version:0.7.0  # The version of OpenDungeons which created this file (for compatibility reasons).
+
+[Info]
+Name	weapons showcase
+Music	Searching_yd.ogg
+FightMusic	TheDarkAmulet_MP.ogg
+[/Info]
+
+[Seats]
+[Seat]
+seatId	1
+teamId	1
+player	Human
+faction	Keeper
+startingX	0
+startingY	0
+colorId	1
+gold	0
+goldMined	0
+mana	1000
+[SkillDone]
+[/SkillDone]
+[SkillNotAllowed]
+[/SkillNotAllowed]
+[SkillPending]
+[/SkillPending]
+[/Seat]
+[/Seats]
+
+[Goals]
+# goalName	arguments
+[/Goals]
+
+[Tiles]
+# Map Size
+30 # MapSizeX
+30 # MapSizeY
+# posX	posY	type	fullness	seatId(optional)
+1	8	1	0	0
+1	9	1	0	0
+1	10	1	0	0
+1	11	1	0	0
+1	12	1	0	0
+1	13	1	0	0
+1	14	1	0	0
+1	15	1	0	0
+1	16	1	0	0
+1	17	1	0	0
+1	18	1	0	0
+1	19	1	0	0
+1	20	1	0	0
+2	8	1	0	0
+2	9	1	0	0
+2	10	1	0	0
+2	11	1	0	0
+2	12	1	0	0
+2	13	1	0	0
+2	14	1	0	0
+2	15	1	0	0
+2	16	1	0	0
+2	17	1	0	0
+2	18	1	0	0
+2	19	1	0	0
+2	20	1	0	0
+3	8	1	0	0
+3	9	1	0	0
+3	10	1	0	0
+3	11	1	0	0
+3	12	1	0	0
+3	13	1	0	0
+3	14	1	0	0
+3	15	1	0	0
+3	16	1	0	0
+3	17	1	0	0
+3	18	1	0	0
+3	19	1	0	0
+3	20	1	0	0
+4	8	1	0	0
+4	9	1	0	0
+4	10	1	0	0
+4	11	1	0	0
+4	12	1	0	0
+4	13	1	0	0
+4	14	1	0	0
+4	15	1	0	0
+4	16	1	0	0
+4	17	1	0	0
+4	18	1	0	0
+4	19	1	0	0
+4	20	1	0	0
+5	8	1	0	0
+5	9	1	0	0
+5	10	1	0	0
+5	11	1	0	0
+5	12	1	0	0
+5	13	1	0	0
+5	14	1	0	0
+5	15	1	0	0
+5	16	1	0	0
+5	17	1	0	0
+5	18	1	0	0
+5	19	1	0	0
+5	20	1	0	0
+6	8	1	0	0
+6	9	1	0	0
+6	10	1	0	0
+6	11	1	0	0
+6	12	1	0	0
+6	13	1	0	0
+6	14	1	0	0
+6	15	1	0	0
+6	16	1	0	0
+6	17	1	0	0
+6	18	1	0	0
+6	19	1	0	0
+6	20	1	0	0
+7	8	1	0	0
+7	9	1	0	0
+7	10	1	0	0
+7	11	1	0	0
+7	12	1	0	0
+7	13	1	0	0
+7	14	1	0	0
+7	15	1	0	0
+7	16	1	0	0
+7	17	1	0	0
+7	18	1	0	0
+7	19	1	0	0
+7	20	1	0	0
+8	8	1	0	0
+8	9	1	0	0
+8	10	1	0	0
+8	11	1	0	0
+8	12	1	0	0
+8	13	1	0	0
+8	14	1	0	0
+8	15	1	0	0
+8	16	1	0	0
+8	17	1	0	0
+8	18	1	0	0
+8	19	1	0	0
+8	20	1	0	0
+9	8	1	0	0
+9	9	1	0	0
+9	10	1	0	0
+9	11	1	0	0
+9	12	1	0	0
+9	13	1	0	0
+9	14	1	0	0
+9	15	1	0	0
+9	16	1	0	0
+9	17	1	0	0
+9	18	1	0	0
+9	19	1	0	0
+9	20	1	0	0
+10	8	1	0	0
+10	9	1	0	0
+10	10	1	0	0
+10	11	1	0	0
+10	12	1	0	0
+10	13	1	0	0
+10	14	1	0	0
+10	15	1	0	0
+10	16	1	0	0
+10	17	1	0	0
+10	18	1	0	0
+10	19	1	0	0
+10	20	1	0	0
+11	8	1	0	0
+11	9	1	0	0
+11	10	1	0	0
+11	11	1	0	0
+11	12	1	0	0
+11	13	1	0	0
+11	14	1	0	0
+11	15	1	0	0
+11	16	1	0	0
+11	17	1	0	0
+11	18	1	0	0
+11	19	1	0	0
+11	20	1	0	0
+12	8	1	0	0
+12	9	1	0	0
+12	10	1	0	0
+12	11	1	0	0
+12	12	1	0	0
+12	13	1	0	0
+12	14	1	0	0
+12	15	1	0	0
+12	16	1	0	0
+12	17	1	0	0
+12	18	1	0	0
+12	19	1	0	0
+12	20	1	0	0
+13	8	1	0	0
+13	9	1	0	0
+13	10	1	0	0
+13	11	1	0	0
+13	12	1	0	0
+13	13	1	0	0
+13	14	1	0	0
+13	15	1	0	0
+13	16	1	0	0
+13	17	1	0	0
+13	18	1	0	0
+13	19	1	0	0
+13	20	1	0	0
+14	8	1	0	0
+14	9	1	0	0
+14	10	1	0	0
+14	11	1	0	0
+14	12	1	0	0
+14	13	1	0	0
+14	14	1	0	0
+14	15	1	0	0
+14	16	1	0	0
+14	17	1	0	0
+14	18	1	0	0
+14	19	1	0	0
+14	20	1	0	0
+15	8	1	0	0
+15	9	1	0	0
+15	10	1	0	0
+15	11	1	0	0
+15	12	1	0	0
+15	13	1	0	0
+15	14	1	0	0
+15	15	1	0	0
+15	16	1	0	0
+15	17	1	0	0
+15	18	1	0	0
+15	19	1	0	0
+15	20	1	0	0
+16	8	1	0	0
+16	9	1	0	0
+16	10	1	0	0
+16	11	1	0	0
+16	12	1	0	0
+16	13	1	0	0
+16	14	1	0	0
+16	15	1	0	0
+16	16	1	0	0
+16	17	1	0	0
+16	18	1	0	0
+16	19	1	0	0
+16	20	1	0	0
+17	8	1	0	0
+17	9	1	0	0
+17	10	1	0	0
+17	11	1	0	0
+17	12	1	0	0
+17	13	1	0	0
+17	14	1	0	0
+17	15	1	0	0
+17	16	1	0	0
+17	17	1	0	0
+17	18	1	0	0
+17	19	1	0	0
+17	20	1	0	0
+18	8	1	0	0
+18	9	1	0	0
+18	10	1	0	0
+18	11	1	0	0
+18	12	1	0	0
+18	13	1	0	0
+18	14	1	0	0
+18	15	1	0	0
+18	16	1	0	0
+18	17	1	0	0
+18	18	1	0	0
+18	19	1	0	0
+18	20	1	0	0
+19	8	1	0	0
+19	9	1	0	0
+19	10	1	0	0
+19	11	1	0	0
+19	12	1	0	0
+19	13	1	0	0
+19	14	1	0	0
+19	15	1	0	0
+19	16	1	0	0
+19	17	1	0	0
+19	18	1	0	0
+19	19	1	0	0
+19	20	1	0	0
+20	8	1	0	0
+20	9	1	0	0
+20	10	1	0	0
+20	11	1	0	0
+20	12	1	0	0
+20	13	1	0	0
+20	14	1	0	0
+20	15	1	0	0
+20	16	1	0	0
+20	17	1	0	0
+20	18	1	0	0
+20	19	1	0	0
+20	20	1	0	0
+21	8	1	0	0
+21	9	1	0	0
+21	10	1	0	0
+21	11	1	0	0
+21	12	1	0	0
+21	13	1	0	0
+21	14	1	0	0
+21	15	1	0	0
+21	16	1	0	0
+21	17	1	0	0
+21	18	1	0	0
+21	19	1	0	0
+21	20	1	0	0
+22	8	1	0	0
+22	9	1	0	0
+22	10	1	0	0
+22	11	1	0	0
+22	12	1	0	0
+22	13	1	0	0
+22	14	1	0	0
+22	15	1	0	0
+22	16	1	0	0
+22	17	1	0	0
+22	18	1	0	0
+22	19	1	0	0
+22	20	1	0	0
+23	8	1	0	0
+23	9	1	0	0
+23	10	1	0	0
+23	11	1	0	0
+23	12	1	0	0
+23	13	1	0	0
+23	14	1	0	0
+23	15	1	0	0
+23	16	1	0	0
+23	17	1	0	0
+23	18	1	0	0
+23	19	1	0	0
+23	20	1	0	0
+24	8	1	0	0
+24	9	1	0	0
+24	10	1	0	0
+24	11	1	0	0
+24	12	1	0	0
+24	13	1	0	0
+24	14	1	0	0
+24	15	1	0	0
+24	16	1	0	0
+24	17	1	0	0
+24	18	1	0	0
+24	19	1	0	0
+24	20	1	0	0
+25	8	1	0	0
+25	9	1	0	0
+25	10	1	0	0
+25	11	1	0	0
+25	12	1	0	0
+25	13	1	0	0
+25	14	1	0	0
+25	15	1	0	0
+25	16	1	0	0
+25	17	1	0	0
+25	18	1	0	0
+25	19	1	0	0
+25	20	1	0	0
+26	8	1	0	0
+26	9	1	0	0
+26	10	1	0	0
+26	11	1	0	0
+26	12	1	0	0
+26	13	1	0	0
+26	14	1	0	0
+26	15	1	0	0
+26	16	1	0	0
+26	17	1	0	0
+26	18	1	0	0
+26	19	1	0	0
+26	20	1	0	0
+27	8	1	0	0
+27	9	1	0	0
+27	10	1	0	0
+27	11	1	0	0
+27	12	1	0	0
+27	13	1	0	0
+27	14	1	0	0
+27	15	1	0	0
+27	16	1	0	0
+27	17	1	0	0
+27	18	1	0	0
+27	19	1	0	0
+27	20	1	0	0
+28	8	1	0	0
+28	9	1	0	0
+28	10	1	0	0
+28	11	1	0	0
+28	12	1	0	0
+28	13	1	0	0
+28	14	1	0	0
+28	15	1	0	0
+28	16	1	0	0
+28	17	1	0	0
+28	18	1	0	0
+28	19	1	0	0
+28	20	1	0	0
+[/Tiles]
+
+[Rooms]
+# typeRoom	name	seatId	numTiles		Subsequent Lines: tileX	tileY
+[/Rooms]
+
+[Traps]
+# typeTrap	name	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
+[/Traps]
+
+[Lights]
+# posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
+[/Lights]
+
+[CreatureDefinitions]
+[/CreatureDefinitions]
+
+[EquipmentDefinitions]
+[/EquipmentDefinitions]
+
+[Creatures]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentWakefulness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedSkill	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+0	Knight5	Knight.mesh	17	17	0	Knight	1	0	max	100	0	0	BasicShield	BasicSword	nullSkillType	none	0
+0	Knight6	Knight.mesh	15	17	0	Knight	1	0	max	100	0	0	T2ShieldGood	BasicSword	nullSkillType	none	0
+0	Knight7	Knight.mesh	13	17	0	Knight	1	0	max	100	0	0	T3ShieldGood	BasicSword	nullSkillType	none	0
+0	Knight8	Knight.mesh	11	17	0	Knight	1	0	max	100	0	0	T4ShieldGood	BasicSword	nullSkillType	none	0
+1	Orc12	Orc.mesh	15	10	0	Orc	1	0	max	100	0	0	T4ShieldEvil	none	nullSkillType	none	0
+1	Orc13	Orc.mesh	13	10	0	Orc	1	0	max	100	0	0	T3ShieldEvil	none	nullSkillType	none	0
+1	Orc15	Orc.mesh	11	10	0	Orc	1	0	max	100	0	0	T2ShieldEvil	none	nullSkillType	none	0
+1	Orc16	Orc.mesh	17	10	0	Orc	1	0	max	100	0	0	BasicShield	none	nullSkillType	none	0
+0	RunelordDwarf17	RunelordDwarf.mesh	17	14	0	RunelordDwarf	1	0	max	100	0	0	T4ShieldGood	T4HammerGood	nullSkillType	none	0
+0	RunelordDwarf18	RunelordDwarf.mesh	15	14	0	RunelordDwarf	1	0	max	100	0	0	T3ShieldGood	T3HammerGood	nullSkillType	none	0
+0	RunelordDwarf19	RunelordDwarf.mesh	13	14	0	RunelordDwarf	1	0	max	100	0	0	T2ShieldGood	T2HammerGood	nullSkillType	none	0
+0	RunelordDwarf20	RunelordDwarf.mesh	11	14	0	RunelordDwarf	1	0	max	100	0	0	BasicShield	BasicHammer	nullSkillType	none	0
+0	Dwarf221	Dwarf2.mesh	17	19	0	Dwarf2	1	0	max	100	0	0	BasicShield	BasicAxe	nullSkillType	none	0
+0	Dwarf222	Dwarf2.mesh	15	19	0	Dwarf2	1	0	max	100	0	0	T2ShieldGood	BasicAxe	nullSkillType	none	0
+0	Dwarf223	Dwarf2.mesh	13	19	0	Dwarf2	1	0	max	100	0	0	BasicShield	BasicAxe	nullSkillType	none	0
+0	Dwarf224	Dwarf2.mesh	11	19	0	Dwarf2	1	0	max	100	0	0	BasicShield	BasicAxe	nullSkillType	none	0
+0	Elf32	Elf.mesh	26	19	0	Elf	1	0	max	100	0	0	Bow	none	nullSkillType	none	0
+0	Elf33	Elf.mesh	24	19	0	Elf	1	0	max	100	0	0	Bow	none	nullSkillType	none	0
+0	Elf34	Elf.mesh	22	19	0	Elf	1	0	max	100	0	0	Bow	none	nullSkillType	none	0
+0	Elf35	Elf.mesh	20	19	0	Elf	1	0	max	100	0	0	Bow	none	nullSkillType	none	0
+1	DarkElf36	DarkElf.mesh	26	10	0	DarkElf	1	0	max	100	0	0	none	Crossbow	nullSkillType	none	0
+1	DarkElf37	DarkElf.mesh	24	10	0	DarkElf	1	0	max	100	0	0	none	Crossbow	nullSkillType	none	0
+1	DarkElf38	DarkElf.mesh	22	10	0	DarkElf	1	0	max	100	0	0	none	Crossbow	nullSkillType	none	0
+1	DarkElf39	DarkElf.mesh	20	10	0	DarkElf	1	0	max	100	0	0	none	Crossbow	nullSkillType	none	0
+0	Wizard44	Wizard.mesh	26	17	0	Wizard	1	0	max	100	0	0	Staff	none	nullSkillType	none	0
+0	Wizard45	Wizard.mesh	24	17	0	Wizard	1	0	max	100	0	0	Staff	none	nullSkillType	none	0
+0	Wizard46	Wizard.mesh	22	17	0	Wizard	1	0	max	100	0	0	Staff	none	nullSkillType	none	0
+0	Wizard47	Wizard.mesh	20	17	0	Wizard	1	0	max	100	0	0	Staff	none	nullSkillType	none	0
+[/Creatures]
+
+[Spells]
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
+[/Spells]
+
+[CraftedTraps]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
+[/CraftedTraps]
+
+[SkillEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	skillPoints	PosX	PosY	PosZ
+[/SkillEntity]
+
+[GiftBoxEntity]
+# GiftBoxType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
+[/GiftBoxEntity]
+
+[Missiles]
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	speed	optionalData
+[/Missiles]
+
+[TreasuryObject]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value
+[/TreasuryObject]
+
+[Chickens]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ
+[/Chickens]
