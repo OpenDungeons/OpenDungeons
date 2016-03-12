@@ -126,7 +126,7 @@ Command::Result ConsoleInterface::tryExecuteServerCommand(const std::vector<std:
     }
 }
 
-boost::optional<const ConsoleInterface::String_t&> ConsoleInterface::tryCompleteCommand(const String_t& prefix)
+bool ConsoleInterface::tryCompleteCommand(const String_t& prefix, String_t& completedCmd)
 {
     std::vector<const String_t*> matches;
     for(auto& element : mCommandMap)
@@ -136,23 +136,57 @@ boost::optional<const ConsoleInterface::String_t&> ConsoleInterface::tryComplete
             matches.push_back(&element.first);
         }
     }
-    if(matches.size() > 1)
+
+    if(matches.empty())
+        return false;
+
+    if(matches.size() == 1)
     {
+        completedCmd = *(*matches.begin());
+        return true;
+    }
+
+    // There are several matches. We display them
+    for(auto match : matches)
+    {
+        const String_t& str = *match;
+        print(str);
+    }
+    print("\n");
+
+    // We try to complete until there is a difference between the matches in
+    // a way like Linux does
+    completedCmd = prefix;
+    std::size_t index = completedCmd.length();
+    // We take the first entry as reference
+    const String_t& refStr = *(*matches.begin());
+    while(index < refStr.length())
+    {
+        bool isDif = false;
         for(auto match : matches)
         {
-            print(*match);
+            const String_t& str = *match;
+
+            if(str.length() <= index)
+            {
+                isDif = true;
+                break;
+            }
+
+            if(str[index] != refStr[index])
+            {
+                isDif = true;
+                break;
+            }
         }
-        print("\n");
-        return boost::none;
+
+        if(isDif)
+            break;
+
+        completedCmd += refStr[index];
+        ++index;
     }
-    else if(matches.size() == 1)
-    {
-        return *(*matches.begin());
-    }
-    else
-    {
-        return boost::none;
-    }
+    return true;
 }
 
 boost::optional<const ConsoleInterface::String_t&> ConsoleInterface::scrollCommandHistoryPositionUp(const ConsoleInterface::String_t& currentPrompt)

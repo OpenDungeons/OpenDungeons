@@ -53,16 +53,7 @@ bool CreatureActionLeaveDungeon::handleLeaveDungeon(Creature& creature)
     {
         if(myTile == myTile->getCoveringRoom()->getCentralTile())
         {
-            if((creature.getSeat()->getPlayer() != nullptr) &&
-               (creature.getSeat()->getPlayer()->getIsHuman()))
-            {
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotificationType::chatServer, creature.getSeat()->getPlayer());
-                std::string msg = creature.getName() + " left your dungeon";
-                serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
-
+            creature.fireChatMsgLeftDungeon();
             OD_LOG_INF("creature=" + creature.getName() + " left its dungeon");
 
             // We are on the central tile. We can leave the dungeon
@@ -86,15 +77,7 @@ bool CreatureActionLeaveDungeon::handleLeaveDungeon(Creature& creature)
         return true;
     }
 
-    if((creature.getSeat()->getPlayer() != nullptr) &&
-       (creature.getSeat()->getPlayer()->getIsHuman()))
-    {
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::chatServer, creature.getSeat()->getPlayer());
-        std::string msg = creature.getName() + " is leaving your dungeon";
-        serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
+    creature.fireChatMsgLeavingDungeon();
 
     int index = Random::Int(0, tempRooms.size() - 1);
     Room* room = tempRooms[index];

@@ -398,7 +398,9 @@ void RoomPortalWave::handleAttack()
 
             mAttackableSeats.push_back(tileSeat);
             // Tells the player he is going to be attacked
-            if(tileSeat->getPlayer() != nullptr && tileSeat->getPlayer()->getIsHuman())
+            if((tileSeat->getPlayer() != nullptr) &&
+               tileSeat->getPlayer()->getIsHuman() &&
+               !tileSeat->getPlayer()->getHasLost())
             {
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotificationType::chatServer, tileSeat->getPlayer());

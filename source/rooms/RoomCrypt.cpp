@@ -249,7 +249,8 @@ void RoomCrypt::doUpkeep()
             }
 
             if((getSeat()->getPlayer() != nullptr) &&
-               (getSeat()->getPlayer()->getIsHuman()))
+               getSeat()->getPlayer()->getIsHuman() &&
+               !getSeat()->getPlayer()->getHasLost())
             {
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotificationType::chatServer, getSeat()->getPlayer());

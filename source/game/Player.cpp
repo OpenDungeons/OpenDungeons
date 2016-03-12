@@ -708,6 +708,7 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
 
     // Do not notify skill queue empty if no library
     if(getIsHuman() &&
+       !getHasLost() &&
        (getSeat()->getNbRooms(RoomType::library) > 0))
     {
         if(mNoSkillInQueueTime > timeSinceLastUpkeep)
@@ -722,7 +723,8 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
         }
     }
 
-    if(getIsHuman())
+    if(getIsHuman() &&
+       !getHasLost())
     {
         if(mNoWorkerTime > timeSinceLastUpkeep)
             mNoWorkerTime -= timeSinceLastUpkeep;

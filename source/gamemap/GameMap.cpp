@@ -1127,6 +1127,8 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
         {
             if(!player->getIsHuman())
                 continue;
+            if(player->getHasLost())
+                continue;
 
             // We notify the player if he owns a fighter only
             bool isCreatureSeat = false;

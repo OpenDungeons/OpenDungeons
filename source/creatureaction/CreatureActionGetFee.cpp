@@ -55,21 +55,7 @@ bool CreatureActionGetFee::handleGetFee(Creature& creature)
         {
             creature.decreaseGoldFee(goldTaken);
             creature.addGoldCarried(goldTaken);
-            if((creature.getSeat()->getPlayer() != nullptr) &&
-               (creature.getSeat()->getPlayer()->getIsHuman()))
-            {
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotificationType::chatServer, creature.getSeat()->getPlayer());
-                std::string msg;
-                // We don't display the same message if we have taken all our fee or only a part of it
-                if(creature.getGoldFee() <= 0)
-                    msg = creature.getName() + " took its fee: " + Helper::toString(goldTaken);
-                else
-                    msg = creature.getName() + " took " + Helper::toString(goldTaken) + " from its fee";
-
-                serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
+            creature.fireChatMsgTookFee(goldTaken);
 
             if(creature.getGoldFee() <= 0)
             {

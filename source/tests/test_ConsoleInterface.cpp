@@ -123,11 +123,19 @@ BOOST_AUTO_TEST_CASE(test_ConsoleInterface)
     BOOST_CHECK(interface.tryExecuteClientCommand("aliasedcmd argument1",mt, modeManager) == Command::Result::INVALID_ARGUMENT); ++count;
     BOOST_CHECK(interface.tryExecuteClientCommand("aliasedcmd 184467440737095516100",mt, modeManager) == Command::Result::INVALID_ARGUMENT); ++count;
     interface.tryExecuteClientCommand("alsdcmd argument1",mt, modeManager); ++count;
-    //Test command completion
-    BOOST_CHECK(!interface.tryCompleteCommand("alia"));
-    auto result = interface.tryCompleteCommand("aliasedco");
-    BOOST_CHECK(result);
-    BOOST_CHECK((*result).compare("aliasedcommand") == 0);
+
+    ConsoleInterface::String_t str;
+    //Test command complete completion
+    BOOST_CHECK(interface.tryCompleteCommand("aliasedco", str));
+    BOOST_CHECK(str.compare("aliasedcommand") == 0);
+
+    //Test command partial completion
+    BOOST_CHECK(interface.tryCompleteCommand("a", str));
+    BOOST_CHECK(str.compare("al") == 0);
+
+    //Test non existing command completion
+    BOOST_CHECK(!interface.tryCompleteCommand("li", str));
+
     //More scrolling tests
     BOOST_CHECK(!interface.scrollCommandHistoryPositionDown());
     BOOST_CHECK((*interface.scrollCommandHistoryPositionUp("commandPrompt")).compare("alsdcmd argument1") == 0);

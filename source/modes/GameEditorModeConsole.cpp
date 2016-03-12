@@ -51,6 +51,11 @@ GameEditorModeConsole::GameEditorModeConsole(ModeManager* modeManager):
                                    CEGUI::Event::Subscriber(&GameEditorModeConsole::executeCurrentPrompt, this))
     );
 
+    addEventConnection(
+        mEditboxWindow->subscribeEvent(CEGUI::Editbox::EventCharacterKey,
+                                   CEGUI::Event::Subscriber(&GameEditorModeConsole::characterEntered, this))
+    );
+
     mConsoleHistoryWindow->getVertScrollbar()->setEndLockEnabled(true);
 
     // Permits closing the console.
@@ -83,10 +88,10 @@ bool GameEditorModeConsole::keyPressed(const OIS::KeyEvent &arg)
     {
         case OIS::KC_TAB:
         {
-            if(auto completed = mConsoleInterface.tryCompleteCommand(mEditboxWindow->getText().c_str()))
-            {
-                mEditboxWindow->setText(completed.get());
-            }
+            ConsoleInterface::String_t completed;
+            if(mConsoleInterface.tryCompleteCommand(mEditboxWindow->getText().c_str(), completed))
+                mEditboxWindow->setText(completed);
+
             mEditboxWindow->setCaretIndex(mEditboxWindow->getText().length());
             break;
         }
@@ -136,6 +141,22 @@ bool GameEditorModeConsole::executeCurrentPrompt(const CEGUI::EventArgs& e)
                                         mModeManager->getCurrentModeType(),
                                         *mModeManager);
     mEditboxWindow->setText("");
+    return true;
+}
+
+bool GameEditorModeConsole::characterEntered(const CEGUI::EventArgs& e)
+{
+    // We only accept alphanumeric chars + space
+    const CEGUI::KeyEventArgs& kea = static_cast<const CEGUI::KeyEventArgs&>(e);
+    if((kea.codepoint >= 'a') && (kea.codepoint <= 'z'))
+        return false;
+    if((kea.codepoint >= 'A') && (kea.codepoint <= 'Z'))
+        return false;
+    if((kea.codepoint >= '0') && (kea.codepoint <= '9'))
+        return false;
+    if(kea.codepoint == ' ')
+        return false;
+
     return true;
 }
 

@@ -338,7 +338,8 @@ bool RoomTorture::useRoom(Creature& creature, bool forced)
 
             // We return false because we don't want to choose an action before a next complete turn
             if((getSeat()->getPlayer() != nullptr) &&
-               (getSeat()->getPlayer()->getIsHuman()))
+               getSeat()->getPlayer()->getIsHuman() &&
+               !getSeat()->getPlayer()->getHasLost())
             {
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotificationType::chatServer, getSeat()->getPlayer());
