@@ -194,10 +194,9 @@ void RoomPortal::updatePortalPosition()
     if (centralTile == nullptr)
         return;
 
-    mPortalObject = new PersistentObject(getGameMap(), true, getName(), "PortalObject", centralTile, 0.0, SCALE, false);
+    mPortalObject = new PersistentObject(getGameMap(), true, getName(), "PortalObject",
+        centralTile, 0.0, SCALE, false, 1.0f, "Idle", true);
     addBuildingObject(centralTile, mPortalObject);
-
-    mPortalObject->setAnimationState("Idle");
 }
 
 void RoomPortal::destroyMeshLocal()
@@ -211,15 +210,22 @@ void RoomPortal::doUpkeep()
     // Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
     Room::doUpkeep();
 
+    if(mSpawnCreatureCountdown > 0)
+    {
+        --mSpawnCreatureCountdown;
+        return;
+    }
+    mSpawnCreatureCountdown = Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("PortalCooldownSpawnMin"),
+        ConfigManager::getSingleton().getRoomConfigUInt32("PortalCooldownSpawnMax"));
+
     if (mCoveredTiles.empty())
         return;
 
-    if (mSpawnCreatureCountdown > 0)
-    {
-        --mSpawnCreatureCountdown;
-        mPortalObject->setAnimationState("Idle");
+    // Rogue seat cannot spawn creatures through normal portal (they won't spawn
+    // anyway since there is no spawning list for rogue seat but no need to compute
+    // everything in this case)
+    if(getSeat()->isRogueSeat())
         return;
-    }
 
     if(getSeat()->getPlayer() == nullptr)
         return;
@@ -234,9 +240,7 @@ void RoomPortal::doUpkeep()
     if(numCreatures >= maxCreatures)
         return;
 
-    double targetProbability = powl((maxCreatures - numCreatures) / maxCreatures, 1.5);
-    if (Random::Double(0.0, 1.0) <= targetProbability)
-        spawnCreature();
+    spawnCreature();
 }
 
 void RoomPortal::spawnCreature()
@@ -266,8 +270,6 @@ void RoomPortal::spawnCreature()
     newCreature->addToGameMap();
     newCreature->createMesh();
     newCreature->setPosition(newCreature->getPosition());
-
-    mSpawnCreatureCountdown = Random::Uint(30, 50);
 }
 
 void RoomPortal::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)

@@ -29,7 +29,8 @@
 #include <iostream>
 
 PersistentObject::PersistentObject(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
-        Tile* tile, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity) :
+        Tile* tile, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
+        const std::string& initialAnimationState, bool initialAnimationLoop) :
     BuildingObject(gameMap,
         isOnServerMap,
         buildingName,
@@ -38,7 +39,9 @@ PersistentObject::PersistentObject(GameMap* gameMap, bool isOnServerMap, const s
         rotationAngle,
         scale,
         hideCoveredTile,
-        opacity),
+        opacity,
+        initialAnimationState,
+        initialAnimationLoop),
     mTile(tile),
     mIsWorking(true)
 {
