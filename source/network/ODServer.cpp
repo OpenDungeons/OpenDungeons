@@ -225,9 +225,7 @@ bool ODServer::startServer(const std::string& creator, const std::string& levelF
         // Player team to first one available
         const std::vector<int>& availableTeamIds = seat->getAvailableTeamIds();
         if(availableTeamIds.size() > 1)
-        {
             seat->setConfigTeamId(availableTeamIds.front());
-        }
     }
 
     return true;
@@ -915,8 +913,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 OD_LOG_INF("Player: " + clientSocket->getPlayer()->getNick() + " on seat " + Helper::toString(seatToUse->getId()));
                 seatToUse->setConfigPlayerId(clientSocket->getPlayer()->getId());
-                fireSeatConfigurationRefresh();
             }
+            fireSeatConfigurationRefresh();
 
             break;
         }
