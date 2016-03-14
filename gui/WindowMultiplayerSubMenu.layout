@@ -2,7 +2,7 @@
 
 <GUILayout version="4" >
     <Window type="OD/StaticText" name="MultiplayerSubMenuWindow" >
-        <Property name="Area" value="{{0.0,200},{0.5,-80},{0.0,400},{0.5,285}}" />
+        <Property name="Area" value="{{0.0,200},{0.5,-160},{0.0,400},{0.5,285}}" />
         <Property name="Text" value="" />
         <Property name="FrameEnabled" value="False" />
         <Property name="BackgroundEnabled" value="False" />
