@@ -1411,24 +1411,44 @@ bool GameMap::pathExists(const Creature* creature, Tile* tileStart, Tile* tileEn
     if(creature == nullptr)
         return false;
 
+    FloodFillType floodFill = FloodFillType::ground;
     if((creature->getMoveSpeedGround() > 0.0) &&
         (creature->getMoveSpeedWater() > 0.0) &&
         (creature->getMoveSpeedLava() > 0.0))
     {
-        return tileStart->isSameFloodFill(creature->getSeat(), FloodFillType::groundWaterLava, tileEnd);
+        floodFill = FloodFillType::groundWaterLava;
     }
     if((creature->getMoveSpeedGround() > 0.0) &&
         (creature->getMoveSpeedWater() > 0.0))
     {
-        return tileStart->isSameFloodFill(creature->getSeat(), FloodFillType::groundWater, tileEnd);
+        floodFill = FloodFillType::groundWater;
     }
     if((creature->getMoveSpeedGround() > 0.0) &&
         (creature->getMoveSpeedLava() > 0.0))
     {
-        return tileStart->isSameFloodFill(creature->getSeat(), FloodFillType::groundLava, tileEnd);
+        floodFill = FloodFillType::groundLava;
     }
 
-    return tileStart->isSameFloodFill(creature->getSeat(), FloodFillType::ground, tileEnd);
+    if(creature->getDefinition()->isWorker())
+    {
+        // Workers can go on a tile if and only if the path is open for any creature. If it is closed, that
+        // means that a door is closed
+        for(Seat* seat : mSeats)
+        {
+            if(tileStart->isSameFloodFill(seat, floodFill, tileEnd))
+                continue;
+
+            return false;
+        }
+
+        return true;
+    }
+    else
+    {
+        // For fighters, we can test their seat only because if they reach a closed enemy door, they
+        // will attack it
+        return tileStart->isSameFloodFill(creature->getSeat(), floodFill, tileEnd);
+    }
 }
 
 std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* creature, Seat* seat, bool throughDiggableTiles)
