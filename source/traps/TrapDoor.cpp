@@ -372,9 +372,9 @@ void TrapDoor::notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile)
 void TrapDoor::changeDoorState(DoorEntity* doorEntity, Tile* tile, bool locked)
 {
     if(locked)
-        doorEntity->setAnimationState(ANIMATION_CLOSE, false);
+        doorEntity->setAnimationState(ANIMATION_CLOSE, false, Ogre::Vector3::ZERO, false);
     else
-        doorEntity->setAnimationState(ANIMATION_OPEN, false);
+        doorEntity->setAnimationState(ANIMATION_OPEN, false, Ogre::Vector3::ZERO, false);
 
     if(!isActivated(tile))
         return;
