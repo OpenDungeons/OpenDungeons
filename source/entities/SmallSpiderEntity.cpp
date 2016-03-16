@@ -31,15 +31,15 @@
 
 const int32_t NB_TURNS_DIE_BEFORE_REMOVE = 0;
 
-SmallSpiderEntity::SmallSpiderEntity(GameMap* gameMap, bool isOnServerMap, const std::string& cryptName, int32_t nbTurnLife) :
-    RenderedMovableEntity(gameMap, isOnServerMap, cryptName, "SmallSpider", 0.0f, false),
+SmallSpiderEntity::SmallSpiderEntity(GameMap* gameMap, const std::string& cryptName, int32_t nbTurnLife) :
+    RenderedMovableEntity(gameMap, cryptName, "SmallSpider", 0.0f, false),
     mNbTurnLife(nbTurnLife),
     mIsSlapped(false)
 {
 }
 
-SmallSpiderEntity::SmallSpiderEntity(GameMap* gameMap, bool isOnServerMap) :
-    RenderedMovableEntity(gameMap, isOnServerMap),
+SmallSpiderEntity::SmallSpiderEntity(GameMap* gameMap) :
+    RenderedMovableEntity(gameMap),
     mNbTurnLife(0),
     mIsSlapped(false)
 {
@@ -169,7 +169,7 @@ void SmallSpiderEntity::addTileToListIfPossible(int x, int y, Room* currentCrypt
 
 SmallSpiderEntity* SmallSpiderEntity::getSmallSpiderEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    SmallSpiderEntity* obj = new SmallSpiderEntity(gameMap, false);
+    SmallSpiderEntity* obj = new SmallSpiderEntity(gameMap);
     obj->importFromPacket(is);
     return obj;
 }

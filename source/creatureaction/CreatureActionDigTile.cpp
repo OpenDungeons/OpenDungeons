@@ -161,7 +161,7 @@ bool CreatureActionDigTile::handleDigTile(Creature& creature, Tile& tileDig)
     if (creature.getGoldCarried() >= creature.getDefinition()->getMaxGoldCarryable())
     {
         // We create the treasury object and push action to deposit it
-        TreasuryObject* obj = new TreasuryObject(creature.getGameMap(), true, creature.getGoldCarried());
+        TreasuryObject* obj = new TreasuryObject(creature.getGameMap(), creature.getGoldCarried());
         creature.resetGoldCarried();
         Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
         obj->addToGameMap();

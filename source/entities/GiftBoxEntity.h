@@ -40,8 +40,8 @@ std::istream& operator>>(std::istream& is, GiftBoxType& type);
 class GiftBoxEntity: public RenderedMovableEntity
 {
 public:
-    GiftBoxEntity(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, const std::string& meshName, GiftBoxType type);
-    GiftBoxEntity(GameMap* gameMap, bool isOnServerMap);
+    GiftBoxEntity(GameMap* gameMap, const std::string& baseName, const std::string& meshName, GiftBoxType type);
+    GiftBoxEntity(GameMap* gameMap);
 
     virtual GameEntityType getObjectType() const override;
 

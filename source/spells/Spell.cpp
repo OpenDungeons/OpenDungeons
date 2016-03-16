@@ -35,9 +35,9 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-Spell::Spell(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, const std::string& meshName, Ogre::Real rotationAngle,
+Spell::Spell(GameMap* gameMap, const std::string& baseName, const std::string& meshName, Ogre::Real rotationAngle,
         int32_t nbTurns) :
-    RenderedMovableEntity(gameMap, isOnServerMap, baseName, meshName, rotationAngle, false, 1.0f),
+    RenderedMovableEntity(gameMap, baseName, meshName, rotationAngle, false, 1.0f),
         mNbTurns(nbTurns)
 {
 }

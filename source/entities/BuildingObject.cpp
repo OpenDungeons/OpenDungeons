@@ -39,7 +39,6 @@ BuildingObject::BuildingObject(GameMap* gameMap, Building& building, const std::
         bool hideCoveredTile, float opacity, const std::string& initialAnimationState, bool initialAnimationLoop) :
     RenderedMovableEntity(
         gameMap,
-        building.getIsOnServerMap(),
         targetTile == nullptr ? building.getName() : building.getName() + "_" + Tile::displayAsString(targetTile),
         meshName,
         rotationAngle,
@@ -57,7 +56,6 @@ BuildingObject::BuildingObject(GameMap* gameMap, Building& building, const std::
         const std::string& initialAnimationState, bool initialAnimationLoop) :
     RenderedMovableEntity(
         gameMap,
-        building.getIsOnServerMap(),
         building.getName() + "_" + Tile::displayAsString(&targetTile),
         meshName,
         rotationAngle,
@@ -71,8 +69,8 @@ BuildingObject::BuildingObject(GameMap* gameMap, Building& building, const std::
 }
 
 
-BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap) :
-    RenderedMovableEntity(gameMap, isOnServerMap),
+BuildingObject::BuildingObject(GameMap* gameMap) :
+    RenderedMovableEntity(gameMap),
     mScale(1.0f, 1.0f, 1.0f)
 {
 }
@@ -109,7 +107,7 @@ void BuildingObject::doUpkeep()
 
 BuildingObject* BuildingObject::getBuildingObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    BuildingObject* obj = new BuildingObject(gameMap, false);
+    BuildingObject* obj = new BuildingObject(gameMap);
     obj->importFromPacket(is);
     return obj;
 }

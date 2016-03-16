@@ -35,7 +35,6 @@ class MapLight: public MovableGameEntity
 public:
     //! \brief Constructor for making Map lights
     MapLight(GameMap*              gameMap,
-             bool                  isOnServerMap,
              Ogre::Real            diffRed     = 0.9,
              Ogre::Real            diffGreen   = 0.8,
              Ogre::Real            diffBlue    = 0.6,

@@ -32,7 +32,7 @@ public:
     DoorEntity(GameMap* gameMap, Building& building, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
         const std::string& initialAnimationState, bool initialAnimationLoop);
-    DoorEntity(GameMap* gameMap, bool isOnServerMap);
+    DoorEntity(GameMap* gameMap);
 
     virtual TrapEntityType getTrapEntityType() const override
     { return TrapEntityType::doorEntity; }

@@ -35,10 +35,10 @@
 
 const std::string MapLight::MAPLIGHT_NAME_PREFIX = "Map_light_";
 
-MapLight::MapLight(GameMap* gameMap, bool isOnServerMap, Ogre::Real diffRed, Ogre::Real diffGreen, Ogre::Real diffBlue,
+MapLight::MapLight(GameMap* gameMap, Ogre::Real diffRed, Ogre::Real diffGreen, Ogre::Real diffBlue,
         Ogre::Real specRed, Ogre::Real specGreen, Ogre::Real specBlue,
         Ogre::Real attenRange, Ogre::Real attenConst, Ogre::Real attenLin, Ogre::Real attenQuad) :
-    MovableGameEntity                   (gameMap, isOnServerMap),
+    MovableGameEntity                   (gameMap),
     mThetaX                             (0.0),
     mThetaY                             (0.0),
     mThetaZ                             (0.0),

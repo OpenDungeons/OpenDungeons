@@ -149,7 +149,7 @@ bool TrapBoulder::shoot(Tile* tile)
     position.y = static_cast<Ogre::Real>(tile->getY());
     position.z = 0;
     direction.normalise();
-    MissileBoulder* missile = new MissileBoulder(getGameMap(), true, getSeat(), getName(), "Boulder",
+    MissileBoulder* missile = new MissileBoulder(getGameMap(), getSeat(), getName(), "Boulder",
         direction, ConfigManager::getSingleton().getTrapConfigDouble("BoulderSpeed"),
         Random::Double(mMinDamage, mMaxDamage), nullptr);
     missile->addToGameMap();

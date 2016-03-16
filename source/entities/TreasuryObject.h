@@ -31,8 +31,8 @@ class Room;
 class TreasuryObject: public RenderedMovableEntity
 {
 public:
-    TreasuryObject(GameMap* gameMap, bool isOnServerMap, int goldValue);
-    TreasuryObject(GameMap* gameMap, bool isOnServerMap);
+    TreasuryObject(GameMap* gameMap, int goldValue);
+    TreasuryObject(GameMap* gameMap);
 
     virtual void doUpkeep() override;
 

@@ -39,7 +39,7 @@ public:
     BuildingObject(GameMap* gameMap, Building& building, const std::string& meshName,
         Tile& targetTile, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity = 1.0f,
         const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
-    BuildingObject(GameMap* gameMap, bool isOnServerMap);
+    BuildingObject(GameMap* gameMap);
 
     virtual GameEntityType getObjectType() const override;
 

@@ -42,7 +42,7 @@ namespace EntityAnimation
 class MovableGameEntity : public GameEntity
 {
 public:
-    MovableGameEntity(GameMap* gameMap, bool isOnServerMap);
+    MovableGameEntity(GameMap* gameMap);
 
     virtual ~MovableGameEntity()
     {}

@@ -67,7 +67,7 @@ class Building : public GameEntity
 public:
     //! \brief Default constructor with default values. Buildings are used only on server map
     Building(GameMap* gameMap) :
-        GameEntity(gameMap, true)
+        GameEntity(gameMap)
     {}
 
     virtual ~Building();

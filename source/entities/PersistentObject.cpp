@@ -46,8 +46,8 @@ PersistentObject::PersistentObject(GameMap* gameMap, Building& building, const s
 {
 }
 
-PersistentObject::PersistentObject(GameMap* gameMap, bool isOnServerMap) :
-    BuildingObject(gameMap, isOnServerMap)
+PersistentObject::PersistentObject(GameMap* gameMap) :
+    BuildingObject(gameMap)
 {
 }
 
@@ -59,7 +59,7 @@ GameEntityType PersistentObject::getObjectType() const
 
 PersistentObject* PersistentObject::getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    PersistentObject* obj = new PersistentObject(gameMap, false);
+    PersistentObject* obj = new PersistentObject(gameMap);
     obj->importFromPacket(is);
     return obj;
 }

@@ -34,14 +34,14 @@ const std::string EMPTY_STRING;
 
 const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
-GiftBoxEntity::GiftBoxEntity(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, const std::string& meshName, GiftBoxType type) :
-    RenderedMovableEntity(gameMap, isOnServerMap, baseName, meshName, 0.0f, false, 1.0f),
+GiftBoxEntity::GiftBoxEntity(GameMap* gameMap, const std::string& baseName, const std::string& meshName, GiftBoxType type) :
+    RenderedMovableEntity(gameMap, baseName, meshName, 0.0f, false, 1.0f),
     mGiftBoxType(type)
 {
 }
 
-GiftBoxEntity::GiftBoxEntity(GameMap* gameMap, bool isOnServerMap) :
-    RenderedMovableEntity(gameMap, isOnServerMap),
+GiftBoxEntity::GiftBoxEntity(GameMap* gameMap) :
+    RenderedMovableEntity(gameMap),
     mGiftBoxType(GiftBoxType::nbTypes)
 {
 }
@@ -76,7 +76,7 @@ GiftBoxEntity* GiftBoxEntity::getGiftBoxEntityFromStream(GameMap* gameMap, std::
     switch(type)
     {
         case GiftBoxType::skill:
-            entity = new GiftBoxSkill(gameMap, true);
+            entity = new GiftBoxSkill(gameMap);
             break;
 
         default:
@@ -91,7 +91,7 @@ GiftBoxEntity* GiftBoxEntity::getGiftBoxEntityFromStream(GameMap* gameMap, std::
 GiftBoxEntity* GiftBoxEntity::getGiftBoxEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
     // On client side, we always use a GiftBoxEntity because we don't want clients to know what the gift box is
-    GiftBoxEntity* entity = new GiftBoxEntity(gameMap, false);
+    GiftBoxEntity* entity = new GiftBoxEntity(gameMap);
     entity->importFromPacket(is);
     return entity;
 }

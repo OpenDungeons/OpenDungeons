@@ -148,7 +148,7 @@ bool CreatureActionSearchTileToDig::handleSearchTileToDig(Creature& creature, in
     creature.popAction();
     if(creature.getGoldCarried() > 0)
     {
-        TreasuryObject* obj = new TreasuryObject(creature.getGameMap(), true, creature.getGoldCarried());
+        TreasuryObject* obj = new TreasuryObject(creature.getGameMap(), creature.getGoldCarried());
         creature.resetGoldCarried();
         Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
         obj->addToGameMap();

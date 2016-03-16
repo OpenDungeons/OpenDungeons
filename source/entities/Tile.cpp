@@ -47,8 +47,8 @@ const uint32_t Tile::NO_FLOODFILL = 0;
 const std::string Tile::TILE_PREFIX = "Tile_";
 const std::string Tile::TILE_SCANF = TILE_PREFIX + "%i_%i";
 
-Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, double fullness) :
-    GameEntity(gameMap, isOnServerMap, "", "", nullptr),
+Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
+    GameEntity(gameMap, "", "", nullptr),
     mX                  (x),
     mY                  (y),
     mType               (type),

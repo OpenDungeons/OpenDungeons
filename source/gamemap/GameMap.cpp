@@ -222,7 +222,7 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
     {
         for (int ii = 0; ii < mMapSizeX; ++ii)
         {
-            Tile* tile = new Tile(this, isServerGameMap(), ii, jj);
+            Tile* tile = new Tile(this, ii, jj);
             tile->setName(Tile::buildName(ii, jj));
             tile->setType(TileType::dirt);
             addTile(tile);

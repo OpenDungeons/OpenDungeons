@@ -118,7 +118,7 @@ enum class FloodFillType
 class Tile : public GameEntity
 {
 public:
-    Tile(GameMap* gameMap, bool isOnServerMap, int x = 0, int y = 0, TileType type = TileType::dirt, double fullness = 100.0);
+    Tile(GameMap* gameMap, int x = 0, int y = 0, TileType type = TileType::dirt, double fullness = 100.0);
 
     virtual ~Tile();
 

@@ -32,10 +32,10 @@ class ODPacket;
 class MissileOneHit: public MissileObject
 {
 public:
-    MissileOneHit(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
+    MissileOneHit(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const std::string& particleScript, const Ogre::Vector3& direction, double speed, double physicalDamage, double magicalDamage,
         double elementDamage, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature);
-    MissileOneHit(GameMap* gameMap, bool isOnServerMap);
+    MissileOneHit(GameMap* gameMap);
 
     virtual MissileObjectType getMissileType() const override
     { return MissileObjectType::oneHit; }

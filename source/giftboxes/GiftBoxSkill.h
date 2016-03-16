@@ -28,8 +28,8 @@ enum class SkillType;
 class GiftBoxSkill: public GiftBoxEntity
 {
 public:
-    GiftBoxSkill(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, SkillType skillType);
-    GiftBoxSkill(GameMap* gameMap, bool isOnServerMap);
+    GiftBoxSkill(GameMap* gameMap, const std::string& baseName, SkillType skillType);
+    GiftBoxSkill(GameMap* gameMap);
 
     virtual void applyEffect();
 

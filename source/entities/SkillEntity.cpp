@@ -36,16 +36,16 @@ static const std::string EMPTY_STRING;
 
 static const Ogre::Vector3 SCALE(0.5,0.5,0.5);
 
-SkillEntity::SkillEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, int32_t skillPoints) :
-    RenderedMovableEntity(gameMap, isOnServerMap, libraryName, "Grimoire", 0.0f, false, 1.0f),
+SkillEntity::SkillEntity(GameMap* gameMap, const std::string& libraryName, int32_t skillPoints) :
+    RenderedMovableEntity(gameMap, libraryName, "Grimoire", 0.0f, false, 1.0f),
     mSkillPoints(skillPoints)
 {
     mPrevAnimationState = "Loop";
     mPrevAnimationStateLoop = true;
 }
 
-SkillEntity::SkillEntity(GameMap* gameMap, bool isOnServerMap) :
-    RenderedMovableEntity(gameMap, isOnServerMap)
+SkillEntity::SkillEntity(GameMap* gameMap) :
+    RenderedMovableEntity(gameMap)
 {
 }
 
@@ -73,14 +73,14 @@ void SkillEntity::notifyEntityCarryOff(const Ogre::Vector3& position)
 
 SkillEntity* SkillEntity::getSkillEntityFromStream(GameMap* gameMap, std::istream& is)
 {
-    SkillEntity* obj = new SkillEntity(gameMap, true);
+    SkillEntity* obj = new SkillEntity(gameMap);
     obj->importFromStream(is);
     return obj;
 }
 
 SkillEntity* SkillEntity::getSkillEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    SkillEntity* obj = new SkillEntity(gameMap, false);
+    SkillEntity* obj = new SkillEntity(gameMap);
     obj->importFromPacket(is);
     return obj;
 }

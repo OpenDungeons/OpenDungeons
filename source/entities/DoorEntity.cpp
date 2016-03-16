@@ -45,8 +45,8 @@ DoorEntity::DoorEntity(GameMap* gameMap, Building& building, const std::string& 
     mPrevAnimationStateLoop = initialAnimationLoop;
 }
 
-DoorEntity::DoorEntity(GameMap* gameMap, bool isOnServerMap) :
-    TrapEntity(gameMap, isOnServerMap)
+DoorEntity::DoorEntity(GameMap* gameMap) :
+    TrapEntity(gameMap)
 {
 }
 
@@ -130,6 +130,6 @@ void DoorEntity::slap()
 
 DoorEntity* DoorEntity::getDoorEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    DoorEntity* obj = new DoorEntity(gameMap, false);
+    DoorEntity* obj = new DoorEntity(gameMap);
     return obj;
 }

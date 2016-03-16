@@ -244,7 +244,7 @@ void RoomPrison::doUpkeep()
                 continue;
             }
             // Create a new creature and copy over the class-based creature parameters.
-            Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat());
+            Creature* newCreature = new Creature(getGameMap(), classToSpawn, getSeat());
 
             // Add the creature to the gameMap and create meshes so it is visible.
             newCreature->addToGameMap();

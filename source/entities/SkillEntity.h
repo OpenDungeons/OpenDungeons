@@ -32,8 +32,8 @@ class ODPacket;
 class SkillEntity: public RenderedMovableEntity
 {
 public:
-    SkillEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, int32_t skillPoints);
-    SkillEntity(GameMap* gameMap, bool isOnServerMap);
+    SkillEntity(GameMap* gameMap, const std::string& libraryName, int32_t skillPoints);
+    SkillEntity(GameMap* gameMap);
 
     virtual GameEntityType getObjectType() const override;
 

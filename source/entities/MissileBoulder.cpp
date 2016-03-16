@@ -24,16 +24,16 @@
 
 #include <iostream>
 
-MissileBoulder::MissileBoulder(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
+MissileBoulder::MissileBoulder(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const Ogre::Vector3& direction, double speed, double damage, GameEntity* entityTarget) :
-    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, entityTarget, true, false),
+    MissileObject(gameMap, seat, senderName, meshName, direction, speed, entityTarget, true, false),
     mDamage(damage),
     mNbHits(0)
 {
 }
 
-MissileBoulder::MissileBoulder(GameMap* gameMap, bool isOnServerMap) :
-    MissileObject(gameMap, isOnServerMap),
+MissileBoulder::MissileBoulder(GameMap* gameMap) :
+    MissileObject(gameMap),
     mDamage(0.0),
     mNbHits(0)
 {
@@ -72,14 +72,14 @@ bool MissileBoulder::wallHitNextDirection(const Ogre::Vector3& actDirection, Til
 
 MissileBoulder* MissileBoulder::getMissileBoulderFromStream(GameMap* gameMap, std::istream& is)
 {
-    MissileBoulder* obj = new MissileBoulder(gameMap, true);
+    MissileBoulder* obj = new MissileBoulder(gameMap);
     obj->importFromStream(is);
     return obj;
 }
 
 MissileBoulder* MissileBoulder::getMissileBoulderFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    MissileBoulder* obj = new MissileBoulder(gameMap, false);
+    MissileBoulder* obj = new MissileBoulder(gameMap);
     obj->importFromPacket(is);
     return obj;
 }

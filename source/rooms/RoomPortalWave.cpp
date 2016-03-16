@@ -351,7 +351,7 @@ void RoomPortalWave::spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t 
             continue;
         }
 
-        Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat(), spawnPosition);
+        Creature* newCreature = new Creature(getGameMap(), classToSpawn, getSeat(), spawnPosition);
         newCreature->setLevel(p.second);
         newCreature->setHP(newCreature->getMaxHp());
 
@@ -771,7 +771,7 @@ bool RoomPortalWave::handleSearchFoe()
 
     // No call to war. We cast it at the closest dungeon (they are sorted in tileDungeons)
     Tile* tile = tileDungeons[0].first;
-    SpellCallToWar* spell = new SpellCallToWar(getGameMap(), true);
+    SpellCallToWar* spell = new SpellCallToWar(getGameMap());
     spell->setSeat(getSeat());
     spell->addToGameMap();
     Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),

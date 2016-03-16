@@ -261,7 +261,7 @@ void RoomPortal::spawnCreature()
     Ogre::Real yPos = static_cast<Ogre::Real>(centralTile->getY());
 
     // Create a new creature and copy over the class-based creature parameters.
-    Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat(), Ogre::Vector3(xPos, yPos, 0.0f));
+    Creature* newCreature = new Creature(getGameMap(), classToSpawn, getSeat(), Ogre::Vector3(xPos, yPos, 0.0f));
 
     OD_LOG_INF("RoomPortal name=" + getName()
         + " spawns a creature class=" + classToSpawn->getClassName()

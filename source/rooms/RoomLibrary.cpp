@@ -394,7 +394,7 @@ bool RoomLibrary::useRoom(Creature& creature, bool forced)
         return false;
     }
 
-    SkillEntity* skillEntity = new SkillEntity(getGameMap(), true, getName(), skillEntityPoints);
+    SkillEntity* skillEntity = new SkillEntity(getGameMap(), getName(), skillEntityPoints);
     skillEntity->setSeat(getSeat());
     skillEntity->addToGameMap();
     Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(spawnTile->getX()), static_cast<Ogre::Real>(spawnTile->getY()), static_cast<Ogre::Real>(0.0));

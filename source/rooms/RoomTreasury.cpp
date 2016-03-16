@@ -277,7 +277,7 @@ bool RoomTreasury::removeCoveredTile(Tile* t)
             OD_LOG_INF("Room " + getName()
                 + ", tile=" + Tile::displayAsString(t) + " releases gold amount = "
                 + Helper::toString(value));
-            TreasuryObject* obj = new TreasuryObject(getGameMap(), true, value);
+            TreasuryObject* obj = new TreasuryObject(getGameMap(), value);
             obj->addToGameMap();
             Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(t->getX()),
                                         static_cast<Ogre::Real>(t->getY()), 0.0f);

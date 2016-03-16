@@ -40,7 +40,7 @@ class TrapEntity: public PersistentObject
 public:
     TrapEntity(GameMap* gameMap, Building& building, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
-    TrapEntity(GameMap* gameMap, bool isOnServerMap);
+    TrapEntity(GameMap* gameMap);
 
     virtual GameEntityType getObjectType() const override;
 
