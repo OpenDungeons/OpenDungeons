@@ -17,7 +17,9 @@
 
 #include "entities/BuildingObject.h"
 
+#include "entities/Building.h"
 #include "entities/GameEntityType.h"
+#include "entities/Tile.h"
 #include "network/ODPacket.h"
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -32,16 +34,42 @@
 
 #include <iostream>
 
-BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
-        const Ogre::Vector3& position, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
-        const std::string& initialAnimationState, bool initialAnimationLoop) :
-    RenderedMovableEntity(gameMap, isOnServerMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity),
+BuildingObject::BuildingObject(GameMap* gameMap, Building& building, const std::string& meshName, Tile* targetTile,
+        Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Real rotationAngle, const Ogre::Vector3& scale,
+        bool hideCoveredTile, float opacity, const std::string& initialAnimationState, bool initialAnimationLoop) :
+    RenderedMovableEntity(
+        gameMap,
+        building.getIsOnServerMap(),
+        targetTile == nullptr ? building.getName() : building.getName() + "_" + Tile::displayAsString(targetTile),
+        meshName,
+        rotationAngle,
+        hideCoveredTile,
+        opacity),
     mScale(scale)
 {
-    mPosition = position;
+    mPosition = Ogre::Vector3(x, y, z);
     mPrevAnimationState = initialAnimationState;
     mPrevAnimationStateLoop = initialAnimationLoop;
 }
+
+BuildingObject::BuildingObject(GameMap* gameMap, Building& building, const std::string& meshName,
+        Tile& targetTile, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
+        const std::string& initialAnimationState, bool initialAnimationLoop) :
+    RenderedMovableEntity(
+        gameMap,
+        building.getIsOnServerMap(),
+        building.getName() + "_" + Tile::displayAsString(&targetTile),
+        meshName,
+        rotationAngle,
+        hideCoveredTile,
+        opacity),
+    mScale(scale)
+{
+    mPosition = Ogre::Vector3(targetTile.getX(), targetTile.getY(), 0);
+    mPrevAnimationState = initialAnimationState;
+    mPrevAnimationStateLoop = initialAnimationLoop;
+}
+
 
 BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap) :
     RenderedMovableEntity(gameMap, isOnServerMap),

@@ -22,13 +22,14 @@
 
 #include <string>
 
+class Building;
 class Seat;
 class ODPacket;
 
 class DoorEntity: public TrapEntity
 {
 public:
-    DoorEntity(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& buildingName, const std::string& meshName,
+    DoorEntity(GameMap* gameMap, Building& building, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
         const std::string& initialAnimationState, bool initialAnimationLoop);
     DoorEntity(GameMap* gameMap, bool isOnServerMap);

@@ -38,7 +38,7 @@ ODPacket& operator>>(ODPacket& is, TrapEntityType& type);
 class TrapEntity: public PersistentObject
 {
 public:
-    TrapEntity(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
+    TrapEntity(GameMap* gameMap, Building& building, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     TrapEntity(GameMap* gameMap, bool isOnServerMap);
 

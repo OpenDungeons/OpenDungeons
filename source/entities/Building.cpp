@@ -85,7 +85,7 @@ void Building::addBuildingObject(Tile* targetTile, BuildingObject* obj)
     if(obj == nullptr)
         return;
 
-    // We assume the object position has been already set (most of the time in loadBuildingObject)
+    // The object position has been already set in the building object constructor
     mBuildingObjects[targetTile] = obj;
     obj->addToGameMap();
     obj->setPosition(obj->getPosition());
@@ -163,42 +163,6 @@ BuildingObject* Building::getBuildingObjectFromTile(Tile* tile)
         return nullptr;
 
     BuildingObject* obj = it->second;
-    return obj;
-}
-
-BuildingObject* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-    Tile* targetTile, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
-    const std::string& initialAnimationState, bool initialAnimationLoop)
-{
-    if (targetTile == nullptr)
-        targetTile = getCentralTile();
-
-    if(targetTile == nullptr)
-    {
-        OD_LOG_ERR("room=" + getName());
-        return nullptr;
-    }
-
-    return loadBuildingObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->getX()),
-        static_cast<double>(targetTile->getY()), rotationAngle, scale, hideCoveredTile, opacity,
-        initialAnimationState, initialAnimationLoop);
-}
-
-BuildingObject* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-    Tile* targetTile, double x, double y, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
-    const std::string& initialAnimationState, bool initialAnimationLoop)
-{
-    std::string baseName;
-    if(targetTile == nullptr)
-        baseName = getName();
-    else
-        baseName = getName() + "_" + Tile::displayAsString(targetTile);
-
-    Ogre::Vector3 position(static_cast<Ogre::Real>(x), static_cast<Ogre::Real>(y), 0);
-    BuildingObject* obj = new BuildingObject(gameMap, getIsOnServerMap(), baseName, meshName,
-        position, static_cast<Ogre::Real>(rotationAngle), scale, hideCoveredTile, opacity,
-        initialAnimationState, initialAnimationLoop);
-
     return obj;
 }
 

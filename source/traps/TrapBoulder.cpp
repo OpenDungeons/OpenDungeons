@@ -166,5 +166,5 @@ bool TrapBoulder::shoot(Tile* tile)
 
 TrapEntity* TrapBoulder::getTrapEntity(Tile* tile)
 {
-    return new TrapEntity(getGameMap(), true, getName(), reg.getTrapFactory()->getMeshName(), tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
+    return new TrapEntity(getGameMap(), *this, reg.getTrapFactory()->getMeshName(), tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }

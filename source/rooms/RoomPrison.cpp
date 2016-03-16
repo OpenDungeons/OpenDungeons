@@ -18,6 +18,7 @@
 #include "rooms/RoomPrison.h"
 
 #include "creatureaction/CreatureActionUseRoom.h"
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/GameEntityType.h"
 #include "entities/SmallSpiderEntity.h"
@@ -132,19 +133,19 @@ BuildingObject* RoomPrison::notifyActiveSpotCreated(ActiveSpotPlace place, Tile*
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "Skull", tile, 90.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "Skull", tile, 270.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "Skull", tile, 0.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "Skull", tile, 180.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 180.0, SCALE, false);
         }
         default:
             break;

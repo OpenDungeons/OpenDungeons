@@ -248,9 +248,11 @@ void RoomDormitory::createBed(Tile* sleepTile, int x, int y, int width, int heig
     }
 
     // Add the model
-    double xMesh = static_cast<double>(x) + (static_cast<double>(width) / 2.0) - 0.5;
-    double yMesh = static_cast<double>(y) + (static_cast<double>(height) / 2.0) - 0.5;
-    BuildingObject* ro = loadBuildingObject(getGameMap(), c->getDefinition()->getBedMeshName(), sleepTile, xMesh, yMesh, rotationAngle, SCALE, false);
+    Ogre::Real xMesh = static_cast<double>(x) + (static_cast<double>(width) / 2.0) - 0.5;
+    Ogre::Real yMesh = static_cast<double>(y) + (static_cast<double>(height) / 2.0) - 0.5;
+    Ogre::Real zMesh = 0;
+    BuildingObject* ro = new BuildingObject(getGameMap(), *this, c->getDefinition()->getBedMeshName(),
+        sleepTile, xMesh, yMesh, zMesh, rotationAngle, SCALE, false);
     addBuildingObject(sleepTile, ro);
     ro->createMesh();
     // Save the info for later...

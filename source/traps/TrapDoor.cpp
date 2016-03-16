@@ -305,7 +305,7 @@ TrapEntity* TrapDoor::getTrapEntity(Tile* tile)
     {
         rotation = 0.0;
     }
-    return new DoorEntity(getGameMap(), true, getSeat(), getName(), reg.getTrapFactory()->getMeshName(), tile, rotation, false, isActivated(tile) ? 1.0f : 0.5f,
+    return new DoorEntity(getGameMap(), *this, reg.getTrapFactory()->getMeshName(), tile, rotation, false, isActivated(tile) ? 1.0f : 0.5f,
         ANIMATION_OPEN, false);
 }
 

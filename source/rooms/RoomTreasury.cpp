@@ -412,10 +412,11 @@ void RoomTreasury::updateMeshesForTile(Tile* tile, RoomTreasuryTileData* roomTre
         const double offset = 0.2;
         double posX = static_cast<double>(tile->getX());
         double posY = static_cast<double>(tile->getY());
+        double posZ = 0;
         posX += Random::Double(-offset, offset);
         posY += Random::Double(-offset, offset);
         double angle = Random::Double(0.0, 360);
-        BuildingObject* ro = loadBuildingObject(getGameMap(), newMeshName, tile, posX, posY, angle, SCALE, false);
+        BuildingObject* ro = new BuildingObject(getGameMap(), *this, newMeshName, tile, posX, posY, posZ, angle, SCALE, false);
         addBuildingObject(tile, ro);
     }
 

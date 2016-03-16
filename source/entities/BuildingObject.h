@@ -23,6 +23,7 @@
 #include <string>
 #include <iosfwd>
 
+class Building;
 class Creature;
 class Room;
 class GameMap;
@@ -32,8 +33,11 @@ class ODPacket;
 class BuildingObject: public RenderedMovableEntity
 {
 public:
-    BuildingObject(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
-        const Ogre::Vector3& position, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity = 1.0f,
+    BuildingObject(GameMap* gameMap, Building& building, const std::string& meshName, Tile* targetTile,
+        Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Real rotationAngle, const Ogre::Vector3& scale,
+        bool hideCoveredTile, float opacity = 1.0f, const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
+    BuildingObject(GameMap* gameMap, Building& building, const std::string& meshName,
+        Tile& targetTile, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity = 1.0f,
         const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
     BuildingObject(GameMap* gameMap, bool isOnServerMap);
 

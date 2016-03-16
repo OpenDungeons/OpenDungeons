@@ -28,12 +28,19 @@
 
 #include <iostream>
 
-DoorEntity::DoorEntity(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& buildingName, const std::string& meshName,
+DoorEntity::DoorEntity(GameMap* gameMap, Building& building, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
         const std::string& initialAnimationState, bool initialAnimationLoop) :
-    TrapEntity(gameMap, isOnServerMap, buildingName, meshName, tile, rotationAngle, hideCoveredTile, opacity)
+    TrapEntity(
+        gameMap,
+        building,
+        meshName,
+        tile,
+        rotationAngle,
+        hideCoveredTile,
+        opacity)
 {
-    setSeat(seat);
+    setSeat(building.getSeat());
     mPrevAnimationState = initialAnimationState;
     mPrevAnimationStateLoop = initialAnimationLoop;
 }

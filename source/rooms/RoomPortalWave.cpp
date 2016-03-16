@@ -244,7 +244,7 @@ void RoomPortalWave::updatePortalPosition()
     if (centralTile == nullptr)
         return;
 
-    mPortalObject = new PersistentObject(getGameMap(), true, getName(), "KnightCoffin", centralTile, 0.0, SCALE, false);
+    mPortalObject = new PersistentObject(getGameMap(), *this, "KnightCoffin", centralTile, 0.0, SCALE, false);
     addBuildingObject(centralTile, mPortalObject);
 
     mPortalObject->setAnimationState("Idle");

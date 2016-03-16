@@ -146,7 +146,7 @@ void RoomDungeonTemple::updateTemplePosition()
     if (centralTile == nullptr)
         return;
 
-    mTempleObject = new PersistentObject(getGameMap(), true, getName(), "DungeonTempleObject", centralTile, 0.0, SCALE, false);
+    mTempleObject = new PersistentObject(getGameMap(), *this, "DungeonTempleObject", centralTile, 0.0, SCALE, false);
     addBuildingObject(centralTile, mTempleObject);
 }
 

@@ -166,7 +166,7 @@ bool TrapCannon::shoot(Tile* tile)
 
 TrapEntity* TrapCannon::getTrapEntity(Tile* tile)
 {
-    return new TrapEntity(getGameMap(), true, getName(), reg.getTrapFactory()->getMeshName(), tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
+    return new TrapEntity(getGameMap(), *this, reg.getTrapFactory()->getMeshName(), tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }
 
 double TrapCannon::getPhysicalDefense() const

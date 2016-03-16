@@ -146,5 +146,5 @@ bool TrapSpike::shoot(Tile* tile)
 
 TrapEntity* TrapSpike::getTrapEntity(Tile* tile)
 {
-    return new TrapEntity(getGameMap(), true, getName(), reg.getTrapFactory()->getMeshName(), tile, 0.0, true, isActivated(tile) ? 1.0f : 0.7f);
+    return new TrapEntity(getGameMap(), *this, reg.getTrapFactory()->getMeshName(), tile, 0.0, true, isActivated(tile) ? 1.0f : 0.7f);
 }

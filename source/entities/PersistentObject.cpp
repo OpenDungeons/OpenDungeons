@@ -28,14 +28,13 @@
 
 #include <iostream>
 
-PersistentObject::PersistentObject(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
+PersistentObject::PersistentObject(GameMap* gameMap, Building& building, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
         const std::string& initialAnimationState, bool initialAnimationLoop) :
     BuildingObject(gameMap,
-        isOnServerMap,
-        buildingName,
+        building,
         meshName,
-        Ogre::Vector3(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), 0),
+        *tile,
         rotationAngle,
         scale,
         hideCoveredTile,

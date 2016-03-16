@@ -194,7 +194,7 @@ void RoomPortal::updatePortalPosition()
     if (centralTile == nullptr)
         return;
 
-    mPortalObject = new PersistentObject(getGameMap(), true, getName(), "PortalObject",
+    mPortalObject = new PersistentObject(getGameMap(), *this, "PortalObject",
         centralTile, 0.0, SCALE, false, 1.0f, "Idle", true);
     addBuildingObject(centralTile, mPortalObject);
 }
