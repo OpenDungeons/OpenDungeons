@@ -182,6 +182,9 @@ public:
     virtual bool shoot(Tile* tile)
     { return true; }
 
+    virtual bool isDoor() const
+    { return false; }
+
     //! \brief Tells whether the trap is activated.
     bool isActivated(Tile* tile) const;
 

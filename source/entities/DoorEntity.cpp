@@ -17,9 +17,10 @@
 
 #include "entities/DoorEntity.h"
 
-#include "network/ODPacket.h"
+#include "entities/GameEntityType.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "network/ODPacket.h"
 #include "traps/Trap.h"
 #include "traps/TrapDoor.h"
 #include "traps/TrapManager.h"
@@ -38,11 +39,13 @@ DoorEntity::DoorEntity(GameMap* gameMap, Building& building, const std::string& 
         tile,
         rotationAngle,
         hideCoveredTile,
-        opacity)
+        opacity),
+    mBuilding(&building)
 {
     setSeat(building.getSeat());
     mPrevAnimationState = initialAnimationState;
     mPrevAnimationStateLoop = initialAnimationLoop;
+    mBuilding->addGameEntityListener(this);
 }
 
 DoorEntity::DoorEntity(GameMap* gameMap) :
@@ -95,23 +98,23 @@ void DoorEntity::slap()
     if(!getIsOnServerMap())
         return;
 
-    Trap* trap = getGameMap()->getTrapByName(mBaseName);
-    if(trap == nullptr)
+    if(mBuilding == nullptr)
     {
-        OD_LOG_ERR("name=" + getName() + ", trapname=" + mBaseName);
+        OD_LOG_ERR("name=" + getName());
         return;
     }
 
-    switch(trap->getType())
+    if(mBuilding->getObjectType() != GameEntityType::trap)
     {
-        case TrapType::doorWooden:
-            break;
+        OD_LOG_ERR("name=" + getName() + ", type=" + Helper::toString(static_cast<uint32_t>(mBuilding->getObjectType())));
+        return;
+    }
 
-        default:
-        {
-            OD_LOG_ERR("name=" + getName() + ", wrong type=" + TrapManager::getTrapNameFromTrapType(trap->getType()));
-            return;
-        }
+    Trap* trap = static_cast<Trap*>(mBuilding);
+    if(!trap->isDoor())
+    {
+        OD_LOG_ERR("name=" + getName() + ", wrong type=" + TrapManager::getTrapNameFromTrapType(trap->getType()));
+        return;
     }
 
     Tile* posTile = getPositionTile();
@@ -132,4 +135,43 @@ DoorEntity* DoorEntity::getDoorEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
     DoorEntity* obj = new DoorEntity(gameMap);
     return obj;
+}
+
+std::string DoorEntity::getListenerName() const
+{
+    return getName();
+}
+
+bool DoorEntity::notifyDead(GameEntity* entity)
+{
+    if(entity == mBuilding)
+    {
+        mBuilding = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool DoorEntity::notifyRemovedFromGameMap(GameEntity* entity)
+{
+    if(entity == mBuilding)
+    {
+        mBuilding = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool DoorEntity::notifyPickedUp(GameEntity* entity)
+{
+    OD_LOG_ERR(getName() + ", entity=" + entity->getName());
+    return true;
+}
+
+bool DoorEntity::notifyDropped(GameEntity* entity)
+{
+    // That should not happen. For now, we only require events for attacked creatures. And when they
+    // are picked up, we should have cleared the action queue
+    OD_LOG_ERR(getName() + ", entity=" + entity->getName());
+    return true;
 }

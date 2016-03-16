@@ -96,8 +96,6 @@ protected:
     virtual void fireAddEntity(Seat* seat, bool async) override;
     virtual void fireRemoveEntity(Seat* seat) override;
 
-    std::string mBaseName;
-
 private:
     Ogre::Real mRotationAngle;
     bool mHideCoveredTile;

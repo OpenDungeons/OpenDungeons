@@ -26,7 +26,7 @@ class Building;
 class Seat;
 class ODPacket;
 
-class DoorEntity: public TrapEntity
+class DoorEntity: public TrapEntity, public GameEntityListener
 {
 public:
     DoorEntity(GameMap* gameMap, Building& building, const std::string& meshName,
@@ -40,11 +40,18 @@ public:
     bool canSlap(Seat* seat);
     void slap();
 
+    std::string getListenerName() const override;
+    bool notifyDead(GameEntity* entity) override;
+    bool notifyRemovedFromGameMap(GameEntity* entity) override;
+    bool notifyPickedUp(GameEntity* entity) override;
+    bool notifyDropped(GameEntity* entity) override;
+
     static DoorEntity* getDoorEntityFromPacket(GameMap* gameMap, ODPacket& is);
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
-
+private:
+    Building* mBuilding;
 };
 
 #endif // DOORENTITY_H
