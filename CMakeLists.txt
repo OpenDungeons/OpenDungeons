@@ -438,6 +438,7 @@ set(OD_SOURCEFILES
     ${SRC}/renderscene/RenderSceneSyncWait.cpp
     ${SRC}/renderscene/RenderSceneSyncWaitAnimation.cpp
     ${SRC}/renderscene/RenderSceneSyncPost.cpp
+    ${SRC}/renderscene/RenderSceneTurnEntity.cpp
     ${SRC}/renderscene/RenderSceneWait.cpp
 
     ${SRC}/rooms/Room.cpp

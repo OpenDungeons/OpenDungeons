@@ -388,6 +388,17 @@ void RenderManager::removeEntityParticleEffectBoneMenu(const std::string& entity
     mSceneManager->destroyParticleSystem(particleSystem);
 }
 
+Ogre::Quaternion RenderManager::getNodeOrientation(Ogre::SceneNode* node)
+{
+    return node->getOrientation();
+}
+
+void RenderManager::setProgressiveNodeOrientation(Ogre::SceneNode* node, Ogre::Real progress,
+        const Ogre::Quaternion& angleSrc, const Ogre::Quaternion& angleDest)
+{
+    node->setOrientation(Ogre::Quaternion::Slerp(progress, angleSrc, angleDest, true));
+}
+
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
 {
     if(mHandAnimationState != nullptr)
