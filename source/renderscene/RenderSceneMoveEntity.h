@@ -26,7 +26,6 @@ public:
     RenderSceneMoveEntity() :
         mSpeed(1),
         mDestination(Ogre::Vector3::ZERO),
-        mDirection(Ogre::Vector3::ZERO),
         mAnimState(nullptr),
         mSceneNode(nullptr)
     {}
@@ -48,7 +47,6 @@ private:
     std::string mAnimation;
     Ogre::Real mSpeed;
     Ogre::Vector3 mDestination;
-    Ogre::Vector3 mDirection;
 
     // Temporary ressources
     Ogre::AnimationState* mAnimState;
