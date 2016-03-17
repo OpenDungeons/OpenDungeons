@@ -149,7 +149,7 @@ bool TrapBoulder::shoot(Tile* tile)
     position.y = static_cast<Ogre::Real>(tile->getY());
     position.z = 0;
     direction.normalise();
-    MissileBoulder* missile = new MissileBoulder(getGameMap(), true, getSeat(), getName(), "Boulder",
+    MissileBoulder* missile = new MissileBoulder(getGameMap(), getSeat(), getName(), "Boulder",
         direction, ConfigManager::getSingleton().getTrapConfigDouble("BoulderSpeed"),
         Random::Double(mMinDamage, mMaxDamage), nullptr);
     missile->addToGameMap();
@@ -166,5 +166,5 @@ bool TrapBoulder::shoot(Tile* tile)
 
 TrapEntity* TrapBoulder::getTrapEntity(Tile* tile)
 {
-    return new TrapEntity(getGameMap(), true, getName(), reg.getTrapFactory()->getMeshName(), tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
+    return new TrapEntity(getGameMap(), *this, reg.getTrapFactory()->getMeshName(), tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }

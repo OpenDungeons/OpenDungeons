@@ -130,27 +130,28 @@ BuildingObject* RoomCasino::notifyActiveSpotCreated(ActiveSpotPlace place, Tile*
         {
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
+            Ogre::Real z = 0;
             mCreaturesSpots.emplace(std::make_pair(tile, RoomCasinoGame()));
             if(Random::Uint(0,9) < 5)
-                return loadBuildingObject(getGameMap(), "CasinoPokerTable", tile, x, y, 0.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "CasinoPokerTable", tile, x, y, z, 0.0, SCALE, false);
             else
-                return loadBuildingObject(getGameMap(), "Roulette", tile, x, y, 0.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "Roulette", tile, x, y, z, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "CasinoWallBeer", tile, 90.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "CasinoWallBeer", tile, 270.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "CasinoWallBeer", tile, 0.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "CasinoWallBeer", tile, 180.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 180.0, SCALE, false);
         }
         default:
             break;

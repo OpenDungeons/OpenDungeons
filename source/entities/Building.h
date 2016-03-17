@@ -67,7 +67,7 @@ class Building : public GameEntity
 public:
     //! \brief Default constructor with default values. Buildings are used only on server map
     Building(GameMap* gameMap) :
-        GameEntity(gameMap, true)
+        GameEntity(gameMap)
     {}
 
     virtual ~Building();
@@ -95,15 +95,6 @@ public:
     bool canBuildingBeRemoved();
 
     void removeAllBuildingObjects();
-    /*! \brief Creates a child BuildingObject mesh using the given mesh name and placing on the target tile,
-     *  if the tile is nullptr the object appears in the building's center, the rotation angle is given in degrees.
-     */
-    BuildingObject* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-        Tile* targetTile, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity = 1.0f,
-        const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
-    BuildingObject* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-        Tile* targetTile, double x, double y, double rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity = 1.0f,
-        const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
     Tile* getCentralTile();
 
     virtual bool isClaimable(Seat* seat) const

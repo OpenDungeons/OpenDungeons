@@ -631,7 +631,9 @@ ProtectDungeonTemple	NULL
 19	7	1	0	1
 19	8	1	0	1
 19	9	1	0	1
-19	10	1	100	1
+19	10	1	0	1
+19	11	1	0
+19	12	1	0
 19	21	1	0	1
 19	22	1	0	1
 19	24	1	0	1
@@ -1291,6 +1293,11 @@ Wizard26	11	4	0
 9	6	0
 0
 [/Trap]
+[Trap]
+4	DoorWooden_5	1	1
+19	10	1
+1
+[/Trap]
 [/Traps]
 
 [Lights]
@@ -1337,6 +1344,7 @@ Wizard26	11	4	0
 1	Skeleton3	skeleton.mesh	19	33	0	Skeleton	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Elf1	Elf.mesh	27	34	0	Elf	1	0	max	100	0	0	Bow	none	nullSkillType	none	0
 1	DarkElf2	DarkElf.mesh	28	33	0	DarkElf	1	0	max	100	0	0	none	Crossbow	nullSkillType	none	0
+0	DefaultWorker3	Kobold.mesh	19	12	0	DefaultWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
 [/Creatures]
 
 [Spells]

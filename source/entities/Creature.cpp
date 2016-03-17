@@ -142,8 +142,8 @@ CreatureParticuleEffect::~CreatureParticuleEffect()
     mEffect = nullptr;
 }
 
-Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position) :
-    MovableGameEntity        (gameMap, isOnServerMap),
+Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position) :
+    MovableGameEntity        (gameMap),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mElementDefense          (0.0),
@@ -220,8 +220,8 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     setupDefinition(*gameMap, *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
 }
 
-Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
-    MovableGameEntity        (gameMap, isOnServerMap),
+Creature::Creature(GameMap* gameMap) :
+    MovableGameEntity        (gameMap),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mElementDefense          (0.0),
@@ -527,7 +527,7 @@ void Creature::updateScale()
 
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
-    Creature* creature = new Creature(gameMap, true);
+    Creature* creature = new Creature(gameMap);
     if(!creature->importFromStream(is))
     {
         delete creature;
@@ -538,7 +538,7 @@ Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 
 Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    Creature* creature = new Creature(gameMap, false);
+    Creature* creature = new Creature(gameMap);
     creature->importFromPacket(is);
     return creature;
 }
@@ -750,7 +750,7 @@ void Creature::dropCarriedEquipment()
 
     if(mGoldCarried > 0)
     {
-        TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
+        TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
         obj->addToGameMap();
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
                                     static_cast<Ogre::Real>(myTile->getY()), 0.0f);
@@ -761,7 +761,7 @@ void Creature::dropCarriedEquipment()
 
     if(mSkillTypeDropDeath != SkillType::nullSkillType)
     {
-        GiftBoxSkill* skillEntity = new GiftBoxSkill(getGameMap(), getIsOnServerMap(),
+        GiftBoxSkill* skillEntity = new GiftBoxSkill(getGameMap(),
             "DroppedBy" + getName(), mSkillTypeDropDeath);
         skillEntity->addToGameMap();
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),

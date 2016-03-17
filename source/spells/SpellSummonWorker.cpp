@@ -220,7 +220,7 @@ bool SpellSummonWorker::summonWorkersOnTiles(GameMap* gameMap, Player* player, c
 
     for(Tile* tile : tilesSummon)
     {
-        Creature* newCreature = new Creature(gameMap, true, classToSpawn, player->getSeat());
+        Creature* newCreature = new Creature(gameMap, classToSpawn, player->getSeat());
         OD_LOG_INF("Spawning a creature class=" + classToSpawn->getClassName()
             + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(player->getSeat()->getId()));
 

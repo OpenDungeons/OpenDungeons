@@ -31,8 +31,8 @@
 
 #include <OgreAnimationState.h>
 
-MovableGameEntity::MovableGameEntity(GameMap* gameMap, bool isOnServerMap) :
-    GameEntity(gameMap, isOnServerMap),
+MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
+    GameEntity(gameMap),
     mAnimationState(nullptr),
     mDestinationAnimationState(EntityAnimation::idle_anim),
     mDestinationAnimationLoop(false),

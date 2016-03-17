@@ -30,9 +30,9 @@
 
 #include <iostream>
 
-MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
+MissileObject::MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const Ogre::Vector3& direction, double speed, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature) :
-    RenderedMovableEntity(gameMap, isOnServerMap, senderName, meshName, 0.0f, false),
+    RenderedMovableEntity(gameMap, senderName, meshName, 0.0f, false),
     mDirection(direction),
     mIsMissileAlive(true),
     mEntityTarget(entityTarget),
@@ -46,8 +46,8 @@ MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap, Seat* seat, c
         mEntityTarget->addGameEntityListener(this);
 }
 
-MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap) :
-    RenderedMovableEntity(gameMap, isOnServerMap),
+MissileObject::MissileObject(GameMap* gameMap) :
+    RenderedMovableEntity(gameMap),
     mDirection(Ogre::Vector3::ZERO),
     mIsMissileAlive(true),
     mEntityTarget(nullptr),

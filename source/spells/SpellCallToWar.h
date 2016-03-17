@@ -28,7 +28,7 @@ class InputManager;
 class SpellCallToWar : public Spell
 {
 public:
-    SpellCallToWar(GameMap* gameMap, bool isOnServerMap);
+    SpellCallToWar(GameMap* gameMap);
     virtual ~SpellCallToWar();
 
     SpellType getSpellType() const override

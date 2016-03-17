@@ -32,9 +32,9 @@ class ODPacket;
 class MissileBoulder: public MissileObject
 {
 public:
-    MissileBoulder(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
+    MissileBoulder(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const Ogre::Vector3& direction, double speed, double damage, GameEntity* entityTarget);
-    MissileBoulder(GameMap* gameMap, bool isOnServerMap);
+    MissileBoulder(GameMap* gameMap);
 
     virtual MissileObjectType getMissileType() const override
     { return MissileObjectType::boulder; }

@@ -2,7 +2,7 @@
 
 <GUILayout version="4" >
     <Window type="OD/StaticText" name="EditorSubMenuWindow" >
-        <Property name="Area" value="{{0.0,200},{0.5,100},{0.0,400},{0.5,285}}" />
+        <Property name="Area" value="{{0.0,200},{0.5,0},{0.0,400},{0.5,285}}" />
         <Property name="Text" value="" />
         <Property name="FrameEnabled" value="False" />
         <Property name="BackgroundEnabled" value="False" />

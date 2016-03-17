@@ -31,42 +31,45 @@ public:
     static const std::string ANIMATION_OPEN;
     static const std::string ANIMATION_CLOSE;
 
-    virtual const TrapType getType() const
+    const TrapType getType() const
     { return TrapType::doorWooden; }
 
-    // We return true to make sure every creature with vision on the door tile can see it
-    virtual bool shoot(Tile* tile) override
+    bool isDoor() const override
     { return true; }
 
-    virtual void doUpkeep() override;
+    // We return true to make sure every creature with vision on the door tile can see it
+    bool shoot(Tile* tile) override
+    { return true; }
 
-    virtual bool displayTileMesh() const override
+    void doUpkeep() override;
+
+    bool displayTileMesh() const override
     { return true; }
 
     //! \brief The trap object covers the whole tile under
     //! but while it built, the ground tile still must be shown.
-    virtual bool shouldDisplayGroundTile() const override
+    bool shouldDisplayGroundTile() const override
     { return true; }
 
-    virtual void notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile);
+    void notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile);
 
-    virtual TrapEntity* getTrapEntity(Tile* tile) override;
+    TrapEntity* getTrapEntity(Tile* tile) override;
 
-    virtual double getCreatureSpeed(const Creature* creature, Tile* tile) const override;
+    double getCreatureSpeed(const Creature* creature, Tile* tile) const override;
+
+    bool permitsVision(Tile* tile) override;
 
     //! Returns true if tiles North and South (or east and west) are suitable to have a door on the
     //! given tile
     static bool canDoorBeOnTile(GameMap* gameMap, Tile* tile);
-
-    virtual bool permitsVision(Tile* tile) override;
 
     static bool buildTrapOnTile(GameMap* gameMap, Player* player, Tile* tile);
 
     static const TrapType mTrapType;
 
 protected:
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual bool importFromStream(std::istream& is) override;
+    void exportToStream(std::ostream& os) const override;
+    bool importFromStream(std::istream& is) override;
 
 private:
     //! \brief Wanted state for the door (changes when the player slaps the door)

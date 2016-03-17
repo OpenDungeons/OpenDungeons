@@ -160,12 +160,7 @@ void MenuModeConfigureSeats::activate()
                 CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(faction, cptFaction);
                 item->setSelectionBrushImage(selImg);
                 combo->addItem(item);
-                // At creation, we set the combo to the first available choice
-                if(cptFaction == 0)
-                {
-                    combo->setText(item->getText());
-                    combo->setItemSelectState(item, true);
-                }
+                // We set nothing in the combos. They will be refreshed by the server
                 ++cptFaction;
             }
         }
@@ -242,19 +237,12 @@ void MenuModeConfigureSeats::activate()
             + Helper::toString(seat->getId()));
         if(availableTeamIds.size() > 1)
         {
-            uint32_t cptTeamId = 0;
             for(int teamId : availableTeamIds)
             {
                 CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(Helper::toString(teamId), teamId);
                 item->setSelectionBrushImage(selImg);
                 combo->addItem(item);
-                // At creation, we set the combo to the first available choice
-                if(cptTeamId == 0)
-                {
-                    combo->setText(item->getText());
-                    combo->setItemSelectState(item, true);
-                }
-                ++cptTeamId;
+                // We do not select anything by default. The server will refresh what needs to be
             }
         }
         else if(!availableTeamIds.empty())

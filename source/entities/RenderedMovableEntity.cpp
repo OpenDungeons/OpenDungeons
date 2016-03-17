@@ -45,10 +45,9 @@ const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX = "Rendere
 
 static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
-RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, const std::string& nMeshName,
+RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName,
         Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
-    MovableGameEntity(gameMap, isOnServerMap),
-    mBaseName(baseName),
+    MovableGameEntity(gameMap),
     mRotationAngle(rotationAngle),
     mHideCoveredTile(hideCoveredTile),
     mOpacity(opacity)
@@ -58,8 +57,8 @@ RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, bool isOnServerMa
     setName(gameMap->nextUniqueNameRenderedMovableEntity(baseName));
 }
 
-RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, bool isOnServerMap) :
-    MovableGameEntity(gameMap, isOnServerMap),
+RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap) :
+    MovableGameEntity(gameMap),
     mRotationAngle(0.0),
     mHideCoveredTile(false),
     mOpacity(1.0f)

@@ -19,6 +19,7 @@
 
 #include "creatureaction/CreatureActionEatChicken.h"
 #include "creatureaction/CreatureActionSearchFood.h"
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "entities/ChickenEntity.h"
@@ -120,7 +121,7 @@ BuildingObject* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace place, Til
 {
     // We add chicken coops on center tiles only
     if(place == ActiveSpotPlace::activeSpotCenter)
-        return loadBuildingObject(getGameMap(), "ChickenCoop", tile, 0.0, SCALE, false);
+        return new BuildingObject(getGameMap(), *this, "ChickenCoop", *tile, 0.0, SCALE, false);
 
     return nullptr;
 }
@@ -162,7 +163,7 @@ void RoomHatchery::doUpkeep()
     // We spawn 1 chicken per chicken coop (until chickens are maxed)
     for(Tile* chickenCoopTile : mCentralActiveSpotTiles)
     {
-        ChickenEntity* chicken = new ChickenEntity(getGameMap(), true, getName());
+        ChickenEntity* chicken = new ChickenEntity(getGameMap(), getName());
         chicken->addToGameMap();
         chicken->createMesh();
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(chickenCoopTile->getX()),

@@ -148,7 +148,6 @@ class GameEntity
     //! \brief Default constructor with default values
     GameEntity(
           GameMap*        gameMap,
-          bool            isOnServerMap,
           std::string     name       = std::string(),
           std::string     meshName   = std::string(),
           Seat*           seat        = nullptr
@@ -259,14 +258,13 @@ class GameEntity
     inline GameMap* getGameMap() const
     { return mGameMap; }
 
-    inline bool getIsOnServerMap() const
-    { return mIsOnServerMap; }
-
     inline bool getCarryLock(const Creature& worker) const
     { return mCarryLock; }
 
     inline void setCarryLock(const Creature& worker, bool lock)
     { mCarryLock = lock; }
+
+    bool getIsOnServerMap() const;
 
     //! \brief Function that schedules the object destruction. This function should not be called twice
     void deleteYourself();
@@ -462,8 +460,6 @@ class GameEntity
     //! \brief boolean used by workers to lock the entity so that other workers
     //! know that they should not consider taking it
     bool mCarryLock;
-
-    const bool mIsOnServerMap;
 
     //! \brief List of the entity listening for events (removed from gamemap, picked up, ...) on this game entity
     std::vector<GameEntityListener*> mGameEntityListeners;

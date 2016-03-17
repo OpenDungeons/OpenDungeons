@@ -225,9 +225,7 @@ bool ODServer::startServer(const std::string& creator, const std::string& levelF
         // Player team to first one available
         const std::vector<int>& availableTeamIds = seat->getAvailableTeamIds();
         if(availableTeamIds.size() > 1)
-        {
             seat->setConfigTeamId(availableTeamIds.front());
-        }
     }
 
     return true;
@@ -915,8 +913,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 OD_LOG_INF("Player: " + clientSocket->getPlayer()->getNick() + " on seat " + Helper::toString(seatToUse->getId()));
                 seatToUse->setConfigPlayerId(clientSocket->getPlayer()->getId());
-                fireSeatConfigurationRefresh();
             }
+            fireSeatConfigurationRefresh();
 
             break;
         }
@@ -1700,7 +1698,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 OD_LOG_ERR("unexpected null classToSpawn for getCreatureDefinitionDefaultWorker");
                 break;
             }
-            Creature* newCreature = new Creature(gameMap, true, classToSpawn, seatCreature);
+            Creature* newCreature = new Creature(gameMap, classToSpawn, seatCreature);
             newCreature->addToGameMap();
             newCreature->setPosition(Ogre::Vector3(0.0, 0.0, 0.0));
             // In editor mode, every player has vision
@@ -1722,7 +1720,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         {
             if(mServerMode != ServerMode::ModeEditor)
             {
-                OD_LOG_ERR("Received editor command while wrong mode mode" + Helper::toString(static_cast<int>(mServerMode)));
+                OD_LOG_ERR("Received editor command while wrong mode=" + Helper::toString(static_cast<int>(mServerMode)));
                 break;
             }
             Player* player = clientSocket->getPlayer();
@@ -1741,7 +1739,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 OD_LOG_ERR("Couldn't spawn creature class=" + className);
                 break;
             }
-            Creature* newCreature = new Creature(gameMap, true, classToSpawn, seatCreature);
+            Creature* newCreature = new Creature(gameMap, classToSpawn, seatCreature);
             newCreature->addToGameMap();
             newCreature->setPosition(Ogre::Vector3(0.0, 0.0, 0.0));
             // In editor mode, every player has vision

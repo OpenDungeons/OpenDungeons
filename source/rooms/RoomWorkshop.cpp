@@ -136,28 +136,29 @@ BuildingObject* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace place, Til
             roomWorkshopTileData->mCanHaveCraftedTrap = false;
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX()) + X_OFFSET_SPOT;
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY()) + Y_OFFSET_SPOT;
+            Ogre::Real z = 0;
             mUnusedSpots.push_back(tile);
             int result = Random::Int(0, 3);
             if(result < 2)
-                return loadBuildingObject(getGameMap(), "WorkshopMachine1", tile, x, y, 30.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "WorkshopMachine1", tile, x, y, z, 30.0, SCALE, false);
             else
-                return loadBuildingObject(getGameMap(), "WorkshopMachine2", tile, x, y, 30.0, SCALE, false, 1.0, "Loop");
+                return new BuildingObject(getGameMap(), *this, "WorkshopMachine2", tile, x, y, z, 30.0, SCALE, false, 1.0, "Loop");
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "Chimney", tile, 90.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Chimney", *tile, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "Chimney", tile, 270.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Chimney", *tile, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "Grindstone", tile, 180.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Grindstone", *tile, 180.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "Anvil", tile, 0.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Anvil", *tile, 0.0, SCALE, false);
         }
         default:
             break;
@@ -411,7 +412,7 @@ void RoomWorkshop::doUpkeep()
         return;
     }
 
-    CraftedTrap* craftedTrap = new CraftedTrap(getGameMap(), true, getName(), mTrapType);
+    CraftedTrap* craftedTrap = new CraftedTrap(getGameMap(), getName(), mTrapType);
     craftedTrap->setSeat(getSeat());
     craftedTrap->addToGameMap();
     Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tileCraftedTrap->getX()), static_cast<Ogre::Real>(tileCraftedTrap->getY()), static_cast<Ogre::Real>(0.0));

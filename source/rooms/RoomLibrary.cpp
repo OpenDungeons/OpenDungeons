@@ -132,28 +132,29 @@ BuildingObject* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile
 
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
+            Ogre::Real z = 0;
             y += OFFSET_SPOT;
             mUnusedSpots.push_back(tile);
             if (Random::Int(0, 100) > 50)
-                return loadBuildingObject(getGameMap(), "Podium", tile, x, y, 45.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "Podium", tile, x, y, z, 45.0, SCALE, false);
             else
-                return loadBuildingObject(getGameMap(), "Bookcase", tile, x, y, 45.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "Bookcase", tile, x, y, z, 45.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 90.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 270.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 0.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 180.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 180.0, SCALE, false);
         }
         default:
             break;
@@ -393,7 +394,7 @@ bool RoomLibrary::useRoom(Creature& creature, bool forced)
         return false;
     }
 
-    SkillEntity* skillEntity = new SkillEntity(getGameMap(), true, getName(), skillEntityPoints);
+    SkillEntity* skillEntity = new SkillEntity(getGameMap(), getName(), skillEntityPoints);
     skillEntity->setSeat(getSeat());
     skillEntity->addToGameMap();
     Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(spawnTile->getX()), static_cast<Ogre::Real>(spawnTile->getY()), static_cast<Ogre::Real>(0.0));

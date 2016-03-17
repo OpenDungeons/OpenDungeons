@@ -111,7 +111,7 @@ class RoomTortureFactory : public RoomFactory
 static RoomRegister reg(new RoomTortureFactory);
 }
 
-static const Ogre::Vector3 SCALE_ACTIVESPOT_CENTER(0.3,0.3,0.3);
+static const Ogre::Vector3 SCALE_ACTIVESPOT_CENTER(0.7,0.7,0.7);
 static const Ogre::Vector3 SCALE_ACTIVESPOT_WALL(0.7,0.7,0.7);
 
 RoomTorture::RoomTorture(GameMap* gameMap) :
@@ -128,24 +128,25 @@ BuildingObject* RoomTorture::notifyActiveSpotCreated(ActiveSpotPlace place, Tile
         {
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
+            Ogre::Real z = 0;
             mCreaturesSpots.emplace(std::make_pair(tile, RoomTortureCreatureInfo()));
-            return loadBuildingObject(getGameMap(), "Roulette", tile, x, y, 0.0, SCALE_ACTIVESPOT_CENTER, false);
+            return new BuildingObject(getGameMap(), *this, "TortureObject", tile, x, y, z, 0.0, SCALE_ACTIVESPOT_CENTER, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "Chimney", tile, 90.0, SCALE_ACTIVESPOT_WALL, false);
+            return new BuildingObject(getGameMap(), *this, "Chimney", *tile, 90.0, SCALE_ACTIVESPOT_WALL, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "Chimney", tile, 270.0, SCALE_ACTIVESPOT_WALL, false);
+            return new BuildingObject(getGameMap(), *this, "Chimney", *tile, 270.0, SCALE_ACTIVESPOT_WALL, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "Chimney", tile, 0.0, SCALE_ACTIVESPOT_WALL, false);
+            return new BuildingObject(getGameMap(), *this, "Chimney", *tile, 0.0, SCALE_ACTIVESPOT_WALL, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "Chimney", tile, 180.0, SCALE_ACTIVESPOT_WALL, false);
+            return new BuildingObject(getGameMap(), *this, "Chimney", *tile, 180.0, SCALE_ACTIVESPOT_WALL, false);
         }
         default:
             break;

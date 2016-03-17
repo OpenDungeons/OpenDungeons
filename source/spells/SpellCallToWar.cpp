@@ -68,8 +68,8 @@ class SpellCallToWarFactory : public SpellFactory
 static SpellRegister reg(new SpellCallToWarFactory);
 }
 
-SpellCallToWar::SpellCallToWar(GameMap* gameMap, bool isOnServerMap) :
-    Spell(gameMap, isOnServerMap, SpellManager::getSpellNameFromSpellType(getSpellType()), "WarBanner", 0.0,
+SpellCallToWar::SpellCallToWar(GameMap* gameMap) :
+    Spell(gameMap, SpellManager::getSpellNameFromSpellType(getSpellType()), "WarBanner", 0.0,
         ConfigManager::getSingleton().getSpellConfigInt32("CallToWarNbTurnsMax"))
 {
     mPrevAnimationState = "Loop";
@@ -160,7 +160,7 @@ bool SpellCallToWar::castSpell(GameMap* gameMap, Player* player, ODPacket& packe
     if(!player->getSeat()->takeMana(manaCost))
         return false;
 
-    SpellCallToWar* spell = new SpellCallToWar(gameMap, true);
+    SpellCallToWar* spell = new SpellCallToWar(gameMap);
     spell->setSeat(player->getSeat());
     spell->addToGameMap();
     Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
@@ -174,14 +174,14 @@ bool SpellCallToWar::castSpell(GameMap* gameMap, Player* player, ODPacket& packe
 
 Spell* SpellCallToWar::getSpellFromStream(GameMap* gameMap, std::istream &is)
 {
-    SpellCallToWar* spell = new SpellCallToWar(gameMap, true);
+    SpellCallToWar* spell = new SpellCallToWar(gameMap);
     spell->importFromStream(is);
     return spell;
 }
 
 Spell* SpellCallToWar::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
 {
-    SpellCallToWar* spell = new SpellCallToWar(gameMap, false);
+    SpellCallToWar* spell = new SpellCallToWar(gameMap);
     spell->importFromPacket(is);
     return spell;
 }

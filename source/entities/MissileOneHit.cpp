@@ -25,10 +25,10 @@
 
 #include <iostream>
 
-MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
+MissileOneHit::MissileOneHit(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const std::string& particleScript, const Ogre::Vector3& direction, double speed, double physicalDamage, double magicalDamage,
         double elementDamage, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature) :
-    MissileObject(gameMap, isOnServerMap, seat, senderName, meshName, direction, speed, entityTarget, damageAllies, koEnemyCreature),
+    MissileObject(gameMap, seat, senderName, meshName, direction, speed, entityTarget, damageAllies, koEnemyCreature),
     mPhysicalDamage(physicalDamage),
     mMagicalDamage(magicalDamage),
     mElementDamage(elementDamage)
@@ -40,8 +40,8 @@ MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap, Seat* seat, c
     }
 }
 
-MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap) :
-        MissileObject(gameMap, isOnServerMap),
+MissileOneHit::MissileOneHit(GameMap* gameMap) :
+        MissileObject(gameMap),
     mPhysicalDamage(0.0),
     mMagicalDamage(0.0),
     mElementDamage(0.0)
@@ -61,14 +61,14 @@ void MissileOneHit::hitTargetEntity(Tile* tile, GameEntity* entityTarget)
 
 MissileOneHit* MissileOneHit::getMissileOneHitFromStream(GameMap* gameMap, std::istream& is)
 {
-    MissileOneHit* obj = new MissileOneHit(gameMap, true);
+    MissileOneHit* obj = new MissileOneHit(gameMap);
     obj->importFromStream(is);
     return obj;
 }
 
 MissileOneHit* MissileOneHit::getMissileOneHitFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    MissileOneHit* obj = new MissileOneHit(gameMap, false);
+    MissileOneHit* obj = new MissileOneHit(gameMap);
     obj->importFromPacket(is);
     return obj;
 }

@@ -29,14 +29,21 @@
 
 static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
-TrapEntity::TrapEntity(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
+TrapEntity::TrapEntity(GameMap* gameMap, Building& building, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
-    PersistentObject(gameMap, isOnServerMap, buildingName, meshName, tile, rotationAngle, SCALE, hideCoveredTile, opacity)
+    PersistentObject(gameMap,
+        building,
+        meshName,
+        tile,
+        rotationAngle,
+        SCALE,
+        hideCoveredTile,
+        opacity)
 {
 }
 
-TrapEntity::TrapEntity(GameMap* gameMap, bool isOnServerMap) :
-    PersistentObject(gameMap, isOnServerMap)
+TrapEntity::TrapEntity(GameMap* gameMap) :
+    PersistentObject(gameMap)
 {
 }
 
@@ -56,10 +63,10 @@ TrapEntity* TrapEntity::getTrapEntityFromPacket(GameMap* gameMap, ODPacket& is)
     switch(trapEntityType)
     {
         case TrapEntityType::trapEntity:
-            trapEntity = new TrapEntity(gameMap, false);
+            trapEntity = new TrapEntity(gameMap);
             break;
         case TrapEntityType::doorEntity:
-            trapEntity = new DoorEntity(gameMap, false);
+            trapEntity = new DoorEntity(gameMap);
             break;
         default:
             OD_LOG_ERR("Unknown TrapEntityType=" + Helper::toString(static_cast<uint32_t>(trapEntityType)));

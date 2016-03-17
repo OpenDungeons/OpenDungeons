@@ -305,7 +305,7 @@ TrapEntity* TrapDoor::getTrapEntity(Tile* tile)
     {
         rotation = 0.0;
     }
-    return new DoorEntity(getGameMap(), true, getSeat(), getName(), reg.getTrapFactory()->getMeshName(), tile, rotation, false, isActivated(tile) ? 1.0f : 0.5f,
+    return new DoorEntity(getGameMap(), *this, reg.getTrapFactory()->getMeshName(), tile, rotation, false, isActivated(tile) ? 1.0f : 0.5f,
         ANIMATION_OPEN, false);
 }
 
@@ -372,9 +372,9 @@ void TrapDoor::notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile)
 void TrapDoor::changeDoorState(DoorEntity* doorEntity, Tile* tile, bool locked)
 {
     if(locked)
-        doorEntity->setAnimationState(ANIMATION_CLOSE, false);
+        doorEntity->setAnimationState(ANIMATION_CLOSE, false, Ogre::Vector3::ZERO, false);
     else
-        doorEntity->setAnimationState(ANIMATION_OPEN, false);
+        doorEntity->setAnimationState(ANIMATION_OPEN, false, Ogre::Vector3::ZERO, false);
 
     if(!isActivated(tile))
         return;

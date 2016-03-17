@@ -277,7 +277,7 @@ bool RoomTreasury::removeCoveredTile(Tile* t)
             OD_LOG_INF("Room " + getName()
                 + ", tile=" + Tile::displayAsString(t) + " releases gold amount = "
                 + Helper::toString(value));
-            TreasuryObject* obj = new TreasuryObject(getGameMap(), true, value);
+            TreasuryObject* obj = new TreasuryObject(getGameMap(), value);
             obj->addToGameMap();
             Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(t->getX()),
                                         static_cast<Ogre::Real>(t->getY()), 0.0f);
@@ -412,10 +412,11 @@ void RoomTreasury::updateMeshesForTile(Tile* tile, RoomTreasuryTileData* roomTre
         const double offset = 0.2;
         double posX = static_cast<double>(tile->getX());
         double posY = static_cast<double>(tile->getY());
+        double posZ = 0;
         posX += Random::Double(-offset, offset);
         posY += Random::Double(-offset, offset);
         double angle = Random::Double(0.0, 360);
-        BuildingObject* ro = loadBuildingObject(getGameMap(), newMeshName, tile, posX, posY, angle, SCALE, false);
+        BuildingObject* ro = new BuildingObject(getGameMap(), *this, newMeshName, tile, posX, posY, posZ, angle, SCALE, false);
         addBuildingObject(tile, ro);
     }
 

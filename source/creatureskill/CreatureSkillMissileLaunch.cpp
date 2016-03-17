@@ -102,8 +102,8 @@ bool CreatureSkillMissileLaunch::tryUseFight(GameMap& gameMap, Creature* creatur
         eleAtk +=creature->getWeaponR()->getElementDamage();
     }
 
-    MissileOneHit* missile = new MissileOneHit(&gameMap, gameMap.isServerGameMap(), creature->getSeat(),
-        creature->getName(), mMissileMesh, mMissilePartScript, missileDirection, mMissileSpeed, phyAtk, magAtk, eleAtk,
+    MissileOneHit* missile = new MissileOneHit(&gameMap, creature->getSeat(), creature->getName(),
+        mMissileMesh, mMissilePartScript, missileDirection, mMissileSpeed, phyAtk, magAtk, eleAtk,
         attackedObject, false, ko);
     missile->addToGameMap();
     missile->createMesh();

@@ -33,9 +33,9 @@ class RenderedMovableEntity: public MovableGameEntity
 public:
     //! \brief Creates a RenderedMovableEntity. It's name is built from baseName and some unique id from the gamemap.
     //! We use baseName to help understand what's this object for when getting a log
-    RenderedMovableEntity(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, const std::string& nMeshName,
+    RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName,
         Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
-    RenderedMovableEntity(GameMap* gameMap, bool isOnServerMap);
+    RenderedMovableEntity(GameMap* gameMap);
 
     static const std::string RENDEREDMOVABLEENTITY_PREFIX;
 
@@ -95,8 +95,6 @@ protected:
     virtual void destroyMeshLocal() override;
     virtual void fireAddEntity(Seat* seat, bool async) override;
     virtual void fireRemoveEntity(Seat* seat) override;
-
-    std::string mBaseName;
 
 private:
     Ogre::Real mRotationAngle;

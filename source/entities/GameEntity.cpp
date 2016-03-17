@@ -80,7 +80,6 @@ EntityParticleEffect* EntityParticleEffect::importParticleEffectFromPacketIfNotI
 
 GameEntity::GameEntity(
           GameMap*        gameMap,
-          bool            isOnServerMap,
           std::string     name,
           std::string     meshName,
           Seat*           seat
@@ -96,8 +95,7 @@ GameEntity::GameEntity(
     mGameMap           (gameMap),
     mIsOnMap           (false),
     mParticleSystemsNumber   (0),
-    mCarryLock         (false),
-    mIsOnServerMap     (isOnServerMap)
+    mCarryLock         (false)
 {
     assert(mGameMap != nullptr);
 }
@@ -545,6 +543,11 @@ void GameEntity::fireEntityRemoveFromGameMap()
 
         it = mGameEntityListeners.erase(it);
     }
+}
+
+bool GameEntity::getIsOnServerMap() const
+{
+    return mGameMap->isServerGameMap();
 }
 
 void GameEntity::exportToStream(GameEntity* entity, std::ostream& os)

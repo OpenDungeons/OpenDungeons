@@ -32,8 +32,8 @@ class ODPacket;
 class SmallSpiderEntity: public RenderedMovableEntity
 {
 public:
-    SmallSpiderEntity(GameMap* gameMap, bool isOnServerMap, const std::string& cryptName, int32_t nbTurnLife);
-    SmallSpiderEntity(GameMap* gameMap, bool isOnServerMap);
+    SmallSpiderEntity(GameMap* gameMap, const std::string& cryptName, int32_t nbTurnLife);
+    SmallSpiderEntity(GameMap* gameMap);
 
     virtual void doUpkeep() override;
 

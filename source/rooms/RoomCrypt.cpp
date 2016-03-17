@@ -17,6 +17,7 @@
 
 #include "rooms/RoomCrypt.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/Creature.h"
 #include "entities/GameEntityType.h"
 #include "entities/SmallSpiderEntity.h"
@@ -128,27 +129,27 @@ BuildingObject* RoomCrypt::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* 
             mRottingCreatures[tile] = std::pair<Creature*,int32_t>(nullptr, -1);
             int rnd = Random::Int(0, 100);
             if (rnd < 33)
-                return loadBuildingObject(getGameMap(), "KnightCoffin", tile, 0.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "KnightCoffin", *tile, 0.0, SCALE, false);
             else if (rnd < 66)
-                return loadBuildingObject(getGameMap(), "CelticCross", tile, 0.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "CelticCross", *tile, 0.0, SCALE, false);
             else
-                return loadBuildingObject(getGameMap(), "StoneCoffin", tile, 0.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "StoneCoffin", *tile, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue", tile, 90.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "KnightStatue", *tile, 90.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue", tile, 270.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "KnightStatue", *tile, 270.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 0.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "KnightStatue2", *tile, 0.0, SCALE, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 180.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "KnightStatue2", *tile, 180.0, SCALE, false);
         }
         default:
             break;
@@ -203,7 +204,7 @@ void RoomCrypt::doUpkeep()
         if(Random::Int(1, 10) > 1)
             continue;
 
-        SmallSpiderEntity* spider = new SmallSpiderEntity(getGameMap(), true, getName(), 10);
+        SmallSpiderEntity* spider = new SmallSpiderEntity(getGameMap(), getName(), 10);
         Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), 0.0f);
         spider->addToGameMap();
         spider->createMesh();
@@ -260,7 +261,7 @@ void RoomCrypt::doUpkeep()
             }
 
             // Create a new creature and copy over the class-based creature parameters.
-            Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat());
+            Creature* newCreature = new Creature(getGameMap(), classToSpawn, getSeat());
 
             // Add the creature to the gameMap and create meshes so it is visible.
             newCreature->addToGameMap();

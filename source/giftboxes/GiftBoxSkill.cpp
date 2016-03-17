@@ -26,16 +26,16 @@
 
 #include <iostream>
 
-GiftBoxSkill::GiftBoxSkill(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, SkillType skillType) :
-    GiftBoxEntity(gameMap, isOnServerMap, baseName, "MysteryBox", GiftBoxType::skill),
+GiftBoxSkill::GiftBoxSkill(GameMap* gameMap, const std::string& baseName, SkillType skillType) :
+    GiftBoxEntity(gameMap, baseName, "MysteryBox", GiftBoxType::skill),
     mSkillType(skillType)
 {
     mPrevAnimationState = "Loop";
     mPrevAnimationStateLoop = true;
 }
 
-GiftBoxSkill::GiftBoxSkill(GameMap* gameMap, bool isOnServerMap) :
-    GiftBoxEntity(gameMap, isOnServerMap),
+GiftBoxSkill::GiftBoxSkill(GameMap* gameMap) :
+    GiftBoxEntity(gameMap),
     mSkillType(SkillType::nullSkillType)
 {
 }

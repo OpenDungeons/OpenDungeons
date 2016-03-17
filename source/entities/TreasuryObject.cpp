@@ -29,15 +29,15 @@
 #include <istream>
 #include <ostream>
 
-TreasuryObject::TreasuryObject(GameMap* gameMap, bool isOnServerMap, int goldValue) :
-    RenderedMovableEntity(gameMap, isOnServerMap, "Treasury_", getMeshNameForGold(goldValue), 0.0f, false),
+TreasuryObject::TreasuryObject(GameMap* gameMap, int goldValue) :
+    RenderedMovableEntity(gameMap, "Treasury_", getMeshNameForGold(goldValue), 0.0f, false),
     mGoldValue(goldValue),
     mHasGoldValueChanged(false)
 {
 }
 
-TreasuryObject::TreasuryObject(GameMap* gameMap, bool isOnServerMap) :
-    RenderedMovableEntity(gameMap, isOnServerMap),
+TreasuryObject::TreasuryObject(GameMap* gameMap) :
+    RenderedMovableEntity(gameMap),
     mGoldValue(0),
     mHasGoldValueChanged(false)
 {
@@ -108,7 +108,7 @@ void TreasuryObject::doUpkeep()
             removeFromGameMap();
             deleteYourself();
 
-            TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldValue);
+            TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldValue);
             obj->addToGameMap();
             Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
                                         static_cast<Ogre::Real>(tile->getY()), 0.0f);
