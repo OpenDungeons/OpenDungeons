@@ -77,7 +77,6 @@ bool RenderSceneMoveEntity::update(CameraManager& cameraManager, RenderManager& 
 
     mPosition = mDestination;
     renderManager.updateMenuEntityPosition(mSceneNode, mPosition);
-    renderManager.orientMenuEntityPosition(mSceneNode, mDirection);
 
     return true;
 }
@@ -105,12 +104,6 @@ bool RenderSceneMoveEntity::importFromStream(std::istream& is)
     if(!(is >> mDestination.y))
         return false;
     if(!(is >> mDestination.z))
-        return false;
-    if(!(is >> mDirection.x))
-        return false;
-    if(!(is >> mDirection.y))
-        return false;
-    if(!(is >> mDirection.z))
         return false;
 
     return true;

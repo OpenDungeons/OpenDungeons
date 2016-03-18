@@ -15,22 +15,25 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RENDERSCENEMOVEENTITY_H
-#define RENDERSCENEMOVEENTITY_H
+#ifndef RENDERSCENETURNENTITY_H
+#define RENDERSCENETURNENTITY_H
 
 #include "renderscene/RenderScene.h"
 
-class RenderSceneMoveEntity : public RenderScene
+class RenderSceneTurnEntity : public RenderScene
 {
 public:
-    RenderSceneMoveEntity() :
-        mSpeed(1),
-        mDestination(Ogre::Vector3::ZERO),
+    RenderSceneTurnEntity() :
+        mDirectionFinal(Ogre::Vector3::ZERO),
+        mTimeToTurn(0),
+        mSceneNode(nullptr),
         mAnimState(nullptr),
-        mSceneNode(nullptr)
+        mTime(0),
+        mAngleSrc(Ogre::Quaternion::IDENTITY),
+        mAngleDest(Ogre::Quaternion::IDENTITY)
     {}
 
-    virtual ~RenderSceneMoveEntity()
+    virtual ~RenderSceneTurnEntity()
     {}
 
     const std::string& getModifierName() const override;
@@ -45,13 +48,15 @@ public:
 private:
     std::string mName;
     std::string mAnimation;
-    Ogre::Real mSpeed;
-    Ogre::Vector3 mDestination;
+    Ogre::Vector3 mDirectionFinal;
+    Ogre::Real mTimeToTurn;
 
     // Temporary ressources
-    Ogre::AnimationState* mAnimState;
     Ogre::SceneNode* mSceneNode;
-    Ogre::Vector3 mPosition;
+    Ogre::AnimationState* mAnimState;
+    Ogre::Real mTime;
+    Ogre::Quaternion mAngleSrc;
+    Ogre::Quaternion mAngleDest;
 };
 
-#endif // RENDERSCENEMOVEENTITY_H
+#endif // RENDERSCENETURNENTITY_H

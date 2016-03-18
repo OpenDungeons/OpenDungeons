@@ -165,6 +165,9 @@ public:
         const std::string& boneName, const std::string& particleName, const std::string& particleScript);
     void removeEntityParticleEffectBoneMenu(const std::string& entityName,
         Ogre::ParticleSystem* particleSystem);
+    Ogre::Quaternion getNodeOrientation(Ogre::SceneNode* node);
+    void setProgressiveNodeOrientation(Ogre::SceneNode* node, Ogre::Real progress,
+        const Ogre::Quaternion& angleSrc, const Ogre::Quaternion& angleDest);
 
 private:
     //! \brief Correctly places entities in hand next to the keeper hand
