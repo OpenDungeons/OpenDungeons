@@ -410,7 +410,33 @@ bool ODClientTest::processMessage(ServerNotificationType cmd, ODPacket& packetRe
                 BOOST_CHECK(packetReceived >> walkDirection);
             }
 
-            handleSetAnimationState(entityName, animState, loop, playIdleWhenAnimationEnds, shouldSetWalkDirection, walkDirection);
+            animationPlayed(entityName, animState, loop, playIdleWhenAnimationEnds, shouldSetWalkDirection, walkDirection);
+            break;
+        }
+        case ServerNotificationType::animatedObjectSetWalkPath:
+        {
+            std::string entityName;
+            std::string walkAnim;
+            std::string endAnim;
+            bool loopEndAnim;
+            bool playIdleWhenAnimationEnds;
+            uint32_t nbDest;
+            BOOST_CHECK(packetReceived >> entityName >> walkAnim >> endAnim);
+            BOOST_CHECK(packetReceived >> loopEndAnim >> playIdleWhenAnimationEnds >> nbDest);
+            std::vector<Ogre::Vector3> path;
+            while(nbDest)
+            {
+                --nbDest;
+                Ogre::Vector3 dest;
+                BOOST_CHECK(packetReceived >> dest);
+                path.push_back(dest);
+            }
+
+            //! We want to make sure animationPlayed is played for both animations (if required)
+            if(!walkAnim.empty())
+                animationPlayed(entityName, walkAnim, true, false, false, Ogre::Vector3::ZERO);
+            if(!endAnim.empty())
+                animationPlayed(entityName, endAnim, loopEndAnim, false, false, Ogre::Vector3::ZERO);
             break;
         }
         default:

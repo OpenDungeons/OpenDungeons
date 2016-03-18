@@ -36,7 +36,7 @@ public:
     std::string mAwaitedEntityAnimation;
     bool mResultTest;
 
-    virtual void handleSetAnimationState(const std::string& entityName, const std::string& animState, bool loop,
+    virtual void animationPlayed(const std::string& entityName, const std::string& animState, bool loop,
         bool playIdleWhenAnimationEnds, bool shouldSetWalkDirection, const Ogre::Vector3& walkDirection) override
     {
         if(mAwaitedEntityName.empty())
