@@ -313,6 +313,7 @@ public:
     static const std::string PLAYER_TYPE_CHOICE;
 
     static const int32_t PLAYER_TYPE_INACTIVE_ID;
+    static const int32_t PLAYER_ID_HUMAN_MIN;
 
     static const std::string PLAYER_FACTION_CHOICE;
 

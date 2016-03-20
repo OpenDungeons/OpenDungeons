@@ -298,8 +298,8 @@ bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
     CEGUI::ListboxItem* selItem = comboSel->getSelectedItem();
     if((selItem != nullptr) &&
        (comboSel->getName().compare(0, COMBOBOX_PLAYER_PREFIX.length(), COMBOBOX_PLAYER_PREFIX) == 0) &&
-       (selItem->getID() != 0) && // Can be several inactive players
-       (selItem->getID() != 1)) // Can be several AI players
+       (static_cast<int32_t>(selItem->getID()) >= Seat::PLAYER_ID_HUMAN_MIN) && // Can be several AI players
+       (static_cast<int32_t>(selItem->getID()) != Seat::PLAYER_TYPE_INACTIVE_ID)) // Can be several inactive players
     {
         GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
         CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");

@@ -53,6 +53,8 @@ const std::string Seat::PLAYER_TYPE_CHOICE = "Choice";
 const std::string Seat::PLAYER_FACTION_CHOICE = "Choice";
 
 const int32_t Seat::PLAYER_TYPE_INACTIVE_ID = 0;
+const int32_t Seat::PLAYER_ID_HUMAN_MIN = static_cast<int32_t>(KeeperAIType::nbAI) + Seat::PLAYER_TYPE_INACTIVE_ID + 1;
+
 
 TileStateNotified::TileStateNotified():
     mTileVisual(TileVisual::nullTileVisual),
