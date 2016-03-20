@@ -97,11 +97,18 @@ void TreasuryObject::doUpkeep()
         }
     }
 
-    // If we are empty, we can remove safely
     if(mHasGoldValueChanged)
     {
         mHasGoldValueChanged = false;
+        // If we are empty, we can remove safely
+        if(mGoldValue == 0)
+        {
+            removeFromGameMap();
+            deleteYourself();
+            return;
+        }
 
+        // If the gold value changed the mesh, we remove the old mesh and create a new one
         if(getMeshName().compare(getMeshNameForGold(mGoldValue)) != 0)
         {
             // The treasury fullnes changed. We remove the object and create a new one
