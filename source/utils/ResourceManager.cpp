@@ -5,7 +5,7 @@
  * \brief  This class handles all the resources (paths, files) needed by the
  *         sound and graphics facilities.
  *
- *  Copyright (C) 2011-2015  OpenDungeons Team
+ *  Copyright (C) 2011-2016  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

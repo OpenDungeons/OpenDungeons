@@ -4,7 +4,7 @@
  * \auth	(require 'ecb)or Ogre team, andrewbuck, oln, StefanP.MUC
  * \brief  Handles the input and rendering request
  *
- *  Copyright (C) 2011-2015  OpenDungeons Team
+ *  Copyright (C) 2011-2016  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
