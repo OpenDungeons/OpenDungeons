@@ -64,6 +64,7 @@ schemas/
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
 multiplayer/
+-> Angel.level                         OD Team                 GPLv3+
 -> GreedOrMight.level                  OD Team                 GPLv3+
 -> RuinsOfTheConfluent.level           OD Team                 GPLv3+
 -> ScreamInTheDark.level               OD Team                 GPLv3+
