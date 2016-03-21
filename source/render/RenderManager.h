@@ -3,7 +3,7 @@
  *  \date   26 March 2011
  *  \author oln
  *  \brief  handles the render requests
- *  Copyright (C) 2011-2015  OpenDungeons Team
+ *  Copyright (C) 2011-2016  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

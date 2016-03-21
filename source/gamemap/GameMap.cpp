@@ -2,7 +2,7 @@
  * \file   GameMap.cpp
  * \brief  The central object holding everything that is on the map
  *
- *  Copyright (C) 2011-2015  OpenDungeons Team
+ *  Copyright (C) 2011-2016  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
