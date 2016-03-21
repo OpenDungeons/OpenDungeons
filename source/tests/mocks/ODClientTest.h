@@ -73,7 +73,10 @@ protected:
     bool processMessage(ServerNotificationType cmd, ODPacket& packetReceived) override;
     virtual void handleTurnStarted(int64_t turnNum)
     {}
-    virtual void handleSetAnimationState(const std::string& entityName, const std::string& animState,
+    //! \brief Called when an animation is played on an entity. Note that different server
+    //! messages can lead to playing an animation. This function should be called whatever
+    //! message wanted to play the animation
+    virtual void animationPlayed(const std::string& entityName, const std::string& animState,
         bool loop, bool playIdleWhenAnimationEnds, bool shouldSetWalkDirection, const Ogre::Vector3& walkDirection)
     {}
 

@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(test_Creatures)
     }
 
     ODClientTestCreatures client(players, indexPlayer);
-    BOOST_CHECK(client.connect("localhost", 32222, 10, "test_CreaturesReplay"));
+    BOOST_CHECK(client.connect("localhost", 32222, 10, "test_Traps"));
 
     BOOST_CHECK(client.isConnected());
 
@@ -114,40 +114,60 @@ BOOST_AUTO_TEST_CASE(test_Creatures)
     client.runFor(5000);
 
     std::string cmd;
-    cmd = "addcreature 1 Wyvern1 Wyvern 3 12 0 Wyvern 1 0 max 100 0 0 none none 4 none 0";
+    // We spawn a creature with hp=1 from seat 0 near the seat 1 traps and check it is killed
+    cmd = "addcreature 0 Wyvern1 Wyvern 1 16 0 Wyvern 1 0 1 100 0 0 none none 4 none 0";
     client.sendConsoleCmd(cmd);
 
-    // We expect to receive moves
     client.mResultTest = false;
     client.mAwaitedEntityName = "Wyvern1";
-    client.mAwaitedEntityAnimation = "Walk";
+    client.mAwaitedEntityAnimation = "Die";
     client.runFor(5000);
 
     BOOST_CHECK(client.mResultTest);
 
-    // We add another creature of the same seat
-    cmd = "addcreature 1 Wyvern2 Wyvern 3 12 0 Wyvern 1 0 max 100 0 0 none none 4 none 0";
+    // We spawn a creature with hp=1 from seat 1 near the seat 1 traps and check it is not killed
+    cmd = "addcreature 1 Wyvern2 Wyvern 1 16 0 Wyvern 1 0 1 100 0 0 none none 4 none 0";
     client.sendConsoleCmd(cmd);
 
-    // We expect them not to fight
     client.mResultTest = false;
     client.mAwaitedEntityName = "Wyvern2";
-    client.mAwaitedEntityAnimation = "Attack1";
+    client.mAwaitedEntityAnimation = "Die";
     client.runFor(5000);
 
     BOOST_CHECK(!client.mResultTest);
 
-    // We add another creature of another seat. We expect to fight
-    cmd = "addcreature 0 Wyvern3 Wyvern 3 12 0 Wyvern 15 0 max 100 0 0 none none 4 none 0";
+    // We spawn a creature with hp=1 from seat 1 near the seat 0 traps and check it is killed
+    cmd = "addcreature 1 Wyvern3 Wyvern 8 15 0 Wyvern 1 0 1 100 0 0 none none 4 none 0";
     client.sendConsoleCmd(cmd);
 
-    // We expect them not to fight
     client.mResultTest = false;
     client.mAwaitedEntityName = "Wyvern3";
-    client.mAwaitedEntityAnimation = "Attack1";
+    client.mAwaitedEntityAnimation = "Die";
     client.runFor(5000);
 
     BOOST_CHECK(client.mResultTest);
+
+    // We spawn a creature with hp=1 from seat 1 near the seat 1 traps and check it is not killed
+    cmd = "addcreature 0 Wyvern4 Wyvern 8 15 0 Wyvern 1 0 1 100 0 0 none none 4 none 0";
+    client.sendConsoleCmd(cmd);
+
+    client.mResultTest = false;
+    client.mAwaitedEntityName = "Wyvern4";
+    client.mAwaitedEntityAnimation = "Die";
+    client.runFor(5000);
+
+    BOOST_CHECK(!client.mResultTest);
+
+    // We spawn a creature with hp=1 from seat 0 near the seat 1 unactivated trap and check it is not killed
+    cmd = "addcreature 0 Wyvern5 Wyvern 5 13 0 Wyvern 1 0 1 100 0 0 none none 4 none 0";
+    client.sendConsoleCmd(cmd);
+
+    client.mResultTest = false;
+    client.mAwaitedEntityName = "Wyvern5";
+    client.mAwaitedEntityAnimation = "Die";
+    client.runFor(5000);
+
+    BOOST_CHECK(!client.mResultTest);
 
     // We expect to have reached at least turn 10
     OD_LOG_INF("turnNum=" + Helper::toString(client.mTurnNum));
