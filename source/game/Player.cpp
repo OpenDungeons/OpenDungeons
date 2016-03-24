@@ -368,6 +368,8 @@ void Player::notifyNoMoreDungeonTemple()
         return;
 
     mHasLost = true;
+    OD_LOG_INF("Player seatId=" + Helper::toString(getSeat()->getId()) + " lost");
+
     // We check if there is still a player in the team with a dungeon temple. If yes, we notify the player he lost his dungeon
     // if no, we notify the team they lost
     std::vector<Room*> dungeonTemples = mGameMap->getRoomsByType(RoomType::dungeonTemple);

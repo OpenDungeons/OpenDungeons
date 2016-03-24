@@ -53,6 +53,12 @@ DoorEntity::DoorEntity(GameMap* gameMap) :
 {
 }
 
+DoorEntity::~DoorEntity()
+{
+    if(mBuilding != nullptr)
+        mBuilding->removeGameEntityListener(this);
+}
+
 void DoorEntity::exportToPacket(ODPacket& os, const Seat* seat) const
 {
     TrapEntity::exportToPacket(os, seat);

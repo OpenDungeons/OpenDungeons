@@ -65,8 +65,6 @@ static const int32_t MASTER_SERVER_STATUS_PENDING = 0;
 static const int32_t MASTER_SERVER_STATUS_STARTED = 1;
 static const int32_t MASTER_SERVER_STATUS_FINISHED = 2;
 
-static const int32_t PLAYER_ID_HUMAN_MIN = static_cast<int32_t>(KeeperAIType::nbAI) + Seat::PLAYER_TYPE_INACTIVE_ID + 1;
-
 template<> ODServer* Ogre::Singleton<ODServer>::msSingleton = nullptr;
 
 ODServer::ODServer() :
@@ -627,7 +625,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     mPlayerConfig = nullptr;
             }
 
-            if(seat->getConfigPlayerId() < PLAYER_ID_HUMAN_MIN)
+            if(seat->getConfigPlayerId() < Seat::PLAYER_ID_HUMAN_MIN)
                 continue;
 
             otherHumanConnected = getClientFromPlayerId(seat->getConfigPlayerId());
@@ -785,7 +783,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> clientNick);
 
             // NOTE : playerId 0 is reserved for inactive players and 1 is reserved for AI
-            int32_t playerId = mUniqueNumberPlayer + PLAYER_ID_HUMAN_MIN;
+            int32_t playerId = mUniqueNumberPlayer + Seat::PLAYER_ID_HUMAN_MIN;
             mUniqueNumberPlayer++;
             Player* curPlayer = new Player(gameMap, playerId);
             curPlayer->setNick(clientNick);
@@ -1025,7 +1023,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     gameMap->addPlayer(inactivePlayer);
                     seat->setPlayer(inactivePlayer);
                 }
-                else if(playerId < PLAYER_ID_HUMAN_MIN)
+                else if(playerId < Seat::PLAYER_ID_HUMAN_MIN)
                 {
                     // It is an AI
                     KeeperAIType aiType = Seat::playerIdToAIType(playerId);
