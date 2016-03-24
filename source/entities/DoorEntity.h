@@ -34,6 +34,8 @@ public:
         const std::string& initialAnimationState, bool initialAnimationLoop);
     DoorEntity(GameMap* gameMap);
 
+    virtual ~DoorEntity();
+
     virtual TrapEntityType getTrapEntityType() const override
     { return TrapEntityType::doorEntity; }
 
