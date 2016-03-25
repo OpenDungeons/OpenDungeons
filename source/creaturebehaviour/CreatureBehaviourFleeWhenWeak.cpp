@@ -72,6 +72,10 @@ bool CreatureBehaviourFleeWhenWeak::processBehaviour(Creature& creature) const
         return false;
     }
 
+    // Workers should flee when attacked but should not try to sleep or wander
+    if(creature.getDefinition()->isWorker())
+        return true;
+
     if(creature.isActionInList(CreatureActionType::sleep))
         return true;
 
