@@ -87,8 +87,8 @@ MenuModeEditorLoad::MenuModeEditorLoad(ModeManager* modeManager):
         )
     );
     addEventConnection(
-        window->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+        window->getChild("LevelWindowFrame")->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
                                      static_cast<AbstractApplicationMode*>(this))
         )
@@ -126,7 +126,7 @@ static bool findFileStemIn(const std::vector<std::string>& fileList, std::string
 {
     for (const std::string& file : fileList)
     {
-        if (boost::filesystem::path(file).stem().string() == 
+        if (boost::filesystem::path(file).stem().string() ==
             boost::filesystem::path(filename).stem().string())
             return true;
     }

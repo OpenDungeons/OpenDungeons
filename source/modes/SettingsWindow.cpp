@@ -71,8 +71,8 @@ SettingsWindow::SettingsWindow(CEGUI::Window* rootWindow):
         )
     );
     addEventConnection(
-        mSettingsWindow->getChild("__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+        mSettingsWindow->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&SettingsWindow::onCancelSettings, this)
         )
     );
@@ -101,8 +101,8 @@ SettingsWindow::SettingsWindow(CEGUI::Window* rootWindow):
         )
     );
     addEventConnection(
-        mApplyWindow->getChild("__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+        mApplyWindow->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&SettingsWindow::onPopupCancelApplySettings, this)
         )
     );

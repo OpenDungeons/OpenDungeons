@@ -73,13 +73,14 @@
 #include "utils/MakeUnique.h"
 #include "utils/Random.h"
 
-#include <CEGUI/System.h>
-#include <CEGUI/WindowManager.h>
-#include <CEGUI/Window.h>
-#include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/Event.h>
+#include <CEGUI/System.h>
 #include <CEGUI/UDim.h>
 #include <CEGUI/Vector.h>
+#include <CEGUI/WindowManager.h>
+#include <CEGUI/Window.h>
+#include <CEGUI/widgets/FrameWindow.h>
+#include <CEGUI/widgets/PushButton.h>
 
 #include <OgreQuaternion.h>
 #include <OgreVector3.h>
@@ -1881,10 +1882,9 @@ void Creature::createStatsWindow()
     textWindow->setProperty("FrameEnabled", "False");
     textWindow->setProperty("BackgroundEnabled", "False");
 
-    // Search for the autoclose button and make it work
-    CEGUI::Window* childWindow = mStatsWindow->getChild("__auto_closebutton__");
-    childWindow->subscribeEvent(CEGUI::PushButton::EventClicked,
-                                        CEGUI::Event::Subscriber(&Creature::CloseStatsWindow, this));
+    // We want to close the window when the cross is clicked
+    mStatsWindow->subscribeEvent(CEGUI::FrameWindow::EventCloseClicked,
+        CEGUI::Event::Subscriber(&Creature::CloseStatsWindow, this));
 
     // Set the window title
     mStatsWindow->setText(getName() + " (" + getDefinition()->getClassName() + ")");

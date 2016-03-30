@@ -51,6 +51,7 @@
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
 
+#include <CEGUI/widgets/FrameWindow.h>
 #include <CEGUI/widgets/PushButton.h>
 
 #include <algorithm>
@@ -92,8 +93,8 @@ EditorMode::EditorMode(ModeManager* modeManager):
 
     // The Quit menu handlers
     addEventConnection(
-        mRootWindow->getChild("ConfirmExit/__auto_closebutton__")->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
+        mRootWindow->getChild("ConfirmExit")->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&EditorMode::hideQuitMenu, this)
     ));
     addEventConnection(
@@ -114,8 +115,8 @@ EditorMode::EditorMode(ModeManager* modeManager):
             CEGUI::Event::Subscriber(&EditorMode::toggleOptionsWindow, this)
     ));
     addEventConnection(
-        mRootWindow->getChild("EditorOptionsWindow/__auto_closebutton__")->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
+        mRootWindow->getChild("EditorOptionsWindow")->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&EditorMode::toggleOptionsWindow, this)
     ));
     addEventConnection(

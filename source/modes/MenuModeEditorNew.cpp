@@ -72,8 +72,8 @@ MenuModeEditorNew::MenuModeEditorNew(ModeManager* modeManager):
         )
     );
     addEventConnection(
-        window->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+        window->getChild("LevelWindowFrame")->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
                                      static_cast<AbstractApplicationMode*>(this))
         )
