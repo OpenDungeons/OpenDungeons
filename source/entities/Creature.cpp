@@ -1887,8 +1887,7 @@ void Creature::createStatsWindow()
                                         CEGUI::Event::Subscriber(&Creature::CloseStatsWindow, this));
 
     // Set the window title
-    childWindow = mStatsWindow->getChild("__auto_titlebar__");
-    childWindow->setText(getName() + " (" + getDefinition()->getClassName() + ")");
+    mStatsWindow->setText(getName() + " (" + getDefinition()->getClassName() + ")");
 
     mStatsWindow->addChild(textWindow);
     rootWindow->addChild(mStatsWindow);
