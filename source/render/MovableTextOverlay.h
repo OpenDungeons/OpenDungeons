@@ -50,6 +50,9 @@ private:
 
     void update(Ogre::Real timeSincelastFrame);
 
+    //! \brief Called to notify if the overlay is visible by the current camera or not
+    void isOnScreen(bool onScreen);
+
     bool isDisplayed();
 
     Ogre::Real getWidth();
@@ -122,9 +125,6 @@ private:
     const Ogre::MovableObject* mFollowedMov;
 
     Ogre::Overlay* mOverlay;
-
-    //! true if the upper vertices projections of the MovableObject are on screen
-    bool mOnScreen;
 
     //! The camera used to display the scene
     const Ogre::Camera* mCamera;

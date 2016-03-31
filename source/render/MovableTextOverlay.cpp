@@ -137,6 +137,14 @@ void ChildOverlay::update(Ogre::Real timeSincelastFrame)
     mOverlayContainer->hide();
 }
 
+void ChildOverlay::isOnScreen(bool onScreen)
+{
+    if(onScreen)
+        mOverlayContainer->show();
+    else
+        mOverlayContainer->hide();
+}
+
 bool ChildOverlay::isDisplayed()
 {
     return mTimeToDisplay != 0.0;
@@ -147,7 +155,6 @@ MovableTextOverlay::MovableTextOverlay(const Ogre::String& name, const Ogre::Mov
     mName(name),
     mFollowedMov(followedMov),
     mOverlay(nullptr),
-    mOnScreen(false),
     mCamera(camera)
 {
     // create an overlay that we can use for later
@@ -254,11 +261,11 @@ void MovableTextOverlay::setMaterialName(uint32_t childOverlayId, const Ogre::St
 
 bool MovableTextOverlay::computeOverlayPositionHead(Ogre::Vector2& position)
 {
-    if (!mFollowedMov->isInScene())
-        return false;
-
     // the AABB of the target
     const Ogre::AxisAlignedBox& AABB = mFollowedMov->getWorldBoundingBox();
+    if (!mCamera->isVisible(AABB))
+        return false;
+
     const Ogre::Vector3 farLeftTop = AABB.getCorner(Ogre::AxisAlignedBox::NEAR_RIGHT_TOP);
     const Ogre::Vector3 nearRightTop = AABB.getCorner(Ogre::AxisAlignedBox::NEAR_LEFT_BOTTOM);
 
@@ -308,12 +315,17 @@ void MovableTextOverlay::update(Ogre::Real timeSincelastFrame)
         return;
 
     Ogre::Vector2 screenPosition;
-    mOnScreen = computeOverlayPositionHead(screenPosition);
-    if(!mOnScreen)
+    if(!computeOverlayPositionHead(screenPosition))
+    {
+        for(ChildOverlay& childOverlay : mChildOverlays)
+            childOverlay.isOnScreen(false);
+
         return;
+    }
 
     for(ChildOverlay& childOverlay : mChildOverlays)
     {
+        childOverlay.isOnScreen(true);
         if(!childOverlay.isDisplayed())
             continue;
 
