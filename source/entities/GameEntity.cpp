@@ -608,3 +608,8 @@ void GameEntity::updateFromPacket(ODPacket& is)
         mEntityParticleEffects.push_back(effect);
     }
 }
+
+void GameEntity::notifyFightPlayer(Tile* tile)
+{
+    getGameMap()->playerIsFighting(getSeat()->getPlayer(), tile);
+}

@@ -28,10 +28,11 @@
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 
-CreatureActionFight::CreatureActionFight(Creature& creature, GameEntity* entityAttack, bool koOpponent) :
+CreatureActionFight::CreatureActionFight(Creature& creature, GameEntity* entityAttack, bool koOpponent, bool notifyPlayerIfHit) :
     CreatureAction(creature),
     mEntityAttack(entityAttack),
-    mKoOpponent(koOpponent)
+    mKoOpponent(koOpponent),
+    mNotifyPlayerIfHit(notifyPlayerIfHit)
 {
     if(mEntityAttack != nullptr)
         mEntityAttack->addGameEntityListener(this);
@@ -46,10 +47,10 @@ CreatureActionFight::~CreatureActionFight()
 std::function<bool()> CreatureActionFight::action()
 {
     return std::bind(&CreatureActionFight::handleFight,
-        std::ref(mCreature), mEntityAttack, mKoOpponent);
+        std::ref(mCreature), mEntityAttack, mKoOpponent, mNotifyPlayerIfHit);
 }
 
-bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAttack, bool koOpponent)
+bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAttack, bool koOpponent, bool notifyPlayerIfHit)
 {
     static const std::vector<Tile*> emptyTiles;
     Tile* myTile = creature.getPositionTile();
@@ -138,7 +139,7 @@ bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAtta
                (skillData != nullptr))
             {
                 // We can attack
-                creature.useAttack(*skillData, *entityAttack, *tileAttack, koOpponent);
+                creature.useAttack(*skillData, *entityAttack, *tileAttack, koOpponent, notifyPlayerIfHit);
                 return false;
             }
 
@@ -175,7 +176,7 @@ bool CreatureActionFight::handleFight(Creature& creature, GameEntity* entityAtta
                (skillData != nullptr))
             {
                 // We can attack
-                creature.useAttack(*skillData, *entityAttack, *tileAttack, koOpponent);
+                creature.useAttack(*skillData, *entityAttack, *tileAttack, koOpponent, notifyPlayerIfHit);
                 return false;
             }
 

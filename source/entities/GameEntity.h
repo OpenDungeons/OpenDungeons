@@ -372,6 +372,10 @@ class GameEntity
     void addGameEntityListener(GameEntityListener* listener);
     void removeGameEntityListener(GameEntityListener* listener);
 
+    //! \brief Called when the entity is fighting an hostile entity. It will notify the
+    //! owner player
+    void notifyFightPlayer(Tile* tile);
+
     static void exportToStream(GameEntity* entity, std::ostream& os);
 
   protected:

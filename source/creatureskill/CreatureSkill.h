@@ -69,7 +69,7 @@ public:
     //! skill order matters as the first one is more likely to be used than the others
     //! Returns true if the skill was used and false otherwise
     virtual bool tryUseFight(GameMap& gameMap, Creature* creature, float range,
-        GameEntity* attackedObject, Tile* attackedTile, bool ko) const = 0;
+        GameEntity* attackedObject, Tile* attackedTile, bool ko, bool notifyPlayerIfHit) const = 0;
 
     //! \brief returns a new instance of the given creature skill. That is needed to
     //! duplicate CreatureDefinition class

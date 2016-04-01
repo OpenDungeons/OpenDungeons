@@ -27,11 +27,12 @@
 
 MissileOneHit::MissileOneHit(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const std::string& particleScript, const Ogre::Vector3& direction, double speed, double physicalDamage, double magicalDamage,
-        double elementDamage, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature) :
+        double elementDamage, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature, bool notifyPlayerIfHit) :
     MissileObject(gameMap, seat, senderName, meshName, direction, speed, entityTarget, damageAllies, koEnemyCreature),
     mPhysicalDamage(physicalDamage),
     mMagicalDamage(magicalDamage),
-    mElementDamage(elementDamage)
+    mElementDamage(elementDamage),
+    mNotifyPlayerIfHit(notifyPlayerIfHit)
 {
     if(!particleScript.empty())
     {
@@ -44,19 +45,25 @@ MissileOneHit::MissileOneHit(GameMap* gameMap) :
         MissileObject(gameMap),
     mPhysicalDamage(0.0),
     mMagicalDamage(0.0),
-    mElementDamage(0.0)
+    mElementDamage(0.0),
+    mNotifyPlayerIfHit(false)
 {
 }
 
 bool MissileOneHit::hitCreature(Tile* tile, GameEntity* entity)
 {
     entity->takeDamage(this, 0.0, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, getKoEnemyCreature());
+    if(mNotifyPlayerIfHit)
+        entity->notifyFightPlayer(tile);
+
     return false;
 }
 
 void MissileOneHit::hitTargetEntity(Tile* tile, GameEntity* entityTarget)
 {
     entityTarget->takeDamage(this, 0.0, mPhysicalDamage, mMagicalDamage, mElementDamage, tile, getKoEnemyCreature());
+    if(mNotifyPlayerIfHit)
+        entityTarget->notifyFightPlayer(tile);
 }
 
 MissileOneHit* MissileOneHit::getMissileOneHitFromStream(GameMap* gameMap, std::istream& is)

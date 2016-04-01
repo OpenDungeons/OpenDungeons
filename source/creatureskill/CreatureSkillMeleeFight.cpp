@@ -59,7 +59,7 @@ bool CreatureSkillMeleeFight::canBeUsedBy(const Creature* creature) const
 }
 
 bool CreatureSkillMeleeFight::tryUseFight(GameMap& gameMap, Creature* creature, float range,
-        GameEntity* attackedObject, Tile* attackedTile, bool ko) const
+        GameEntity* attackedObject, Tile* attackedTile, bool ko, bool notifyPlayerIfHit) const
 {
     double level = static_cast<double>(creature->getLevel());
     double phyAtk = mPhyAtk + (level * mPhyAtkPerLvl);
@@ -86,6 +86,8 @@ bool CreatureSkillMeleeFight::tryUseFight(GameMap& gameMap, Creature* creature, 
         eleAtk *= modifier;
     }
     attackedObject->takeDamage(creature, 0.0, phyAtk, magAtk, eleAtk, attackedTile, ko);
+    if(notifyPlayerIfHit)
+        attackedObject->notifyFightPlayer(attackedTile);
 
     return true;
 }

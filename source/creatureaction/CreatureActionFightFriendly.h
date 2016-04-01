@@ -27,7 +27,7 @@ class GameEntity;
 class CreatureActionFightFriendly : public CreatureAction, public GameEntityListener
 {
 public:
-    CreatureActionFightFriendly(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter);
+    CreatureActionFightFriendly(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter, bool notifyPlayerIfHit);
     virtual ~CreatureActionFightFriendly();
 
     CreatureActionType getType() const override
@@ -41,11 +41,12 @@ public:
     bool notifyPickedUp(GameEntity* entity) override;
     bool notifyDropped(GameEntity* entity) override;
 
-    static bool handleFight(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter);
+    static bool handleFight(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter, bool notifyPlayerIfHit);
 
 private:
     GameEntity* mEntityAttack;
     bool mKoOpponent;
+    bool mNotifyPlayerIfHit;
     const std::vector<Tile*> mTilesFilter;
 };
 

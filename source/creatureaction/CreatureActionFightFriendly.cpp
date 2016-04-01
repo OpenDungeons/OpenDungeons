@@ -28,10 +28,11 @@
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 
-CreatureActionFightFriendly::CreatureActionFightFriendly(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter) :
+CreatureActionFightFriendly::CreatureActionFightFriendly(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter, bool notifyPlayerIfHit) :
     CreatureAction(creature),
     mEntityAttack(entityAttack),
     mKoOpponent(koOpponent),
+    mNotifyPlayerIfHit(notifyPlayerIfHit),
     mTilesFilter(tilesFilter)
 {
     if(mEntityAttack != nullptr)
@@ -47,10 +48,10 @@ CreatureActionFightFriendly::~CreatureActionFightFriendly()
 std::function<bool()> CreatureActionFightFriendly::action()
 {
     return std::bind(&CreatureActionFightFriendly::handleFight,
-        std::ref(mCreature), mEntityAttack, mKoOpponent, mTilesFilter);
+        std::ref(mCreature), mEntityAttack, mKoOpponent, mTilesFilter, mNotifyPlayerIfHit);
 }
 
-bool CreatureActionFightFriendly::handleFight(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter)
+bool CreatureActionFightFriendly::handleFight(Creature& creature, GameEntity* entityAttack, bool koOpponent, const std::vector<Tile*>& tilesFilter, bool notifyPlayerIfHit)
 {
     Tile* myTile = creature.getPositionTile();
     if(myTile == nullptr)
@@ -138,7 +139,7 @@ bool CreatureActionFightFriendly::handleFight(Creature& creature, GameEntity* en
                (skillData != nullptr))
             {
                 // We can attack
-                creature.useAttack(*skillData, *entityAttack, *tileAttack, koOpponent);
+                creature.useAttack(*skillData, *entityAttack, *tileAttack, koOpponent, notifyPlayerIfHit);
                 return false;
             }
 
@@ -175,7 +176,7 @@ bool CreatureActionFightFriendly::handleFight(Creature& creature, GameEntity* en
                (skillData != nullptr))
             {
                 // We can attack
-                creature.useAttack(*skillData, *entityAttack, *tileAttack, koOpponent);
+                creature.useAttack(*skillData, *entityAttack, *tileAttack, koOpponent, notifyPlayerIfHit);
                 return false;
             }
 
