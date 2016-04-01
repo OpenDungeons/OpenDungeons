@@ -49,7 +49,8 @@ DoorEntity::DoorEntity(GameMap* gameMap, Building& building, const std::string& 
 }
 
 DoorEntity::DoorEntity(GameMap* gameMap) :
-    TrapEntity(gameMap)
+    TrapEntity(gameMap),
+    mBuilding(nullptr)
 {
 }
 
