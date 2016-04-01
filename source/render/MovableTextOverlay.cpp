@@ -139,7 +139,7 @@ void ChildOverlay::update(Ogre::Real timeSincelastFrame)
 
 void ChildOverlay::isOnScreen(bool onScreen)
 {
-    if(onScreen)
+    if(onScreen && isDisplayed())
         mOverlayContainer->show();
     else
         mOverlayContainer->hide();
