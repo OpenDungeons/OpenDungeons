@@ -17,6 +17,9 @@
 
 #include "utils/StackTracePrint.h"
 
+#include "utils/Helper.h"
+#include "utils/LogManager.h"
+
 #include <SFML/System.hpp>
 
 #define PACKAGE "OpenDungeons"
@@ -33,6 +36,7 @@
 #include <stdbool.h>
 #include <cxxabi.h>
 #include <fstream>
+#include <sstream>
 #include <vector>
 
 struct BfdCtx
@@ -78,7 +82,7 @@ public:
     static LONG WINAPI exceptionFilter(LPEXCEPTION_POINTERS info);
     static void bfdSectionCallback(bfd* abfd, asection* sec, void* voidData);
 
-    int bfdInitCtx(std::ofstream& crashFile, struct BfdCtx* bfdCtx, const char * procName);
+    int bfdInitCtx(std::ostream& crashStream, struct BfdCtx* bfdCtx, const char * procName);
     void bfdCloseCtx(struct BfdCtx* bfdCtx);
 
     LPTOP_LEVEL_EXCEPTION_FILTER mExceptionFilterId;
@@ -138,7 +142,7 @@ void StackTracePrintPrivateData::bfdSectionCallback(bfd* abfd, asection* sec, vo
     data->line = line;
 }
 
-int StackTracePrintPrivateData::bfdInitCtx(std::ofstream& crashFile, struct BfdCtx* bfdCtx, const char * procName)
+int StackTracePrintPrivateData::bfdInitCtx(std::ostream& crashStream, struct BfdCtx* bfdCtx, const char * procName)
 {
     bfdCtx->handle = nullptr;
     bfdCtx->symbol = nullptr;
@@ -146,7 +150,7 @@ int StackTracePrintPrivateData::bfdInitCtx(std::ofstream& crashFile, struct BfdC
     bfd* bfdHandle = bfd_openr(procName, 0);
     if(bfdHandle == nullptr)
     {
-        crashFile << "Failed to open bfd from " << procName << std::endl;
+        crashStream << "Failed to open bfd from " << procName << std::endl;
         return 1;
     }
 
@@ -157,7 +161,7 @@ int StackTracePrintPrivateData::bfdInitCtx(std::ofstream& crashFile, struct BfdC
     if (!(r1 && r2 && r3))
     {
         bfd_close(bfdHandle);
-        crashFile << "Failed to init bfd from " << procName << std::endl;
+        crashStream << "Failed to init bfd from " << procName << std::endl;
         return 1;
     }
 
@@ -170,7 +174,7 @@ int StackTracePrintPrivateData::bfdInitCtx(std::ofstream& crashFile, struct BfdC
         {
             free(symbolTable);
             bfd_close(bfdHandle);
-            crashFile << "Failed to read symbols from " << procName << std::endl;
+            crashStream << "Failed to read symbols from " << procName << std::endl;
             return 1;
         }
     }
@@ -195,13 +199,12 @@ void StackTracePrintPrivateData::bfdCloseCtx(struct BfdCtx* bfdCtx)
 
 LONG WINAPI StackTracePrintPrivateData::exceptionFilter(LPEXCEPTION_POINTERS info)
 {
-    std::ofstream crashFile(mInstance->mCrashFilePath);
+    // We print the callstack in a stringstream. Then, we will print it to the crashStream
+    // and, then, to the log manager
+    std::stringstream crashStream;
 
     if (!SymInitialize(GetCurrentProcess(), 0, TRUE))
-    {
-        crashFile << "Failed to init symbol context" << std::endl;
         return 0;
-    }
 
     bfd_init();
 
@@ -259,7 +262,7 @@ LONG WINAPI StackTracePrintPrivateData::exceptionFilter(LPEXCEPTION_POINTERS inf
                 listSets.push_back(BfdSet());
                 struct BfdSet& newSet = listSets.back();
                 newSet.name = processName;
-                if(mInstance->bfdInitCtx(crashFile, &newSet.bfdCtx, processName) == 0)
+                if(mInstance->bfdInitCtx(crashStream, &newSet.bfdCtx, processName) == 0)
                 {
                     bfdCtx = &newSet.bfdCtx;
                 }
@@ -293,12 +296,43 @@ LONG WINAPI StackTracePrintPrivateData::exceptionFilter(LPEXCEPTION_POINTERS inf
         if(demangled != nullptr)
             free(demangled);
 
-        crashFile << frame.AddrPC.Offset << ", " << processName << ", " << data.file << ", " << data.line << ", " << data.func << std::endl;
+        crashStream << frame.AddrPC.Offset << ", " << processName << ", " << data.file << ", " << data.line << ", " << data.func << std::endl;
     }
 
+    crashStream.flush();
+    // We try to export to the logs
+    LogManager* logMgr = LogManager::getSingletonPtr();
+    if(logMgr != nullptr)
+    {
+        while(crashStream.good())
+        {
+            std::string log;
+
+            if(!Helper::readNextLineNotEmpty(crashStream, log))
+                break;
+
+            logMgr->logMessage(LogMessageLevel::CRITICAL, __FILE__, __LINE__, log);
+        }
+    }
+
+    // Set the stream at beginning
+    crashStream.clear();
+    crashStream.seekg(0, crashStream.beg);
+    // We export everything to the crash file
+    std::ofstream crashFile(mInstance->mCrashFilePath);
+    while(crashStream.good())
+    {
+        std::string log;
+
+        if(!Helper::readNextLineNotEmpty(crashStream, log))
+            break;
+
+        crashFile << log << std::endl;
+    }
     crashFile.flush();
     crashFile.close();
 
+    // We release the resources
     for(struct BfdSet& tmpSet : listSets)
         mInstance->bfdCloseCtx(&tmpSet.bfdCtx);
 
