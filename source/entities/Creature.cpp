@@ -2388,6 +2388,10 @@ bool Creature::isAttackable(Tile* tile, Seat* seat) const
 
 EntityCarryType Creature::getEntityCarryType(Creature* carrier)
 {
+    // Workers cannot be carried to crypt/prison
+    if(getDefinition()->isWorker())
+        return EntityCarryType::notCarryable;
+
     // KO to death entities can be carried
     if(mKoTurnCounter < 0)
         return EntityCarryType::koCreature;
