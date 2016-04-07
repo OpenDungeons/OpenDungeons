@@ -55,6 +55,10 @@ public:
 
     virtual void doUpkeep();
 
+    //! \brief Computes the visible tiles and tags them to know which are visible
+    virtual void computeVisibleTiles()
+    {}
+
     static void fireSpellSound(Tile& tile, const std::string& soundFamily);
 
     static std::string getSpellStreamFormat();

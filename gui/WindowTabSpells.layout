@@ -170,5 +170,23 @@
                 <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
             </Window>
         </Window>
+        <Window type="OD/GameTabButton" name="SpellEyeEvilButton" >
+            <Property name="Area" value="{{0,640},{0,25},{0,700},{0,85}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/SpellEyeEvilButton" />
+            <Property name="TooltipText" value="Temporary gives vision on tiles without vision. Target: any tile" />
+            <Property name="InheritsAlpha" value="False" />
+            <Property name="Visible" value="False" />
+            <Window type="OD/ProgressBar" name="SpellEyeEvilButtonProgressBar" >
+                <Property name="Area" value="{{0.0,-20},{0.0,0},{1.0,20},{1.0,0}}" />
+                <Property name="InheritsTooltipText" value="True" />
+                <Property name="CurrentProgress" value="0.0" />
+                <Property name="MousePassThroughEnabled" value="True" />
+                <Property name="StepSize" value="0.1" />
+                <Property name="Visible" value="False" />
+                <Property name="VerticalProgress" value="True" />
+                <Property name="Alpha" value="0.2" />
+                <Property name="ProgressImage" value="OpenDungeonsSkin/SelectionBrush" />
+            </Window>
+        </Window>
     </Window>
 </GUILayout>
