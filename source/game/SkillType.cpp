@@ -95,6 +95,8 @@ std::string toString(SkillType type)
             return "trapSpike";
         case SkillType::trapDoorWooden:
             return "trapDoorWooden";
+        case SkillType::spellEyeEvil:
+            return "spellEyeEvil";
         default:
             return "Unknown enum value:" + Helper::toString(static_cast<int>(type));
     }
@@ -158,6 +160,8 @@ std::string skillTypeToPlayerVisibleString(SkillType type)
             return "The Spike Trap";
         case SkillType::trapDoorWooden:
             return "The Wooden Door";
+        case SkillType::spellEyeEvil:
+            return "The 'Eye of evil' spell";
         default:
             return "Unknown enum value:" + Helper::toString(static_cast<int>(type));
     }
