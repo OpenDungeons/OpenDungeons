@@ -51,7 +51,7 @@ private:
     void update(Ogre::Real timeSincelastFrame);
 
     //! \brief Called to notify if the overlay is visible by the current camera or not
-    void isOnScreen(bool onScreen);
+    void setOnScreen(bool onScreen);
 
     bool isDisplayed();
 
