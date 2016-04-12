@@ -100,8 +100,8 @@ GameMode::GameMode(ModeManager *modeManager):
         )
     );
     addEventConnection(
-        guiSheet->getChild("ObjectivesWindow/__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+        guiSheet->getChild("ObjectivesWindow")->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&GameMode::hideObjectivesWindow, this)
         )
     );
@@ -114,8 +114,8 @@ GameMode::GameMode(ModeManager *modeManager):
         )
     );
     addEventConnection(
-        guiSheet->getChild("PlayerSettingsWindow/__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+        guiSheet->getChild("PlayerSettingsWindow")->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&GameMode::cancelPlayerSettings, this)
         )
     );
@@ -140,8 +140,8 @@ GameMode::GameMode(ModeManager *modeManager):
         )
     );
     addEventConnection(
-        guiSheet->getChild("SkillTreeWindow/__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+        guiSheet->getChild("SkillTreeWindow")->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&GameMode::hideSkillWindow, this)
         )
     );
@@ -178,8 +178,8 @@ GameMode::GameMode(ModeManager *modeManager):
         )
     );
     addEventConnection(
-        guiSheet->getChild("GameOptionsWindow/__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+        guiSheet->getChild("GameOptionsWindow")->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&GameMode::hideOptionsWindow, this)
         )
     );
@@ -238,16 +238,16 @@ GameMode::GameMode(ModeManager *modeManager):
         )
     );
     addEventConnection(
-        guiSheet->getChild("ConfirmExit/__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+        guiSheet->getChild("ConfirmExit")->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(cancelExitWindow)
         )
     );
 
     // Help window
     addEventConnection(
-        guiSheet->getChild("GameHelpWindow/__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+        guiSheet->getChild("GameHelpWindow")->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&GameMode::hideHelpWindow, this)
         )
     );

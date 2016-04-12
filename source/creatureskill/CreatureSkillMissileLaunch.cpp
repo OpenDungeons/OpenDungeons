@@ -67,7 +67,7 @@ bool CreatureSkillMissileLaunch::canBeUsedBy(const Creature* creature) const
 }
 
 bool CreatureSkillMissileLaunch::tryUseFight(GameMap& gameMap, Creature* creature, float range,
-        GameEntity* attackedObject, Tile* attackedTile, bool ko) const
+        GameEntity* attackedObject, Tile* attackedTile, bool ko, bool notifyPlayerIfHit) const
 {
     Tile* creatureTile = creature->getPositionTile();
     if(creatureTile == nullptr)
@@ -104,7 +104,7 @@ bool CreatureSkillMissileLaunch::tryUseFight(GameMap& gameMap, Creature* creatur
 
     MissileOneHit* missile = new MissileOneHit(&gameMap, creature->getSeat(), creature->getName(),
         mMissileMesh, mMissilePartScript, missileDirection, mMissileSpeed, phyAtk, magAtk, eleAtk,
-        attackedObject, false, ko);
+        attackedObject, false, ko, notifyPlayerIfHit);
     missile->addToGameMap();
     missile->createMesh();
     missile->setPosition(position);

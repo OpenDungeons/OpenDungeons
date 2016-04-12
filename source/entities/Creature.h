@@ -295,7 +295,7 @@ public:
 
     //! \brief performs the given attack on the given target
     void useAttack(CreatureSkillData& skillData, GameEntity& entityAttack,
-        Tile& tileAttack, bool ko);
+        Tile& tileAttack, bool ko, bool notifyPlayerIfHit);
 
     //! \brief Returns true if the given action is queued in the action list. False otherwise
     bool isActionInList(CreatureActionType action) const;
@@ -563,7 +563,7 @@ public:
 
     void fight();
 
-    void fightCreature(Creature& creature, bool ko);
+    void fightCreature(Creature& creature, bool ko, bool notifyPlayerIfHit);
 
     void flee();
 

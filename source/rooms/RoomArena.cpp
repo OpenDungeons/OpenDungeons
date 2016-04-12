@@ -235,7 +235,8 @@ void RoomArena::doUpkeep()
             continue;
         }
 
-        creature->pushAction(Utils::make_unique<CreatureActionFightFriendly>(*creature, closestOpponent, true, getCoveredTiles()));
+        // We don't notify player fight when in the arena
+        creature->pushAction(Utils::make_unique<CreatureActionFightFriendly>(*creature, closestOpponent, true, getCoveredTiles(), false));
     }
 }
 

@@ -57,7 +57,7 @@ public:
     { return false; }
 
     virtual bool tryUseFight(GameMap& gameMap, Creature* creature, float range,
-        GameEntity* attackedObject, Tile* attackedTile, bool ko) const override;
+        GameEntity* attackedObject, Tile* attackedTile, bool ko, bool notifyPlayerIfHit) const override;
 
     virtual CreatureSkillMissileLaunch* clone() const override;
 

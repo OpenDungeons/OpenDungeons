@@ -144,6 +144,7 @@ textures/
 -> Farm*.png
 -> Flame.png                           hwoarangmy              CC0
 -> Flare.png                           Bertram                 CC0
+-> FlyingSkull*.png                    piacenti                CC0                     http://opengameart.org/content/skull-prop
 -> Forge*.png                          Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 -> forest-monster-*.png                CDmir                   CC0                     http://opengameart.org/content/forest-monster
 -> Foundry*.png                        Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
@@ -266,6 +267,7 @@ Dwarf2.*                               Skorpio                 CC-BY-SA 3.0, GPL
 DarkElf*.png                           Contmike, Danimal       CC-BY-SA 3.0            http://opengameart.org/content/dark-elf-game-ready-and-animated
 Elf*.png                               Contmike, Danimal       CC-BY-SA 3.0            http://opengameart.org/content/elf-game-ready-and-animated
 Farm.mesh                              Danimal                 CC-BY-SA 3.0            (Texture by nobiax - CC0) - http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
+FlyingSkull.*                          piacenti, hwoarangmy    CC0, CC-BY-SA 3.0       http://opengameart.org/content/skull-prop
 Forge.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 Foundry.mesh                           Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 Gnome.*                                Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+

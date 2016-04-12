@@ -34,7 +34,7 @@ class MissileOneHit: public MissileObject
 public:
     MissileOneHit(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const std::string& particleScript, const Ogre::Vector3& direction, double speed, double physicalDamage, double magicalDamage,
-        double elementDamage, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature);
+        double elementDamage, GameEntity* entityTarget, bool damageAllies, bool koEnemyCreature, bool notifyPlayerIfHit);
     MissileOneHit(GameMap* gameMap);
 
     virtual MissileObjectType getMissileType() const override
@@ -54,6 +54,7 @@ private:
     double mPhysicalDamage;
     double mMagicalDamage;
     double mElementDamage;
+    bool mNotifyPlayerIfHit;
 };
 
 #endif // MISSILEONEHIT_H

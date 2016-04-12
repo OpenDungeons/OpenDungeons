@@ -22,10 +22,11 @@
 #include "utils/LogManager.h"
 #include "modes/GameEditorModeBase.h"
 
+#include <CEGUI/widgets/Editbox.h>
+#include <CEGUI/widgets/FrameWindow.h>
 #include <CEGUI/widgets/Listbox.h>
 #include <CEGUI/widgets/ListboxTextItem.h>
 #include <CEGUI/widgets/PushButton.h>
-#include <CEGUI/widgets/Editbox.h>
 #include <CEGUI/widgets/Scrollbar.h>
 
 #include <functional>
@@ -59,9 +60,8 @@ GameEditorModeConsole::GameEditorModeConsole(ModeManager* modeManager):
     mConsoleHistoryWindow->getVertScrollbar()->setEndLockEnabled(true);
 
     // Permits closing the console.
-    CEGUI::Window* closeButton = consoleRootWindow->getChild("__auto_closebutton__");
     addEventConnection(
-        closeButton->subscribeEvent(CEGUI::PushButton::EventClicked,
+        consoleRootWindow->subscribeEvent(CEGUI::FrameWindow::EventCloseClicked,
                                     CEGUI::Event::Subscriber(&GameEditorModeConsole::leaveConsole, this))
     );
 }

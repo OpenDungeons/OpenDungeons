@@ -73,13 +73,14 @@
 #include "utils/MakeUnique.h"
 #include "utils/Random.h"
 
-#include <CEGUI/System.h>
-#include <CEGUI/WindowManager.h>
-#include <CEGUI/Window.h>
-#include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/Event.h>
+#include <CEGUI/System.h>
 #include <CEGUI/UDim.h>
 #include <CEGUI/Vector.h>
+#include <CEGUI/WindowManager.h>
+#include <CEGUI/Window.h>
+#include <CEGUI/widgets/FrameWindow.h>
+#include <CEGUI/widgets/PushButton.h>
 
 #include <OgreQuaternion.h>
 #include <OgreVector3.h>
@@ -1488,7 +1489,8 @@ void Creature::engageAlliedNaturalEnemy(Creature& attackerCreature)
         return;
 
     // When fighting a natural enemy, we always fight to death
-    fightCreature(attackerCreature, false);
+    // We want to notify the player that his creatures are fighting
+    fightCreature(attackerCreature, false, true);
 }
 
 double Creature::getMoveSpeed() const
@@ -1881,14 +1883,12 @@ void Creature::createStatsWindow()
     textWindow->setProperty("FrameEnabled", "False");
     textWindow->setProperty("BackgroundEnabled", "False");
 
-    // Search for the autoclose button and make it work
-    CEGUI::Window* childWindow = mStatsWindow->getChild("__auto_closebutton__");
-    childWindow->subscribeEvent(CEGUI::PushButton::EventClicked,
-                                        CEGUI::Event::Subscriber(&Creature::CloseStatsWindow, this));
+    // We want to close the window when the cross is clicked
+    mStatsWindow->subscribeEvent(CEGUI::FrameWindow::EventCloseClicked,
+        CEGUI::Event::Subscriber(&Creature::CloseStatsWindow, this));
 
     // Set the window title
-    childWindow = mStatsWindow->getChild("__auto_titlebar__");
-    childWindow->setText(getName() + " (" + getDefinition()->getClassName() + ")");
+    mStatsWindow->setText(getName() + " (" + getDefinition()->getClassName() + ")");
 
     mStatsWindow->addChild(textWindow);
     rootWindow->addChild(mStatsWindow);
@@ -2014,9 +2014,6 @@ double Creature::takeDamage(GameEntity* attacker, double absoluteDamage, double 
     if (player == nullptr)
         return damageDone;
 
-    // Tells the server game map the player is under attack.
-    getGameMap()->playerIsFighting(player, tileTakingDamage);
-
     // If we are a worker attacked by a worker, we fight. Otherwise, we flee (if it is a fighter, a trap,
     // or whatever)
     if(!getDefinition()->isWorker())
@@ -2051,7 +2048,7 @@ void Creature::receiveExp(double experience)
 }
 
 void Creature::useAttack(CreatureSkillData& skillData, GameEntity& entityAttack,
-        Tile& tileAttack, bool ko)
+        Tile& tileAttack, bool ko, bool notifyPlayerIfHit)
 {
     // Turn to face the entity we are attacking and set the animation state to Attack.
     const Ogre::Vector3& pos = getPosition();
@@ -2067,7 +2064,7 @@ void Creature::useAttack(CreatureSkillData& skillData, GameEntity& entityAttack,
 
     // We use the skill
     skillData.mSkill->tryUseFight(*getGameMap(), this, range,
-        &entityAttack, &tileAttack, ko);
+        &entityAttack, &tileAttack, ko, notifyPlayerIfHit);
     skillData.mWarmup = skillData.mSkill->getWarmupNbTurns();
     skillData.mCooldown = skillData.mSkill->getCooldownNbTurns();
 
@@ -2391,6 +2388,10 @@ bool Creature::isAttackable(Tile* tile, Seat* seat) const
 
 EntityCarryType Creature::getEntityCarryType(Creature* carrier)
 {
+    // Workers cannot be carried to crypt/prison
+    if(getDefinition()->isWorker())
+        return EntityCarryType::notCarryable;
+
     // KO to death entities can be carried
     if(mKoTurnCounter < 0)
         return EntityCarryType::koCreature;
@@ -3176,14 +3177,14 @@ void Creature::fight()
     clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
     bool ko = getSeat()->getKoCreatures();
-    pushAction(Utils::make_unique<CreatureActionFight>(*this, nullptr, ko));
+    pushAction(Utils::make_unique<CreatureActionFight>(*this, nullptr, ko, true));
 }
 
-void Creature::fightCreature(Creature& creature, bool ko)
+void Creature::fightCreature(Creature& creature, bool ko, bool notifyPlayerIfHit)
 {
     clearDestinations(EntityAnimation::idle_anim, true, true);
     clearActionQueue();
-    pushAction(Utils::make_unique<CreatureActionFight>(*this, &creature, ko));
+    pushAction(Utils::make_unique<CreatureActionFight>(*this, &creature, ko, notifyPlayerIfHit));
 }
 
 void Creature::flee()

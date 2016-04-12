@@ -17,10 +17,6 @@
 
 #include "creatureeffect/CreatureEffect.h"
 
-#include "creatureeffect/CreatureEffectHeal.h"
-#include "creatureeffect/CreatureEffectExplosion.h"
-#include "creatureeffect/CreatureEffectSpeedChange.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 

@@ -150,7 +150,7 @@ bool TrapCannon::shoot(Tile* tile)
     direction.normalise();
     MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
         "", direction, ConfigManager::getSingleton().getTrapConfigDouble("CannonSpeed"),
-        Random::Double(mMinDamage, mMaxDamage), 0.0, 0.0, nullptr, false, false);
+        Random::Double(mMinDamage, mMaxDamage), 0.0, 0.0, nullptr, false, false, true);
     missile->addToGameMap();
     missile->createMesh();
     missile->setPosition(position);

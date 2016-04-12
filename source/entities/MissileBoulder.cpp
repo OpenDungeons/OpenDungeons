@@ -25,23 +25,28 @@
 #include <iostream>
 
 MissileBoulder::MissileBoulder(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double speed, double damage, GameEntity* entityTarget) :
+        const Ogre::Vector3& direction, double speed, double damage, GameEntity* entityTarget, bool notifyPlayerIfHit) :
     MissileObject(gameMap, seat, senderName, meshName, direction, speed, entityTarget, true, false),
     mDamage(damage),
-    mNbHits(0)
+    mNbHits(0),
+    mNotifyPlayerIfHit(notifyPlayerIfHit)
 {
 }
 
 MissileBoulder::MissileBoulder(GameMap* gameMap) :
     MissileObject(gameMap),
     mDamage(0.0),
-    mNbHits(0)
+    mNbHits(0),
+    mNotifyPlayerIfHit(false)
 {
 }
 
 bool MissileBoulder::hitCreature(Tile* tile, GameEntity* entity)
 {
     entity->takeDamage(this, 0.0, mDamage, 0.0, 0.0, tile, false);
+    if(mNotifyPlayerIfHit)
+        entity->notifyFightPlayer(tile);
+
     ++mNbHits;
     if(Random::Uint(0, 10 - mNbHits) <= 0)
         return false;

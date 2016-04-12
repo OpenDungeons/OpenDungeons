@@ -59,8 +59,8 @@ MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager* modeManager):
     );
 
     addEventConnection(
-        window->getChild("ListPlayers/__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+        window->getChild("ListPlayers")->subscribeEvent(
+            CEGUI::FrameWindow::EventCloseClicked,
             CEGUI::Event::Subscriber(&MenuModeConfigureSeats::goBack, this)
         )
     );

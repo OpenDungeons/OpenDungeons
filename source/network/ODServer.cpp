@@ -108,6 +108,21 @@ bool ODServer::startServer(const std::string& creator, const std::string& levelF
         return false;
     }
 
+    // Read in the map. The map loading should be happen here and not in the server thread to
+    // make sure it is valid before launching the server.
+    mServerMode = mode;
+    mServerState = ServerState::StateConfiguration;
+    mUniqueNumberPlayer = 0;
+    GameMap* gameMap = mGameMap;
+    if (!gameMap->loadLevel(levelFilename))
+    {
+        mServerMode = ServerMode::ModeNone;
+        mServerState = ServerState::StateNone;
+        OD_LOG_INF("Couldn't start server. The level file can't be loaded: " + levelFilename);
+        stopServer();
+        return false;
+    }
+
     // Set up the socket to listen on the specified port
     int32_t port = getNetworkPort();
     if (!createServer(port))
@@ -115,22 +130,9 @@ bool ODServer::startServer(const std::string& creator, const std::string& levelF
         mServerMode = ServerMode::ModeNone;
         mServerState = ServerState::StateNone;
         OD_LOG_ERR("Server could not create server socket!");
+        stopServer();
         return false;
     }
-
-    // Read in the map. The map loading should be happen here and not in the server thread to
-    // make sure it is valid before launching the server.
-    mServerMode = mode;
-    mServerState = ServerState::StateConfiguration;
-    GameMap* gameMap = mGameMap;
-    if (!gameMap->loadLevel(levelFilename))
-    {
-        mServerMode = ServerMode::ModeNone;
-        mServerState = ServerState::StateNone;
-        OD_LOG_INF("Couldn't start server. The level file can't be loaded: " + levelFilename);
-        return false;
-    }
-    mUniqueNumberPlayer = 0;
 
     // We configure what is fixed (fixed AI, faction or team). While iterating seats, we keep in mind if there is
     // at least a human only seat. If yes, we configure all player type choosable to AI. If not, we configure all player
@@ -191,6 +193,7 @@ bool ODServer::startServer(const std::string& creator, const std::string& levelF
         if(!MasterServer::registerGame(ODApplication::VERSION, creator, port, label, descr, uuid))
         {
             OD_LOG_ERR("Could not register the game in the master server !!!");
+            stopServer();
             return false;
         }
 

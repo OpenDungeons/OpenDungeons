@@ -17,6 +17,9 @@
 
 #include "utils/StackTracePrint.h"
 
+#include "utils/Helper.h"
+#include "utils/LogManager.h"
+
 #include <SFML/System.hpp>
 
 #include <cxxabi.h>
@@ -93,6 +96,9 @@ void StackTracePrintPrivateData::critErrHandler(int sig_num, siginfo_t* info, vo
     std::cout << "No error handler supported for this platform" << std::endl;
     return;
 #endif
+    // We print the callstack in a stringstream. Then, we will print it to the crashStream
+    // and, then, to the log manager
+    std::stringstream crashStream;
 
     void* array[50];
     void* caller_address;
@@ -107,7 +113,7 @@ void StackTracePrintPrivateData::critErrHandler(int sig_num, siginfo_t* info, vo
 #endif
     // void* caller_address = (void*) uc->uc_mcontext.eip; // x86 specific
 
-    std::cerr << "signal " << sig_num
+    crashStream << "signal " << sig_num
               << " (" << strsignal(sig_num) << "), address is "
               << info->si_addr << " from " << caller_address
               << std::endl << std::endl;
@@ -155,7 +161,7 @@ void StackTracePrintPrivateData::critErrHandler(int sig_num, siginfo_t* info, vo
             // if demangling is successful, output the demangled function name
             if (status == 0)
             {
-                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : "
+                crashStream << "[bt]: (" << i << ") " << messages[i] << " : "
                           << real_name << "+" << offset_begin << offset_end
                           << std::endl;
 
@@ -163,7 +169,7 @@ void StackTracePrintPrivateData::critErrHandler(int sig_num, siginfo_t* info, vo
             // otherwise, output the mangled function name
             else
             {
-                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : "
+                crashStream << "[bt]: (" << i << ") " << messages[i] << " : "
                           << mangled_name << "+" << offset_begin << offset_end
                           << std::endl;
             }
@@ -172,10 +178,40 @@ void StackTracePrintPrivateData::critErrHandler(int sig_num, siginfo_t* info, vo
         // otherwise, print the whole line
         else
         {
-            std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
+            crashStream << "[bt]: (" << i << ") " << messages[i] << std::endl;
         }
     }
-    std::cerr << std::endl;
+
+    crashStream.flush();
+    // We try to export to the logs
+    LogManager* logMgr = LogManager::getSingletonPtr();
+    if(logMgr != nullptr)
+    {
+        while(crashStream.good())
+        {
+            std::string log;
+
+            if(!Helper::readNextLineNotEmpty(crashStream, log))
+                break;
+
+            logMgr->logMessage(LogMessageLevel::CRITICAL, __FILE__, __LINE__, log);
+        }
+    }
+
+    // Set the stream at beginning
+    crashStream.clear();
+    crashStream.seekg(0, crashStream.beg);
+    // We export everything to the crash file
+    while(crashStream.good())
+    {
+        std::string log;
+
+        if(!Helper::readNextLineNotEmpty(crashStream, log))
+            break;
+
+        std::cerr << log << std::endl;
+    }
+    std::cerr.flush();
 
     free(messages);
 

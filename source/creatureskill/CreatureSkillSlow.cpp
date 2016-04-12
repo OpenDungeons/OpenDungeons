@@ -68,7 +68,7 @@ bool CreatureSkillSlow::canBeUsedBy(const Creature* creature) const
 }
 
 bool CreatureSkillSlow::tryUseFight(GameMap& gameMap, Creature* creature, float range,
-        GameEntity* attackedObject, Tile* attackedTile, bool ko) const
+        GameEntity* attackedObject, Tile* attackedTile, bool ko, bool notifyPlayerIfHit) const
 {
     if(attackedObject->getObjectType() != GameEntityType::creature)
     {

@@ -483,8 +483,9 @@ bool RoomCasino::useRoom(Creature& creature, bool forced)
         if((opponent != nullptr) && (Random::Uint(0,100) <= 50))
         {
             // We fight for KO
-            creature.pushAction(Utils::make_unique<CreatureActionFightFriendly>(creature, opponent, true, getCoveredTiles()));
-            opponent->pushAction(Utils::make_unique<CreatureActionFightFriendly>(*opponent, &creature, true, getCoveredTiles()));
+            // We notify the player that his own creatures are fighting
+            creature.pushAction(Utils::make_unique<CreatureActionFightFriendly>(creature, opponent, true, getCoveredTiles(), true));
+            opponent->pushAction(Utils::make_unique<CreatureActionFightFriendly>(*opponent, &creature, true, getCoveredTiles(), true));
         }
         return true;
     }

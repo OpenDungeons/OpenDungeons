@@ -151,7 +151,7 @@ bool TrapBoulder::shoot(Tile* tile)
     direction.normalise();
     MissileBoulder* missile = new MissileBoulder(getGameMap(), getSeat(), getName(), "Boulder",
         direction, ConfigManager::getSingleton().getTrapConfigDouble("BoulderSpeed"),
-        Random::Double(mMinDamage, mMaxDamage), nullptr);
+        Random::Double(mMinDamage, mMaxDamage), nullptr, true);
     missile->addToGameMap();
     missile->createMesh();
     missile->setPosition(position);

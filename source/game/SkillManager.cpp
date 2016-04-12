@@ -517,6 +517,15 @@ SkillManager::SkillManager() :
     def->mapSkill(mSkillsFamily);
     mSkills[index] = def;
     lvl4depends.push_back(skill);
+
+    resType = SkillType::spellEyeEvil;
+    index = static_cast<uint32_t>(resType);
+    points = ConfigManager::getSingleton().getSkillPoints(Skills::toString(resType));
+    skill = new Skill(resType, points, lvl3depends);
+    def = new SkillDefSpell("MagicSkills/", "SpellEyeEvilButton", skill, SpellType::eyeEvil);
+    def->mapSkill(mSkillsFamily);
+    mSkills[index] = def;
+    lvl4depends.push_back(skill);
 }
 
 SkillManager::~SkillManager()

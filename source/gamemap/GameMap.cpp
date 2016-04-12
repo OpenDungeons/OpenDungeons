@@ -1226,6 +1226,11 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
         creature->computeVisibleTiles();
     }
 
+    for (Spell* spell : mSpells)
+    {
+        spell->computeVisibleTiles();
+    }
+
     for (Seat* seat : mSeats)
     {
         if(!seat->getIsDebuggingVision())
