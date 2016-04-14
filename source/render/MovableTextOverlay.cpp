@@ -137,7 +137,7 @@ void ChildOverlay::update(Ogre::Real timeSincelastFrame)
     mOverlayContainer->hide();
 }
 
-void ChildOverlay::isOnScreen(bool onScreen)
+void ChildOverlay::setOnScreen(bool onScreen)
 {
     if(onScreen && isDisplayed())
         mOverlayContainer->show();
@@ -318,14 +318,14 @@ void MovableTextOverlay::update(Ogre::Real timeSincelastFrame)
     if(!computeOverlayPositionHead(screenPosition))
     {
         for(ChildOverlay& childOverlay : mChildOverlays)
-            childOverlay.isOnScreen(false);
+            childOverlay.setOnScreen(false);
 
         return;
     }
 
     for(ChildOverlay& childOverlay : mChildOverlays)
     {
-        childOverlay.isOnScreen(true);
+        childOverlay.setOnScreen(true);
         if(!childOverlay.isDisplayed())
             continue;
 
