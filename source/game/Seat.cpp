@@ -812,6 +812,9 @@ void Seat::computeSeatBeginTurn()
             if(room->getSeat() != this)
                 continue;
 
+            if(room->getHP(nullptr) <= 0.0)
+                continue;
+
             uint32_t index = static_cast<uint32_t>(room->getType());
             if(index >= mNbRooms.size())
             {
