@@ -20,6 +20,7 @@
 #include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionSleep.h"
 #include "creatureaction/CreatureActionUseRoom.h"
+#include "creatureaction/CreatureActionWalkToTile.h"
 #include "creaturemood/CreatureMood.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -154,22 +155,43 @@ bool CreatureActionSearchJob::handleSearchJob(Creature& creature, bool forced)
 
         // We are not in a room of the good type or we couldn't use it. We check if there is a reachable room
         // of the good type
-        std::vector<Room*> rooms = creature.getGameMap()->getRoomsByTypeAndSeat(affinity.getRoomType(), creature.getSeat());
-        rooms = creature.getGameMap()->getReachableRooms(rooms, myTile, &creature);
-        std::random_shuffle(rooms.begin(), rooms.end());
-        for(Room* room : rooms)
+        std::vector<Tile*> rooms;
+        for(Room* room : creature.getGameMap()->getRooms())
         {
-            // If efficiency is 0, we just want to wander so no need to check if the room
-            // is available
-            if((affinity.getEfficiency() <= 0) ||
-               room->hasOpenCreatureSpot(&creature))
-            {
-                int index = Random::Int(0, room->numCoveredTiles() - 1);
-                Tile* tileDest = room->getCoveredTile(index);
-                creature.setDestination(tileDest);
-                return false;
-            }
+            if(room->getSeat() != creature.getSeat())
+                continue;
+
+            if(room->numCoveredTiles() <= 0)
+                continue;
+
+            if(room->getType() != affinity.getRoomType())
+                continue;
+
+            // If efficiency is 0, we just want to wander so no need to check if the room is available
+            if((affinity.getEfficiency() > 0) && !room->hasOpenCreatureSpot(&creature))
+                continue;
+
+            Tile* tile = room->getCoveredTile(0);
+            if(!creature.getGameMap()->pathExists(&creature, myTile, tile))
+                continue;
+
+            rooms.push_back(tile);
         }
+
+        if(rooms.empty())
+            continue;
+
+        Tile* chosenTile = nullptr;
+        std::list<Tile*> tilePath = creature.getGameMap()->findBestPath(&creature, myTile, rooms, chosenTile);
+
+        if(tilePath.empty() || (chosenTile == nullptr))
+            continue;
+
+        std::vector<Ogre::Vector3> vectorPath;
+        creature.tileToVector3(tilePath, vectorPath, true, 0.0);
+        creature.setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, vectorPath);
+        creature.pushAction(Utils::make_unique<CreatureActionWalkToTile>(creature));
+        return false;
     }
 
     // Default action
