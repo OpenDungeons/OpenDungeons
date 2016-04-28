@@ -128,6 +128,7 @@ textures/
 -> CreatureStunned.png                 Danimal                 CC-BY-SA 3.0
 -> Crossbow.png                        Lamoot                  CC-BY 3.0               http://opengameart.org/content/low-poly-crossbow
 -> Crypt*.png                          Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
+-> Cultist*.png                        Danimal,Dread Knight,Katarzyna Zalecka                 CC-BY-SA 3.0                     http://opengameart.org/content/dark-priest
 -> Defender*.png                       Anthony Myers           CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=61450#p61450
 -> Dirt*.png
 -> Dojo*.png
@@ -253,6 +254,7 @@ Claimed_*.mesh                         Skorpio                 CC-BY-SA 3.0, GPL
 Cre_vision_indicator.mesh              Andrew Buck             CC-BY-SA 3.0
 Crossbow.*                             Lamoot                  CC-BY 3.0               http://opengameart.org/content/low-poly-crossbow
 Crypt.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
+-> Cultist.mesh                        Danimal,Dread Knight,Katarzyna Zalecka                 CC-BY-SA 3.0                     http://opengameart.org/content/dark-priest
 Defender.*                             Konstantin Maystrenko - Concept  CC-BY 3.0      http://forum.freegamedev.net/viewtopic.php?p=61450#p61450
                                        AnthonyMyers - Modeller
                                        Danimal - Retopo/Rigging/Animation
