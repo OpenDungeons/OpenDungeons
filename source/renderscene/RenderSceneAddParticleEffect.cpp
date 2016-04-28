@@ -53,8 +53,7 @@ bool RenderSceneAddParticleEffect::activate(CameraManager& cameraManager, Render
     if(mParticleSystem != nullptr)
         return true;
 
-    Ogre::Vector3 pos;
-    mSceneNode = renderManager.getMenuEntityNode(mName, pos);
+    mSceneNode = renderManager.getMenuEntityNode(mName);
     std::string particleName = mName + "-" + mParticleScript + Helper::toString(mParticleUniqueNumber);
     ++mParticleUniqueNumber;
     mParticleSystem = renderManager.addEntityParticleEffectMenu(mSceneNode, particleName, mParticleScript);

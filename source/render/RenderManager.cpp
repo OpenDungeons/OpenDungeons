@@ -307,7 +307,7 @@ bool RenderManager::updateMenuEntityAnimation(Ogre::AnimationState* animState, O
     return animState->hasEnded();
 }
 
-Ogre::SceneNode* RenderManager::getMenuEntityNode(const std::string& entityName, Ogre::Vector3& pos)
+Ogre::SceneNode* RenderManager::getMenuEntityNode(const std::string& entityName)
 {
     std::string nodeName = entityName + "_node";
     if(!mSceneManager->hasSceneNode(nodeName))
@@ -317,8 +317,12 @@ Ogre::SceneNode* RenderManager::getMenuEntityNode(const std::string& entityName,
     }
 
     Ogre::SceneNode* node = mSceneManager->getSceneNode(nodeName);
-    pos = node->getPosition();
     return node;
+}
+
+const Ogre::Vector3& RenderManager::getMenuEntityPosition(Ogre::SceneNode* node)
+{
+    return node->getPosition();
 }
 
 void RenderManager::updateMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& pos)
@@ -396,6 +400,16 @@ void RenderManager::setProgressiveNodeOrientation(Ogre::SceneNode* node, Ogre::R
         const Ogre::Quaternion& angleSrc, const Ogre::Quaternion& angleDest)
 {
     node->setOrientation(Ogre::Quaternion::Slerp(progress, angleSrc, angleDest, true));
+}
+
+void RenderManager::setScaleMenuEntity(Ogre::SceneNode* node, const Ogre::Vector3& absSize)
+{
+    node->setScale(absSize);
+}
+
+const Ogre::Vector3& RenderManager::getMenuEntityScale(Ogre::SceneNode* node)
+{
+    return node->getScale();
 }
 
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)

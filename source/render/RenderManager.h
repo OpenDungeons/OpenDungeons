@@ -152,9 +152,9 @@ public:
     //! \brief Called to update the given animation with the given time. Returns true if animation ended and
     //! false otherwise
     bool updateMenuEntityAnimation(Ogre::AnimationState* animState, Ogre::Real timeSinceLastFrame);
-    //! \brief Returns the scene node related to the given entity name. pos will be set to the current position
-    //! of the node
-    Ogre::SceneNode* getMenuEntityNode(const std::string& entityName, Ogre::Vector3& pos);
+    //! \brief Returns the scene node related to the given entity name
+    Ogre::SceneNode* getMenuEntityNode(const std::string& entityName);
+    const Ogre::Vector3& getMenuEntityPosition(Ogre::SceneNode* node);
     void updateMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& pos);
     void orientMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& direction);
     Ogre::ParticleSystem* addEntityParticleEffectMenu(Ogre::SceneNode* node,
@@ -168,6 +168,8 @@ public:
     Ogre::Quaternion getNodeOrientation(Ogre::SceneNode* node);
     void setProgressiveNodeOrientation(Ogre::SceneNode* node, Ogre::Real progress,
         const Ogre::Quaternion& angleSrc, const Ogre::Quaternion& angleDest);
+    void setScaleMenuEntity(Ogre::SceneNode* node, const Ogre::Vector3& absSize);
+    const Ogre::Vector3& getMenuEntityScale(Ogre::SceneNode* node);
 
 private:
     //! \brief Correctly places entities in hand next to the keeper hand

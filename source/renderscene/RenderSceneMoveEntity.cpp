@@ -47,7 +47,7 @@ const std::string& RenderSceneMoveEntity::getModifierName() const
 
 bool RenderSceneMoveEntity::activate(CameraManager& cameraManager, RenderManager& renderManager)
 {
-    mSceneNode = renderManager.getMenuEntityNode(mName, mPosition);
+    mSceneNode = renderManager.getMenuEntityNode(mName);
 
     if(mAnimation.compare("none") == 0)
         mAnimState = nullptr;
@@ -56,6 +56,8 @@ bool RenderSceneMoveEntity::activate(CameraManager& cameraManager, RenderManager
 
     if(mSceneNode == nullptr)
         return true;
+
+    mPosition = renderManager.getMenuEntityPosition(mSceneNode);
 
     // We orient the entity to its destination
     Ogre::Vector3 walkDirection = mDestination - mPosition;
