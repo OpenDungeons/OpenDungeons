@@ -208,9 +208,6 @@ public:
     //! \brief This function puts a message in the renderQueue to change the mesh for this tile.
     void refreshMesh();
 
-    virtual const Ogre::Vector3& getScale() const
-    { return mScale; }
-
     //! \brief Marks the tile as being selected through a mouse click or drag.
     void setSelected(bool ss, const Player* pp);
 
@@ -502,8 +499,6 @@ private:
 
     //! \brief The tile claiming. Used on server side only
     double mClaimedPercentage;
-
-    Ogre::Vector3 mScale;
 
     //! \brief True if a building is on this tile. False otherwise. It is used on client side because the clients do not know about
     //! buildings. However, it needs to know the tiles where a building is to display the room/trap costs.

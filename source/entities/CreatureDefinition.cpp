@@ -35,7 +35,6 @@ CreatureDefinition::CreatureDefinition(
             const std::string&      className,
             CreatureJob             job,
             const std::string&      meshName,
-            const Ogre::Vector3&    scale,
             const std::string&      bedMeshName,
             int                     bedDim1,
             int                     bedDim2,
@@ -81,7 +80,6 @@ CreatureDefinition::CreatureDefinition(
         mBedPosY     (bedPosY),
         mBedOrientX  (bedOrientX),
         mBedOrientY  (bedOrientY),
-        mScale       (scale),
         mSightRadius (sightRadius),
         mMaxGoldCarryable (maxGoldCarryable),
         mDigRate     (digRate),
@@ -132,7 +130,6 @@ CreatureDefinition::CreatureDefinition(const CreatureDefinition& def) :
         mBedPosY(def.mBedPosY),
         mBedOrientX(def.mBedOrientX),
         mBedOrientY(def.mBedOrientY),
-        mScale(def.mScale),
         mSightRadius(def.mSightRadius),
         mMaxGoldCarryable(def.mMaxGoldCarryable),
         mDigRate(def.mDigRate),
@@ -276,7 +273,6 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
        << creatureJob
        << c->mMeshName;
     os << c->mBedMeshName << c->mBedDim1 << c->mBedDim2 << c->mBedPosX << c->mBedPosY << c->mBedOrientX << c->mBedOrientY;
-    os << c->mScale.x << c->mScale.y << c->mScale.z;
     os << c->mMinHP;
     os << c->mHpPerLevel;
     os << c->mHpHealPerTurn;
@@ -318,7 +314,6 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     c->mCreatureJob = CreatureDefinition::creatureJobFromString(tempString);
     is >> c->mMeshName;
     is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2 >>c->mBedPosX >> c->mBedPosY >> c->mBedOrientX >> c->mBedOrientY;
-    is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
     is >> c->mMinHP >> c->mHpPerLevel >> c->mHpHealPerTurn;
     is >> c->mWakefulnessLostPerTurn >> c->mHungerGrowthPerTurn;
     is >> c->mSightRadius;
@@ -473,24 +468,6 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
             {
                 defFile >> nextParam;
                 creatureDef->mMeshName = nextParam;
-                continue;
-            }
-            else if (nextParam == "MeshScaleX")
-            {
-                defFile >> nextParam;
-                creatureDef->mScale.x = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "MeshScaleY")
-            {
-                defFile >> nextParam;
-                creatureDef->mScale.y = Helper::toDouble(nextParam);
-                continue;
-            }
-            else if (nextParam == "MeshScaleZ")
-            {
-                defFile >> nextParam;
-                creatureDef->mScale.z = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "BedMeshName")
@@ -768,15 +745,6 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
 
     if(def1 == nullptr || (def1->mMeshName.compare(def2->mMeshName) != 0))
         file << "    MeshName\t" << def2->mMeshName << std::endl;
-
-    if(def1 == nullptr || (def1->mScale.x != def2->mScale.x))
-        file << "    MeshScaleX\t" << def2->mScale.x << std::endl;
-
-    if(def1 == nullptr || (def1->mScale.y != def2->mScale.y))
-        file << "    MeshScaleY\t" << def2->mScale.y << std::endl;
-
-    if(def1 == nullptr || (def1->mScale.z != def2->mScale.z))
-        file << "    MeshScaleZ\t" << def2->mScale.z << std::endl;
 
     if(def1 == nullptr || (def1->mBedMeshName.compare(def2->mBedMeshName) != 0))
         file << "    BedMeshName\t" << def2->mBedMeshName << std::endl;

@@ -76,8 +76,6 @@ public:
 
     virtual void doUpkeep() override;
 
-    virtual const Ogre::Vector3& getScale() const;
-
     virtual bool displayTileMesh() const
     { return false; }
 

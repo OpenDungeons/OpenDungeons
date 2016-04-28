@@ -2308,9 +2308,6 @@ MineNGold	50
     [Stats]
     CreatureJob	Fighter
     MeshName	Dragon.mesh
-    MeshScaleX	0.8
-    MeshScaleY	0.8
-    MeshScaleZ	0.8
     BedMeshName	DragonBed
     BedDim	1	1
     BedPos	1	1	0	-1

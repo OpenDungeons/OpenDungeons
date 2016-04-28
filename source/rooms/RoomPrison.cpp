@@ -114,7 +114,6 @@ static RoomRegister reg(new RoomPrisonFactory);
 
 static const int32_t OFFSET_TILE_X = 0;
 static const int32_t OFFSET_TILE_Y = -1;
-static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomPrison::RoomPrison(GameMap* gameMap) :
     Room(gameMap)
@@ -133,19 +132,19 @@ BuildingObject* RoomPrison::notifyActiveSpotCreated(ActiveSpotPlace place, Tile*
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 90.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 90.0, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 270.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 270.0, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 0.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 180.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Skull", *tile, 180.0, false);
         }
         default:
             break;

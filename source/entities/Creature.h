@@ -320,9 +320,6 @@ public:
     inline bool getHasVisualDebuggingEntities() const
     { return mHasVisualDebuggingEntities; }
 
-    virtual const Ogre::Vector3& getScale() const
-    { return mScale; }
-
     inline CreatureOverlayStatus* getOverlayStatus() const
     { return mOverlayStatus; }
 
@@ -702,8 +699,6 @@ private:
 
     GameEntity*                     mCarriedEntity;
 
-    Ogre::Vector3                   mScale;
-
     //! \brief The mood do not have to be computed at every turn. This cooldown will
     //! count how many turns the creature should wait before computing it
     int32_t                         mMoodCooldownTurns;
@@ -782,8 +777,6 @@ private:
 
     //! \brief Restores the creature's stats according to its current level
     void buildStats();
-
-    void updateScale();
 
     void increaseHunger(double value);
 

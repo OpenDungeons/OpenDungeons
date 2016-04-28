@@ -72,14 +72,11 @@ private:
 class TileSet
 {
 public:
-    TileSet(const Ogre::Vector3& scale);
+    TileSet();
 
     std::vector<TileSetValue>& configureTileValues(TileVisual tileVisual);
 
     const std::vector<TileSetValue>& getTileValues(TileVisual tileVisual) const;
-
-    inline const Ogre::Vector3& getScale() const
-    { return mScale; }
 
     //! Returns true if the 2 tiles are linked and false otherwise.
     //! Used on client side only
@@ -89,7 +86,6 @@ public:
 
 private:
     std::vector<std::vector<TileSetValue>> mTileValues;
-    Ogre::Vector3 mScale;
     //! Represents the links between tiles. The uint is used as a bit array.
     //! The index in the vector corresponds to the TileVisual
     std::vector<uint32_t> mTileLinks;

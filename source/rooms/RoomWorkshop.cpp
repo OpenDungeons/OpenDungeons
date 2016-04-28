@@ -116,7 +116,6 @@ static const Ogre::Real X_OFFSET_CREATURE = 0.7;
 static const Ogre::Real Y_OFFSET_CREATURE = 0.0;
 static const Ogre::Real X_OFFSET_SPOT = 0.0;
 static const Ogre::Real Y_OFFSET_SPOT = 0.2;
-static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomWorkshop::RoomWorkshop(GameMap* gameMap) :
     Room(gameMap),
@@ -140,25 +139,25 @@ BuildingObject* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace place, Til
             mUnusedSpots.push_back(tile);
             int result = Random::Int(0, 3);
             if(result < 2)
-                return new BuildingObject(getGameMap(), *this, "WorkshopMachine1", tile, x, y, z, 30.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "WorkshopMachine1", tile, x, y, z, 30.0, false);
             else
-                return new BuildingObject(getGameMap(), *this, "WorkshopMachine2", tile, x, y, z, 30.0, SCALE, false, 1.0, "Loop");
+                return new BuildingObject(getGameMap(), *this, "WorkshopMachine2", tile, x, y, z, 30.0, false, 1.0, "Loop");
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return new BuildingObject(getGameMap(), *this, "Chimney", *tile, 90.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Chimney", *tile, 90.0, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return new BuildingObject(getGameMap(), *this, "Chimney", *tile, 270.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Chimney", *tile, 270.0, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return new BuildingObject(getGameMap(), *this, "Grindstone", *tile, 180.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Grindstone", *tile, 180.0, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return new BuildingObject(getGameMap(), *this, "Anvil", *tile, 0.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Anvil", *tile, 0.0, false);
         }
         default:
             break;

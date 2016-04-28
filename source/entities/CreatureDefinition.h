@@ -79,7 +79,6 @@ public:
             const std::string&      className   = std::string(),
             CreatureJob             job         = Fighter,
             const std::string&      meshName    = std::string(),
-            const Ogre::Vector3&    scale       = Ogre::Vector3(1, 1, 1),
             const std::string&      bedMeshName = std::string(),
             int                     bedDim1     = 1,
             int                     bedDim2     = 1,
@@ -147,7 +146,6 @@ public:
     inline const std::string&   getClassName    () const    { return mClassName; }
 
     inline const std::string&   getMeshName     () const    { return mMeshName; }
-    inline const Ogre::Vector3& getScale        () const    { return mScale; }
 
     inline const std::string&   getBedMeshName  () const    { return mBedMeshName; }
     inline int                  getBedDim1      () const    { return mBedDim1; }
@@ -257,9 +255,6 @@ private:
     int mBedPosY;
     double mBedOrientX;
     double mBedOrientY;
-
-    //! \brief The scale the mesh is displayed (bigger = stronger)
-    Ogre::Vector3 mScale;
 
     //! \brief The inner radius where the creature sees everything
     int mSightRadius;

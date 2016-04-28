@@ -45,8 +45,6 @@ public:
 
     virtual GameEntityType getObjectType() const override;
 
-    virtual const Ogre::Vector3& getScale() const override;
-
     virtual EntityCarryType getEntityCarryType(Creature* carrier) override
     { return EntityCarryType::giftBox; }
 

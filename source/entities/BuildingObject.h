@@ -34,17 +34,14 @@ class BuildingObject: public RenderedMovableEntity
 {
 public:
     BuildingObject(GameMap* gameMap, Building& building, const std::string& meshName, Tile* targetTile,
-        Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Real rotationAngle, const Ogre::Vector3& scale,
-        bool hideCoveredTile, float opacity = 1.0f, const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
+        Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Real rotationAngle, bool hideCoveredTile,
+        float opacity = 1.0f, const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
     BuildingObject(GameMap* gameMap, Building& building, const std::string& meshName,
-        Tile& targetTile, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity = 1.0f,
+        Tile& targetTile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f,
         const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
     BuildingObject(GameMap* gameMap);
 
     virtual GameEntityType getObjectType() const override;
-
-    virtual const Ogre::Vector3& getScale() const override
-    { return mScale; }
 
     void doUpkeep() override;
 
@@ -53,15 +50,6 @@ public:
     void fireRefresh();
 
     static BuildingObject* getBuildingObjectFromPacket(GameMap* gameMap, ODPacket& is);
-
-protected:
-    virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
-    virtual void importFromPacket(ODPacket& is) override;
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual bool importFromStream(std::istream& is) override;
-
-private:
-    Ogre::Vector3 mScale;
 };
 
 #endif // BUILDINGOBJECT_H

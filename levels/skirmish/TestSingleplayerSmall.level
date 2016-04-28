@@ -1404,13 +1404,10 @@ DwarfWorker	1
     [/Stats]
 [/Creature]
 [Creature]
-    Name	BigDragon
+    Name	DragonBoss
     [Stats]
     CreatureJob	Fighter
     MeshName	Dragon.mesh
-    MeshScaleX	0.8
-    MeshScaleY	0.8
-    MeshScaleZ	0.8
     BedMeshName	DragonBed
     BedDim	1	1
     BedPos	1	1	0	-1
@@ -1531,7 +1528,7 @@ DwarfWorker	1
 1	DefaultWorker1	Kobold.mesh	11	11	0	DefaultWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
 2	DefaultWorker2	Kobold.mesh	12	39	0	DefaultWorker	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	NatureMonster1	NatureMonster	7	7	0	NatureMonster	1	0	10	100	0	0	Longsword	none	nullSkillType	none	0
-1	BigDragon1	BigDragon	7	9	0	BigDragon	1	0	10	100	0	0	none	none	nullSkillType	none	0
+1	DragonBoss1	Dragon	7	9	0	DragonBoss	1	0	10	100	0	0	none	none	nullSkillType	none	0
 1	Adventurer2	Adventurer	7	8	0	Adventurer	1	0	10	100	0	0	none	SpecialStaff	nullSkillType	none	0
 2	Adventurer3	Adventurer	7	40	0	Adventurer	1	0	10	100	0	0	none	none	nullSkillType	none	0
 3	TentacleAlbine1	TentacleAlbine	5	15	0	TentacleAlbine	1	0	max	100	0	0	none	none	nullSkillType	none	0

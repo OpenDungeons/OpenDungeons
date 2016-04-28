@@ -104,7 +104,7 @@ public:
     void rrCreateCreature(Creature* curCreature);
     void rrDestroyCreature(Creature* curCreature);
     void rrOrientEntityToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
-    void rrScaleEntity(GameEntity* entity);
+    void rrScaleCreature(Creature& creature);
     void rrCreateWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand);
     void rrDestroyWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand);
     void rrCreateMapLight(MapLight* curMapLight, bool displayVisual);
@@ -146,7 +146,7 @@ public:
         Ogre::Real attenuationConstant, Ogre::Real attenuationLinear, Ogre::Real attenuationQuadratic);
     void removePointLightMenu(Ogre::Light* light);
     Ogre::Entity* addEntityMenu(const std::string& meshName, const std::string& entityName,
-        const Ogre::Vector3& scale, const Ogre::Vector3& pos);
+        const Ogre::Vector3& pos);
     void removeEntityMenu(Ogre::Entity* ent);
     Ogre::AnimationState* setMenuEntityAnimation(const std::string& entityName, const std::string& animation, bool loop);
     //! \brief Called to update the given animation with the given time. Returns true if animation ended and

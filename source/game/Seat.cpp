@@ -1671,19 +1671,16 @@ void Seat::exportTileToPacket(ODPacket& os, const Tile* tile) const
     }
 
     std::string meshName;
-    Ogre::Vector3 scale;
 
     if((tileState.mBuilding != nullptr) &&
        !tileState.mBuilding->getMeshName().empty())
     {
         meshName = tileState.mBuilding->getMeshName() + ".mesh";
-        scale = tileState.mBuilding->getScale();
     }
     else
     {
         // We set an empty mesh so that the client can compute the tile itself
         meshName.clear();
-        scale = Ogre::Vector3::ZERO;
     }
     bool isRoom = false;
     bool isTrap = false;
@@ -1724,7 +1721,6 @@ void Seat::exportTileToPacket(ODPacket& os, const Tile* tile) const
     os << hasBridge;
     os << tileSeatId;
     os << meshName;
-    os << scale;
     os << tileState.mTileVisual;
 }
 

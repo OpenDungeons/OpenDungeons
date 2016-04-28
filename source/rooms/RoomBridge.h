@@ -46,8 +46,6 @@ public:
     virtual bool isBridge() const override
     { return true; }
 
-    virtual const Ogre::Vector3& getScale() const override;
-
     virtual bool displayTileMesh() const override
     { return true; }
 

@@ -273,12 +273,6 @@ RoomBridge::RoomBridge(GameMap* gameMap) :
 {
 }
 
-const Ogre::Vector3& RoomBridge::getScale() const
-{
-    static const Ogre::Vector3 SCALE(1.0,1.0,1.0);
-    return SCALE;
-}
-
 void RoomBridge::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
 {
     Room::setupRoom(name, seat, tiles);

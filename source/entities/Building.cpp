@@ -29,10 +29,6 @@
 
 const double Building::DEFAULT_TILE_HP = 10.0;
 
-static const Ogre::Vector3 SCALE(RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
-        RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
-        RenderManager::BLENDER_UNITS_PER_OGRE_UNIT);
-
 Building::~Building()
 {
     for(std::pair<Tile* const, TileData*>& p : mTileData)
@@ -73,11 +69,6 @@ void Building::doUpkeep()
         updateActiveSpots();
         createMesh();
     }
-}
-
-const Ogre::Vector3& Building::getScale() const
-{
-    return SCALE;
 }
 
 void Building::addBuildingObject(Tile* targetTile, BuildingObject* obj)

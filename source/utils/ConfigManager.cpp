@@ -66,9 +66,9 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
     mNbWorkersDigSameTile(2),
     mNbWorkersClaimSameTile(1)
 {
+    // TODO: it might be better to go through the creature definitions and try to pickup the first worker we can find
     mCreatureDefinitionDefaultWorker = new CreatureDefinition(DefaultWorkerCreatureDefinition,
-        CreatureDefinition::CreatureJob::Worker,
-        "Kobold.mesh", Ogre::Vector3(0.04, 0.04, 0.04));
+        CreatureDefinition::CreatureJob::Worker, "Kobold.mesh");
     if(!loadGlobalConfig(configPath))
     {
         OD_LOG_ERR("Couldn't read loadCreatureDefinitions");
@@ -1083,19 +1083,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
         std::string tileSetName;
         defFile >> tileSetName;
 
-        defFile >> nextParam;
-        if (nextParam != "Scale")
-        {
-            OD_LOG_ERR("Expecting Scale tag but got=" + nextParam);
-            return false;
-        }
-
-        Ogre::Vector3 scale;
-        defFile >> scale.x;
-        defFile >> scale.y;
-        defFile >> scale.z;
-
-        TileSet* tileSet = new TileSet(scale);
+        TileSet* tileSet = new TileSet();
         mTileSets[tileSetName] = tileSet;
 
         defFile >> nextParam;
