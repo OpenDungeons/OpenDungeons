@@ -341,6 +341,7 @@ public:
     void pickup() override;
     bool tryDrop(Seat* seat, Tile* tile) override;
     void drop(const Ogre::Vector3& v) override;
+    bool resizeMeshAfterDrop() override;
 
     //! \brief sets the speed modifier (coef)
     void setMoveSpeedModifier(double modifier);

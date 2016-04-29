@@ -2186,7 +2186,6 @@ void Creature::drop(const Ogre::Vector3& v)
     if(!getIsOnServerMap())
     {
         mDropCooldown = 2;
-        RenderManager::getSingleton().rrScaleCreature(*this);
         return;
     }
 
@@ -2319,6 +2318,12 @@ void Creature::drop(const Ogre::Vector3& v)
         building->creatureDropped(*this);
         return;
     }
+}
+
+bool Creature::resizeMeshAfterDrop()
+{
+    RenderManager::getSingleton().rrScaleCreature(*this);
+    return false;
 }
 
 bool Creature::setDestination(Tile* tile)

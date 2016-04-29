@@ -240,6 +240,12 @@ class GameEntity
     virtual void drop(const Ogre::Vector3& v)
     {}
 
+    //! \brief This function will be called on client side when the entity is dropped.
+    //! If it returns true, a rescale to UNIT size will be performed once the entity is dropped. If it
+    //! returns false, it should handle the scaling itself
+    virtual bool resizeMeshAfterDrop()
+    { return true; }
+
     //! \brief Exports the entity so that it can be updated on server side. exportToPacketForUpdate should be
     //! called on server side and the packet should be given to the corresponding entity in updateFromPacket
     //! exportToPacketForUpdate and updateFromPacket works like exportToPacket and importFromPacket but for entities

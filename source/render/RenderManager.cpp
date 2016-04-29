@@ -993,7 +993,8 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
     curEntity->getParentSceneNode()->addChild(curEntityNode);
     Ogre::Vector3 position = curEntity->getPosition();
     curEntityNode->setPosition(position);
-    curEntityNode->scale(Ogre::Vector3::UNIT_SCALE / KEEPER_HAND_CREATURE_PICKED_SCALE);
+    if(curEntity->resizeMeshAfterDrop())
+        curEntityNode->scale(Ogre::Vector3::UNIT_SCALE / KEEPER_HAND_CREATURE_PICKED_SCALE);
 
     rrOrderHand(localPlayer);
 }
