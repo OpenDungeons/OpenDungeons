@@ -112,7 +112,6 @@ static RoomRegister reg(new RoomLibraryFactory);
 
 static const Ogre::Real OFFSET_CREATURE = 0.3;
 static const Ogre::Real OFFSET_SPOT = 0.3;
-static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomLibrary::RoomLibrary(GameMap* gameMap) :
     Room(gameMap),
@@ -136,25 +135,25 @@ BuildingObject* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile
             y += OFFSET_SPOT;
             mUnusedSpots.push_back(tile);
             if (Random::Int(0, 100) > 50)
-                return new BuildingObject(getGameMap(), *this, "Podium", tile, x, y, z, 45.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "Podium", tile, x, y, z, 45.0, false);
             else
-                return new BuildingObject(getGameMap(), *this, "Bookcase", tile, x, y, z, 45.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "Bookcase", tile, x, y, z, 45.0, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 90.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 90.0, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 270.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 270.0, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 0.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 180.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "Bookshelf", *tile, 180.0, false);
         }
         default:
             break;

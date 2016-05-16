@@ -109,8 +109,6 @@ class RoomDormitoryFactory : public RoomFactory
 static RoomRegister reg(new RoomDormitoryFactory);
 }
 
-static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
-
 RoomDormitory::RoomDormitory(GameMap* gameMap) :
     Room(gameMap)
 {
@@ -252,7 +250,7 @@ void RoomDormitory::createBed(Tile* sleepTile, int x, int y, int width, int heig
     Ogre::Real yMesh = static_cast<double>(y) + (static_cast<double>(height) / 2.0) - 0.5;
     Ogre::Real zMesh = 0;
     BuildingObject* ro = new BuildingObject(getGameMap(), *this, c->getDefinition()->getBedMeshName(),
-        sleepTile, xMesh, yMesh, zMesh, rotationAngle, SCALE, false);
+        sleepTile, xMesh, yMesh, zMesh, rotationAngle, false);
     addBuildingObject(sleepTile, ro);
     ro->createMesh();
     // Save the info for later...

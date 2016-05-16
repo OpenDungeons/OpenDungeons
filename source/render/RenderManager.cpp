@@ -73,8 +73,8 @@ const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0f;
 const Ogre::Real KEEPER_HAND_POS_Z = 20.0;
 const Ogre::Real RenderManager::KEEPER_HAND_WORLD_Z = KEEPER_HAND_POS_Z / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT;
 
-const Ogre::Real KEEPER_HAND_CREATURE_PICKED_OFFSET = 5.0;
-const Ogre::Real KEEPER_HAND_CREATURE_PICKED_SCALE = 5.0;
+const Ogre::Real KEEPER_HAND_CREATURE_PICKED_OFFSET = 0.05;
+const Ogre::Real KEEPER_HAND_CREATURE_PICKED_SCALE = 0.05;
 
 RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mHandAnimationState(nullptr),
@@ -219,7 +219,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     Ogre::Overlay* handKeeperOverlay = overlayManager.create(keeperHandEnt->getName() + "_Ov");
     mHandKeeperNode = mSceneManager->createSceneNode(keeperHandEnt->getName() + "_node");
     mHandKeeperNode->attachObject(keeperHandEnt);
-    mHandKeeperNode->setScale(Ogre::Vector3::UNIT_SCALE * 0.012f * KEEPER_HAND_POS_Z);
+    mHandKeeperNode->setScale(Ogre::Vector3::UNIT_SCALE * KEEPER_HAND_POS_Z);
     mHandKeeperNode->setPosition(0.0f, 0.0f, -KEEPER_HAND_POS_Z);
     handKeeperOverlay->add3D(mHandKeeperNode);
     handKeeperOverlay->show();
@@ -251,7 +251,7 @@ void RenderManager::removePointLightMenu(Ogre::Light* light)
 }
 
 Ogre::Entity* RenderManager::addEntityMenu(const std::string& meshName, const std::string& entityName,
-        const Ogre::Vector3& scale, const Ogre::Vector3& pos)
+        const Ogre::Vector3& pos)
 {
     if(mSceneManager->hasEntity(entityName))
     {
@@ -269,7 +269,6 @@ Ogre::Entity* RenderManager::addEntityMenu(const std::string& meshName, const st
 
     Ogre::SceneNode* node = mMainMenuSceneNode->createChildSceneNode(ent->getName() + "_node");
     node->attachObject(ent);
-    node->setScale(scale);
     node->setPosition(pos);
 
     return ent;
@@ -308,7 +307,7 @@ bool RenderManager::updateMenuEntityAnimation(Ogre::AnimationState* animState, O
     return animState->hasEnded();
 }
 
-Ogre::SceneNode* RenderManager::getMenuEntityNode(const std::string& entityName, Ogre::Vector3& pos)
+Ogre::SceneNode* RenderManager::getMenuEntityNode(const std::string& entityName)
 {
     std::string nodeName = entityName + "_node";
     if(!mSceneManager->hasSceneNode(nodeName))
@@ -318,8 +317,12 @@ Ogre::SceneNode* RenderManager::getMenuEntityNode(const std::string& entityName,
     }
 
     Ogre::SceneNode* node = mSceneManager->getSceneNode(nodeName);
-    pos = node->getPosition();
     return node;
+}
+
+const Ogre::Vector3& RenderManager::getMenuEntityPosition(Ogre::SceneNode* node)
+{
+    return node->getPosition();
 }
 
 void RenderManager::updateMenuEntityPosition(Ogre::SceneNode* node, const Ogre::Vector3& pos)
@@ -397,6 +400,16 @@ void RenderManager::setProgressiveNodeOrientation(Ogre::SceneNode* node, Ogre::R
         const Ogre::Quaternion& angleSrc, const Ogre::Quaternion& angleDest)
 {
     node->setOrientation(Ogre::Quaternion::Slerp(progress, angleSrc, angleDest, true));
+}
+
+void RenderManager::setScaleMenuEntity(Ogre::SceneNode* node, const Ogre::Vector3& absSize)
+{
+    node->setScale(absSize);
+}
+
+const Ogre::Vector3& RenderManager::getMenuEntityScale(Ogre::SceneNode* node)
+{
+    return node->getScale();
 }
 
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
@@ -484,7 +497,6 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
     // We rescale and set the orientation that may have changed
     if(tileMeshNode != nullptr)
     {
-        tileMeshNode->setScale(gameMap.getTileSetScale());
         tileMeshNode->resetOrientation();
 
         // We rotate depending on the tileset
@@ -544,7 +556,6 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
         customMeshEnt = mSceneManager->createEntity(customMeshName, meshName);
 
         customMeshNode->attachObject(customMeshEnt);
-        customMeshNode->setScale(tile.getScale());
         customMeshNode->resetOrientation();
 
         Ogre::MeshPtr meshPtr = customMeshEnt->getMesh();
@@ -648,8 +659,6 @@ void RenderManager::rrTemporalMarkTile(Tile* curTile)
         Ogre::SceneNode* tileNode = mSceneManager->getSceneNode(tileNodeName);
         Ogre::SceneNode* selectorNode = tileNode->createChildSceneNode(selectorName + "Node");
         selectorNode->setInheritScale(false);
-        selectorNode->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
-                                  BLENDER_UNITS_PER_OGRE_UNIT, 0.45 * BLENDER_UNITS_PER_OGRE_UNIT));
         selectorNode->attachObject(ent);
     }
 
@@ -664,7 +673,6 @@ void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* rendere
     Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString + "_node");
 
     node->setPosition(renderedMovableEntity->getPosition());
-    node->setScale(renderedMovableEntity->getScale());
     node->roll(Ogre::Degree(renderedMovableEntity->getRotationAngle()));
     Ogre::Entity* ent = nullptr;
     if(!meshName.empty())
@@ -759,7 +767,6 @@ void RenderManager::rrUpdateEntityOpacity(RenderedMovableEntity* entity)
 void RenderManager::rrCreateCreature(Creature* curCreature)
 {
     const std::string& meshName = curCreature->getDefinition()->getMeshName();
-    const Ogre::Vector3& scale = curCreature->getScale();
 
     // Load the mesh for the creature
     std::string creatureName = curCreature->getOgreNamePrefix() + curCreature->getName();
@@ -774,7 +781,6 @@ void RenderManager::rrCreateCreature(Creature* curCreature)
     Ogre::SceneNode* node = mCreatureSceneNode->createChildSceneNode(creatureName + "_node");
     curCreature->setEntityNode(node);
     node->setPosition(curCreature->getPosition());
-    node->setScale(scale);
     node->attachObject(ent);
     curCreature->setParentSceneNode(node->getParentSceneNode());
 
@@ -823,15 +829,17 @@ void RenderManager::rrOrientEntityToward(MovableGameEntity* gameEntity, const Og
     }
 }
 
-void RenderManager::rrScaleEntity(GameEntity* entity)
+void RenderManager::rrScaleCreature(Creature& creature)
 {
-    if(entity->getEntityNode() == nullptr)
+    if(creature.getEntityNode() == nullptr)
     {
-        OD_LOG_ERR("entity=" + entity->getName());
+        OD_LOG_ERR("creature=" + creature.getName());
         return;
     }
 
-    entity->getEntityNode()->setScale(entity->getScale());
+    Ogre::Real scaleFactor = static_cast<Ogre::Real>(
+        1.0 + 0.02 * static_cast<double>(creature.getLevel()));
+    creature.getEntityNode()->setScale(Ogre::Vector3::UNIT_SCALE * scaleFactor);
 }
 
 void RenderManager::rrCreateWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand)
@@ -961,9 +969,9 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
 
     // Attach the creature to the hand scene node
     mHandKeeperNode->addChild(curEntityNode);
-    Ogre::Vector3 scale = curEntity->getScale();
-    scale *= KEEPER_HAND_CREATURE_PICKED_SCALE;
-    curEntityNode->setScale(scale);
+    // When something is picked up, we do a relative scale to allow to see bigger
+    // things... bigger
+    curEntityNode->scale(Ogre::Vector3::UNIT_SCALE * KEEPER_HAND_CREATURE_PICKED_SCALE);
 
     rrOrderHand(localPlayer);
 }
@@ -985,7 +993,8 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
     curEntity->getParentSceneNode()->addChild(curEntityNode);
     Ogre::Vector3 position = curEntity->getPosition();
     curEntityNode->setPosition(position);
-    curEntityNode->setScale(curEntity->getScale());
+    if(curEntity->resizeMeshAfterDrop())
+        curEntityNode->scale(Ogre::Vector3::UNIT_SCALE / KEEPER_HAND_CREATURE_PICKED_SCALE);
 
     rrOrderHand(localPlayer);
 }
@@ -1035,9 +1044,6 @@ void RenderManager::rrCreateCreatureVisualDebug(Creature* curCreature, Tile* cur
         visIndicatorNode->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(curTile->getX()),
                                                     static_cast<Ogre::Real>(curTile->getY()),
                                                     static_cast<Ogre::Real>(0)));
-        visIndicatorNode->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
-                                   BLENDER_UNITS_PER_OGRE_UNIT,
-                                   BLENDER_UNITS_PER_OGRE_UNIT));
     }
 }
 
@@ -1073,9 +1079,6 @@ void RenderManager::rrCreateSeatVisionVisualDebug(int seatId, Tile* tile)
         visIndicatorNode->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(tile->getX()),
                                                     static_cast<Ogre::Real>(tile->getY()),
                                                     static_cast<Ogre::Real>(0)));
-        visIndicatorNode->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
-                                   BLENDER_UNITS_PER_OGRE_UNIT,
-                                   BLENDER_UNITS_PER_OGRE_UNIT));
     }
 }
 
@@ -1346,8 +1349,7 @@ void RenderManager::rrCarryEntity(Creature* carrier, GameEntity* carried)
     carriedNode->setInheritScale(false);
     carrierNode->addChild(carriedNode);
     // We want the carried object to be at half tile (z = 0.5)
-    Ogre::Real z = 0.5 / carrier->getScale().z;
-    carriedNode->setPosition(Ogre::Vector3(0, 0, z));
+    carriedNode->setPosition(Ogre::Vector3(0, 0, 0.5));
 }
 
 void RenderManager::rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried)

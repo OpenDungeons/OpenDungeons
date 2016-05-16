@@ -47,8 +47,7 @@ const std::string& RenderSceneTurnEntity::getModifierName() const
 
 bool RenderSceneTurnEntity::activate(CameraManager& cameraManager, RenderManager& renderManager)
 {
-    Ogre::Vector3 pos;
-    mSceneNode = renderManager.getMenuEntityNode(mName, pos);
+    mSceneNode = renderManager.getMenuEntityNode(mName);
     if(mSceneNode == nullptr)
         return true;
 

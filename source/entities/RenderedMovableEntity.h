@@ -48,8 +48,6 @@ public:
     virtual void doUpkeep() override
     {}
 
-    virtual const Ogre::Vector3& getScale() const override;
-
     void receiveExp(double experience)
     {}
 

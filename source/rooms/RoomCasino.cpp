@@ -114,7 +114,6 @@ static RoomRegister reg(new RoomCasinoFactory);
 }
 
 static const Ogre::Real OFFSET_CREATURE = 0.3;
-static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomCasino::RoomCasino(GameMap* gameMap) :
     Room(gameMap)
@@ -133,25 +132,25 @@ BuildingObject* RoomCasino::notifyActiveSpotCreated(ActiveSpotPlace place, Tile*
             Ogre::Real z = 0;
             mCreaturesSpots.emplace(std::make_pair(tile, RoomCasinoGame()));
             if(Random::Uint(0,9) < 5)
-                return new BuildingObject(getGameMap(), *this, "CasinoPokerTable", tile, x, y, z, 0.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "CasinoPokerTable", tile, x, y, z, 0.0, false);
             else
-                return new BuildingObject(getGameMap(), *this, "Roulette", tile, x, y, z, 0.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "Roulette", tile, x, y, z, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 90.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 90.0, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 270.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 270.0, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 0.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 180.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "CasinoWallBeer", *tile, 180.0, false);
         }
         default:
             break;

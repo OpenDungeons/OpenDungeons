@@ -37,8 +37,6 @@ public:
 
     virtual GameEntityType getObjectType() const override;
 
-    virtual const Ogre::Vector3& getScale() const override;
-
     inline int32_t getSkillPoints() const
     { return mSkillPoints; }
 

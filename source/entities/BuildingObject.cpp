@@ -35,16 +35,15 @@
 #include <iostream>
 
 BuildingObject::BuildingObject(GameMap* gameMap, Building& building, const std::string& meshName, Tile* targetTile,
-        Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Real rotationAngle, const Ogre::Vector3& scale,
-        bool hideCoveredTile, float opacity, const std::string& initialAnimationState, bool initialAnimationLoop) :
+        Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
+        const std::string& initialAnimationState, bool initialAnimationLoop) :
     RenderedMovableEntity(
         gameMap,
         targetTile == nullptr ? building.getName() : building.getName() + "_" + Tile::displayAsString(targetTile),
         meshName,
         rotationAngle,
         hideCoveredTile,
-        opacity),
-    mScale(scale)
+        opacity)
 {
     mPosition = Ogre::Vector3(x, y, z);
     mPrevAnimationState = initialAnimationState;
@@ -52,7 +51,7 @@ BuildingObject::BuildingObject(GameMap* gameMap, Building& building, const std::
 }
 
 BuildingObject::BuildingObject(GameMap* gameMap, Building& building, const std::string& meshName,
-        Tile& targetTile, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
+        Tile& targetTile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
         const std::string& initialAnimationState, bool initialAnimationLoop) :
     RenderedMovableEntity(
         gameMap,
@@ -60,8 +59,7 @@ BuildingObject::BuildingObject(GameMap* gameMap, Building& building, const std::
         meshName,
         rotationAngle,
         hideCoveredTile,
-        opacity),
-    mScale(scale)
+        opacity)
 {
     mPosition = Ogre::Vector3(targetTile.getX(), targetTile.getY(), 0);
     mPrevAnimationState = initialAnimationState;
@@ -70,8 +68,7 @@ BuildingObject::BuildingObject(GameMap* gameMap, Building& building, const std::
 
 
 BuildingObject::BuildingObject(GameMap* gameMap) :
-    RenderedMovableEntity(gameMap),
-    mScale(1.0f, 1.0f, 1.0f)
+    RenderedMovableEntity(gameMap)
 {
 }
 
@@ -110,40 +107,6 @@ BuildingObject* BuildingObject::getBuildingObjectFromPacket(GameMap* gameMap, OD
     BuildingObject* obj = new BuildingObject(gameMap);
     obj->importFromPacket(is);
     return obj;
-}
-
-void BuildingObject::exportToPacket(ODPacket& os, const Seat* seat) const
-{
-    RenderedMovableEntity::exportToPacket(os, seat);
-    os << mScale;
-}
-
-void BuildingObject::importFromPacket(ODPacket& is)
-{
-    RenderedMovableEntity::importFromPacket(is);
-    OD_ASSERT_TRUE(is >> mScale);
-}
-
-void BuildingObject::exportToStream(std::ostream& os) const
-{
-    RenderedMovableEntity::exportToStream(os);
-    os << mScale.x;
-    os << mScale.y;
-    os << mScale.z;
-}
-
-bool BuildingObject::importFromStream(std::istream& is)
-{
-    if(!RenderedMovableEntity::importFromStream(is))
-        return false;
-    if(!(is >> mScale.x))
-        return false;
-    if(!(is >> mScale.y))
-        return false;
-    if(!(is >> mScale.z))
-        return false;
-
-    return true;
 }
 
 void BuildingObject::addParticleEffect(const std::string& effectScript, uint32_t nbTurns)

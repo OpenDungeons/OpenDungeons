@@ -67,7 +67,7 @@ bool CreatureActionGetFee::handleGetFee(Creature& creature)
     }
 
     // We try to go to some treasury were there is still some gold
-    std::vector<Room*> availableTreasuries;
+    std::vector<Tile*> availableTreasuries;
     for(Room* room : creature.getGameMap()->getRooms())
     {
         if(room->getSeat() != creature.getSeat())
@@ -83,7 +83,7 @@ bool CreatureActionGetFee::handleGetFee(Creature& creature)
         if(!creature.getGameMap()->pathExists(&creature, myTile, tile))
             continue;
 
-        availableTreasuries.push_back(room);
+        availableTreasuries.push_back(tile);
     }
 
     if(availableTreasuries.empty())
@@ -93,14 +93,20 @@ bool CreatureActionGetFee::handleGetFee(Creature& creature)
         return true;
     }
 
-    uint32_t index = Random::Uint(0, availableTreasuries.size() - 1);
-    Room* room = availableTreasuries[index];
+    Tile* chosenTile = nullptr;
+    std::list<Tile*> tilePath = creature.getGameMap()->findBestPath(&creature, myTile,
+        availableTreasuries, chosenTile);
 
-    Tile* tile = room->getCoveredTile(0);
-    std::list<Tile*> result = creature.getGameMap()->path(&creature, tile);
-    std::vector<Ogre::Vector3> path;
-    creature.tileToVector3(result, path, true, 0.0);
-    creature.setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
+    if(tilePath.empty() || (chosenTile == nullptr))
+    {
+        // No available treasury
+        creature.popAction();
+        return true;
+    }
+
+    std::vector<Ogre::Vector3> vectorPath;
+    creature.tileToVector3(tilePath, vectorPath, true, 0.0);
+    creature.setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, vectorPath);
     creature.pushAction(Utils::make_unique<CreatureActionWalkToTile>(creature));
     return false;
 }

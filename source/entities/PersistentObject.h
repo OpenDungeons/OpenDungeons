@@ -43,7 +43,7 @@ class PersistentObject: public BuildingObject
 {
 public:
     PersistentObject(GameMap* gameMap, Building& building, const std::string& meshName,
-        Tile* tile, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity = 1.0f,
+        Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f,
         const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
     PersistentObject(GameMap* gameMap);
 

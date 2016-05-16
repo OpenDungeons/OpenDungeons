@@ -31,8 +31,6 @@
 
 #include <iostream>
 
-const Ogre::Vector3 SCALE(0.5,0.5,0.5);
-
 CraftedTrap::CraftedTrap(GameMap* gameMap, const std::string& workshopName, TrapType trapType) :
     RenderedMovableEntity(gameMap, workshopName, TrapManager::getMeshFromTrapType(trapType), 0.0f, false),
     mTrapType(trapType)
@@ -47,12 +45,6 @@ CraftedTrap::CraftedTrap(GameMap* gameMap) :
 GameEntityType CraftedTrap::getObjectType() const
 {
     return GameEntityType::craftedTrap;
-}
-
-
-const Ogre::Vector3& CraftedTrap::getScale() const
-{
-    return SCALE;
 }
 
 void CraftedTrap::notifyEntityCarryOn(Creature* carrier)

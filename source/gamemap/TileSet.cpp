@@ -20,9 +20,8 @@
 #include "entities/Tile.h"
 #include "utils/LogManager.h"
 
-TileSet::TileSet(const Ogre::Vector3& scale) :
+TileSet::TileSet() :
     mTileValues(static_cast<uint32_t>(TileVisual::countTileVisual), std::vector<TileSetValue>(16)),
-    mScale(scale),
     mTileLinks(std::vector<uint32_t>(static_cast<uint32_t>(TileVisual::countTileVisual), 0))
 {
 }

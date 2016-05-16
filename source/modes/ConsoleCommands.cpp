@@ -202,7 +202,7 @@ Command::Result cList(const Command::ArgumentList_t& args, ConsoleInterface& c, 
     }
     else if (args[1].compare("classes") == 0)
     {
-        stringStr << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
+        stringStr << "Class:\tMesh:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
         for (unsigned int i = 0; i < gameMap->numClassDescriptions(); ++i)
         {
             const CreatureDefinition* currentClassDesc = gameMap->getClassDescription(i);

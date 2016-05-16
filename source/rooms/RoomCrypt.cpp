@@ -111,7 +111,6 @@ static RoomRegister reg(new RoomCryptFactory);
 
 static const int32_t OFFSET_TILE_X = 0;
 static const int32_t OFFSET_TILE_Y = -1;
-static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RoomCrypt::RoomCrypt(GameMap* gameMap) :
     Room(gameMap),
@@ -129,27 +128,27 @@ BuildingObject* RoomCrypt::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* 
             mRottingCreatures[tile] = std::pair<Creature*,int32_t>(nullptr, -1);
             int rnd = Random::Int(0, 100);
             if (rnd < 33)
-                return new BuildingObject(getGameMap(), *this, "KnightCoffin", *tile, 0.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "KnightCoffin", *tile, 0.0, false);
             else if (rnd < 66)
-                return new BuildingObject(getGameMap(), *this, "CelticCross", *tile, 0.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "CelticCross", *tile, 0.0, false);
             else
-                return new BuildingObject(getGameMap(), *this, "StoneCoffin", *tile, 0.0, SCALE, false);
+                return new BuildingObject(getGameMap(), *this, "StoneCoffin", *tile, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return new BuildingObject(getGameMap(), *this, "KnightStatue", *tile, 90.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "KnightStatue", *tile, 90.0, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return new BuildingObject(getGameMap(), *this, "KnightStatue", *tile, 270.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "KnightStatue", *tile, 270.0, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return new BuildingObject(getGameMap(), *this, "KnightStatue2", *tile, 0.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "KnightStatue2", *tile, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return new BuildingObject(getGameMap(), *this, "KnightStatue2", *tile, 180.0, SCALE, false);
+            return new BuildingObject(getGameMap(), *this, "KnightStatue2", *tile, 180.0, false);
         }
         default:
             break;

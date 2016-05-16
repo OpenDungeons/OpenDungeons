@@ -50,7 +50,7 @@ bool RenderSceneAddEntity::activate(CameraManager& cameraManager, RenderManager&
     if(mEntity != nullptr)
         return true;
 
-    mEntity = renderManager.addEntityMenu(mMesh, mName, mScale, mPosition);
+    mEntity = renderManager.addEntityMenu(mMesh, mName, mPosition);
     return true;
 }
 
@@ -68,12 +68,6 @@ bool RenderSceneAddEntity::importFromStream(std::istream& is)
     if(!(is >> mName))
         return false;
     if(!(is >> mMesh))
-        return false;
-    if(!(is >> mScale.x))
-        return false;
-    if(!(is >> mScale.y))
-        return false;
-    if(!(is >> mScale.z))
         return false;
     if(!(is >> mPosition.x))
         return false;

@@ -29,14 +29,13 @@
 #include <iostream>
 
 PersistentObject::PersistentObject(GameMap* gameMap, Building& building, const std::string& meshName,
-        Tile* tile, Ogre::Real rotationAngle, const Ogre::Vector3& scale, bool hideCoveredTile, float opacity,
+        Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
         const std::string& initialAnimationState, bool initialAnimationLoop) :
     BuildingObject(gameMap,
         building,
         meshName,
         *tile,
         rotationAngle,
-        scale,
         hideCoveredTile,
         opacity,
         initialAnimationState,

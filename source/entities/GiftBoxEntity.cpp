@@ -32,8 +32,6 @@
 
 const std::string EMPTY_STRING;
 
-const Ogre::Vector3 SCALE(0.7,0.7,0.7);
-
 GiftBoxEntity::GiftBoxEntity(GameMap* gameMap, const std::string& baseName, const std::string& meshName, GiftBoxType type) :
     RenderedMovableEntity(gameMap, baseName, meshName, 0.0f, false, 1.0f),
     mGiftBoxType(type)
@@ -49,11 +47,6 @@ GiftBoxEntity::GiftBoxEntity(GameMap* gameMap) :
 GameEntityType GiftBoxEntity::getObjectType() const
 {
     return GameEntityType::giftBoxEntity;
-}
-
-const Ogre::Vector3& GiftBoxEntity::getScale() const
-{
-    return SCALE;
 }
 
 void GiftBoxEntity::notifyEntityCarryOn(Creature* carrier)

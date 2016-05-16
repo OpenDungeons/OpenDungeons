@@ -59,7 +59,6 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mRefundPriceTrap    (0),
     mCoveringBuilding   (nullptr),
     mClaimedPercentage  (0.0),
-    mScale              (Ogre::Vector3::ZERO),
     mIsRoom             (false),
     mIsTrap             (false),
     mDisplayTileMesh    (true),
@@ -1018,8 +1017,6 @@ void Tile::updateFromPacket(ODPacket& is)
 
     OD_ASSERT_TRUE(is >> meshName);
     setMeshName(meshName);
-
-    OD_ASSERT_TRUE(is >> mScale);
 
     ss.str(std::string());
     ss << TILE_PREFIX;

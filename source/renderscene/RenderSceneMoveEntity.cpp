@@ -47,10 +47,17 @@ const std::string& RenderSceneMoveEntity::getModifierName() const
 
 bool RenderSceneMoveEntity::activate(CameraManager& cameraManager, RenderManager& renderManager)
 {
-    mSceneNode = renderManager.getMenuEntityNode(mName, mPosition);
-    mAnimState = renderManager.setMenuEntityAnimation(mName, mAnimation, true);
-    if((mSceneNode == nullptr) || (mAnimState == nullptr))
+    mSceneNode = renderManager.getMenuEntityNode(mName);
+
+    if(mAnimation.compare("none") == 0)
+        mAnimState = nullptr;
+    else
+        mAnimState = renderManager.setMenuEntityAnimation(mName, mAnimation, true);
+
+    if(mSceneNode == nullptr)
         return true;
+
+    mPosition = renderManager.getMenuEntityPosition(mSceneNode);
 
     // We orient the entity to its destination
     Ogre::Vector3 walkDirection = mDestination - mPosition;
@@ -62,7 +69,9 @@ bool RenderSceneMoveEntity::activate(CameraManager& cameraManager, RenderManager
 bool RenderSceneMoveEntity::update(CameraManager& cameraManager, RenderManager& renderManager,
         Ogre::Real timeSinceLastFrame)
 {
-    renderManager.updateMenuEntityAnimation(mAnimState, timeSinceLastFrame);
+    if(mAnimState != nullptr)
+        renderManager.updateMenuEntityAnimation(mAnimState, timeSinceLastFrame);
+
     // Computes new position
     Ogre::Vector3 walkDirection = mDestination - mPosition;
     walkDirection.normalise();

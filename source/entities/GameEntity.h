@@ -182,9 +182,6 @@ class GameEntity
     inline Ogre::SceneNode* getEntityNode() const
     { return mEntityNode; }
 
-    virtual const Ogre::Vector3& getScale() const
-    { return Ogre::Vector3::UNIT_SCALE; }
-
     //! \brief Set the name of the entity
     inline void setName(const std::string& name)
     { mName = name; }
@@ -242,6 +239,12 @@ class GameEntity
     { return false; }
     virtual void drop(const Ogre::Vector3& v)
     {}
+
+    //! \brief This function will be called on client side when the entity is dropped.
+    //! If it returns true, a rescale to UNIT size will be performed once the entity is dropped. If it
+    //! returns false, it should handle the scaling itself
+    virtual bool resizeMeshAfterDrop()
+    { return true; }
 
     //! \brief Exports the entity so that it can be updated on server side. exportToPacketForUpdate should be
     //! called on server side and the packet should be given to the corresponding entity in updateFromPacket

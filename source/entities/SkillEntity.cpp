@@ -34,8 +34,6 @@
 
 static const std::string EMPTY_STRING;
 
-static const Ogre::Vector3 SCALE(0.5,0.5,0.5);
-
 SkillEntity::SkillEntity(GameMap* gameMap, const std::string& libraryName, int32_t skillPoints) :
     RenderedMovableEntity(gameMap, libraryName, "Grimoire", 0.0f, false, 1.0f),
     mSkillPoints(skillPoints)
@@ -52,11 +50,6 @@ SkillEntity::SkillEntity(GameMap* gameMap) :
 GameEntityType SkillEntity::getObjectType() const
 {
     return GameEntityType::skillEntity;
-}
-
-const Ogre::Vector3& SkillEntity::getScale() const
-{
-    return SCALE;
 }
 
 void SkillEntity::notifyEntityCarryOn(Creature* carrier)

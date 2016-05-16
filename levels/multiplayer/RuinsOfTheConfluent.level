@@ -2075,9 +2075,6 @@ NatureMonster	5
     [Stats]
     CreatureJob	Fighter
     MeshName	Scarab.mesh
-    MeshScaleX	0.3
-    MeshScaleY	0.3
-    MeshScaleZ	0.3
     BedMeshName	DragonBed
     BedDim	1	1
     BedPos	1	1	0	-1

@@ -2925,11 +2925,6 @@ const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
     return mTileSet->getTileValues(tile->getTileVisual()).at(index);
 }
 
-const Ogre::Vector3& GameMap::getTileSetScale() const
-{
-    return mTileSet->getScale();
-}
-
 uint32_t GameMap::getMaxNumberCreatures(Seat* seat) const
 {
     uint32_t nbCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeatDefault();

@@ -91,8 +91,6 @@ class RoomDungeonTempleFactory : public RoomFactory
 static RoomRegister reg(new RoomDungeonTempleFactory);
 }
 
-static const Ogre::Vector3 SCALE(0.7,0.7,0.7);
-
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),
     mTempleObject(nullptr)
@@ -146,7 +144,7 @@ void RoomDungeonTemple::updateTemplePosition()
     if (centralTile == nullptr)
         return;
 
-    mTempleObject = new PersistentObject(getGameMap(), *this, "DungeonTempleObject", centralTile, 0.0, SCALE, false);
+    mTempleObject = new PersistentObject(getGameMap(), *this, "DungeonTempleObject", centralTile, 0.0, false);
     addBuildingObject(centralTile, mTempleObject);
 }
 

@@ -39,8 +39,6 @@ public:
 
     virtual GameEntityType getObjectType() const override;
 
-    virtual const Ogre::Vector3& getScale() const;
-
     TrapType getTrapType() const
     { return mTrapType; }
 
