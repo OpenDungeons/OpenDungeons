@@ -20,7 +20,7 @@ install:
           Write-Host "Downloading MinGW32"
           appveyor DownloadFile $urlDeps -FileName $file
           Write-Host "Unzip MinGW32"
-          7z x -oC:\dev $file > $null
+          7z x -oC:\dev $file
       }
 # download dependencies
   - ps: |
@@ -29,7 +29,7 @@ install:
       Write-Host "Downloading deps"
       appveyor DownloadFile $urlDeps -FileName $file
       Write-Host "Unzip deps"
-      7z x -oC:\ $file > $null
+      7z x -oC:\ $file
   - set OD_DEPS=C:\od-deps-win32
 # We try to keep as few things in path as possible to make sure cmake won't find a needed library in some unexpected place
   - if "%generator%" == "mingw32" (set "PATH=c:\dev\MinGW\bin;C:\od-deps-win32\bin\mingw48;")
