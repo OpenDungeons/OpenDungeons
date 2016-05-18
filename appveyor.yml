@@ -18,7 +18,7 @@ install:
           $file = "C:\dev\MinGW32.7z"
           $urlDeps = "http://download.tuxfamily.org/opendungeons/dependency/MinGW32.7z"
           Write-Host "Downloading MinGW32"
-          appveyor DownloadFile $urlDeps -FileName $file
+          curl -fsSL -o $file $urlDeps
           Write-Host "Unzip MinGW32"
           7z x -oC:\dev $file
       }
@@ -27,7 +27,7 @@ install:
       $file = "C:\od-deps-win32.7z"
       $urlDeps = "http://download.tuxfamily.org/opendungeons/dependency/od-deps-win32.7z"
       Write-Host "Downloading deps"
-      appveyor DownloadFile $urlDeps -FileName $file
+      curl -fsSL -o $file $urlDeps
       Write-Host "Unzip deps"
       7z x -oC:\ $file
   - set OD_DEPS=C:\od-deps-win32
