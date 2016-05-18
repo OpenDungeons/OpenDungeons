@@ -175,6 +175,7 @@ textures/
 -> LizardmanBed*.png                   Nobiax, public domain   CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 -> Lizardman{,Normal}.png
 -> Longsword.png
+-> Monk*.png                           CDmir                   CC0                     http://opengameart.org/content/monk-animated
 -> MysteryBox*.png                     Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> OrcBed*.png                         Bart, p0ss              CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60191#p60191
 -> Orc{,Normal}.png
@@ -296,6 +297,7 @@ Lich.*                                 SummoningWars           CC-BY-SA 3.0     
 Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
 LizardmanBed.mesh                      Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 Longsword.mesh                         Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+
+Monk.*                                 CDmir, hwoarangmy       CC-BY-SA 3.0            http://opengameart.org/content/monk-animated
 MysteryBox.mesh                        Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 NatureMonster.*                        CDmir                   CC0                     http://opengameart.org/content/forest-monster
 Orc.*                                  Skorpio                 CC-BY-SA 3.0, GPLv3+
