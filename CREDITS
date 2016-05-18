@@ -171,6 +171,7 @@ textures/
 -> Kreator*.png
 -> Lamp*.png                           Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?
 -> Lava.png
+-> LavaSpawn*.png                      piacenti                CC-BY-SA 3.0            http://opengameart.org/content/lava-spawn-animated
 -> Library*.png
 -> LizardmanBed*.png                   Nobiax, public domain   CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 -> Lizardman{,Normal}.png
@@ -292,6 +293,8 @@ Kobold.*                               surt                    CC0              
 Kreatur.*                              Skorpio                 CC-BY-SA 3.0, GPLv3+
 Lamp.mesh                              Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
 Lava*.mesh                             Skorpio                 CC-BY-SA 3.0, GPLv3+
+LavaSpawn.*                            piacenti, hwoarangmy, Gabriel Verdon, Katarzyna Zalecka
+                                                               CC-BY-SA 3.0            http://opengameart.org/content/lava-spawn-animated
 Library.mesh                           Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Lich.*                                 SummoningWars           CC-BY-SA 3.0            http://sumwars.org
 Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPLv3+

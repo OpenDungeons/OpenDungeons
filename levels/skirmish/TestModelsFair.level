@@ -1321,6 +1321,7 @@ Wizard26	11	4	0
 1	Goblin10	Goblin.mesh	24	25	0	Goblin	1	0	max	100	0	400	none	none	nullSkillType	none	0
 1	PitDemon11	PitDemon.mesh	27	25	0	PitDemon	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Spider12	Spider.mesh	18	22	0	Spider	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	LavaSpawn2	LavaSpawn.mesh	18	22	0	LavaSpawn	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	TentacleAlbine13	TentacleAlbine.mesh	21	22	0	TentacleAlbine	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	TentacleGreen14	TentacleGreen.mesh	24	22	0	TentacleGreen	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Troll15	Troll.mesh	27	22	0	Troll	1	0	max	100	0	0	none	none	nullSkillType	none	0
