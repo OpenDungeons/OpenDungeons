@@ -222,6 +222,7 @@ textures/
 -> T4SwordGood                         GESY                    CC-BY                   https://sketchfab.com/models/c2b290ab390f41609362cba70d367bc0
 -> Tentacle{Albine,Green,Normal}.png
 -> TentacleBed*.png                    West                    CC0                     http://forum.freegamedev.net/viewtopic.php?p=60091#p60091
+-> TortureObject                       Danimal, Nobiax         CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59239#p59239
 -> TrainingDummy1*.png
 -> TrainingDummy2*.png                 Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59239#p59239
 -> TrainingDummy3*.png                 P0ss                    CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
@@ -364,6 +365,7 @@ T4SwordGood                            GESY                    CC-BY            
 TentacleBed.mesh                       Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60091#p60091
 Tentacle*.*                            Skorpio                 CC-BY-SA 3.0, GPLv3+
 Tileset                                Skorpio, Danimal        CC-BY-SA 3.0            http://opengameart.org/content/3d-dungeon-tileset
+TortureObject                          Danimal, Nobiax         CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59239#p59239
 TrainingDummy1.*                       Aaron Eads              CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 TrainingDummy2.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?f=38&t=5528&p=59348#p59239
 TrainingDummy3.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
