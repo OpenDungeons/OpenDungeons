@@ -6,6 +6,104 @@ OpenDungeons since version 0.4.7, in reverse chronological order.
 The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on
 our repository at https://github.com/OpenDungeons/OpenDungeons
 
+### Version 0.7.0
+
+**Highlights:**
+
+* Multiplayer lobby using a master server, to find other players all over the world
+* Animated main menu with scripted events!
+* Play voice-overs on some game events
+* Vastly improved creatures behaviour, including support for spell casting,
+  elemental damage, better ranged behaviour, and many customisation features
+* New rooms: Arena, Bridges, Casino, Prison, Torture room
+* New creatures: Cultist, Elf, Dark Elf, Lich, Nature Monster, Rat, Roach, Skeleton
+* New spells: Defense, Eye of Evil, Slow, Strength, Weak
+
+**General:**
+
+* Play sounds on some game events, with voice-overs by Eugene Loza (#393)
+* Unit tests (#578) and continuous integration (#960)
+* Display stacktrace in the logs on game crash (#1155)
+* A lot of code refactoring and technical improvements!
+
+**Multiplayer:**
+
+* Master server and in-game lobby, allowing to find available servers
+  waiting for players (#777)
+  - Chat support in the lobby/seat configuration menu (#1029)
+* Improved game saving, only allowed for the server side (#938)
+
+**Gameplay:**
+
+* Creatures behaviour:
+  - New KO state as an alternative to death (#751)
+  - Vastly improved fighters behaviour (#957)
+  - Vastly improved workers behaviour (#1004)
+  - Implemented creature skills, abstract mechanism for both fighting
+    and spell casting (#959)
+    * Creature spells: Defense (#986), Slow, Strength, Weak (#1001)
+  - Elemental damage type, creating a triangle relationship between
+    strength and vulnerabilities (physical, magical, elemental) (#877)
+  - Make creature moods configurable like other parameters (#979)
+  - Make creature behaviours fully configurable (#992)
+  - Creatures grow bigger as they gain levels (#992)
+  - Creatures will use the closest room if multiple are available (#1172)
+  - General creature balancing (ongoing effort) (#985, #1001)
+* New rooms/traps:
+  - Arena, where creatures fight one on one or in a battle royale until
+    KO to earn XP (#699)
+  - Bridges (wooden for water, stone for water and lava)(#191)
+  - Casino, where creature spend their wages (#1046)
+  - Prison, turns both foes and friends into skeletons (#754)
+  - Torture room (#1058)
+* New gem tile, provides an infinite source of gold (#735)
+* Trap balancing by making them take defence skills into account (#1067)
+* New setting to select the AI level (Easy and Normal so far) (#933)
+* New Eye of Evil spell
+
+**Levels:**
+
+* Completed user maps support: official maps and user-made maps are
+  properly differentiated (#383)
+* New multiplayer level: Angel Nest (#1130)
+* New skirmish levels: Duel to Death, Forgotten Treasures (#1130)
+* Stonekeep Siege remake for bridge usage (#929)
+* Dehardcoded portal spawn rate (#1119)
+
+**UI:**
+
+* Camera management feature using the middle mouse button (#892)
+* New map creation menu; missing part is the setup of level parameters
+  like configured seats, etc. (#22)
+* Main menu usability improvements (#1050)
+* Display a scriptable 3D scene on the main menu, with lights and
+  particle effects (#1064, #1074)
+* Fixed spell cooldown display (#974)
+
+**Graphics:**
+
+* New icons for stunned and jailed (#950)
+* New creatures:
+  - Cultist, by Danimal, Dread Knight and Katarzyna Zalecka (#1181)
+  - Elf and Dark Elf, by Contmike and Danimal (#1016, #1017)
+  - Lava Spawn, by piacenti, hwoarangmy et al. (#1190)
+  - Lich, from Summoning Wars (#992)
+  - Monk, by CDmir and hwoarangmy (#1190)
+  - Nature Monster, replacing the BigKnight, by CDmir (#1069)
+  - Rat, replacing the Wyvern, by CDmir (#1072)
+  - Roach, by Danimal and Atmostatic (#962)
+  - Skeleton, from Summoning Wars (#992)
+* New objects:
+  - Room objects:
+    o Casino beer stand and poker table, by Danimal (#1054)
+    o Roulette, by hwoarangmy (#1053)
+    o Torture room object (#1115)
+  - Weapons:
+    o Basic axe, hammer, shield and sword, by YD (#1115)
+    o Bow, by YD (#1065)
+    o Crossbow, by Lamoot (#1065)
+    o Good hammers, good shields, evil shields (#1115), good swords (#1123)
+
 ### Version 0.6.0 - 8 September 2015
 
 **Highlights:**
