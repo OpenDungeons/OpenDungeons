@@ -1321,6 +1321,7 @@ Wizard26	11	4	0
 1	Goblin10	Goblin.mesh	24	25	0	Goblin	1	0	max	100	0	400	none	none	nullSkillType	none	0
 1	PitDemon11	PitDemon.mesh	27	25	0	PitDemon	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Spider12	Spider.mesh	18	22	0	Spider	1	0	max	100	0	0	none	none	nullSkillType	none	0
+1	LavaSpawn2	LavaSpawn.mesh	18	22	0	LavaSpawn	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	TentacleAlbine13	TentacleAlbine.mesh	21	22	0	TentacleAlbine	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	TentacleGreen14	TentacleGreen.mesh	24	22	0	TentacleGreen	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Troll15	Troll.mesh	27	22	0	Troll	1	0	max	100	0	0	none	none	nullSkillType	none	0
@@ -1333,7 +1334,9 @@ Wizard26	11	4	0
 1	Dwarf122	Dwarf1.mesh	21	13	0	Dwarf1	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Dwarf223	Dwarf2.mesh	24	13	0	Dwarf2	1	0	max	100	0	0	none	Sabre	nullSkillType	none	0
 1	Knight24	Knight.mesh	27	13	0	Knight	1	0	max	100	0	0	RustyShield	RustySword	nullSkillType	none	0
+1	Monk24	Monk.mesh	27	13	0	Monk	1	0	max	100	0	0	none	RustySword	nullSkillType	none	0
 1	Wizard26	Wizard.mesh	24	33	0	Wizard	1	0	max	100	0	0	none	Staff	nullSkillType	none	0
+1	Cultist26	Cultist.mesh	24	33	0	Cultist	1	0	max	100	0	0	none	Staff	nullSkillType	none	0
 1	RunelordDwarf27	RunelordDwarf.mesh	25	31	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	none	nullSkillType	none	0
 1	NatureMonster28	Knight.mesh	22	31	0	NatureMonster	1	0	max	100	0	0	none	none	nullSkillType	none	0
 1	Defender29	Defender.mesh	19	31	0	Defender	1	0	max	100	0	0	none	none	nullSkillType	none	0
