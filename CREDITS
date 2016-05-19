@@ -106,6 +106,10 @@ textures/
 -> Adventurer.png
 -> Anvil*.png                          Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 -> Arena*.png                          Yughues, qubodup        CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771, http://opengameart.org/content/bloody-scratched-skin
+-> BasicAxe                            YD                      CC0                     http://opengameart.org/content/low-poly-axe
+-> BasicHammer                         YD                      CC0                     http://opengameart.org/content/hammer
+-> BasicShield                         YD                      CC0                     http://opengameart.org/content/shield-sword
+-> Basicsword                          YD                      CC0                     http://opengameart.org/content/shield-sword
 -> BedBlanket.png
 -> BedWood.png
 -> Black.png                           Public domain, too simple to be licensed
@@ -202,6 +206,18 @@ textures/
 -> StoneBridge*.png                    Danimal, Skorpio        CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> StoneCoffin*.png                    Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 -> Srengthflare.png                    OD Team                 CC-BY-SA 3.0            Used icon from http://ghttp://game-icons.net/lorc/originals/strong.html
+-> T2HammerGood                        YD, Skorpio             CC-BY-SA 3.0            http://opengameart.org/content/hammer-skorpio-2
+-> T3HammerGood                        Danimal, Nobiax         CC-BY                   http://opengameart.org/users/danimal
+-> T4HammerGood                        AriseAgain              CC-BY-SA                https://sketchfab.com/models/3a56aaa4f3744bbd8136794bfc91cb86
+-> T2ShieldGood                        Aziucg                  CC-BY                   https://sketchfab.com/models/0f307bd9e1964f57bb19c1e252adfea2
+-> T3ShieldGood                        Clint Bellanger         CC-BY                   http://opengameart.org/content/isometric-hero-and-heroine
+-> T4ShieldGood                        AriseAgain              CC-BY-SA                https://sketchfab.com/models/0a5090e116a247d2b1ba0af1c70d69af
+-> T2ShieldEvil                        pixelsteam,game-icons   CC-BY                   http://www.blendswap.com/blends/view/77364
+-> T3ShieldEvil                        PIPCLANK                CC-BY                   https://sketchfab.com/models/4ea23164d7c74faea8f87d2460fba6e7
+-> T4ShieldEvil                        AriseAgain              CC-BY-SA                https://sketchfab.com/models/8809f0384fc8439fbd215adf9d13a79b
+-> T2SwordGood                         Quandtum                CC0                     http://opengameart.org/content/long-sword-%E2%80%93-knights-trust
+-> T3SwordGood                         XAHE                    CC-BY                   https://sketchfab.com/models/516d7439ad9c49eebb12deda51894b61
+-> T4SwordGood                         GESY                    CC-BY                   https://sketchfab.com/models/c2b290ab390f41609362cba70d367bc0
 -> Tentacle{Albine,Green,Normal}.png
 -> TentacleBed*.png                    West                    CC0                     http://forum.freegamedev.net/viewtopic.php?p=60091#p60091
 -> TrainingDummy1*.png
@@ -236,6 +252,10 @@ AdventurerBed.mesh                     PantherOne              CC0              
 Anvil.mesh                             Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 Arena.mesh                             Danimal, hwoarangmy     CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 ArrowProjectile	                       YD                      CC0                     http://opengameart.org/content/archery-set
+BasicAxe                               YD                      CC0                     http://opengameart.org/content/low-poly-axe
+BasicHammer                            YD                      CC0                     http://opengameart.org/content/hammer
+BasicShield                            YD                      CC0                     http://opengameart.org/content/shield-sword
+Basicsword                             YD                      CC0                     http://opengameart.org/content/shield-sword
 Bed.mesh                               Clint Bellanger         CC0                     http://opengameart.org/content/bed-low-poly
 Bookcase.mesh                          Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Bookshelf.mesh                         Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
@@ -324,6 +344,18 @@ Spiketrap.*                            Danimal                 CC-BY 3.0        
 SquareSelector.mesh                    OD Team                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59066#p59066
 Staff.*                                Skorpio                 CC-BY-SA 3.0, GPLv3+
 StoneCoffin.mesh                       Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
+T2HammerGood                           YD, Skorpio             CC-BY-SA 3.0            http://opengameart.org/content/hammer-skorpio-2
+T3HammerGood                           Danimal, Nobiax         CC-BY                   http://opengameart.org/users/danimal
+T4HammerGood                           AriseAgain              CC-BY-SA                https://sketchfab.com/models/3a56aaa4f3744bbd8136794bfc91cb86
+T2ShieldGood                           Aziucg                  CC-BY                   https://sketchfab.com/models/0f307bd9e1964f57bb19c1e252adfea2
+T3ShieldGood                           Clint Bellanger         CC-BY                   http://opengameart.org/content/isometric-hero-and-heroine
+T4ShieldGood                           AriseAgain              CC-BY-SA                https://sketchfab.com/models/0a5090e116a247d2b1ba0af1c70d69af
+T2ShieldEvil                           pixelsteam,game-icons   CC-BY                   http://www.blendswap.com/blends/view/77364
+T3ShieldEvil                           PIPCLANK                CC-BY                   https://sketchfab.com/models/4ea23164d7c74faea8f87d2460fba6e7
+T4ShieldEvil                           AriseAgain              CC-BY-SA                https://sketchfab.com/models/8809f0384fc8439fbd215adf9d13a79b
+T2SwordGood                            Quandtum                CC0                     http://opengameart.org/content/long-sword-%E2%80%93-knights-trust
+T3SwordGood                            XAHE                    CC-BY                   https://sketchfab.com/models/516d7439ad9c49eebb12deda51894b61
+T4SwordGood                            GESY                    CC-BY                   https://sketchfab.com/models/c2b290ab390f41609362cba70d367bc0
 TentacleBed.mesh                       Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60091#p60091
 Tentacle*.*                            Skorpio                 CC-BY-SA 3.0, GPLv3+
 Tileset                                Skorpio, Danimal        CC-BY-SA 3.0            http://opengameart.org/content/3d-dungeon-tileset
