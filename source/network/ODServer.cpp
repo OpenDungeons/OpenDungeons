@@ -386,7 +386,6 @@ void ODServer::startNewTurn(double timeSinceLastTurn)
     }
 
     gameMap->updateVisibleEntities();
-    gameMap->processActiveObjectsChanges();
     gameMap->processDeletionQueues();
 }
 

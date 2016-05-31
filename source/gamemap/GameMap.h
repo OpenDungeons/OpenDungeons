@@ -491,9 +491,6 @@ public:
     //! RenderManager has finished to render every object inside.
     void processDeletionQueues();
 
-    //! \brief Adds and removes the active objects queued
-    void processActiveObjectsChanges();
-
     void updateVisibleEntities();
 
     inline const std::vector<RenderedMovableEntity*>& getRenderedMovableEntities() const
@@ -611,12 +608,6 @@ private:
     bool mIsFOWActivated;
 
     std::vector<GameEntity*> mActiveObjects;
-
-    //! \brief  active objects that are created are stored here. They will be added after the miscupkeep to avoid changing the list while we use it
-    std::deque<GameEntity*> mActiveObjectsToAdd;
-
-    //! \brief  active objects that are removed are stored here. They will be removed after the miscupkeep to avoid changing the list while we use it
-    std::deque<GameEntity*> mActiveObjectsToRemove;
 
     //! \brief Useless entities that need to be deleted. They will be deleted when processDeletionQueues is called
     std::vector<GameEntity*> mEntitiesToDelete;

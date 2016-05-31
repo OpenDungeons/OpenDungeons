@@ -86,7 +86,10 @@ public:
     virtual double getAnimationSpeedFactor() const
     { return 1.0; }
 
-    //! \brief Updates the entity path, movement, and direction
+    //! \brief Updates the entity path, movement, and direction. Note that entities
+    //! are not expected to remove themselves or other entities from the gamemap
+    //! in the update function. If they do, it might lead to crashes as the gamemap
+    //! will iterate the movable entities vector
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
     virtual void update(Ogre::Real timeSinceLastFrame);
 

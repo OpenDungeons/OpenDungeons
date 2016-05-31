@@ -115,6 +115,7 @@ void MissileObject::doUpkeep()
         if(tmpTile->getFullness() > 0.0)
         {
             Ogre::Vector3 nextDirection;
+            OD_LOG_INF("missile name=" + getName() + ", hit wall on tile=" + Tile::displayAsString(tmpTile));
             mIsMissileAlive = wallHitNextDirection(mDirection, lastTile, nextDirection);
             if(!mIsMissileAlive)
             {
@@ -170,6 +171,7 @@ void MissileObject::doUpkeep()
         for(std::vector<GameEntity*>::iterator it = enemyCreatures.begin(); it != enemyCreatures.end(); ++it)
         {
             GameEntity* creature = *it;
+            OD_LOG_INF("missile=" + getName() + " hit creature=" + creature->getName() + ", on tile=" + Tile::displayAsString(tmpTile));
             if(!hitCreature(tmpTile, creature))
             {
                 destination -= moveDist * mDirection;
@@ -185,6 +187,7 @@ void MissileObject::doUpkeep()
         for(std::vector<GameEntity*>::iterator it = alliedCreatures.begin(); it != alliedCreatures.end(); ++it)
         {
             GameEntity* creature = *it;
+            OD_LOG_INF("missile=" + getName() + " hit creature=" + creature->getName() + ", on tile=" + Tile::displayAsString(tmpTile));
             if(!hitCreature(tmpTile, creature))
             {
                 destination -= moveDist * mDirection;
