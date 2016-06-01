@@ -364,6 +364,7 @@ void ODServer::startNewTurn(double timeSinceLastTurn)
         }
     }
 
+    gameMap->updateVisibleEntities();
     switch(mServerMode)
     {
         case ServerMode::ModeGameSinglePlayer:
@@ -385,7 +386,6 @@ void ODServer::startNewTurn(double timeSinceLastTurn)
             break;
     }
 
-    gameMap->updateVisibleEntities();
     gameMap->processDeletionQueues();
 }
 
