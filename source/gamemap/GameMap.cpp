@@ -260,11 +260,9 @@ void GameMap::clearAll()
     clearRenderedMovableEntities();
     clearSpells();
 
-    processActiveObjectsChanges();
     processDeletionQueues();
 
     clearTiles();
-    processActiveObjectsChanges();
     processDeletionQueues();
 
     clearGoalsForAllSeats();
@@ -289,24 +287,6 @@ void GameMap::clearAll()
             OD_LOG_ERR("entity not removed=" + entity->getName());
         }
         mActiveObjects.clear();
-    }
-    if(!mActiveObjectsToAdd.empty())
-    {
-        OD_LOG_ERR("mActiveObjectsToAdd not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjectsToAdd.size())));
-        for(GameEntity* entity : mActiveObjectsToAdd)
-        {
-            OD_LOG_ERR("entity not removed=" + entity->getName());
-        }
-        mActiveObjectsToAdd.clear();
-    }
-    if(!mActiveObjectsToRemove.empty())
-    {
-        OD_LOG_ERR("mActiveObjectsToRemove not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjectsToRemove.size())));
-        for(GameEntity* entity : mActiveObjectsToRemove)
-        {
-            OD_LOG_ERR("entity not removed=" + entity->getName());
-        }
-        mActiveObjectsToRemove.clear();
     }
     if(!mAnimatedObjects.empty())
     {
@@ -877,7 +857,7 @@ void GameMap::addActiveObject(GameEntity *a)
     if(!isServerGameMap())
         return;
 
-    mActiveObjectsToAdd.push_back(a);
+    mActiveObjects.push_back(a);
 }
 
 void GameMap::removeActiveObject(GameEntity *a)
@@ -886,17 +866,14 @@ void GameMap::removeActiveObject(GameEntity *a)
     if(!isServerGameMap())
         return;
 
-    if(std::find(mActiveObjects.begin(), mActiveObjects.end(), a) != mActiveObjects.end())
+    auto it = std::find(mActiveObjects.begin(), mActiveObjects.end(), a);
+    if(it == mActiveObjects.end())
     {
-        mActiveObjectsToRemove.push_back(a);
+        OD_LOG_ERR("ActiveObject name=" + a->getName());
         return;
     }
 
-    if(std::find(mActiveObjectsToAdd.begin(), mActiveObjectsToAdd.end(), a) != mActiveObjectsToAdd.end())
-    {
-        mActiveObjectsToRemove.push_back(a);
-        return;
-    }
+    mActiveObjects.erase(it);
 }
 
 unsigned int GameMap::numClassDescriptions()
@@ -1244,15 +1221,11 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
         seat->sendVisibleTiles();
 
     // Carry out the upkeep round of all the active objects in the game.
-    unsigned int activeObjectCount = 0;
-    unsigned int nbActiveObjectCount = mActiveObjects.size();
-    while (activeObjectCount < nbActiveObjectCount)
-    {
-        GameEntity* ge = mActiveObjects[activeObjectCount];
+    // Here, we work on a copy of the active objects list because they might
+    // try to remove themselves which would break the iterator
+    std::vector<GameEntity*> activeObjects = mActiveObjects;
+    for(GameEntity* ge : activeObjects)
         ge->doUpkeep();
-
-        ++activeObjectCount;
-    }
 
     // Carry out the upkeep round for each seat. This means recomputing how much gold is
     // available in their treasuries, how much mana they gain/lose during this turn, etc.
@@ -1321,17 +1294,12 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
     if(mIsPaused)
         return;
 
-    if(getTurnNumber() > 0)
-    {
-        // Update the animations on any AnimatedObjects which have them
-        for(MovableGameEntity* currentAnimatedObject : mAnimatedObjects)
-        {
-            if (currentAnimatedObject == nullptr)
-                continue;
+    if(getTurnNumber() <= 0)
+        return;
 
-            currentAnimatedObject->update(timeSinceLastFrame);
-        }
-    }
+    // Update the animations on all AnimatedObjects
+    for(MovableGameEntity* mge : mAnimatedObjects)
+        mge->update(timeSinceLastFrame);
 }
 
 void GameMap::playerIsFighting(Player* player, Tile* tile)
@@ -2449,40 +2417,10 @@ std::list<Tile*> GameMap::path(const Creature* creature, Tile* destination, bool
 
 void GameMap::processDeletionQueues()
 {
-    while (!mEntitiesToDelete.empty())
-    {
-        GameEntity* entity = *mEntitiesToDelete.begin();
-        mEntitiesToDelete.erase(mEntitiesToDelete.begin());
+    for(GameEntity* entity : mEntitiesToDelete)
         delete entity;
-    }
-}
 
-void GameMap::processActiveObjectsChanges()
-{
-    if(!isServerGameMap())
-        return;
-
-    // We add the queued active objects
-    while (!mActiveObjectsToAdd.empty())
-    {
-        GameEntity* ge = mActiveObjectsToAdd.front();
-        mActiveObjectsToAdd.pop_front();
-        mActiveObjects.push_back(ge);
-    }
-
-    // We remove the queued active objects
-    while (!mActiveObjectsToRemove.empty())
-    {
-        GameEntity* ge = mActiveObjectsToRemove.front();
-        mActiveObjectsToRemove.pop_front();
-        std::vector<GameEntity*>::iterator it = std::find(mActiveObjects.begin(), mActiveObjects.end(), ge);
-        if(it == mActiveObjects.end())
-        {
-            OD_LOG_ERR("name=" + ge->getName());
-            continue;
-        }
-        mActiveObjects.erase(it);
-    }
+    mEntitiesToDelete.clear();
 }
 
 void GameMap::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles)
