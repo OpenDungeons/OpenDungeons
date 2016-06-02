@@ -2747,7 +2747,10 @@ void GameMap::updateVisibleEntities()
             tile->notifyEntitiesSeatsWithVision();
         }
     }
+}
 
+void GameMap::fireRefreshEntities()
+{
     // Notify changes on visible tiles
     for(Seat* seat : mSeats)
         seat->notifyChangedVisibleTiles();

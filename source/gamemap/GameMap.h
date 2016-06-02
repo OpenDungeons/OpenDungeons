@@ -493,6 +493,8 @@ public:
 
     void updateVisibleEntities();
 
+    void fireRefreshEntities();
+
     inline const std::vector<RenderedMovableEntity*>& getRenderedMovableEntities() const
     { return mRenderedMovableEntities; }
 

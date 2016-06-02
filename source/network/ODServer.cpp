@@ -386,6 +386,7 @@ void ODServer::startNewTurn(double timeSinceLastTurn)
             break;
     }
 
+    gameMap->fireRefreshEntities();
     gameMap->processDeletionQueues();
 }
 
