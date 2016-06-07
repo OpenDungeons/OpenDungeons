@@ -265,14 +265,14 @@ const char* TreasuryObject::getMeshNameForGold(int gold)
 
 TreasuryObject* TreasuryObject::getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is)
 {
-    TreasuryObject* obj = new TreasuryObject(gameMap, true);
+    TreasuryObject* obj = new TreasuryObject(gameMap);
     obj->importFromStream(is);
     return obj;
 }
 
 TreasuryObject* TreasuryObject::getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    TreasuryObject* obj = new TreasuryObject(gameMap, false);
+    TreasuryObject* obj = new TreasuryObject(gameMap);
     obj->importFromPacket(is);
     return obj;
 }
