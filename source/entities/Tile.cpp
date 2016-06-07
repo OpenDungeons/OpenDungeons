@@ -471,8 +471,26 @@ std::string Tile::toString(FloodFillType type)
 
 bool Tile::isFloodFillFilled(Seat* seat) const
 {
+    uint32_t nbFloodFill = static_cast<uint32_t>(FloodFillType::nbValues);
+    for(uint32_t i = 0; i < nbFloodFill; ++i)
+    {
+        FloodFillType type = static_cast<FloodFillType>(i);
+        if(!isFloodFillPossible(seat, type))
+            continue;
+
+        if(getFloodFillValue(seat, type) == NO_FLOODFILL)
+            return false;
+    }
+
+    // No mandatory value is missing, the tile is floodfilled
+    return true;
+}
+
+bool Tile::isFloodFillPossible(Seat* seat, FloodFillType type) const
+{
+    // No floodfill can be set on full tiles
     if(getFullness() > 0.0)
-        return true;
+        return false;
 
     switch(getType())
     {
@@ -480,35 +498,47 @@ bool Tile::isFloodFillFilled(Seat* seat) const
         case TileType::gold:
         case TileType::rock:
         {
-            if((getFloodFillValue(seat, FloodFillType::ground) != NO_FLOODFILL) &&
-               (getFloodFillValue(seat, FloodFillType::groundWater) != NO_FLOODFILL) &&
-               (getFloodFillValue(seat, FloodFillType::groundLava) != NO_FLOODFILL) &&
-               (getFloodFillValue(seat, FloodFillType::groundWaterLava) != NO_FLOODFILL))
+            switch(type)
             {
-                return true;
+                case FloodFillType::ground:
+                case FloodFillType::groundWater:
+                case FloodFillType::groundLava:
+                case FloodFillType::groundWaterLava:
+                {
+                    return true;
+                }
+                default:
+                    return false;
             }
-            break;
         }
         case TileType::water:
         {
-            if((getFloodFillValue(seat, FloodFillType::groundWater) != NO_FLOODFILL) &&
-               (getFloodFillValue(seat, FloodFillType::groundWaterLava) != NO_FLOODFILL))
+            switch(type)
             {
-                return true;
+                case FloodFillType::groundWater:
+                case FloodFillType::groundWaterLava:
+                {
+                    return true;
+                }
+                default:
+                    return false;
             }
-            break;
         }
         case TileType::lava:
         {
-            if((getFloodFillValue(seat, FloodFillType::groundLava) != NO_FLOODFILL) &&
-               (getFloodFillValue(seat, FloodFillType::groundWaterLava) != NO_FLOODFILL))
+            switch(type)
             {
-                return true;
+                case FloodFillType::groundLava:
+                case FloodFillType::groundWaterLava:
+                {
+                    return true;
+                }
+                default:
+                    return false;
             }
-            break;
         }
         default:
-            return true;
+            return false;
     }
 
     return false;
