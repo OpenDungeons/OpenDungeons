@@ -229,10 +229,10 @@ CreatureDefinition::~CreatureDefinition()
 double CreatureDefinition::getXPNeededWhenLevel(unsigned int level) const
 {
     // Return 0.0, meaning there is an error.
-    if (level >= MAX_LEVEL || level < 1 || level >= mXPTable.size())
+    if (level < 1 || level > mXPTable.size())
     {
         // This should never happen
-        OD_LOG_ERR("level=" + Helper::toString(level));
+        OD_LOG_ERR("class=" + getClassName() + ", level=" + Helper::toString(level) + ", max level=" + Helper::toString(mXPTable.size()));
         return 0.0;
     }
 
