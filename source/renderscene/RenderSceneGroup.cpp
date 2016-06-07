@@ -39,20 +39,18 @@ RenderSceneGroup::~RenderSceneGroup()
 
 RenderSceneGroup* RenderSceneGroup::load(std::istream& defFile)
 {
-    RenderSceneGroup* group = new RenderSceneGroup;
     std::string nextParam;
+    // If there is no more data, we are done
     if(!Helper::readNextLineNotEmpty(defFile, nextParam))
-    {
-        OD_LOG_WRN("Couldn't read new line");
-        return group;
-    }
+        return nullptr;
 
     if(nextParam != "[RenderSceneGroup]")
     {
         OD_LOG_WRN("Invalid User configuration start format. Line was " + nextParam);
-        return group;
+        return nullptr;
     }
 
+    RenderSceneGroup* group = new RenderSceneGroup;
     while(true)
     {
         if(!Helper::readNextLineNotEmpty(defFile, nextParam))
