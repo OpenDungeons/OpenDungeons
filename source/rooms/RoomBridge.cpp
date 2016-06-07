@@ -349,6 +349,7 @@ void RoomBridge::claimForSeat(Seat* seat, Tile* tile, double danceRate)
         return;
     }
 
+    OD_LOG_INF("Bridge=" + getName() + " claimed by seat id=" + Helper::toString(seat->getId()));
     mClaimedValue = static_cast<double>(numCoveredTiles());
     setSeat(seat);
 
@@ -364,4 +365,72 @@ void RoomBridge::claimForSeat(Seat* seat, Tile* tile, double danceRate)
 double RoomBridge::getCreatureSpeed(const Creature* creature, Tile* tile) const
 {
     return creature->getMoveSpeedGround();
+}
+
+void RoomBridge::updateFloodFillPathCreated(Seat* seat, const std::vector<Tile*>& tiles)
+{
+    // We look for the first ground flood fill value. That means that all values
+    // are expected to be filled since bridges can only be built next to a claimed
+    // ground tile
+    std::vector<uint32_t> colors(static_cast<uint32_t>(FloodFillType::nbValues), Tile::NO_FLOODFILL);
+    uint32_t cptFloodFill = 0;
+    for(uint32_t i = 0; i < colors.size(); ++i)
+    {
+        FloodFillType type = static_cast<FloodFillType>(i);
+        uint32_t& color = colors[i];
+        for(Tile* tile : tiles)
+        {
+            for(Tile* neigh : tile->getAllNeighbors())
+            {
+                uint32_t floodfill = neigh->getFloodFillValue(seat, type);
+                if(floodfill == Tile::NO_FLOODFILL)
+                    continue;
+
+                color = floodfill;
+                ++cptFloodFill;
+                break;
+            }
+
+            // If we found a value for this color, no need to search other tiles
+            if(color != Tile::NO_FLOODFILL)
+                break;
+        }
+    }
+
+    if(cptFloodFill < colors.size())
+    {
+        // We couldn't find any tile with ground floodfill. That's not normal as bridges
+        // are supposed to be built from a ground claimed tile
+        OD_LOG_ERR("Couldn't find floodfill tile for bridge=" + getName() + ", seatId=" + Helper::toString(seat->getId()));
+        return;
+    }
+
+    // Now, we update the floodfill for every tile connected to the bridge (including the
+    // bridge itself)
+    for(uint32_t i = 0; i < colors.size(); ++i)
+    {
+        FloodFillType type = static_cast<FloodFillType>(i);
+        const uint32_t& color = colors[i];
+        if(color == Tile::NO_FLOODFILL)
+            continue;
+
+        for(Tile* tile : tiles)
+        {
+            uint32_t tileColor = tile->getFloodFillValue(seat, type);
+            if(tileColor != color)
+                tile->replaceFloodFill(seat, type, color);
+
+            for(Tile* neigh : tile->getAllNeighbors())
+            {
+                uint32_t neighColor = neigh->getFloodFillValue(seat, type);
+                if(neighColor == Tile::NO_FLOODFILL)
+                    continue;
+
+                if(neighColor == color)
+                    continue;
+
+                getGameMap()->replaceFloodFill(seat, type, neighColor, color);
+            }
+        }
+    }
 }
