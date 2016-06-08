@@ -23,6 +23,15 @@
 #include "game/PlayerSelection.h"
 #include "gamemap/MiniMapCamera.h"
 
+//! \brief Enum to check if the chat message box should be displayed or not
+//! It is used as a bit array
+enum ChatMessageBoxDisplay
+{
+    hide                    = 0x00,
+    showChatInput           = 0x01,
+    showMessageReceived     = 0x02
+};
+
 class GameEditorModeConsole;
 
 namespace CEGUI
@@ -128,6 +137,15 @@ protected:
     //! \brief A reference to the game map used by the game mode
     //! For now, handled by the frame listener, don't delete it from here.
     GameMap* mGameMap;
+
+    //! \brief Show or hide the chat message box depending on mChatMessageBoxDisplay
+    void refreshChatDisplay();
+
+    //! \brief Counter to hide chat message box after some time with no
+    //! new message
+    Ogre::Real mChatMessageDisplayTime;
+    //! \brief bit array to know if the chat display should be hiden or not
+    uint32_t mChatMessageBoxDisplay;
 
     //! \brief The minimap used in this mode
     MiniMapCamera mMiniMap;

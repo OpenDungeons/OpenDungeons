@@ -913,6 +913,8 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         CEGUI::Window* chatEditBox = mRootWindow->getChild("GameChatWindow/GameChatEditBox");
         chatEditBox->show();
         chatEditBox->activate();
+        mChatMessageBoxDisplay |= ChatMessageBoxDisplay::showChatInput;
+        refreshChatDisplay();
         break;
     }
 
@@ -945,6 +947,8 @@ bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
         mCurrentInputMode = InputModeNormal;
         chatEditBox->setText("");
         chatEditBox->hide();
+        mChatMessageBoxDisplay &= ~ChatMessageBoxDisplay::showChatInput;
+        refreshChatDisplay();
         return true;
     }
 
@@ -953,6 +957,8 @@ bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
 
     mCurrentInputMode = InputModeNormal;
     chatEditBox->hide();
+    mChatMessageBoxDisplay &= ~ChatMessageBoxDisplay::showChatInput;
+    refreshChatDisplay();
 
     // Check whether something was actually typed.
     if (chatEditBox->getText().empty())

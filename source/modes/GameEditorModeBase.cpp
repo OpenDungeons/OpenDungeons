@@ -31,6 +31,8 @@
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/widgets/Scrollbar.h>
 
+static const Ogre::Real CHAT_TIME_DISPLAY = 30;
+
 namespace {
     class ActionSelector
     {
@@ -84,6 +86,8 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     mCurrentInputMode(InputModeNormal),
     mRootWindow(rootWindow),
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
+    mChatMessageDisplayTime(0),
+    mChatMessageBoxDisplay(ChatMessageBoxDisplay::hide),
     mMiniMap(rootWindow->getChild(Gui::MINIMAP)),
     mConsole(Utils::make_unique<GameEditorModeConsole>(modeManager))
 {
@@ -115,6 +119,12 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     // Creature buttons
     connectGuiAction(Gui::BUTTON_CREATURE_WORKER, AbstractApplicationMode::GuiAction::ButtonPressedCreatureWorker);
     connectGuiAction(Gui::BUTTON_CREATURE_FIGHTER, AbstractApplicationMode::GuiAction::ButtonPressedCreatureFighter);
+
+    // Clear up any events and chat messages
+    CEGUI::Window* gameChatText = mRootWindow->getChild("GameChatWindow/GameChatText");
+    gameChatText->setText("");
+    gameChatText->hide();
+    mRootWindow->getChild("GameEventText")->setText("");
 }
 
 GameEditorModeBase::~GameEditorModeBase()
@@ -122,10 +132,6 @@ GameEditorModeBase::~GameEditorModeBase()
     // Delete the potential pending event messages
     for (EventMessage* message : mEventMessages)
         delete message;
-
-    // Clear up any events and chat messages.
-    mRootWindow->getChild("GameChatWindow/GameChatText")->setText("");
-    mRootWindow->getChild("GameEventText")->setText("");
 }
 
 void GameEditorModeBase::deactivate()
@@ -170,6 +176,9 @@ void GameEditorModeBase::receiveChat(const ChatMessage& chat)
     // Adds the message right away
     CEGUI::Window* chatTextBox = mRootWindow->getChild("GameChatWindow/GameChatText");
     chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(chat.getMessageAsString().c_str()));
+    mChatMessageDisplayTime = CHAT_TIME_DISPLAY;
+    mChatMessageBoxDisplay |= ChatMessageBoxDisplay::showMessageReceived;
+    refreshChatDisplay();
 
     // Ensure the latest text is shown
     CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
@@ -222,6 +231,30 @@ void GameEditorModeBase::updateMessages(Ogre::Real update_time)
         shortNoticeText->setText(ceguiStr);
         scrollBar->setScrollPosition(scrollPosition);
     }
+
+    if(mChatMessageDisplayTime > 0)
+    {
+        // The chat box is displayed
+        if(update_time < mChatMessageDisplayTime)
+        {
+            mChatMessageDisplayTime -= update_time;
+        }
+        else
+        {
+            mChatMessageDisplayTime = 0;
+            mChatMessageBoxDisplay &= ~ChatMessageBoxDisplay::showMessageReceived;
+            refreshChatDisplay();
+        }
+    }
+}
+
+void GameEditorModeBase::refreshChatDisplay()
+{
+    CEGUI::Window* chatTextBox = mRootWindow->getChild("GameChatWindow/GameChatText");
+    if(mChatMessageBoxDisplay == ChatMessageBoxDisplay::hide)
+        chatTextBox->hide();
+    else
+        chatTextBox->show();
 }
 
 void GameEditorModeBase::syncTabButtonTooltips(const CEGUI::String& tabControlName)
