@@ -165,8 +165,8 @@ textures/
 -> Grimoire*.png                       Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Grindstone*.png                     Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Hammock*.png                        Luke.RUSTLTD, Nobiax    CC0                     http://forum.freegamedev.net/viewtopic.php?p=59983#p59983
--> Hasteflare.png                      OD Team                 CC-BY-SA 3.0            Used icon from game-icons.net
--> Heartflare.png                      OD Team                 CC-BY-SA 3.0            Own made flare + heart icon from game-icons.net
+-> Hasteflare.png                      Lorc, OD Team           CC-BY-SA 3.0            http://game-icons.net/lorc/originals/sprint.html + Own made flare
+-> Heartflare.png                      Lorc, OD Team           CC-BY-SA 3.0            http://game-icons.net/lorc/originals/glass-heart.html + Own made flare
 -> ImpBed*.png                         Nobiax CC0 and J. W. Bjerk (magic circle) CC-BY3 or GPL3 - http://opengameart.org/content/painterly-spell-icons-part-3 - http://opengameart.org/users/yughues
 -> Keeperhand*.png
 -> Knight.png
@@ -196,10 +196,10 @@ textures/
 -> Roundshield.png
 -> RunelordDwarf*.png
 -> Scarab*.png
--> Shieldflare.png                     OD Team                 CC-BY 3.0               Used http://game-icons.net/lorc/originals/barbute.html
+-> Shieldflare.png                     Lorc, OD Team           CC-BY 3.0               http://game-icons.net/lorc/originals/barbute.html + Own made flare
 -> Skull_Monster_512.png               Atmostatic              CC-BY 3.0               http://opengameart.org/content/skull-1
 -> Slime.png                           Grefuntor               CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
--> Slowflare.png                       OD Team                 CC-BY-SA 3.0            Used icon from http://game-icons.net/lorc/originals/snail.html
+-> Slowflare.png                       Lorc, OD Team           CC-BY-SA 3.0            http://game-icons.net/lorc/originals/snail.html + Own made flare
 -> SmallSpider.png                     Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60887#p60851
 -> Spider{,Normal}.png                 DennisH2010             CC-BY 3.0               http://www.blendswap.com/blends/view/26798
 -> SpiderBed*.png                      Eugeneloza, Nobiax      CC0                     http://forum.freegamedev.net/viewtopic.php?p=60089#p60089
@@ -207,7 +207,7 @@ textures/
 -> Staff.png
 -> StoneBridge*.png                    Danimal, Skorpio        CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> StoneCoffin*.png                    Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
--> Srengthflare.png                    OD Team                 CC-BY-SA 3.0            Used icon from http://ghttp://game-icons.net/lorc/originals/strong.html
+-> Strengthflare.png                   Lorc, OD Team           CC-BY-SA 3.0            http://ghttp://game-icons.net/lorc/originals/strong.html + Own made flare
 -> T2HammerGood                        YD, Skorpio             CC-BY-SA 3.0            http://opengameart.org/content/hammer-skorpio-2
 -> T3HammerGood                        Danimal, Nobiax         CC-BY                   http://opengameart.org/users/danimal
 -> T4HammerGood                        AriseAgain              CC-BY-SA                https://sketchfab.com/models/3a56aaa4f3744bbd8136794bfc91cb86
@@ -232,7 +232,7 @@ textures/
 -> TrollBed*.png                       Eugeneloza, Anagoria, Chris Chittleborough   CC-BY-SA 3.0 - http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
 -> WarBanner*.png                      Danimal, Yughes, Atmostatic, game-icons.net   CC-BY 3.0 - https://github.com/OpenDungeons/OpenDungeons/pull/838#issuecomment-118964220
 -> Water.png
--> Weakflare.png                       OD Team                 CC-BY-SA 3.0            Used icon from http://game-icons.net/lorc/originals/skeleton-inside.html
+-> Weakflare.png                       Lorc, OD Team           CC-BY-SA 3.0            http://game-icons.net/lorc/originals/skeleton-inside.html + Own made flare
 -> WeaponShield1*.png                  YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
 -> WeaponShield2*.png                  YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
 -> White.png                           Public domain, too simple to be licensed

@@ -69,7 +69,7 @@ protected:
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;
 
-    virtual void updateFloodFillPathCreated(Seat* seat, const std::vector<Tile*>& tiles) = 0;
+    virtual void updateFloodFillPathCreated(Seat* seat, const std::vector<Tile*>& tiles);
     virtual void updateFloodFillTileRemoved(Seat* seat, Tile* tile) = 0;
 
 private:

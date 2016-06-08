@@ -34,7 +34,6 @@ public:
     static const RoomType mRoomType;
 
 protected:
-    void updateFloodFillPathCreated(Seat* seat, const std::vector<Tile*>& tiles) override;
     void updateFloodFillTileRemoved(Seat* seat, Tile* tile) override;
 };
 

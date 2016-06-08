@@ -82,10 +82,7 @@ void RenderSceneMenu::readSceneMenu(const std::string& fileName)
 
         RenderSceneGroup* group = RenderSceneGroup::load(defFile);
         if(group == nullptr)
-        {
-            OD_LOG_WRN("Invalid User configuration start format. Line was " + nextParam);
             return;
-        }
 
         group->setRenderSceneListener(this);
         mSceneGroups.emplace_back(group);

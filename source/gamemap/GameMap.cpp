@@ -2147,6 +2147,7 @@ bool GameMap::doFloodFill(Seat* seat, Tile* tile)
     // If a neigboor is colored with the same colors, we color the tile
     for(Tile* neigh : tile->getAllNeighbors())
     {
+        // TODO: check if this can be optimized with Tile::isFloodFillPossible
         switch(tile->getType())
         {
             case TileType::dirt:
@@ -2203,22 +2204,55 @@ void GameMap::refreshFloodFill(Seat* seat, Tile* tile)
     std::vector<uint32_t> colors(static_cast<uint32_t>(FloodFillType::nbValues), Tile::NO_FLOODFILL);
 
     // If the tile has opened a new place, we use the same floodfillcolor for all the areas
-    for(Tile* neigh : tile->getAllNeighbors())
+    for(uint32_t i = 0; i < colors.size(); ++i)
     {
-        for(uint32_t i = 0; i < colors.size(); ++i)
+        FloodFillType type = static_cast<FloodFillType>(i);
+        if(!tile->isFloodFillPossible(seat, type))
+            continue;
+
+        for(Tile* neigh : tile->getAllNeighbors())
         {
-            FloodFillType type = static_cast<FloodFillType>(i);
-            if(colors[i] == Tile::NO_FLOODFILL)
-            {
-                colors[i] = neigh->getFloodFillValue(seat, type);
-                tile->updateFloodFillFromTile(seat, type, neigh);
-            }
-            else if((colors[i] != Tile::NO_FLOODFILL) &&
-               (neigh->getFloodFillValue(seat, type) != Tile::NO_FLOODFILL) &&
-               (neigh->getFloodFillValue(seat, type) != colors[i]))
-            {
-                replaceFloodFill(seat, type, neigh->getFloodFillValue(seat, type), colors[i]);
-            }
+            uint32_t neighColor = neigh->getFloodFillValue(seat, type);
+            if(neighColor == Tile::NO_FLOODFILL)
+                continue;
+
+            colors[i] = neighColor;
+            break;
+        }
+    }
+
+    // Now, we fill floodfill if no color was found on any neighboor tile
+    // That might happen if a tile surrounded by water is dug
+    for(uint32_t i = 0; i < colors.size(); ++i)
+    {
+        FloodFillType type = static_cast<FloodFillType>(i);
+        if(colors[i] != Tile::NO_FLOODFILL)
+            continue;
+
+        if(!tile->isFloodFillPossible(seat, type))
+            continue;
+
+        colors[i] = nextUniqueFloodFillValue();
+    }
+
+    // Now, we update the tile and its neighboors
+    for(uint32_t i = 0; i < colors.size(); ++i)
+    {
+        const uint32_t& color = colors[i];
+        FloodFillType type = static_cast<FloodFillType>(i);
+        if(color == Tile::NO_FLOODFILL)
+            continue;
+
+        tile->replaceFloodFill(seat, type, color);
+        for(Tile* neigh : tile->getAllNeighbors())
+        {
+            uint32_t neighColor = neigh->getFloodFillValue(seat, type);
+            if(neighColor == Tile::NO_FLOODFILL)
+                continue;
+            if(neighColor == color)
+                continue;
+
+            replaceFloodFill(seat, type, neighColor, color);
         }
     }
 }

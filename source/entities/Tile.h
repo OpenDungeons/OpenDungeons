@@ -389,6 +389,10 @@ public:
 
     bool isFloodFillFilled(Seat* seat) const;
 
+    //! \brief Returns true if the given type can be set for the current tile
+    //! depending on its type/fullness
+    bool isFloodFillPossible(Seat* seat, FloodFillType type) const;
+
     //! Refresh the tile visual according to the tile parameters (type, claimed, ...).
     //! Used only on server side
     void computeTileVisual();
