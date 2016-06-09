@@ -271,6 +271,9 @@ set(OD_SOURCEFILES
 
     ${SRC}/camera/CameraManager.cpp
     ${SRC}/camera/HermiteCatmullSpline.cpp
+    ${SRC}/camera/CullingManager.cpp
+    ${SRC}/camera/CullingVectorManager.cpp
+    ${SRC}/camera/SlopeWalk.cpp
 
     ${SRC}/creatureaction/CreatureAction.cpp
     ${SRC}/creatureaction/CreatureActionCarryEntity.cpp
@@ -503,6 +506,7 @@ set(OD_SOURCEFILES
     ${SRC}/utils/MasterServer.cpp
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
+    ${SRC}/utils/VectorInt64.cpp
 
     ${SRC}/ODApplication.cpp
     ${SRC}/main.cpp

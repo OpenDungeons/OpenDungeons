@@ -91,6 +91,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     mMiniMap(rootWindow->getChild(Gui::MINIMAP)),
     mConsole(Utils::make_unique<GameEditorModeConsole>(modeManager))
 {
+    ODFrameListener::getSingleton().getCameraManager()->startTileCulling();
     addEventConnection(
         rootWindow->getChild(Gui::MINIMAP)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
@@ -132,6 +133,8 @@ GameEditorModeBase::~GameEditorModeBase()
     // Delete the potential pending event messages
     for (EventMessage* message : mEventMessages)
         delete message;
+
+    ODFrameListener::getSingleton().getCameraManager()->stopTileCulling();
 }
 
 void GameEditorModeBase::deactivate()

@@ -22,12 +22,16 @@
 #include "camera/CameraManager.h"
 
 #include "gamemap/TileContainer.h"
+#include "sound/SoundEffectsManager.h"
+#include "camera/CullingManager.h"
 #include "utils/LogManager.h"
+#include "gamemap/GameMap.h"
 #include <OgreCamera.h>
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 #include <OgreViewport.h>
 #include <OgreRenderWindow.h>
+
 
 #include <algorithm>
 
@@ -47,7 +51,8 @@ const Ogre::Degree ROTATION_SPEED = Ogre::Degree(90);
 //! Default orientation on the X Axis
 const Ogre::Real DEFAULT_X_AXIS_VIEW = 25.0;
 
-CameraManager::CameraManager(Ogre::SceneManager* sceneManager, TileContainer* gm, Ogre::RenderWindow* renderWindow) :
+CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre::RenderWindow* renderWindow) :
+    mCullingManager(nullptr),
     mCircleMode(false),
     mCatmullSplineMode(false),
     mFirstIter(true),
@@ -72,6 +77,7 @@ CameraManager::CameraManager(Ogre::SceneManager* sceneManager, TileContainer* gm
     mSceneManager(sceneManager),
     mViewport(nullptr)
 {
+    mCullingManager = new CullingManager(this);
     createViewport(renderWindow);
     createCamera("RTS", 0.02, 300.0);
     createCameraNode("RTS");
@@ -95,6 +101,10 @@ void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double
 
     mRegisteredCameraNames.insert(ss);
     OD_LOG_INF("Creating " + ss + " camera...");
+}
+
+CameraManager::~CameraManager(){
+    delete mCullingManager;
 }
 
 void CameraManager::createCameraNode(const std::string& name)
@@ -574,6 +584,28 @@ void CameraManager::move(const Direction direction, double aux)
     default:
         break;
     }
+}
+
+void CameraManager::startTileCulling()
+{
+    mCullingManager->startTileCulling();
+}
+
+void CameraManager::stopTileCulling()
+{
+    mCullingManager->stopTileCulling();
+}
+
+bool CameraManager::onFrameEnded()
+{
+     mCullingManager->onFrameEnded();
+     return true;
+}
+
+bool CameraManager::onFrameStarted()
+{
+     mCullingManager->onFrameStarted();
+     return true; 
 }
 
 bool CameraManager::isCameraMovingAtAll() const
