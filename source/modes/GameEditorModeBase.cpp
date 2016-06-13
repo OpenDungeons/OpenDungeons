@@ -20,7 +20,7 @@
 #include "GameEditorModeConsole.h"
 #include "game/SkillManager.h"
 #include "gamemap/GameMap.h"
-#include "gamemap/MiniMapCamera.h"
+#include "gamemap/MiniMap.h"
 #include "network/ChatEventMessage.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
@@ -28,6 +28,8 @@
 #include "traps/TrapType.h"
 #include "utils/Helper.h"
 #include "utils/MakeUnique.h"
+
+#include <OgreVector2.h>
 
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/widgets/Scrollbar.h>
@@ -89,7 +91,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
     mChatMessageDisplayTime(0),
     mChatMessageBoxDisplay(ChatMessageBoxDisplay::hide),
-    mMiniMap(new MiniMapCamera(rootWindow->getChild(Gui::MINIMAP))),
+    mMiniMap(MiniMap::createMiniMap(rootWindow->getChild(Gui::MINIMAP))),
     mConsole(Utils::make_unique<GameEditorModeConsole>(modeManager))
 {
     ODFrameListener::getSingleton().getCameraManager()->startTileCulling();

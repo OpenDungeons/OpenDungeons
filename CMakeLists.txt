@@ -371,6 +371,7 @@ set(OD_SOURCEFILES
 
     ${SRC}/gamemap/GameMap.cpp
     ${SRC}/gamemap/MapHandler.cpp
+    ${SRC}/gamemap/MiniMap.cpp
     ${SRC}/gamemap/MiniMapDrawn.cpp
     ${SRC}/gamemap/MiniMapCamera.cpp
     ${SRC}/gamemap/TileContainer.cpp

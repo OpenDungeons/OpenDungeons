@@ -33,7 +33,7 @@ enum ChatMessageBoxDisplay
 
 class GameEditorModeConsole;
 class GameMap;
-class MiniMapCamera;
+class MiniMap;
 
 namespace CEGUI
 {
@@ -149,7 +149,7 @@ protected:
     uint32_t mChatMessageBoxDisplay;
 
     //! \brief The minimap used in this mode
-    MiniMapCamera* mMiniMap;
+    MiniMap* mMiniMap;
 
     PlayerSelection mPlayerSelection;
 

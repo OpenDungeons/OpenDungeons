@@ -17,6 +17,7 @@
 
 #include "modes/SettingsWindow.h"
 
+#include "gamemap/MiniMap.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 #include "utils/Helper.h"
@@ -172,6 +173,24 @@ void SettingsWindow::initConfig()
             keeperVoiceCb->setItemSelectState(item, true);
         }
         ++cptVoice;
+    }
+
+    CEGUI::Combobox* minimapTypes = static_cast<CEGUI::Combobox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/MiniMapType"));
+    minimapTypes->resetList();
+    std::string minimapTypeCurrent = config.getGameValue(Config::MINIMAP_TYPE, MiniMap::DEFAULT_MINIMAP, false);
+    uint32_t cptMiniMapType = 0;
+    for(const std::string& minimapType : MiniMap::getMiniMapTypes())
+    {
+        CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(minimapType, cptMiniMapType);
+        item->setSelectionBrushImage(selImg);
+        minimapTypes->addItem(item);
+        if(minimapType == minimapTypeCurrent)
+        {
+            minimapTypes->setText(item->getText());
+            minimapTypes->setItemSelectState(item, true);
+        }
+        ++cptMiniMapType;
     }
 
     // Input
@@ -353,6 +372,14 @@ void SettingsWindow::saveConfig()
         config.setGameValue(Config::KEEPERVOICE, keeperVoiceItem->getText().c_str());
     else
         config.setGameValue(Config::KEEPERVOICE, "");
+
+    CEGUI::Combobox* minimapTypes = static_cast<CEGUI::Combobox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/MiniMapType"));
+    CEGUI::ListboxItem* minimapTypesItem = minimapTypes->getSelectedItem();
+    if(minimapTypesItem != nullptr)
+        config.setGameValue(Config::MINIMAP_TYPE, minimapTypesItem->getText().c_str());
+    else
+        config.setGameValue(Config::MINIMAP_TYPE, "");
 
     // Input
     CEGUI::ToggleButton* keyboardGrabCheckbox = static_cast<CEGUI::ToggleButton*>(

@@ -59,6 +59,7 @@ const std::string MOUSE_GRAB = "Mouse Grab";
 // Game
 const std::string NICKNAME = "Nickname";
 const std::string KEEPERVOICE = "KeeperVoice";
+const std::string MINIMAP_TYPE = "MinimapType";
 }
 
 //! \brief This class is used to manage global configuration such as network configuration, global creature stats, ...

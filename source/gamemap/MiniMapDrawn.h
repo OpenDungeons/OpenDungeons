@@ -23,6 +23,8 @@
 #ifndef MINIMAPDRAWN_H_
 #define MINIMAPDRAWN_H_
 
+#include "gamemap/MiniMap.h"
+
 #include <OgreHardwarePixelBuffer.h>
 #include <OgrePixelFormat.h>
 #include <OgreTexture.h>
@@ -61,13 +63,11 @@ public:
 
 //! \brief The class handling the minimap seen top-right of the in-game screen
 //! FIXME: The pixel are displayed without taking in account the camera current roll value.
-class MiniMapDrawn
+class MiniMapDrawn : public MiniMap
 {
 public:
     MiniMapDrawn(CEGUI::Window* miniMapWindow);
     ~MiniMapDrawn();
-
-    void update(Ogre::Real timeSinceLastFrame);
 
     Ogre::uint getWidth() const
     { return mWidth; }
@@ -75,7 +75,9 @@ public:
     Ogre::uint getHeight() const
     { return mHeight; }
 
-    Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy);
+    void update(Ogre::Real timeSinceLastFrame) override;
+
+    Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy) override;
 
 private:
     CEGUI::Window* mMiniMapWindow;
