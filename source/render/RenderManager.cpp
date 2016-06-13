@@ -665,6 +665,19 @@ void RenderManager::rrTemporalMarkTile(Tile* curTile)
     ent->setVisible(bb);
 }
 
+void RenderManager::rrDetachEntity(GameEntity* entity)
+{
+    Ogre::SceneNode* node = entity->getEntityNode();
+    entity->getParentSceneNode()->removeChild(node);
+}
+
+void RenderManager::rrAttachEntity(GameEntity* entity)
+{
+    Ogre::SceneNode* entityNode = entity->getEntityNode();
+    entity->getParentSceneNode()->addChild(entityNode);
+}
+
+
 void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* renderedMovableEntity)
 {
     std::string meshName = renderedMovableEntity->getMeshName();

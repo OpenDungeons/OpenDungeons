@@ -50,7 +50,7 @@ static const Ogre::Real NB_TILES_DISPLAYED_IN_MINIMAP = 30.0;
 static const Ogre::Radian ANGLE_CAM = Ogre::Degree(90.0);
 static const Ogre::Real CAM_HEIGHT = NB_TILES_DISPLAYED_IN_MINIMAP * 0.5 / Ogre::Math::Tan(ANGLE_CAM * 0.5);
 static const Ogre::uint TEXTURE_SIZE = 512;
-static const Ogre::Real MIN_TIME_REFRESH_SECS = 0.5;
+static const Ogre::Real MIN_TIME_REFRESH_SECS = 0.05;
 
 MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     mMiniMapWindow(miniMapWindow),
