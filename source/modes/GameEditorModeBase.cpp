@@ -20,6 +20,7 @@
 #include "GameEditorModeConsole.h"
 #include "game/SkillManager.h"
 #include "gamemap/GameMap.h"
+#include "gamemap/MiniMapCamera.h"
 #include "network/ChatEventMessage.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
@@ -88,7 +89,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
     mChatMessageDisplayTime(0),
     mChatMessageBoxDisplay(ChatMessageBoxDisplay::hide),
-    mMiniMap(rootWindow->getChild(Gui::MINIMAP)),
+    mMiniMap(new MiniMapCamera(rootWindow->getChild(Gui::MINIMAP))),
     mConsole(Utils::make_unique<GameEditorModeConsole>(modeManager))
 {
     ODFrameListener::getSingleton().getCameraManager()->startTileCulling();
@@ -130,6 +131,8 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
 
 GameEditorModeBase::~GameEditorModeBase()
 {
+    delete mMiniMap;
+
     // Delete the potential pending event messages
     for (EventMessage* message : mEventMessages)
         delete message;
@@ -161,7 +164,7 @@ bool GameEditorModeBase::onMinimapClick(const CEGUI::EventArgs& arg)
 
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
 
-    Ogre::Vector2 cc = mMiniMap.camera_2dPositionFromClick(static_cast<int>(mouseEvt.position.d_x),
+    Ogre::Vector2 cc = mMiniMap->camera_2dPositionFromClick(static_cast<int>(mouseEvt.position.d_x),
         static_cast<int>(mouseEvt.position.d_y));
     frameListener.getCameraManager()->onMiniMapClick(cc);
 
@@ -171,7 +174,7 @@ bool GameEditorModeBase::onMinimapClick(const CEGUI::EventArgs& arg)
 void GameEditorModeBase::onFrameStarted(const Ogre::FrameEvent& evt)
 {
     updateMessages(evt.timeSinceLastFrame);
-    mMiniMap.update(evt.timeSinceLastFrame);
+    mMiniMap->update(evt.timeSinceLastFrame);
 }
 
 void GameEditorModeBase::receiveChat(const ChatMessage& chat)

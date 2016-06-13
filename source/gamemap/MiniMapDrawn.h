@@ -1,5 +1,5 @@
 /*!
- * \file   MiniMap.h
+ * \file   MiniMapDrawn.h
  * \date   13 April 2011
  * \author StefanP.MUC
  * \brief  header for the minimap
@@ -20,8 +20,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MINIMAP_H_
-#define MINIMAP_H_
+#ifndef MINIMAPDRAWN_H_
+#define MINIMAPDRAWN_H_
 
 #include <OgreHardwarePixelBuffer.h>
 #include <OgrePixelFormat.h>
@@ -61,11 +61,11 @@ public:
 
 //! \brief The class handling the minimap seen top-right of the in-game screen
 //! FIXME: The pixel are displayed without taking in account the camera current roll value.
-class MiniMap
+class MiniMapDrawn
 {
 public:
-    MiniMap(CEGUI::Window* miniMapWindow);
-    ~MiniMap();
+    MiniMapDrawn(CEGUI::Window* miniMapWindow);
+    ~MiniMapDrawn();
 
     void update(Ogre::Real timeSinceLastFrame);
 
@@ -123,4 +123,4 @@ private:
     CameraManager& mCameraManager;
 };
 
-#endif // MINIMAP_H_
+#endif // MINIMAPDRAWN_H_

@@ -21,7 +21,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gamemap/MiniMap.h"
+#include "gamemap/MiniMapDrawn.h"
 
 #include "entities/Tile.h"
 #include "game/Player.h"
@@ -44,7 +44,7 @@
 #include <CEGUI/Window.h>
 #include <CEGUI/WindowManager.h>
 
-MiniMap::MiniMap(CEGUI::Window* miniMapWindow) :
+MiniMapDrawn::MiniMapDrawn(CEGUI::Window* miniMapWindow) :
     mMiniMapWindow(miniMapWindow),
     mTopLeftCornerX(0),
     mTopLeftCornerY(0),
@@ -85,7 +85,7 @@ MiniMap::MiniMap(CEGUI::Window* miniMapWindow) :
     mTopLeftCornerY = mMiniMapWindow->getUnclippedOuterRect().get().getPosition().d_y;
 }
 
-MiniMap::~MiniMap()
+MiniMapDrawn::~MiniMapDrawn()
 {
     mMiniMapWindow->setProperty("Image", "");
     Ogre::TextureManager::getSingletonPtr()->remove("miniMapOgreTexture");
@@ -93,7 +93,7 @@ MiniMap::~MiniMap()
     CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture("miniMapTextureGui");
 }
 
-Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
+Ogre::Vector2 MiniMapDrawn::camera_2dPositionFromClick(int xx, int yy)
 {
     Ogre::Real mm, nn, oo, pp;
     // Compute move and normalise
@@ -109,7 +109,7 @@ Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
     return mCamera_2dPosition;
 }
 
-void MiniMap::update(Ogre::Real timeSinceLastFrame)
+void MiniMapDrawn::update(Ogre::Real timeSinceLastFrame)
 {
     Ogre::Vector3 vv = mCameraManager.getCameraViewTarget();
     double rotation = mCameraManager.getActiveCameraNode()->getOrientation().getRoll().valueRadians();
