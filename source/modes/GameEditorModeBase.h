@@ -41,6 +41,7 @@ namespace CEGUI
 }
 
 class ChatMessage;
+class CullingManager;
 class EventMessage;
 
 enum class RoomType;
@@ -150,6 +151,9 @@ protected:
 
     //! \brief The minimap used in this mode
     MiniMap* mMiniMap;
+
+    //! \brief Culling manager for the main map
+    CullingManager* mMainCullingManager;
 
     PlayerSelection mPlayerSelection;
 

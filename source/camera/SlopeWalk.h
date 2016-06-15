@@ -27,10 +27,10 @@
 
 /*! \brief The Class SlopeWalk keeps data required to rasterize
  *   one polygon made of game tiles. To do that it remembers two
- *  sides of polygon ; and on left and right side we keep a list 
- *  of Vertexes and Slopes -- the tangens of an angle between two 
+ *  sides of polygon ; and on left and right side we keep a list
+ *  of Vertexes and Slopes -- the tangens of an angle between two
  *  polygons edges ( remember the school equation y = ax + b
- *  We add also a bunch of auxilary functions to be able to 
+ *  We add also a bunch of auxilary functions to be able to
  *  actually trace the position of some abstract point travelling
  *  top - down along polygon's edges.
  */
@@ -44,13 +44,13 @@ private:
     std::deque<int64_t>::iterator mRightSlopeIndex;
     std::deque<int64_t>::iterator mLeftSlopeIndex;
 
-    // index numbers in myArray of Vertices 
+    // index numbers in myArray of Vertices
     // belonging to the right path
     std::deque<int32_t> mRightVertices;
     // index numbers in myArray of Vertices
     // belonging to the left path
     std::deque<int32_t> mLeftVertices;
-    // point the Vertex currently processed 
+    // point the Vertex currently processed
     // on the right path
     std::deque<int32_t>::iterator mRightVerticesIndex;
     // pint the Vertex currenly processed
@@ -66,9 +66,9 @@ private:
 public:
     void printState();
     // A place for raw points
-    // The values of them will be used heavily 
+    // The values of them will be used heavily
     // in this class
-    // DummyArrayClass keeps clockwise order 
+    // DummyArrayClass keeps clockwise order
     // of those points
     CullingVectorManager mVertices;
     bool notifyOnMoveDown(int64_t);
@@ -89,7 +89,7 @@ public:
     void findMinMaxRight(const std::vector<VectorInt64>& );
     std::string debug();
     void buildSlopes();
-    void convex_hull();
+    void convexHull();
 
 };
 

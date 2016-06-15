@@ -18,6 +18,7 @@
 #include "GameEditorModeBase.h"
 
 #include "GameEditorModeConsole.h"
+#include "camera/CullingManager.h"
 #include "game/SkillManager.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
@@ -92,9 +93,9 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     mChatMessageDisplayTime(0),
     mChatMessageBoxDisplay(ChatMessageBoxDisplay::hide),
     mMiniMap(MiniMap::createMiniMap(rootWindow->getChild(Gui::MINIMAP))),
+    mMainCullingManager(new CullingManager(ODFrameListener::getSingleton().getCameraManager())),
     mConsole(Utils::make_unique<GameEditorModeConsole>(modeManager))
 {
-    ODFrameListener::getSingleton().getCameraManager()->startTileCulling();
     addEventConnection(
         rootWindow->getChild(Gui::MINIMAP)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
@@ -129,17 +130,20 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     gameChatText->setText("");
     gameChatText->hide();
     mRootWindow->getChild("GameEventText")->setText("");
+
+    mMainCullingManager->startTileCulling();
 }
 
 GameEditorModeBase::~GameEditorModeBase()
 {
+    // Note that we don't stop culling because the gamemap has already been
+    // cleared when we are here
+    delete mMainCullingManager;
     delete mMiniMap;
 
     // Delete the potential pending event messages
     for (EventMessage* message : mEventMessages)
         delete message;
-
-    ODFrameListener::getSingleton().getCameraManager()->stopTileCulling();
 }
 
 void GameEditorModeBase::deactivate()
@@ -176,6 +180,9 @@ bool GameEditorModeBase::onMinimapClick(const CEGUI::EventArgs& arg)
 void GameEditorModeBase::onFrameStarted(const Ogre::FrameEvent& evt)
 {
     updateMessages(evt.timeSinceLastFrame);
+
+    mMainCullingManager->update();
+
     mMiniMap->update(evt.timeSinceLastFrame);
 }
 

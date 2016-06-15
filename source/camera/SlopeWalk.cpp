@@ -19,15 +19,15 @@
 #include "utils/LogManager.h"
 #include "utils/Helper.h"
 
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
+
+#include <algorithm>
+#include <iostream>
+#include <sstream>
 
 BOOST_GEOMETRY_REGISTER_POINT_2D(VectorInt64, int64_t, boost::geometry::cs::cartesian, x, y)
 //! Values used to know whether to show and/or hide a mesh
@@ -59,9 +59,9 @@ void SlopeWalk::buildSlopes()
     // also put slopes of value 0 at the begging and the end of path
 
     mRightSlopes.push_back(0);
-    for(int ii = mTopRightIndex; ii != mDownRightIndex ; ++ii,ii%=mVertices.mMyArray.size()  )
+    for(int ii = mTopRightIndex; ii != mDownRightIndex ; ++ii, ii %= mVertices.mMyArray.size())
     {
-        mRightSlopes.push_back((mVertices[ii].x - mVertices[ii+1].x) * VectorInt64::UNIT / (mVertices[ii].y - mVertices[ii+1].y ));
+        mRightSlopes.push_back((mVertices[ii].x - mVertices[ii+1].x) * VectorInt64::UNIT / (mVertices[ii].y - mVertices[ii+1].y));
         mRightVertices.push_back(ii);
 
     }
@@ -72,16 +72,16 @@ void SlopeWalk::buildSlopes()
     // also put slopes of value 0 at the begging and the end of path
 
     mLeftSlopes.push_back(0);
-    for(int ii =  mTopLeftIndex; ii != mDownLeftIndex ; ii+=mVertices.mMyArray.size() - 1, ii%=mVertices.mMyArray.size()  )
+    for(int ii =  mTopLeftIndex; ii != mDownLeftIndex ; ii+=mVertices.mMyArray.size() - 1, ii%=mVertices.mMyArray.size())
     {
-        mLeftSlopes.push_back((mVertices[ii].x - mVertices[ii-1].x) * VectorInt64::UNIT / (mVertices[ii].y - mVertices[ii-1].y ));
+        mLeftSlopes.push_back((mVertices[ii].x - mVertices[ii-1].x) * VectorInt64::UNIT / (mVertices[ii].y - mVertices[ii-1].y));
         mLeftVertices.push_back(ii);
     }
     mLeftSlopes.push_back(0);
     mLeftVertices.push_back(mDownLeftIndex);
 }
 
-// reset indexes to the begginging of containers 
+// reset indexes to the begginging of containers
 void SlopeWalk::prepareWalk()
 {
     mLeftSlopeIndex =  mLeftSlopes.begin();
@@ -90,7 +90,7 @@ void SlopeWalk::prepareWalk()
     mRightVerticesIndex = mRightVertices.begin();
 }
 
-// What to do when passing one Vertex down on the Left Path 
+// What to do when passing one Vertex down on the Left Path
 bool SlopeWalk::passLeftVertex()
 {
     mLeftVerticesIndex++;
@@ -98,7 +98,7 @@ bool SlopeWalk::passLeftVertex()
     return mLeftVerticesIndex == mLeftVertices.end();
 }
 
-// What to do when passing one Vertex down on the Right Path 
+// What to do when passing one Vertex down on the Right Path
 bool SlopeWalk::passRightVertex()
 {
     mRightVerticesIndex++;
@@ -106,7 +106,7 @@ bool SlopeWalk::passRightVertex()
     return mRightVerticesIndex == mRightVertices.end();
 }
 
-// Check whether we pass a new Vertex on the left or right path, if so notify about it 
+// Check whether we pass a new Vertex on the left or right path, if so notify about it
 bool SlopeWalk::notifyOnMoveDown(int64_t newyIndex)
 {
     bool bb = true;
@@ -163,7 +163,8 @@ int64_t SlopeWalk::getCurrentXLeft(int64_t yy)
 }
 
 // get the value of slope currently pointed by index on the right path
-int64_t SlopeWalk::getCurrentXRight(int64_t yy){
+int64_t SlopeWalk::getCurrentXRight(int64_t yy)
+{
     if(mRightSlopeIndex != mRightSlopes.begin())
     {
         return getPreviousRightVertex().x + ((*mRightSlopeIndex) * (yy - getPreviousRightVertex().y))/VectorInt64::UNIT ;
@@ -198,10 +199,10 @@ VectorInt64& SlopeWalk::getBottomRightVertex()
 void SlopeWalk::printState()
 {
     std::cerr << "mLeftVertices" << std::endl;
-    for(auto ii = mLeftVertices.begin(); ii != mLeftVertices.end(); ii++)
+    for(auto ii = mLeftVertices.begin(); ii != mLeftVertices.end(); ++ii)
         std::cerr << mVertices[*ii] << std::endl;
     std::cerr << "mRightVertices" << std::endl;
-    for(auto ii = mRightVertices.begin(); ii != mRightVertices.end(); ii++)
+    for(auto ii = mRightVertices.begin(); ii != mRightVertices.end(); ++ii)
         std::cerr << mVertices[*ii] << std::endl;
 }
 
@@ -210,7 +211,7 @@ void SlopeWalk::findMinMaxLeft(const std::vector<VectorInt64> &aa)
 
     auto min = aa.begin();
     auto max = aa.begin();
-    for(auto ii = aa.begin(); ii !=aa.end(); ii++ )
+    for(auto ii = aa.begin(); ii !=aa.end(); ++ii )
     {
         if(ii->y < min->y)
             min = ii;
@@ -226,7 +227,7 @@ void SlopeWalk::findMinMaxRight(const std::vector<VectorInt64> &aa)
 {
     auto min = aa.begin();
     auto max = aa.begin();
-    for(auto ii = aa.begin(); ii !=aa.end(); ii++ )
+    for(auto ii = aa.begin(); ii !=aa.end(); ++ii )
     {
         if(ii->y <= min->y)
             min = ii;
@@ -243,47 +244,61 @@ std::string SlopeWalk::debug()
 
     std::stringstream ss;
     ss << " mTopLeftIndex " <<  mTopLeftIndex << " mTopRightIndex " << mTopRightIndex << " mDownLeftIndex " << mDownLeftIndex << " mDownRightIndex" << mDownRightIndex << std::endl;
-    
-    for (unsigned int ii = 0 ; ii < mVertices.mMyArray.size() ; ii++ )
+
+    for(unsigned int ii = 0; ii < mVertices.mMyArray.size(); ++ii)
     {
         VectorInt64 foobar = mVertices[ii];
-        ss<< ii << " " <<double(foobar.x)/VectorInt64::UNIT << " " << double(foobar.y)/VectorInt64::UNIT <<  std::endl;
+        ss << ii << " " << double(foobar.x) / VectorInt64::UNIT << " " << double(foobar.y) / VectorInt64::UNIT <<  std::endl;
     }
- 
+
     ss << "mLeftVertices" << std::endl;
 
     for(auto ii : mLeftVertices)
-        ss << ii << " " ;
+        ss << ii << " ";
     ss << std::endl ;
     ss << "mRightVertices" << std::endl;
 
     for(auto ii : mRightVertices)
-        ss << ii << " " ;    
-    ss << std::endl ; 
+        ss << ii << " ";
+    ss << std::endl ;
 
     ss<< "mRightSlopes " << std::endl;
     for(auto ii : mRightSlopes)
-        ss << double(ii)/VectorInt64::UNIT << std::endl;
-    ss << std::endl; 
+        ss << double(ii) / VectorInt64::UNIT << std::endl;
+    ss << std::endl;
 
-    ss<< "mLeftSlopes " << std::endl;    
+    ss<< "mLeftSlopes " << std::endl;
     for(auto ii : mLeftSlopes)
-        ss << double(ii)/VectorInt64::UNIT << std::endl;
+        ss << double(ii) / VectorInt64::UNIT << std::endl;
 
     return ss.str();
 }
 
-void SlopeWalk::convex_hull(){
+void SlopeWalk::convexHull()
+{
     const double zoomFactorValue = 1.0565;
     mVertices.zoom(zoomFactorValue);
     Polygon polygon;
     boost::geometry::append(polygon, mVertices.mMyArray);
 
-    assert(boost::geometry::num_points(polygon) == 8);
+    uint32_t nb;
+    nb = boost::geometry::num_points(polygon);
+    if(nb != mVertices.mMyArray.size())
+    {
+        OD_LOG_ERR("Unexpected number of polygons=" + Helper::toString(nb));
+        return;
+    }
 
     boost::geometry::correct(polygon);
 
-    assert(boost::geometry::num_points(polygon) == 9);
+    // After correction, the polygon should be looped so we expect the size to
+    // have one more point
+    nb = boost::geometry::num_points(polygon) - 1;
+    if(nb != mVertices.mMyArray.size())
+    {
+        OD_LOG_ERR("Unexpected number of polygons=" + Helper::toString(nb));
+        return;
+    }
 
     Polygon hull;
     mVertices.mMyArray.clear();

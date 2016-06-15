@@ -15,17 +15,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "camera/CullingManager.h"
+#include "camera/CameraManager.h"
+#include "entities/Creature.h"
+#include "gamemap/GameMap.h"
+#include "render/RenderManager.h"
+#include "utils/VectorInt64.h"
+#include "utils/LogManager.h"
+
 #include <OgreVector3.h>
 #include <OgreCamera.h>
 
-#include "camera/CullingManager.h"
-#include "camera/CameraManager.h"
-#include "gamemap/GameMap.h"
-
-#include "entities/Creature.h"
-#include "utils/VectorInt64.h"
-#include "utils/LogManager.h"
-#include "render/RenderManager.h"
 #include <sstream>
 #include <algorithm>
 
@@ -53,13 +53,12 @@ void CullingManager::cullTiles()
     for (int ii = 0 ; ii < 8 ; ++ii)
         mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
 
-    // create a slope -- a set of left and rigth path
-    mWalk.convex_hull();
+    // create a slope -- a set of left and right path
+    mWalk.convexHull();
     mWalk.buildSlopes();
 
-
-    OD_LOG_DBG( mOldWalk.debug());
-    OD_LOG_DBG( mWalk.debug());
+    OD_LOG_DBG(mOldWalk.debug());
+    OD_LOG_DBG(mWalk.debug());
 
     // reset index pointers to the begging of collections
     mOldWalk.prepareWalk();
@@ -75,7 +74,8 @@ void CullingManager::startTileCulling()
     mWalk.mVertices.mMyArray.clear();
     for (int ii = 0 ; ii < 8 ; ++ii)
         mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
-    mWalk.convex_hull();
+
+    mWalk.convexHull();
     mWalk.buildSlopes();
     mOldWalk = mWalk;
     mOldWalk.prepareWalk();
@@ -96,11 +96,11 @@ void CullingManager::stopTileCulling()
         mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
 
     // create a slope -- a set of left and rigth path
-    mWalk.convex_hull();
+    mWalk.convexHull();
     mWalk.buildSlopes();
 
-    OD_LOG_DBG( mOldWalk.debug());
-    OD_LOG_DBG( mWalk.debug());        
+    OD_LOG_DBG(mOldWalk.debug());
+    OD_LOG_DBG(mWalk.debug());
 
     // reset index pointers to the begging of collections
     mOldWalk.prepareWalk();
@@ -140,16 +140,17 @@ void CullingManager::showAllTiles(void)
     }
 }
 
-void CullingManager::newBashAndSplashTiles(uint32_t mode){
+void CullingManager::newBashAndSplashTiles(uint32_t mode)
+{
     int64_t xxLeftOld = mOldWalk.getTopLeftVertex().x;
-    int64_t xxRightOld= mOldWalk.getTopRightVertex().x;
+    int64_t xxRightOld = mOldWalk.getTopRightVertex().x;
     int64_t xxLeft = mWalk.getTopLeftVertex().x;
-    int64_t xxRight= mWalk.getTopRightVertex().x;
+    int64_t xxRight = mWalk.getTopRightVertex().x;
     int64_t xxp, yyp;
     std::stringstream ss;
-    int64_t bb = (( std::min(mWalk.getBottomLeftVertex().y , mOldWalk.getBottomRightVertex().y) >> VectorInt64::PRECISION_DIGITS) - 2) << VectorInt64::PRECISION_DIGITS;
+    int64_t bb = ((std::min(mWalk.getBottomLeftVertex().y, mOldWalk.getBottomRightVertex().y) >> VectorInt64::PRECISION_DIGITS) - 2) << VectorInt64::PRECISION_DIGITS;
 
-    for (int64_t yy = ((std::max(mWalk.getTopLeftVertex().y , mOldWalk.getTopRightVertex().y  ) >> VectorInt64::PRECISION_DIGITS) + 2) << VectorInt64::PRECISION_DIGITS;  yy >= bb; yy -= VectorInt64::UNIT)
+    for (int64_t yy = ((std::max(mWalk.getTopLeftVertex().y, mOldWalk.getTopRightVertex().y  ) >> VectorInt64::PRECISION_DIGITS) + 2) << VectorInt64::PRECISION_DIGITS; yy >= bb; yy -= VectorInt64::UNIT)
     {
         mOldWalk.notifyOnMoveDown(yy);
         mWalk.notifyOnMoveDown(yy);
@@ -157,11 +158,11 @@ void CullingManager::newBashAndSplashTiles(uint32_t mode){
         xxLeftOld = mOldWalk.getCurrentXLeft(yy);
         xxRight = mWalk.getCurrentXRight(yy);
         xxRightOld = mOldWalk.getCurrentXRight(yy);
-   
+
         int64_t mm = ((std::min(xxLeft, xxLeftOld) >> VectorInt64::PRECISION_DIGITS) << VectorInt64::PRECISION_DIGITS) ;
-        if(std::min(xxLeft, xxLeftOld) < std::max(xxRight,xxRightOld) )
+        if(std::min(xxLeft, xxLeftOld) < std::max(xxRight,xxRightOld))
         {
-            for (int64_t xx = mm ; xx <= std::max(xxRight,xxRightOld) ; xx+= VectorInt64::UNIT)
+            for (int64_t xx = mm ; xx <= std::max(xxRight,xxRightOld); xx += VectorInt64::UNIT)
             {
                 bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= mOldWalk.getBottomLeftVertex().y) && yy <= mOldWalk.getTopLeftVertex().y);
                 bool splash = (xx >= xxLeft && xx <= xxRight && (yy >= mWalk.getBottomLeftVertex().y) && yy <= mWalk.getTopLeftVertex().y);
@@ -212,22 +213,16 @@ bool CullingManager::getIntersectionPoints()
     return true;
 }
 
-bool CullingManager::onFrameStarted()
+void CullingManager::update()
 {
     if(mCullTilesFlag)
         getIntersectionPoints();
     if(mCullTilesFlag)
         cullTiles();
-    return true;
-}
-
-bool CullingManager::onFrameEnded()
-{
-    return true;
 }
 
 /*! \brief Sort two VectorInt64 p1 and p2  to satisfy p1 <= p2 according to
- * the value of X or Y coordiante, which depends on sortByX param .
+ * the value of X or Y coordinate, which depends on sortByX param.
  */
 void CullingManager::sort(VectorInt64& p1, VectorInt64& p2, bool sortByX)
 {
