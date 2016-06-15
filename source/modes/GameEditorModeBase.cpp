@@ -93,7 +93,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     mChatMessageDisplayTime(0),
     mChatMessageBoxDisplay(ChatMessageBoxDisplay::hide),
     mMiniMap(MiniMap::createMiniMap(rootWindow->getChild(Gui::MINIMAP))),
-    mMainCullingManager(new CullingManager(ODFrameListener::getSingleton().getCameraManager())),
+    mMainCullingManager(new CullingManager(mGameMap, CullingType::SHOW_MAIN_WINDOW)),
     mConsole(Utils::make_unique<GameEditorModeConsole>(modeManager))
 {
     addEventConnection(
@@ -131,7 +131,8 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     gameChatText->hide();
     mRootWindow->getChild("GameEventText")->setText("");
 
-    mMainCullingManager->startTileCulling();
+    mMainCullingManager->startTileCulling(
+        ODFrameListener::getSingleton().getCameraManager()->getActiveCamera());
 }
 
 GameEditorModeBase::~GameEditorModeBase()
@@ -181,7 +182,8 @@ void GameEditorModeBase::onFrameStarted(const Ogre::FrameEvent& evt)
 {
     updateMessages(evt.timeSinceLastFrame);
 
-    mMainCullingManager->update();
+    mMainCullingManager->update(
+        ODFrameListener::getSingleton().getCameraManager()->getActiveCamera());
 
     mMiniMap->update(evt.timeSinceLastFrame);
 }

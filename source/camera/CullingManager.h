@@ -27,7 +27,22 @@
 #include <OgrePlane.h>
 #include <set>
 
-class CameraManager;
+class GameMap;
+
+namespace Ogre
+{
+class Camera;
+};
+
+namespace CullingType
+{
+    //! \brief bit array to know if the entity should be displayed/hidden
+    const uint32_t HIDE = 0;
+    const uint32_t SHOW_MAIN_WINDOW = 0x01;
+    const uint32_t SHOW_MINIMAP = 0x02;
+
+    const uint32_t SHOW_ALL = 0x03;
+};
 
 /*! \brief The CullingMangaer class is a class to effectivly
  *  manage culling methods used in game. So far there is only
@@ -52,19 +67,19 @@ public:
     static const uint32_t HIDE =  1;
     static const uint32_t SHOW =  2;
 
-    CullingManager(CameraManager*);
+    CullingManager(GameMap* gameMap, uint32_t cullingMask);
 
-    void startTileCulling();
+    void startTileCulling(Ogre::Camera* camera);
 
     void stopTileCulling();
 
-    void update();
+    void update(Ogre::Camera* camera);
 
 private:
 
     void cullTiles();
 
-    bool getIntersectionPoints();
+    bool getIntersectionPoints(Ogre::Camera* camera);
 
     void hideAllTiles();
     void showAllTiles();
@@ -83,10 +98,12 @@ private:
     Ogre::Vector3 mOgreVectorsArray[8];
 
     bool mFirstIter;
-    CameraManager* mCm;
+    GameMap* mGameMap;
 
     Ogre::Plane mActivePlanes;
     Ogre::Ray mActiveRay[8];
+
+    uint32_t mCullingMask;
 
     bool mCullTilesFlag;
 };

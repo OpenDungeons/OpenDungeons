@@ -89,9 +89,6 @@ public:
     }
 
 
-    inline GameMap* getGameMap()
-    { return mGameMap; }
-
     bool onFrameStarted();
     bool onFrameEnded();
 

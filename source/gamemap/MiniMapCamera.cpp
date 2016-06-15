@@ -17,6 +17,7 @@
 
 #include "gamemap/MiniMapCamera.h"
 
+#include "camera/CullingManager.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -50,7 +51,7 @@ static const Ogre::Real NB_TILES_DISPLAYED_IN_MINIMAP = 30.0;
 static const Ogre::Radian ANGLE_CAM = Ogre::Degree(90.0);
 static const Ogre::Real CAM_HEIGHT = NB_TILES_DISPLAYED_IN_MINIMAP * 0.5 / Ogre::Math::Tan(ANGLE_CAM * 0.5);
 static const Ogre::uint TEXTURE_SIZE = 512;
-static const Ogre::Real MIN_TIME_REFRESH_SECS = 0.05;
+static const Ogre::Real MIN_TIME_REFRESH_SECS = 0.5;
 
 MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     mMiniMapWindow(miniMapWindow),
@@ -71,11 +72,10 @@ MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
             Ogre::TU_RENDERTARGET)),
     mCurCamPosX(-1),
     mCurCamPosY(-1),
-    mMiniMapCam(nullptr)
+    mMiniMapCam(RenderManager::getSingleton().getSceneManager()->createCamera("miniMapCam")),
+    mCullingManager(new CullingManager(&mGameMap, CullingType::SHOW_MINIMAP))
 {
     // We create a special camera that will look at the whole scene and render it in the minimap
-    Ogre::SceneManager* sceneManager = RenderManager::getSingleton().getSceneManager();
-    mMiniMapCam = sceneManager->createCamera("miniMapCam");
     mMiniMapCam->setNearClipDistance(0.02);
     mMiniMapCam->setFarClipDistance(300.0);
     mMiniMapCam->setFOVy(ANGLE_CAM);
@@ -106,10 +106,13 @@ MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     mHeight = mMiniMapWindow->getUnclippedOuterRect().get().getSize().d_height;
 
     updateMinimapCamera();
+    mCullingManager->startTileCulling(mMiniMapCam);
 }
 
 MiniMapCamera::~MiniMapCamera()
 {
+    delete mCullingManager;
+
     mMiniMapWindow->setProperty("Image", "");
     Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
     rt->removeAllListeners();
@@ -150,6 +153,7 @@ void MiniMapCamera::update(Ogre::Real timeSinceLastFrame)
 
     mElapsedTime = 0;
     updateMinimapCamera();
+    mCullingManager->update(mMiniMapCam);
 
     Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
     rt->update();

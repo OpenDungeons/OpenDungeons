@@ -33,6 +33,7 @@ namespace CEGUI
 }
 
 class CameraManager;
+class CullingManager;
 class GameMap;
 
 //! \brief The class handling the minimap seen bottom-right of the in-game screen.
@@ -72,6 +73,8 @@ private:
     int mCurCamPosX;
     int mCurCamPosY;
     Ogre::Camera* mMiniMapCam;
+
+    CullingManager* mCullingManager;
 
     void updateMinimapCamera();
 };
