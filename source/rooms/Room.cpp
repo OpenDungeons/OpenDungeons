@@ -103,7 +103,7 @@ void Room::absorbRoom(Room *r)
 
     // Every creature working in this room should go to the new one (this is used in the server map only)
     // To do that, we notify the new room that a creature was using an absorbed one. It is
-    // the room responsability to handle correctly the creatures (making them stop to use the old
+    // the room responsibility to handle correctly the creatures (making them stop to use the old
     // room if needed)
     // Note that we iterate a copy of r->mCreaturesUsingRoom because handleCreatureUsingAbsorbedRoom
     // will want to make the creature stop using the room and it may break the iteration

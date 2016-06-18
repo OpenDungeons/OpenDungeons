@@ -59,7 +59,7 @@ namespace CullingType
  * which is just the the "a" in the eq. of linear form y = ax + b
  * 5. Now start drawing our polygon Row by Row From top to bottom .
  * Each Row has given the most left and rightmost tile due to use of both paths prepared before
- * -- Left path for tracing the most Leftmost Tile , Right path teh most Rightmost Tile in each .
+ * -- Left path for tracing the most Leftmost Tile , Right path the most Rightmost Tile in each .
  */
 class CullingManager
 {

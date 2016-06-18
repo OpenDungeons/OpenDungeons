@@ -59,7 +59,7 @@ namespace MasterServer
     bool updateGame(const std::string& uuid, int32_t status);
 
     //! \brief Formats the string so that it can be read by the master server
-    //! returns the formated string
+    //! returns the formatted string
     std::string formatStringForMasterServer(const std::string& str);
     std::string formatStringFromMasterServer(const std::string& str);
 }

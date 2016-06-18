@@ -43,7 +43,7 @@ void get_coordinates(Point const& p)
 void SlopeWalk::buildSlopes()
 {
     //A value of how much we are to enlarge our polygon
-    //choosen experimentally too large values slows down
+    //chosen experimentally too large values slows down
     //the culling and may provide some glitches
     mVertices.sort();
     mRightSlopes.clear();

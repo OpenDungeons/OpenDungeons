@@ -120,7 +120,7 @@ namespace MasterServer
     std::string formatStringForMasterServer(const std::string& str)
     {
         // We replace special meaning chars
-        std::string formated;
+        std::string formatted;
         for(auto it = str.begin(); it != str.end(); ++it)
         {
             char c = *it;
@@ -129,8 +129,8 @@ namespace MasterServer
             {
                 if(c == specialChar.first)
                 {
-                    formated += replacementChar;
-                    formated += specialChar.second;
+                    formatted += replacementChar;
+                    formatted += specialChar.second;
                     isSecialChar = true;
                     break;
                 }
@@ -138,22 +138,22 @@ namespace MasterServer
             if(isSecialChar)
                 continue;
 
-            formated += c;
+            formatted += c;
         }
 
-        return formated;
+        return formatted;
     }
 
     std::string formatStringFromMasterServer(const std::string& str)
     {
         // We replace special meaning chars
-        std::string formated;
+        std::string formatted;
         for(auto it = str.begin(); it != str.end(); ++it)
         {
             char c = *it;
             if(c != replacementChar)
             {
-                formated += c;
+                formatted += c;
                 continue;
             }
 
@@ -172,7 +172,7 @@ namespace MasterServer
             {
                 if(c == specialChar.second)
                 {
-                    formated += specialChar.first;
+                    formatted += specialChar.first;
                     isSpecialChar = true;
                     break;
                 }
@@ -183,6 +183,6 @@ namespace MasterServer
                 break;
             }
         }
-        return formated;
+        return formatted;
     }
 }
