@@ -30,7 +30,7 @@
  *  sides of polygon ; and on left and right side we keep a list
  *  of Vertexes and Slopes -- the tangens of an angle between two
  *  polygons edges ( remember the school equation y = ax + b
- *  We add also a bunch of auxilary functions to be able to
+ *  We add also a bunch of auxiliary functions to be able to
  *  actually trace the position of some abstract point travelling
  *  top - down along polygon's edges.
  */
@@ -53,7 +53,7 @@ private:
     // point the Vertex currently processed
     // on the right path
     std::deque<int32_t>::iterator mRightVerticesIndex;
-    // pint the Vertex currenly processed
+    // pint the Vertex currently processed
     // on the left path
     std::deque<int32_t>::iterator mLeftVerticesIndex;
     bool passLeftVertex();

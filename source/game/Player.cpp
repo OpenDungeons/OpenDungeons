@@ -499,7 +499,7 @@ void Player::notifyNoWorker()
 
     mNoWorkerTime = NO_WORKER_TIME_COUNT;
 
-    std::string chatMsg = "You have no worker to fullfill your dark wishes.";
+    std::string chatMsg = "You have no worker to fulfill your dark wishes.";
     ServerNotification *serverNotification = new ServerNotification(
         ServerNotificationType::chatServer, this);
     serverNotification->mPacket << chatMsg << EventShortNoticeType::genericGameInfo;
