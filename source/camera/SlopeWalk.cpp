@@ -279,11 +279,11 @@ void SlopeWalk::convex_hull(){
     Polygon polygon;
     boost::geometry::append(polygon, mVertices.mMyArray);
 
-    assert(boost::geometry::num_points(polygon) == 8);
+    // assert(boost::geometry::num_points(polygon) == 8);
 
     boost::geometry::correct(polygon);
 
-    assert(boost::geometry::num_points(polygon) == 9);
+    // assert(boost::geometry::num_points(polygon) == 9);
 
     Polygon hull;
     mVertices.mMyArray.clear();

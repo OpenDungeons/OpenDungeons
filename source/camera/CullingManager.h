@@ -50,6 +50,12 @@ class GameMap;
 class CullingManager
 {
 public:
+
+
+    enum class CullingType{
+        SHOW_ONLY_MAIN_WINDOW = 0x04,
+        SHOW_BOTH = 0x08
+    } mWindowCulling;
     static const uint32_t HIDE =  1;
     static const uint32_t SHOW =  2;
 

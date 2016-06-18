@@ -32,6 +32,7 @@
 //! Values used to know whether to show and/or hide a mesh
 
 CullingManager::CullingManager(CameraManager* cameraManager):
+    mWindowCulling(CullingType::SHOW_ONLY_MAIN_WINDOW),
     mFirstIter(false),
     mCm(cameraManager),
     mCullTilesFlag(false)
@@ -50,7 +51,7 @@ void CullingManager::cullTiles()
 {
     mOldWalk = mWalk;
     mWalk.mVertices.mMyArray.clear();
-    for (int ii = 0 ; ii < 8 ; ++ii)
+    for (int ii = 0 ; ii < int(mWindowCulling) ; ++ii)
         mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
 
     // create a slope -- a set of left and rigth path
@@ -73,7 +74,7 @@ void CullingManager::startTileCulling()
     getIntersectionPoints();
 
     mWalk.mVertices.mMyArray.clear();
-    for (int ii = 0 ; ii < 8 ; ++ii)
+    for (int ii = 0 ; ii < int(mWindowCulling) ; ++ii)
         mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
     mWalk.convex_hull();
     mWalk.buildSlopes();
@@ -92,7 +93,7 @@ void CullingManager::stopTileCulling()
     mCullTilesFlag = false;
     mOldWalk = mWalk;
     mWalk.mVertices.mMyArray.clear();
-    for (int ii = 0 ; ii < 8 ; ++ii)
+    for (int ii = 0 ; ii < int(mWindowCulling) ; ++ii)
         mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
 
     // create a slope -- a set of left and rigth path
