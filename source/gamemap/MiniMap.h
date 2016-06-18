@@ -1,9 +1,4 @@
 /*!
- * \file   MiniMap.h
- * \date   13 April 2011
- * \author StefanP.MUC
- * \brief  header for the minimap
- *
  *  Copyright (C) 2011-2016  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -20,107 +15,33 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MINIMAP_H_
-#define MINIMAP_H_
+#ifndef MINIMAP_H
+#define MINIMAP_H
 
-#include <OgreHardwarePixelBuffer.h>
-#include <OgrePixelFormat.h>
-#include <OgreTexture.h>
-#include <OgreVector2.h>
-#include <OgreVector3.h>
-
-#include <vector>
+#include <OgrePrerequisites.h>
 
 namespace CEGUI
 {
-    class Window;
+class Window;
 }
 
-class CameraManager;
-class GameMap;
-
-struct Color
-{
-public:
-    Ogre::uint8 RR;
-    Ogre::uint8 GG;
-    Ogre::uint8 BB;
-
-    Color():
-        RR(0),
-        GG(0),
-        BB(0)
-    {}
-
-    Color(Ogre::uint8 rr, Ogre::uint8 gg, Ogre::uint8 bb):
-        RR(rr),
-        GG(gg),
-        BB(bb)
-    {}
-};
-
-//! \brief The class handling the minimap seen top-right of the in-game screen
-//! FIXME: The pixel are displayed without taking in account the camera current roll value.
 class MiniMap
 {
 public:
-    MiniMap(CEGUI::Window* miniMapWindow);
-    ~MiniMap();
+    virtual ~MiniMap()
+    {}
 
-    void update(Ogre::Real timeSinceLastFrame);
+    virtual Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy) = 0;
 
-    Ogre::uint getWidth() const
-    { return mWidth; }
+    virtual void update(Ogre::Real timeSinceLastFrame) = 0;
 
-    Ogre::uint getHeight() const
-    { return mHeight; }
+    static const std::string& DEFAULT_MINIMAP;
 
-    Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy);
+    //! \brief This function will create the minimap according to user preferences
+    static MiniMap* createMiniMap(CEGUI::Window* miniMapWindow);
 
-private:
-    CEGUI::Window* mMiniMapWindow;
-
-    int mTopLeftCornerX;
-    int mTopLeftCornerY;
-    int mGrainSize;
-
-    Ogre::uint mWidth;
-    Ogre::uint mHeight;
-
-    Ogre::Vector2 mCamera_2dPosition;
-    double mCosRotation, mSinRotation;
-
-    //!brief Vector containing colours to be drawn.
-    //NOTE: The tiles are laid out Y,X in the vector to iterate in the right order when drawing.
-    std::vector<Color> mTiles;
-
-    Ogre::PixelBox mPixelBox;
-    Ogre::TexturePtr mMiniMapOgreTexture;
-    Ogre::HardwarePixelBufferSharedPtr mPixelBuffer;
-
-    inline void drawPixel(int xx, int yy, Ogre::uint8 RR, Ogre::uint8 GG, Ogre::uint8 BB)
-    {
-        for(int gg = 0; gg < mGrainSize; ++gg)
-        {
-            for(int hh = 0; hh < mGrainSize; ++hh)
-            {
-                mTiles[xx + gg + ((yy + hh) * mWidth)] = Color(RR, GG, BB);
-            }
-        }
-
-    }
-
-    inline void drawPixelToMemory(Ogre::uint8*& pDest, unsigned char RR, unsigned char GG, unsigned char BB)
-    {
-        pDest++; //A, unused, shouldn't be here
-        // this is the order of colors I empirically found outto be working :)
-        *pDest++ = BB;  //B
-        *pDest++ = GG;  //G
-        *pDest++ = RR;  //R
-    }
-
-    GameMap& mGameMap;
-    CameraManager& mCameraManager;
+    // Returns the list of all possible minimap types
+    static const std::vector<std::string>& getMiniMapTypes();
 };
 
-#endif // MINIMAP_H_
+#endif // MINIMAP_H

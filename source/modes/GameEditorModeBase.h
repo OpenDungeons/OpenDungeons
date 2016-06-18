@@ -21,7 +21,6 @@
 #include "modes/AbstractApplicationMode.h"
 
 #include "game/PlayerSelection.h"
-#include "gamemap/MiniMapCamera.h"
 
 //! \brief Enum to check if the chat message box should be displayed or not
 //! It is used as a bit array
@@ -33,6 +32,8 @@ enum ChatMessageBoxDisplay
 };
 
 class GameEditorModeConsole;
+class GameMap;
+class MiniMap;
 
 namespace CEGUI
 {
@@ -40,6 +41,7 @@ namespace CEGUI
 }
 
 class ChatMessage;
+class CullingManager;
 class EventMessage;
 
 enum class RoomType;
@@ -148,7 +150,10 @@ protected:
     uint32_t mChatMessageBoxDisplay;
 
     //! \brief The minimap used in this mode
-    MiniMapCamera mMiniMap;
+    MiniMap* mMiniMap;
+
+    //! \brief Culling manager for the main map
+    CullingManager* mMainCullingManager;
 
     PlayerSelection mPlayerSelection;
 

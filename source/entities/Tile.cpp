@@ -17,6 +17,7 @@
 
 #include "entities/Tile.h"
 
+#include "camera/CullingManager.h"
 #include "entities/Building.h"
 #include "entities/Creature.h"
 #include "entities/GameEntityType.h"
@@ -65,6 +66,7 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mColorCustomMesh    (true),
     mHasBridge          (false),
     mLocalPlayerHasVision   (false),
+    mTileCulling        (CullingType::SHOW_ALL),
     mNbWorkersDigging(0),
     mNbWorkersClaiming(0)
 {

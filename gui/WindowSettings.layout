@@ -130,6 +130,10 @@
                         <Property name="Area" value="{{0,160},{0,70},{0,320},{0,150}}" />
                         <Property name="ReadOnly" value="True" />
                     </Window>
+                    <Window type="OD/Combobox" name="MiniMapType" >
+                        <Property name="Area" value="{{0,160},{0,100},{0,320},{0,180}}" />
+                        <Property name="ReadOnly" value="True" />
+                    </Window>
                 </Window>
             </Window>
         </Window>

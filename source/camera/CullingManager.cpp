@@ -15,30 +15,31 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "camera/CullingManager.h"
+#include "camera/CameraManager.h"
+#include "entities/Creature.h"
+#include "gamemap/GameMap.h"
+#include "render/RenderManager.h"
+#include "utils/VectorInt64.h"
+#include "utils/LogManager.h"
+
 #include <OgreVector3.h>
 #include <OgreCamera.h>
 
-#include "camera/CullingManager.h"
-#include "camera/CameraManager.h"
-#include "gamemap/GameMap.h"
-
-#include "entities/Creature.h"
-#include "utils/VectorInt64.h"
-#include "utils/LogManager.h"
-#include "render/RenderManager.h"
 #include <sstream>
 #include <algorithm>
 
 //! Values used to know whether to show and/or hide a mesh
 
-CullingManager::CullingManager(CameraManager* cameraManager):
+CullingManager::CullingManager(GameMap* gameMap, uint32_t cullingMask):
     mFirstIter(false),
-    mCm(cameraManager),
+    mGameMap(gameMap),
+    mCullingMask(cullingMask),
     mCullTilesFlag(false)
 {
     mActivePlanes =(Ogre::Plane(0, 0, 1, 0));
     // init the Ogre vector
-    for (unsigned int i = 0; i < 8; ++i)
+    for (unsigned int i = 0; i < 4; ++i)
     {
         mOgreVectorsArray[i].x = static_cast<Ogre::Real>(0.0);
         mOgreVectorsArray[i].y = static_cast<Ogre::Real>(0.0);
@@ -50,16 +51,15 @@ void CullingManager::cullTiles()
 {
     mOldWalk = mWalk;
     mWalk.mVertices.mMyArray.clear();
-    for (int ii = 0 ; ii < 8 ; ++ii)
+    for (int ii = 0 ; ii < 4 ; ++ii)
         mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
 
-    // create a slope -- a set of left and rigth path
-    mWalk.convex_hull();
+    // create a slope -- a set of left and right path
+    mWalk.convexHull();
     mWalk.buildSlopes();
 
-
-    OD_LOG_DBG( mOldWalk.debug());
-    OD_LOG_DBG( mWalk.debug());
+    OD_LOG_DBG(mOldWalk.debug());
+    OD_LOG_DBG(mWalk.debug());
 
     // reset index pointers to the begging of collections
     mOldWalk.prepareWalk();
@@ -68,14 +68,15 @@ void CullingManager::cullTiles()
     newBashAndSplashTiles(SHOW | HIDE);
 }
 
-void CullingManager::startTileCulling()
+void CullingManager::startTileCulling(Ogre::Camera* camera)
 {
-    getIntersectionPoints();
+    getIntersectionPoints(camera);
 
     mWalk.mVertices.mMyArray.clear();
-    for (int ii = 0 ; ii < 8 ; ++ii)
+    for (int ii = 0 ; ii < 4 ; ++ii)
         mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
-    mWalk.convex_hull();
+
+    mWalk.convexHull();
     mWalk.buildSlopes();
     mOldWalk = mWalk;
     mOldWalk.prepareWalk();
@@ -92,15 +93,15 @@ void CullingManager::stopTileCulling()
     mCullTilesFlag = false;
     mOldWalk = mWalk;
     mWalk.mVertices.mMyArray.clear();
-    for (int ii = 0 ; ii < 8 ; ++ii)
+    for (int ii = 0 ; ii < 4 ; ++ii)
         mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
 
     // create a slope -- a set of left and rigth path
-    mWalk.convex_hull();
+    mWalk.convexHull();
     mWalk.buildSlopes();
 
-    OD_LOG_DBG( mOldWalk.debug());
-    OD_LOG_DBG( mWalk.debug());        
+    OD_LOG_DBG(mOldWalk.debug());
+    OD_LOG_DBG(mWalk.debug());
 
     // reset index pointers to the begging of collections
     mOldWalk.prepareWalk();
@@ -112,44 +113,55 @@ void CullingManager::stopTileCulling()
 
 void CullingManager::hideAllTiles(void)
 {
-    GameMap* gm = mCm->getGameMap();
-    if (!gm)
-        return;
-
-    for (int jj = 0; jj < gm->getMapSizeY() ; ++jj)
+    for (int jj = 0; jj < mGameMap->getMapSizeY() ; ++jj)
     {
-        for (int ii = 0; ii < gm->getMapSizeX(); ++ii)
+        for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
         {
-            RenderManager::getSingleton().rrDetachEntity(gm->getTile(ii, jj));
+            Tile* tile = mGameMap->getTile(ii, jj);
+            // If the tile is not already culled, we hide it
+            bool detachTile = (tile->getTileCulling() != CullingType::HIDE);
+            tile->setTileCulling(mCullingMask, false);
+
+            if(detachTile &&
+               (tile->getTileCulling() == CullingType::HIDE))
+            {
+                RenderManager::getSingleton().rrDetachEntity(tile);
+            }
         }
     }
 }
 
 void CullingManager::showAllTiles(void)
 {
-    GameMap* gm = mCm->getGameMap();
-    if (!gm)
-        return;
-
-    for (int jj = 0; jj < gm->getMapSizeY() ; ++jj)
+    for (int jj = 0; jj < mGameMap->getMapSizeY() ; ++jj)
     {
-        for (int ii = 0; ii < gm->getMapSizeX(); ++ii)
+        for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
         {
-            RenderManager::getSingleton().rrAttachEntity(gm->getTile(ii, jj));
+            Tile* tile = mGameMap->getTile(ii, jj);
+            // If the tile is not culled by something else, we show it
+            bool attachTile = (tile->getTileCulling() == CullingType::HIDE);
+            tile->setTileCulling(mCullingMask, true);
+
+            if(attachTile &&
+               (tile->getTileCulling() != CullingType::HIDE))
+            {
+                RenderManager::getSingleton().rrAttachEntity(tile);
+            }
         }
     }
 }
 
-void CullingManager::newBashAndSplashTiles(uint32_t mode){
+void CullingManager::newBashAndSplashTiles(uint32_t mode)
+{
     int64_t xxLeftOld = mOldWalk.getTopLeftVertex().x;
-    int64_t xxRightOld= mOldWalk.getTopRightVertex().x;
+    int64_t xxRightOld = mOldWalk.getTopRightVertex().x;
     int64_t xxLeft = mWalk.getTopLeftVertex().x;
-    int64_t xxRight= mWalk.getTopRightVertex().x;
+    int64_t xxRight = mWalk.getTopRightVertex().x;
     int64_t xxp, yyp;
     std::stringstream ss;
-    int64_t bb = (( std::min(mWalk.getBottomLeftVertex().y , mOldWalk.getBottomRightVertex().y) >> VectorInt64::PRECISION_DIGITS) - 2) << VectorInt64::PRECISION_DIGITS;
+    int64_t bb = ((std::min(mWalk.getBottomLeftVertex().y, mOldWalk.getBottomRightVertex().y) >> VectorInt64::PRECISION_DIGITS) - 2) << VectorInt64::PRECISION_DIGITS;
 
-    for (int64_t yy = ((std::max(mWalk.getTopLeftVertex().y , mOldWalk.getTopRightVertex().y  ) >> VectorInt64::PRECISION_DIGITS) + 2) << VectorInt64::PRECISION_DIGITS;  yy >= bb; yy -= VectorInt64::UNIT)
+    for (int64_t yy = ((std::max(mWalk.getTopLeftVertex().y, mOldWalk.getTopRightVertex().y  ) >> VectorInt64::PRECISION_DIGITS) + 2) << VectorInt64::PRECISION_DIGITS; yy >= bb; yy -= VectorInt64::UNIT)
     {
         mOldWalk.notifyOnMoveDown(yy);
         mWalk.notifyOnMoveDown(yy);
@@ -157,49 +169,61 @@ void CullingManager::newBashAndSplashTiles(uint32_t mode){
         xxLeftOld = mOldWalk.getCurrentXLeft(yy);
         xxRight = mWalk.getCurrentXRight(yy);
         xxRightOld = mOldWalk.getCurrentXRight(yy);
-   
+
         int64_t mm = ((std::min(xxLeft, xxLeftOld) >> VectorInt64::PRECISION_DIGITS) << VectorInt64::PRECISION_DIGITS) ;
-        if(std::min(xxLeft, xxLeftOld) < std::max(xxRight,xxRightOld) )
+        if(std::min(xxLeft, xxLeftOld) < std::max(xxRight,xxRightOld))
         {
-            for (int64_t xx = mm ; xx <= std::max(xxRight,xxRightOld) ; xx+= VectorInt64::UNIT)
+            for (int64_t xx = mm ; xx <= std::max(xxRight,xxRightOld); xx += VectorInt64::UNIT)
             {
                 bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= mOldWalk.getBottomLeftVertex().y) && yy <= mOldWalk.getTopLeftVertex().y);
                 bool splash = (xx >= xxLeft && xx <= xxRight && (yy >= mWalk.getBottomLeftVertex().y) && yy <= mWalk.getTopLeftVertex().y);
 
-                xxp = ((xx >>VectorInt64::PRECISION_DIGITS));
-                yyp = ((yy >>VectorInt64::PRECISION_DIGITS));
-                GameMap* gm = mCm->getGameMap();
+                xxp = (xx >> VectorInt64::PRECISION_DIGITS);
+                yyp = (yy >> VectorInt64::PRECISION_DIGITS);
+                Tile* tile = mGameMap->getTile(xxp, yyp);
                 if(bash && splash && (mode & HIDE) && (mode & SHOW))
                 {
                     // Nothing
                 }
 
-                else if (gm && bash && (mode & HIDE) && xxp>=0 && yyp>= 0 && xxp<mCm->getGameMap()->getMapSizeX() && yyp < mCm->getGameMap()->getMapSizeY())
+                else if (bash && (mode & HIDE) && (tile != nullptr))
                 {
-                    RenderManager::getSingleton().rrDetachEntity(gm->getTile(xxp, yyp));
+                    // If the tile is not already hiden, we hide it
+                    bool detachTile = (tile->getTileCulling() != CullingType::HIDE);
+                    tile->setTileCulling(mCullingMask, false);
+
+                    if(detachTile &&
+                       (tile->getTileCulling() == CullingType::HIDE))
+                    {
+                        RenderManager::getSingleton().rrDetachEntity(tile);
+                    }
                 }
-                else if (gm && splash && (mode & SHOW) && xxp>=0 && yyp>= 0 && xxp<mCm->getGameMap()->getMapSizeX() && yyp < mCm->getGameMap()->getMapSizeY())
+                else if (splash && (mode & SHOW) && (tile != nullptr))
                 {
-                    RenderManager::getSingleton().rrAttachEntity(gm->getTile(xxp, yyp));
+                    // If the tile is not culled by something else, we show it
+                    bool attachTile = (tile->getTileCulling() == CullingType::HIDE);
+                    tile->setTileCulling(mCullingMask, true);
+
+                    if(attachTile &&
+                       (tile->getTileCulling() != CullingType::HIDE))
+                    {
+                        RenderManager::getSingleton().rrAttachEntity(tile);
+                    }
                 }
             }
         }
     }
 }
 
-bool CullingManager::getIntersectionPoints()
+bool CullingManager::getIntersectionPoints(Ogre::Camera* camera)
 {
-    const Ogre::Vector3* activeCameraVector = mCm->getActiveCamera()->getWorldSpaceCorners();
-    const Ogre::Vector3* activeCameraVector2 = mCm->getCamera("miniMapCam")->getWorldSpaceCorners();
+    const Ogre::Vector3* cameraVector = camera->getWorldSpaceCorners();
     for(int ii = 0 ; ii < 4; ++ii)
-        mActiveRay[ii]= Ogre::Ray (activeCameraVector[ii], activeCameraVector[ii+4] - activeCameraVector[ii]);
-
-    for(int ii = 4; ii < 8; ++ii)
-        mActiveRay[ii]= Ogre::Ray (activeCameraVector2[ii-4], activeCameraVector2[ii] - activeCameraVector2[ii-4]);
+        mActiveRay[ii]= Ogre::Ray (cameraVector[ii], cameraVector[ii+4] - cameraVector[ii]);
 
     std::pair<bool, Ogre::Real> intersectionResult;
 
-    for(int ii = 0; ii < 8; ++ii)
+    for(int ii = 0; ii < 4; ++ii)
     {
         intersectionResult =  mActiveRay[ii].intersects(mActivePlanes);
         if(intersectionResult.first)
@@ -212,22 +236,16 @@ bool CullingManager::getIntersectionPoints()
     return true;
 }
 
-bool CullingManager::onFrameStarted()
+void CullingManager::update(Ogre::Camera* camera)
 {
     if(mCullTilesFlag)
-        getIntersectionPoints();
+        getIntersectionPoints(camera);
     if(mCullTilesFlag)
         cullTiles();
-    return true;
-}
-
-bool CullingManager::onFrameEnded()
-{
-    return true;
 }
 
 /*! \brief Sort two VectorInt64 p1 and p2  to satisfy p1 <= p2 according to
- * the value of X or Y coordiante, which depends on sortByX param .
+ * the value of X or Y coordinate, which depends on sortByX param.
  */
 void CullingManager::sort(VectorInt64& p1, VectorInt64& p2, bool sortByX)
 {

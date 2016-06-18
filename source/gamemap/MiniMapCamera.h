@@ -18,6 +18,8 @@
 #ifndef MINIMAPCAMERA_H
 #define MINIMAPCAMERA_H
 
+#include "gamemap/MiniMap.h"
+
 #include <OgreRenderTargetListener.h>
 #include <OgreTexture.h>
 #include <OgreVector2.h>
@@ -31,18 +33,19 @@ namespace CEGUI
 }
 
 class CameraManager;
+class CullingManager;
 class GameMap;
 
 //! \brief The class handling the minimap seen bottom-right of the in-game screen.
-class MiniMapCamera : public Ogre::RenderTargetListener
+class MiniMapCamera : public MiniMap, public Ogre::RenderTargetListener
 {
 public:
     MiniMapCamera(CEGUI::Window* miniMapWindow);
     ~MiniMapCamera();
 
-    Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy);
+    Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy) override;
 
-    void update(Ogre::Real timeSinceLastFrame);
+    void update(Ogre::Real timeSinceLastFrame) override;
 
     //! This functions allow to hook minimap rendering to adjust nodes we want to display or not
     virtual void preRenderTargetUpdate(const Ogre::RenderTargetEvent& rte) override;
@@ -70,6 +73,8 @@ private:
     int mCurCamPosX;
     int mCurCamPosY;
     Ogre::Camera* mMiniMapCam;
+
+    CullingManager* mCullingManager;
 
     void updateMinimapCamera();
 };

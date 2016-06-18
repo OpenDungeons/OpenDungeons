@@ -221,6 +221,13 @@ public:
     inline bool getLocalPlayerHasVision() const
     { return mLocalPlayerHasVision; }
 
+    //! \brief Set/unset the value of the mask depending on boolean value
+    inline void setTileCulling(uint32_t mask, bool value)
+    { mTileCulling = (value ? mTileCulling | mask : mTileCulling & ~mask); }
+
+    inline uint32_t getTileCulling() const
+    { return mTileCulling; }
+
     //! \brief Set the tile digging mark for the given player.
     void setMarkedForDigging(bool s, const Player* p);
 
@@ -517,6 +524,8 @@ private:
 
     //! \brief Used on client side. true if the local player has vision, false otherwise.
     bool mLocalPlayerHasVision;
+
+    uint32_t mTileCulling;
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value
