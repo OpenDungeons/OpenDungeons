@@ -677,7 +677,6 @@ void RenderManager::rrAttachEntity(GameEntity* entity)
     entity->getParentSceneNode()->addChild(entityNode);
 }
 
-
 void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* renderedMovableEntity)
 {
     std::string meshName = renderedMovableEntity->getMeshName();
@@ -974,7 +973,8 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
 
     // Detach the entity from its scene node
     Ogre::SceneNode* curEntityNode = curEntity->getEntityNode();
-    curEntity->getParentSceneNode()->removeChild(curEntityNode);
+    curEntity->setParentNodeDetach(
+        EntityParentNodeAttach::DETACH_PICKEDUP, true);
 
     // We make sure the creature will be rendered over the scene by adding it to the same render queue as the keeper hand (and
     // by clearing the depth buffer in ODFrameListener)
@@ -1003,7 +1003,8 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
     changeRenderQueueRecursive(curEntityNode, Ogre::RenderQueueGroupID::RENDER_QUEUE_MAIN);
 
     // Attach the creature from the creature scene node
-    curEntity->getParentSceneNode()->addChild(curEntityNode);
+    curEntity->setParentNodeDetach(
+        EntityParentNodeAttach::DETACH_PICKEDUP, false);
     Ogre::Vector3 position = curEntity->getPosition();
     curEntityNode->setPosition(position);
     if(curEntity->resizeMeshAfterDrop())
@@ -1358,7 +1359,8 @@ void RenderManager::rrCarryEntity(Creature* carrier, GameEntity* carried)
     Ogre::Entity* carriedEnt = mSceneManager->getEntity(carried->getOgreNamePrefix() + carried->getName());
     Ogre::SceneNode* carrierNode = mSceneManager->getSceneNode(carrierEnt->getName() + "_node");
     Ogre::SceneNode* carriedNode = mSceneManager->getSceneNode(carriedEnt->getName() + "_node");
-    carried->getParentSceneNode()->removeChild(carriedNode);
+    carried->setParentNodeDetach(
+        EntityParentNodeAttach::DETACH_CARRIED, true);
     carriedNode->setInheritScale(false);
     carrierNode->addChild(carriedNode);
     // We want the carried object to be at half tile (z = 0.5)
@@ -1372,7 +1374,8 @@ void RenderManager::rrReleaseCarriedEntity(Creature* carrier, GameEntity* carrie
     Ogre::SceneNode* carrierNode = mSceneManager->getSceneNode(carrierEnt->getName() + "_node");
     Ogre::SceneNode* carriedNode = mSceneManager->getSceneNode(carriedEnt->getName() + "_node");
     carrierNode->removeChild(carriedNode);
-    carried->getParentSceneNode()->addChild(carriedNode);
+    carried->setParentNodeDetach(
+        EntityParentNodeAttach::DETACH_CARRIED, false);
     carriedNode->setInheritScale(true);
 }
 

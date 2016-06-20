@@ -222,11 +222,7 @@ public:
     { return mLocalPlayerHasVision; }
 
     //! \brief Set/unset the value of the mask depending on boolean value
-    inline void setTileCulling(uint32_t mask, bool value)
-    { mTileCulling = (value ? mTileCulling | mask : mTileCulling & ~mask); }
-
-    inline uint32_t getTileCulling() const
-    { return mTileCulling; }
+    void setTileCulling(uint32_t mask, bool value);
 
     //! \brief Set the tile digging mark for the given player.
     void setMarkedForDigging(bool s, const Player* p);

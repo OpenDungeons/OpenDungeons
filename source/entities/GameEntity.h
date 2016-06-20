@@ -45,6 +45,14 @@ class Tile;
 
 enum class GameEntityType;
 
+namespace EntityParentNodeAttach
+{
+    const uint32_t ATTACHED = 0x00;
+    const uint32_t DETACH_CULLING = 0x01;
+    const uint32_t DETACH_CARRIED = 0x02;
+    const uint32_t DETACH_PICKEDUP = 0x04;
+}
+
 //! This enum is used to know how carryable entities should be prioritized from lowest to highest
 enum class EntityCarryType
 {
@@ -379,6 +387,11 @@ class GameEntity
     //! owner player
     void notifyFightPlayer(Tile* tile);
 
+    //! \brief Client side function to attach/detach the entity from its parent node.
+    //! it is used as a byte array for reasons that might want to detach the
+    //! entity (culling, if the entity is carried, ...)
+    void setParentNodeDetach(uint32_t mask, bool value);
+
     static void exportToStream(GameEntity* entity, std::ostream& os);
 
   protected:
@@ -467,6 +480,10 @@ class GameEntity
     //! \brief boolean used by workers to lock the entity so that other workers
     //! know that they should not consider taking it
     bool mCarryLock;
+
+    //! \brief Client side only. byte array used to know if the entity is currently attached to
+    //! its rendering parent node or not
+    uint32_t mEntityParentNodeAttach;
 
     //! \brief List of the entity listening for events (removed from gamemap, picked up, ...) on this game entity
     std::vector<GameEntityListener*> mGameEntityListeners;
