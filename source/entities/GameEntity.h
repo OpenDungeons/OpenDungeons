@@ -390,7 +390,7 @@ class GameEntity
     //! \brief Client side function to attach/detach the entity from its parent node.
     //! it is used as a byte array for reasons that might want to detach the
     //! entity (culling, if the entity is carried, ...)
-    void setParentNodeDetach(uint32_t mask, bool value);
+    void setParentNodeDetachFlags(uint32_t mask, bool value);
 
     static void exportToStream(GameEntity* entity, std::ostream& os);
 

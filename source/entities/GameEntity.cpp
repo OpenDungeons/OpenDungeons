@@ -615,7 +615,7 @@ void GameEntity::notifyFightPlayer(Tile* tile)
     getGameMap()->playerIsFighting(getSeat()->getPlayer(), tile);
 }
 
-void GameEntity::setParentNodeDetach(uint32_t mask, bool value)
+void GameEntity::setParentNodeDetachFlags(uint32_t mask, bool value)
 {
     // We save the current attach  state
     bool oldState = (mEntityParentNodeAttach == EntityParentNodeAttach::ATTACHED);

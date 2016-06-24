@@ -1190,7 +1190,7 @@ bool Tile::addEntity(GameEntity *entity)
         // On client side, we cull any movable entity that walks over a
         // culled tile (or show it if it was previously culled and walks
         // over a non culled tile)
-        entity->setParentNodeDetach(
+        entity->setParentNodeDetachFlags(
             EntityParentNodeAttach::DETACH_CULLING, mTileCulling == CullingType::HIDE);
     }
     return true;
@@ -1868,7 +1868,7 @@ bool Tile::removeWorkerDigging(const Creature& worker)
     return true;
 }
 
-void Tile::setTileCulling(uint32_t mask, bool value)
+void Tile::setTileCullingFlags(uint32_t mask, bool value)
 {
     // We save the current state. If the result is different, we refresh culling
     mTileCulling = (value ? mTileCulling | mask : mTileCulling & ~mask);
@@ -1876,19 +1876,17 @@ void Tile::setTileCulling(uint32_t mask, bool value)
     if(mTileCulling == CullingType::HIDE)
     {
         // We cull the tile
-        setParentNodeDetach(EntityParentNodeAttach::DETACH_CULLING, true);
+        setParentNodeDetachFlags(EntityParentNodeAttach::DETACH_CULLING, true);
         for(GameEntity* entity : mEntitiesInTile)
-            entity->setParentNodeDetach(EntityParentNodeAttach::DETACH_CULLING, true);
-
-        return;
+            entity->setParentNodeDetachFlags(EntityParentNodeAttach::DETACH_CULLING, true);
     }
-
-    // Here, we want to show the tile
-    setParentNodeDetach(EntityParentNodeAttach::DETACH_CULLING, false);
-    for(GameEntity* entity : mEntitiesInTile)
-        entity->setParentNodeDetach(EntityParentNodeAttach::DETACH_CULLING, false);
-
-    return;
+    else
+    {
+        // Here, we want to show the tile
+        setParentNodeDetachFlags(EntityParentNodeAttach::DETACH_CULLING, false);
+        for(GameEntity* entity : mEntitiesInTile)
+            entity->setParentNodeDetachFlags(EntityParentNodeAttach::DETACH_CULLING, false);
+    }
 }
 
 std::string Tile::displayAsString(const Tile* tile)

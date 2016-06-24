@@ -118,7 +118,7 @@ void CullingManager::hideAllTiles(void)
         for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
         {
             Tile* tile = mGameMap->getTile(ii, jj);
-            tile->setTileCulling(mCullingMask, false);
+            tile->setTileCullingFlags(mCullingMask, false);
         }
     }
 }
@@ -130,7 +130,7 @@ void CullingManager::showAllTiles(void)
         for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
         {
             Tile* tile = mGameMap->getTile(ii, jj);
-            tile->setTileCulling(mCullingMask, true);
+            tile->setTileCullingFlags(mCullingMask, true);
         }
     }
 }
@@ -172,11 +172,11 @@ void CullingManager::newBashAndSplashTiles(uint32_t mode)
 
                 else if (bash && (mode & HIDE) && (tile != nullptr))
                 {
-                    tile->setTileCulling(mCullingMask, false);
+                    tile->setTileCullingFlags(mCullingMask, false);
                 }
                 else if (splash && (mode & SHOW) && (tile != nullptr))
                 {
-                    tile->setTileCulling(mCullingMask, true);
+                    tile->setTileCullingFlags(mCullingMask, true);
                 }
             }
         }
