@@ -95,6 +95,7 @@ public:
     {}
 
     AstarEntry(Tile* tile, int x1, int y1, int x2, int y2) :
+        mHasBeenProcessed (false),
         tile    (tile),
         parent  (nullptr),
         g       (0.0),
@@ -119,6 +120,12 @@ public:
     inline Tile* getTile() const
     { return tile; }
 
+    inline bool getHasBeenProcessed() const
+    { return mHasBeenProcessed; }
+
+    inline void setHasBeenProcessed()
+    { mHasBeenProcessed = true; }
+
     inline void setTile(Tile* newTile)
     { tile = newTile; }
 
@@ -135,6 +142,7 @@ public:
     { g = newG; }
 
 private:
+    bool        mHasBeenProcessed;
     Tile*       tile;
     AstarEntry* parent;
     double      g;
@@ -1452,7 +1460,10 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
     std::vector<AstarEntry*> openList;
     openList.push_back(currentEntry);
 
-    std::vector<AstarEntry*> closedList;
+    // This list will contain the processed and the to process entries
+    // allowing to quickly know if a tile has been processed or not
+    std::vector<std::vector<AstarEntry*>> processList(getMapSizeX(), std::vector<AstarEntry*>(getMapSizeY(), nullptr));
+    processList[currentEntry->getTile()->getX()][currentEntry->getTile()->getY()] = currentEntry;
     AstarEntry* destinationEntry = nullptr;
     while (true)
     {
@@ -1460,17 +1471,12 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
         if (openList.empty())
             break;
 
-        // Get the lowest fScore from the openList and move it to the closed list
-        std::vector<AstarEntry*>::iterator smallestAstar = openList.begin();
-        for (std::vector<AstarEntry*>::iterator itr = openList.begin(); itr != openList.end(); ++itr)
-        {
-            if ((*itr)->fCost() < (*smallestAstar)->fCost())
-                smallestAstar = itr;
-        }
+        // openList being sorted, the last element is the smallest
+        auto smallestAstar = openList.rbegin();
+        openList.pop_back();
 
         currentEntry = *smallestAstar;
-        openList.erase(smallestAstar);
-        closedList.push_back(currentEntry);
+        currentEntry->setHasBeenProcessed();
 
         // We found the path, break out of the search loop
         if (currentEntry->getTile() == destination)
@@ -1543,30 +1549,10 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
             if (!processNeighbor)
                 continue;
 
-            // See if the neighbor is in the closed list
-            AstarEntry* neighborEntry = nullptr;
-            for(std::vector<AstarEntry*>::iterator itr = closedList.begin(); itr != closedList.end(); ++itr)
-            {
-                if (neighbor.getTile() == (*itr)->getTile())
-                {
-                    neighborEntry = *itr;
-                    break;
-                }
-            }
-
-            // Ignore the neighbor if it is on the closed list
-            if (neighborEntry != nullptr)
+            // See if the neighbor has already been processed
+            AstarEntry* neighborEntry = processList[neighbor.getTile()->getX()][neighbor.getTile()->getY()];
+            if ((neighborEntry != nullptr) && (neighborEntry->getHasBeenProcessed()))
                 continue;
-
-            // See if the neighbor is in the open list
-            for(std::vector<AstarEntry*>::iterator itr = openList.begin(); itr != openList.end(); ++itr)
-            {
-                if (neighbor.getTile() == (*itr)->getTile())
-                {
-                    neighborEntry = *itr;
-                    break;
-                }
-            }
 
             // If the neighbor is not in the open list
             if (neighborEntry == nullptr)
@@ -1584,7 +1570,16 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
                 neighbor.setHeuristic(neighbor.getTile()->getX(), neighbor.getTile()->getY(), x2, y2);
                 neighbor.setParent(currentEntry);
 
-                openList.push_back(new AstarEntry(neighbor));
+                AstarEntry* entry = new AstarEntry(neighbor);
+                auto itr = openList.begin();
+                while((itr != openList.end()) &&
+                      ((*itr)->fCost() > entry->fCost()))
+                {
+                    ++itr;
+                }
+
+                openList.insert(itr, entry);
+                processList[neighbor.getTile()->getX()][neighbor.getTile()->getY()] = entry;
             }
             else
             {
@@ -1602,6 +1597,27 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
                 {
                     neighborEntry->setG(currentEntry->getG() + weightToParent);
                     neighborEntry->setParent(currentEntry);
+
+                    // The cost changed. We need to re-order openList
+                    auto itr = std::find(openList.begin(), openList.end(), neighborEntry);
+                    if(itr == openList.end())
+                    {
+                        OD_LOG_ERR("Unexpected entry not found tileStart=" + Tile::displayAsString(start)
+                            + ", tileDest=" + Tile::displayAsString(destination)
+                            + ", tile=" + Tile::displayAsString(neighborEntry->getTile()));
+                    }
+                    else
+                    {
+                        itr = openList.erase(itr);
+                        // We look for the new location
+                        while((itr != openList.end()) &&
+                              ((*itr)->fCost() > neighborEntry->fCost()))
+                        {
+                            ++itr;
+                        }
+
+                        openList.insert(itr, neighborEntry);
+                    }
                 }
             }
         }
@@ -1622,12 +1638,13 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
         } while (curEntry != nullptr);
     }
 
-    // Clean up the memory we allocated by deleting the astarEntries in the open and closed lists
-    for (std::vector<AstarEntry*>::iterator itr = openList.begin(); itr != openList.end(); ++itr)
-        delete *itr;
-
-    for (std::vector<AstarEntry*>::iterator itr = closedList.begin(); itr != closedList.end(); ++itr)
-        delete *itr;
+    // Clean up the memory we allocated by deleting the astarEntries.  Note that
+    // processList contains all the created entries so it is enough to clean it.
+    for (std::vector<AstarEntry*>& column : processList)
+    {
+        for (AstarEntry* entry : column)
+            delete entry;
+    }
 
     return returnList;
 }
