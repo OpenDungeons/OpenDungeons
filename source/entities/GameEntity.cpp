@@ -26,8 +26,6 @@
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
-#include "render/RenderManager.h"
-
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "network/ODServer.h"
@@ -97,7 +95,8 @@ GameEntity::GameEntity(
     mGameMap           (gameMap),
     mIsOnMap           (false),
     mParticleSystemsNumber   (0),
-    mCarryLock         (false)
+    mCarryLock         (false),
+    mEntityParentNodeAttach     (EntityParentNodeAttach::ATTACHED)
 {
     assert(mGameMap != nullptr);
 }
@@ -616,4 +615,20 @@ void GameEntity::notifyFightPlayer(Tile* tile)
     getGameMap()->playerIsFighting(getSeat()->getPlayer(), tile);
 }
 
+void GameEntity::setParentNodeDetachFlags(uint32_t mask, bool value)
+{
+    // We save the current attach  state
+    bool oldState = (mEntityParentNodeAttach == EntityParentNodeAttach::ATTACHED);
+    // We compute the new attach state
+    mEntityParentNodeAttach = (value ? mEntityParentNodeAttach | mask : mEntityParentNodeAttach & ~mask);
 
+    // If the attach state changed, we do what is needed
+    bool newState = (mEntityParentNodeAttach == EntityParentNodeAttach::ATTACHED);
+    if(oldState == newState)
+        return;
+
+    if(newState)
+        RenderManager::getSingleton().rrAttachEntity(this);
+    else
+        RenderManager::getSingleton().rrDetachEntity(this);
+}

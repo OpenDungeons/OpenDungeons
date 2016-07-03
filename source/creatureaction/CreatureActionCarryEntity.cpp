@@ -116,7 +116,7 @@ bool CreatureActionCarryEntity::notifyDead(GameEntity* entity)
     {
         mEntityToCarry->setCarryLock(mCreature, false);
         const Ogre::Vector3& pos = mCreature.getPosition();
-        OD_LOG_INF("creature=" + mCreature.getName() + " is releasing carried " + mEntityToCarry->getName() + ", pos=" + Helper::toString(pos));
+        OD_LOG_INF("creature=" + mCreature.getName() + " is releasing dead carried " + mEntityToCarry->getName() + ", pos=" + Helper::toString(pos));
         mEntityToCarry->notifyEntityCarryOff(pos);
         mCreature.releaseCarriedEntity();
         mEntityToCarry = nullptr;
@@ -136,7 +136,7 @@ bool CreatureActionCarryEntity::notifyRemovedFromGameMap(GameEntity* entity)
     {
         mEntityToCarry->setCarryLock(mCreature, false);
         const Ogre::Vector3& pos = mCreature.getPosition();
-        OD_LOG_INF("creature=" + mCreature.getName() + " is releasing carried " + mEntityToCarry->getName() + ", pos=" + Helper::toString(pos));
+        OD_LOG_INF("creature=" + mCreature.getName() + " is releasing removed carried " + mEntityToCarry->getName() + ", pos=" + Helper::toString(pos));
         mEntityToCarry->notifyEntityCarryOff(pos);
         mCreature.releaseCarriedEntity();
         mEntityToCarry = nullptr;
@@ -156,7 +156,7 @@ bool CreatureActionCarryEntity::notifyPickedUp(GameEntity* entity)
     {
         mEntityToCarry->setCarryLock(mCreature, false);
         const Ogre::Vector3& pos = mCreature.getPosition();
-        OD_LOG_INF("creature=" + mCreature.getName() + " is releasing carried " + mEntityToCarry->getName() + ", pos=" + Helper::toString(pos));
+        OD_LOG_INF("creature=" + mCreature.getName() + " is releasing picked carried " + mEntityToCarry->getName() + ", pos=" + Helper::toString(pos));
         mEntityToCarry->notifyEntityCarryOff(pos);
         mCreature.releaseCarriedEntity();
         mEntityToCarry = nullptr;

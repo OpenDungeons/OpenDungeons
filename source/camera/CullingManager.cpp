@@ -118,15 +118,7 @@ void CullingManager::hideAllTiles(void)
         for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
         {
             Tile* tile = mGameMap->getTile(ii, jj);
-            // If the tile is not already culled, we hide it
-            bool detachTile = (tile->getTileCulling() != CullingType::HIDE);
-            tile->setTileCulling(mCullingMask, false);
-
-            if(detachTile &&
-               (tile->getTileCulling() == CullingType::HIDE))
-            {
-                RenderManager::getSingleton().rrDetachEntity(tile);
-            }
+            tile->setTileCullingFlags(mCullingMask, false);
         }
     }
 }
@@ -138,15 +130,7 @@ void CullingManager::showAllTiles(void)
         for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
         {
             Tile* tile = mGameMap->getTile(ii, jj);
-            // If the tile is not culled by something else, we show it
-            bool attachTile = (tile->getTileCulling() == CullingType::HIDE);
-            tile->setTileCulling(mCullingMask, true);
-
-            if(attachTile &&
-               (tile->getTileCulling() != CullingType::HIDE))
-            {
-                RenderManager::getSingleton().rrAttachEntity(tile);
-            }
+            tile->setTileCullingFlags(mCullingMask, true);
         }
     }
 }
@@ -188,27 +172,11 @@ void CullingManager::newBashAndSplashTiles(uint32_t mode)
 
                 else if (bash && (mode & HIDE) && (tile != nullptr))
                 {
-                    // If the tile is not already hiden, we hide it
-                    bool detachTile = (tile->getTileCulling() != CullingType::HIDE);
-                    tile->setTileCulling(mCullingMask, false);
-
-                    if(detachTile &&
-                       (tile->getTileCulling() == CullingType::HIDE))
-                    {
-                        RenderManager::getSingleton().rrDetachEntity(tile);
-                    }
+                    tile->setTileCullingFlags(mCullingMask, false);
                 }
                 else if (splash && (mode & SHOW) && (tile != nullptr))
                 {
-                    // If the tile is not culled by something else, we show it
-                    bool attachTile = (tile->getTileCulling() == CullingType::HIDE);
-                    tile->setTileCulling(mCullingMask, true);
-
-                    if(attachTile &&
-                       (tile->getTileCulling() != CullingType::HIDE))
-                    {
-                        RenderManager::getSingleton().rrAttachEntity(tile);
-                    }
+                    tile->setTileCullingFlags(mCullingMask, true);
                 }
             }
         }

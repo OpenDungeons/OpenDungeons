@@ -44,13 +44,12 @@ namespace CullingType
     const uint32_t SHOW_ALL = 0x03;
 };
 
-/*! \brief The CullingMangaer class is a class to effectivly
+/*! \brief The CullingManager class is a class to effectively
  *  manage culling methods used in game. So far there is only
  *  one algorithm included : it is supposed to cull the Tiles.
  *  It should be started with the method startTileCulling.
- *  In future I plan to add creature's culling as well.
 
- * Currently I try to impment the most general polygon rasterizing algorithm , that is :
+ * Currently I try to implement the most general polygon rasterizing algorithm , that is :
  * 1. We choose the max and min points due to their Y value .
  * 2. We sort all the points by the angle value in it's polar representation
  * ( that is going , by visiting them clockwise due to the center of the polygon )
