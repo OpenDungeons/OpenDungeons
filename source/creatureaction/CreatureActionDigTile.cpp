@@ -32,25 +32,26 @@
 #include "utils/MakeUnique.h"
 #include "utils/LogManager.h"
 
-CreatureActionDigTile::CreatureActionDigTile(Creature& creature, Tile& tileDig) :
+CreatureActionDigTile::CreatureActionDigTile(Creature& creature, Tile& tileDig, Tile& tilePos) :
     CreatureAction(creature),
-    mTileDig(tileDig)
+    mTileDig(tileDig),
+    mTilePos(tilePos)
 {
-    mTileDig.addWorkerDigging(mCreature);
+    mTileDig.addWorkerDigging(mCreature, mTilePos);
 }
 
 CreatureActionDigTile::~CreatureActionDigTile()
 {
-    mTileDig.removeWorkerDigging(mCreature);
+    mTileDig.removeWorkerDigging(mCreature, mTilePos);
 }
 
 std::function<bool()> CreatureActionDigTile::action()
 {
     return std::bind(&CreatureActionDigTile::handleDigTile,
-        std::ref(mCreature), std::ref(mTileDig));
+        std::ref(mCreature), std::ref(mTileDig), std::ref(mTilePos));
 }
 
-bool CreatureActionDigTile::handleDigTile(Creature& creature, Tile& tileDig)
+bool CreatureActionDigTile::handleDigTile(Creature& creature, Tile& tileDig, Tile& tilePos)
 {
     Tile* myTile = creature.getPositionTile();
     if(myTile == nullptr)
@@ -68,36 +69,12 @@ bool CreatureActionDigTile::handleDigTile(Creature& creature, Tile& tileDig)
         return true;
     }
 
-    // We check if we are on a claimed tile next to the tile to claim
-    Tile* tileDest = nullptr;
-    float distBest = -1;
-    for(Tile* tile : tileDig.getAllNeighbors())
+    // We go to the tile we locked
+    if(&tilePos != myTile)
     {
-        // We look for the closest allowed tile
-        if(tile->isFullTile())
-            continue;
-        if(!creature.getGameMap()->pathExists(&creature, myTile, tile))
-            continue;
-        float dist = Pathfinding::squaredDistanceTile(*myTile, *tile);
-        if((distBest != -1) && (distBest <= dist))
-            continue;
-
-        distBest = dist,
-        tileDest = tile;
-    }
-
-    if(tileDest == nullptr)
-    {
-        OD_LOG_ERR("creature=" + creature.getName() + ", myTile=" + Tile::displayAsString(myTile) + ", tileDig=" + Tile::displayAsString(&tileDig));
-        creature.popAction();
-        return true;
-    }
-
-    if(tileDest != myTile)
-    {
-        if(!creature.setDestination(tileDest))
+        if(!creature.setDestination(&tilePos))
         {
-            OD_LOG_ERR("creature=" + creature.getName() + ", myTile=" + Tile::displayAsString(myTile) + ", tileDig=" + Tile::displayAsString(&tileDig) + ", tileDest=" + Tile::displayAsString(tileDest));
+            OD_LOG_ERR("creature=" + creature.getName() + ", myTile=" + Tile::displayAsString(myTile) + ", tileDig=" + Tile::displayAsString(&tileDig) + ", tilePos=" + Tile::displayAsString(&tilePos));
             creature.popAction();
         }
         return true;
@@ -128,6 +105,7 @@ bool CreatureActionDigTile::handleDigTile(Creature& creature, Tile& tileDig)
             }
             case TileType::gem:
             {
+                // TODO: wrong coef used here
                 static const double digCoefGem = ConfigManager::getSingleton().getDigCoefGold();
                 double tempDouble = digCoefGem * amountDug;
                 creature.addGoldCarried(static_cast<int>(tempDouble));

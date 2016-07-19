@@ -67,7 +67,6 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mHasBridge          (false),
     mLocalPlayerHasVision   (false),
     mTileCulling        (CullingType::SHOW_ALL),
-    mNbWorkersDigging(0),
     mNbWorkersClaiming(0)
 {
     computeTileVisual();
@@ -432,6 +431,7 @@ void Tile::removePlayerMarkingTile(const Player *p)
 void Tile::addNeighbor(Tile *n)
 {
     mNeighbors.push_back(n);
+    mNbWorkersDigging.push_back(0);
 }
 
 Tile* Tile::getNeighbor(unsigned int index)
@@ -1838,34 +1838,99 @@ bool Tile::removeWorkerClaiming(const Creature& worker)
     return true;
 }
 
-bool Tile::canWorkerDig(const Creature& worker)
+void Tile::canWorkerDig(const Creature& worker, std::vector<Tile*>& tiles)
 {
-    if(mNbWorkersDigging < ConfigManager::getSingleton().getNbWorkersDigSameTile())
+    Tile* myTile = worker.getPositionTile();
+    if (myTile == nullptr)
+    {
+        OD_LOG_ERR("worker=" + worker.getName() + ", pos=" + Helper::toString(worker.getPosition()));
+        return;
+    }
+
+    for(uint32_t i = 0; i < mNeighbors.size(); ++i)
+    {
+        Tile* neigh = mNeighbors[i];
+        if(neigh->isFullTile())
+            continue;
+
+        if(!getGameMap()->pathExists(&worker, myTile, neigh))
+            continue;
+
+        if(i >= mNbWorkersDigging.size())
+        {
+            static bool log = true;
+            if(log)
+            {
+                log = false;
+                OD_LOG_ERR("worker=" + worker.getName() + ", myTile=" + Tile::displayAsString(myTile)
+                    + ", neigh=" + Tile::displayAsString(neigh) + ", i=" + Helper::toString(i)
+                    + ", size=" + Helper::toString(mNbWorkersDigging.size()));
+            }
+            continue;
+        }
+
+        if(mNbWorkersDigging[i] >= ConfigManager::getSingleton().getNbWorkersDigSameFaceTile())
+            continue;
+
+        tiles.push_back(neigh);
+    }
+}
+
+bool Tile::addWorkerDigging(const Creature& worker, Tile& tile)
+{
+    for(uint32_t i = 0; i < mNeighbors.size(); ++i)
+    {
+        Tile* neigh = mNeighbors[i];
+        if(neigh != &tile)
+            continue;
+
+        if(i >= mNbWorkersDigging.size())
+        {
+            static bool log = true;
+            if(log)
+            {
+                log = false;
+                OD_LOG_ERR("worker=" + worker.getName() + ", tile=" + Tile::displayAsString(&tile)
+                    + ", neigh=" + Tile::displayAsString(neigh) + ", i=" + Helper::toString(i)
+                    + ", size=" + Helper::toString(mNbWorkersDigging.size()));
+            }
+            continue;
+        }
+
+        ++mNbWorkersDigging[i];
         return true;
+    }
 
     return false;
 }
 
-bool Tile::addWorkerDigging(const Creature& worker)
-{
-    if(!canWorkerDig(worker))
-        return false;
-
-    ++mNbWorkersDigging;
-    return true;
-}
-
-bool Tile::removeWorkerDigging(const Creature& worker)
+bool Tile::removeWorkerDigging(const Creature& worker, Tile& tile)
 {
     // Sanity check
-    if(mNbWorkersDigging <= 0)
+    for(uint32_t i = 0; i < mNeighbors.size(); ++i)
     {
-        OD_LOG_ERR("Cannot remove worker=" + worker.getName() + ", tile=" + Tile::displayAsString(this));
-        return false;
+        Tile* neigh = mNeighbors[i];
+        if(neigh != &tile)
+            continue;
+
+        if(i >= mNbWorkersDigging.size())
+        {
+            static bool log = true;
+            if(log)
+            {
+                log = false;
+                OD_LOG_ERR("worker=" + worker.getName() + ", tile=" + Tile::displayAsString(&tile)
+                    + ", neigh=" + Tile::displayAsString(neigh) + ", i=" + Helper::toString(i)
+                    + ", size=" + Helper::toString(mNbWorkersDigging.size()));
+            }
+            continue;
+        }
+
+        --mNbWorkersDigging[i];
+        return true;
     }
 
-    --mNbWorkersDigging;
-    return true;
+    return false;
 }
 
 void Tile::setTileCullingFlags(uint32_t mask, bool value)

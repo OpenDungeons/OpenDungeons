@@ -192,8 +192,8 @@ public:
     inline const CreatureDefinition* getCreatureDefinitionDefaultWorker() const
     { return mCreatureDefinitionDefaultWorker; }
 
-    inline uint32_t getNbWorkersDigSameTile() const
-    { return mNbWorkersDigSameTile; }
+    inline uint32_t getNbWorkersDigSameFaceTile() const
+    { return mNbWorkersDigSameFaceTile; }
 
     inline uint32_t getNbWorkersClaimSameTile() const
     { return mNbWorkersClaimSameTile; }
@@ -320,7 +320,7 @@ private:
     //! the default seat worker depending on seat faction
     CreatureDefinition* mCreatureDefinitionDefaultWorker;
 
-    uint32_t mNbWorkersDigSameTile;
+    uint32_t mNbWorkersDigSameFaceTile;
     uint32_t mNbWorkersClaimSameTile;
 
     //! \brief Allowed tilesets

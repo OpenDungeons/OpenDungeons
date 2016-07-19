@@ -441,11 +441,11 @@ public:
     bool canWorkerClaim(const Creature& worker);
     bool addWorkerClaiming(const Creature& worker);
     bool removeWorkerClaiming(const Creature& worker);
-    //! \brief Allows to lock the tile for the workers claiming it. Returns true if the worker could be added
-    //! and false otherwise
-    bool canWorkerDig(const Creature& worker);
-    bool addWorkerDigging(const Creature& worker);
-    bool removeWorkerDigging(const Creature& worker);
+    //! \brief Feels the tile vector with the available tiles the worker can
+    //! go to
+    void canWorkerDig(const Creature& worker, std::vector<Tile*>& tiles);
+    bool addWorkerDigging(const Creature& worker, Tile& tile);
+    bool removeWorkerDigging(const Creature& worker, Tile& tile);
 
     static void exportToStream(Tile* tile, std::ostream& os);
 
@@ -532,7 +532,9 @@ private:
 
     void setDirtyForAllSeats();
 
-    uint32_t mNbWorkersDigging;
+    //! \brief Vector with the number of workers digging the tile. The index corresponds
+    //! to the index in mNeighbors
+    std::vector<uint32_t> mNbWorkersDigging;
     uint32_t mNbWorkersClaiming;
 };
 

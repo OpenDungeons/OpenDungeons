@@ -2217,6 +2217,7 @@ void Creature::drop(const Ogre::Vector3& v)
         Tile* position = getPositionTile();
         Seat* seat = getSeat();
         Tile* tileMarkedDig = nullptr;
+        Tile* tileMarkedDigPos = nullptr;
         Tile* tileToClaim = nullptr;
         Tile* tileWallNotClaimed = nullptr;
         for (Tile* tile : position->getAllNeighbors())
@@ -2225,7 +2226,22 @@ void Creature::drop(const Ogre::Vector3& v)
                 tile->getMarkedForDigging(getGameMap()->getPlayerBySeat(seat))
                 )
             {
-                tileMarkedDig = tile;
+                // Check if there is room for digging
+                std::vector<Tile*> tiles;
+                tile->canWorkerDig(*this, tiles);
+                // We search for the closest neighbor tile (may be not the position
+                // tile if the player drops several workers at the same tile)
+                float distBest = -1;
+                for (Tile* neigh : tiles)
+                {
+                    float dist = Pathfinding::squaredDistanceTile(*position, *neigh);
+                    if((distBest != -1) && (distBest <= dist))
+                        continue;
+
+                    distBest = dist;
+                    tileMarkedDig = tile;
+                    tileMarkedDigPos = neigh;
+                }
             }
             else if(tileToClaim == nullptr &&
                 tile->isClaimedForSeat(seat) &&
@@ -2266,10 +2282,10 @@ void Creature::drop(const Ogre::Vector3& v)
         position->fillWithCarryableEntities(this, carryable);
 
         // Now, we can decide
-        if((tileMarkedDig != nullptr) && (mDigRate > 0.0))
+        if((tileMarkedDig != nullptr) && (tileMarkedDigPos != nullptr) && (mDigRate > 0.0))
         {
             pushAction(Utils::make_unique<CreatureActionSearchTileToDig>(*this, true));
-            pushAction(Utils::make_unique<CreatureActionDigTile>(*this, *tileMarkedDig));
+            pushAction(Utils::make_unique<CreatureActionDigTile>(*this, *tileMarkedDig, *tileMarkedDigPos));
             return;
         }
 
