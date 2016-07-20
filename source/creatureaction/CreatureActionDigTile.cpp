@@ -99,19 +99,18 @@ bool CreatureActionDigTile::handleDigTile(Creature& creature, Tile& tileDig, Til
                 double tempDouble = digCoefGold * amountDug;
                 creature.addGoldCarried(static_cast<int>(tempDouble));
                 creature.getSeat()->addGoldMined(static_cast<int>(tempDouble));
-                // Receive extra experience for digging gold
-                creature.receiveExp(digCoefGold * creature.getDigRate() / 20.0);
+                // Receive experience for digging gold
+                creature.receiveExp(creature.getDigRate() / 20.0);
                 break;
             }
             case TileType::gem:
             {
-                // TODO: wrong coef used here
-                static const double digCoefGem = ConfigManager::getSingleton().getDigCoefGold();
+                static const double digCoefGem = ConfigManager::getSingleton().getDigCoefGem();
                 double tempDouble = digCoefGem * amountDug;
                 creature.addGoldCarried(static_cast<int>(tempDouble));
                 creature.getSeat()->addGoldMined(static_cast<int>(tempDouble));
-                // Receive extra experience for digging gold
-                creature.receiveExp(digCoefGem * creature.getDigRate() / 20.0);
+                // Receive experience for digging
+                creature.receiveExp(creature.getDigRate() / 20.0);
                 break;
             }
             default:
