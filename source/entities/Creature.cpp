@@ -1069,7 +1069,6 @@ bool Creature::handleIdleAction()
     // We check if we are looking for our fee
     if(!mDefinition->isWorker() &&
        !hasActionBeenTried(CreatureActionType::getFee) &&
-       (Random::Double(0.0, 1.0) < 0.5) &&
        (mGoldFee > 0))
     {
         pushAction(Utils::make_unique<CreatureActionGetFee>(*this));
