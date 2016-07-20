@@ -1313,9 +1313,12 @@ double Tile::digOut(double digRate)
     switch(getTileVisual())
     {
         case TileVisual::claimedFull:
-            digRateScaled = digRate * 0.2;
-            fullnessLost = digRate * 0.2;
+        {
+            static double digCoefClaimedWall = ConfigManager::getSingleton().getDigCoefClaimedWall();
+            digRateScaled = digRate * digCoefClaimedWall;
+            fullnessLost = digRate * digCoefClaimedWall;
             break;
+        }
         case TileVisual::dirtFull:
         case TileVisual::goldFull:
             digRateScaled = digRate;

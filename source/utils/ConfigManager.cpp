@@ -61,6 +61,7 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
     mClaimingWallPenalty(0.8),
     mDigCoefGold(5.0),
     mDigCoefGem(1.0),
+    mDigCoefClaimedWall(0.5),
     mNbTurnsKoCreatureAttacked(10),
     mCreatureDefinitionDefaultWorker(nullptr),
     mNbWorkersDigSameFaceTile(2),
@@ -524,6 +525,13 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mDigCoefGem = Helper::toDouble(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "DigCoefClaimedWall")
+        {
+            configFile >> nextParam;
+            mDigCoefClaimedWall = Helper::toDouble(nextParam);
             // Not mandatory
         }
 

@@ -146,6 +146,9 @@ public:
     inline double getDigCoefGem() const
     { return mDigCoefGem; }
 
+    inline double getDigCoefClaimedWall() const
+    { return mDigCoefClaimedWall; }
+
     inline int32_t getNbTurnsKoCreatureAttacked() const
     { return mNbTurnsKoCreatureAttacked; }
 
@@ -300,6 +303,7 @@ private:
     double mClaimingWallPenalty;
     double mDigCoefGold;
     double mDigCoefGem;
+    double mDigCoefClaimedWall;
     int32_t mNbTurnsKoCreatureAttacked;
     std::string mDefaultWorkerRogue;
     std::string mMainMenuMusic;
