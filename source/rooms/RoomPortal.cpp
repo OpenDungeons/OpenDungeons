@@ -25,6 +25,8 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -322,12 +324,34 @@ void RoomPortal::restoreInitialEntityState()
         return;
     }
 
-    if(!tileData->mSeatsVision.empty())
-        mPortalObject->notifySeatsWithVision(tileData->mSeatsVision);
+    // We want all players to know where the portal is
+    mPortalObject->notifySeatsWithVision(getGameMap()->getSeats());
 
     // If there are no covered tile, the temple object is not working
     if(numCoveredTiles() == 0)
         mPortalObject->notifyRemoveAsked();
+
+    // We want all players to know where portals are. Since portal tiles
+    // cannot be destroyed, we can safely notify all the tiles at game
+    // start since it won't change between saved games
+    std::vector<Tile*> tilesToNotify = getCoveredTiles();
+    for(Seat* seat : getGameMap()->getSeats())
+    {
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        uint32_t nbTiles = tilesToNotify.size();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::refreshTiles, seat->getPlayer());
+        serverNotification->mPacket << nbTiles;
+        for(Tile* tile : tilesToNotify)
+        {
+            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
+            seat->updateTileStateForSeat(tile, true);
+            tile->exportToPacketForUpdate(serverNotification->mPacket, seat, true);
+        }
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 
     Room::restoreInitialEntityState();
 }

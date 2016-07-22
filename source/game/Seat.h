@@ -271,7 +271,7 @@ public:
 
     //! Called when a tile is notified to the seat player. That allows to save the state
     //! Used on server side only
-    void updateTileStateForSeat(Tile* tile);
+    void updateTileStateForSeat(Tile* tile, bool hideSeatId);
 
     //! Called when a tile is marked and notified to a player. That allows to save the state
     //! Note that the tile is marked depending on what the player knows about it, not
@@ -293,10 +293,12 @@ public:
     //! \brief Used on both server and client sides.
     void setPlayerSettings(bool koCreatures);
 
-    /*! \brief Exports the tile data to the packet so that the client associated to the seat have the needed information
-     *         to display the tile correctly
+    /*! \brief Exports the tile data to the packet so that the client
+     * associated to the seat have the needed information to display the
+     * tile correctly
      */
-    void exportTileToPacket(ODPacket& os, const Tile* tile) const;
+    void exportTileToPacket(ODPacket& os, const Tile* tile,
+        bool hideSeatId) const;
 
     static bool sortForMapSave(Seat* s1, Seat* s2);
 

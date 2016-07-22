@@ -172,7 +172,7 @@ class RoomTreasuryFactory : public RoomFactory
                 for(Tile* tile : p.second)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
-                    p.first->updateTileStateForSeat(tile);
+                    p.first->updateTileStateForSeat(tile, false);
                     tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
                 }
                 ODServer::getSingleton().sendAsyncMsg(serverNotification);

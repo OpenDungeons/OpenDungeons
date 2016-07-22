@@ -451,6 +451,7 @@ public:
 
     virtual void exportToPacketForUpdate(ODPacket& os, const Seat* seat) const override;
     virtual void updateFromPacket(ODPacket& is) override;
+    void exportToPacketForUpdate(ODPacket& os, const Seat* seat, bool hideSeatId) const;
 
 protected:
     virtual void exportHeadersToStream(std::ostream& os) const override

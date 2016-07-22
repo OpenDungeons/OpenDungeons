@@ -1021,9 +1021,14 @@ bool Tile::isGroundClaimable(Seat* seat) const
 
 void Tile::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
 {
+    exportToPacketForUpdate(os, seat, false);
+}
+
+void Tile::exportToPacketForUpdate(ODPacket& os, const Seat* seat, bool hideSeatId) const
+{
     GameEntity::exportToPacketForUpdate(os, seat);
 
-    seat->exportTileToPacket(os, this);
+    seat->exportTileToPacket(os, this, hideSeatId);
 }
 
 void Tile::updateFromPacket(ODPacket& is)
