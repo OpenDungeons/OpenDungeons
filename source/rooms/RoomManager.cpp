@@ -218,7 +218,7 @@ bool RoomFactory::buildRoomDefault(GameMap* gameMap, Room* room, Seat* seat, con
             for(Tile* tile : p.second)
             {
                 gameMap->tileToPacket(serverNotification.mPacket, tile);
-                p.first->updateTileStateForSeat(tile);
+                p.first->updateTileStateForSeat(tile, false);
                 tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
             }
             ODServer::getSingleton().sendAsyncMsg(serverNotification);
@@ -613,7 +613,7 @@ void RoomManager::sellRoomTiles(GameMap* gameMap, Player* player, ODPacket& pack
         for(Tile* tile : p.second)
         {
             gameMap->tileToPacket(serverNotification.mPacket, tile);
-            p.first->updateTileStateForSeat(tile);
+            p.first->updateTileStateForSeat(tile, false);
             tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
         }
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
@@ -739,7 +739,7 @@ void RoomManager::sellRoomTilesEditor(GameMap* gameMap, ODPacket& packet)
         for(Tile* tile : p.second)
         {
             gameMap->tileToPacket(serverNotification.mPacket, tile);
-            p.first->updateTileStateForSeat(tile);
+            p.first->updateTileStateForSeat(tile, false);
             tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
         }
         ODServer::getSingleton().sendAsyncMsg(serverNotification);

@@ -17,6 +17,7 @@
 
 #include "creatureaction/CreatureActionUseRoom.h"
 
+#include "creatureaction/CreatureActionGetFee.h"
 #include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionSleep.h"
 #include "creaturemood/CreatureMood.h"
@@ -133,6 +134,15 @@ bool CreatureActionUseRoom::handleJob(Creature& creature, Room* room, bool force
     if((room->shouldStopUseIfHungrySleepy(creature, forced)) &&
        (!creature.hasSlapEffect()))
     {
+        // The creature should look for gold after payday if the keeper is not broke
+        if((creature.getGoldFee() > 0) &&
+           (!creature.hasActionBeenTried(CreatureActionType::getFee)) &&
+           (creature.getSeat()->getGold() > 0))
+        {
+            creature.pushAction(Utils::make_unique<CreatureActionGetFee>(creature));
+            return true;
+        }
+
         if (Random::Double(20.0, 30.0) > creature.getWakefulness())
         {
             creature.popAction();

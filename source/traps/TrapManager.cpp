@@ -177,7 +177,7 @@ bool TrapFactory::buildTrapDefault(GameMap* gameMap, Trap* trap, Seat* seat, con
             for(Tile* tile : p.second)
             {
                 gameMap->tileToPacket(serverNotification.mPacket, tile);
-                p.first->updateTileStateForSeat(tile);
+                p.first->updateTileStateForSeat(tile, false);
                 tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
             }
             ODServer::getSingleton().sendAsyncMsg(serverNotification);
@@ -610,7 +610,7 @@ void TrapManager::sellTrapTiles(GameMap* gameMap, Seat* seatSell, ODPacket& pack
         for(Tile* tile : p.second)
         {
             gameMap->tileToPacket(serverNotification.mPacket, tile);
-            p.first->updateTileStateForSeat(tile);
+            p.first->updateTileStateForSeat(tile, false);
             tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
         }
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
@@ -724,7 +724,7 @@ void TrapManager::sellTrapTilesEditor(GameMap* gameMap, ODPacket& packet)
         for(Tile* tile : p.second)
         {
             gameMap->tileToPacket(serverNotification.mPacket, tile);
-            p.first->updateTileStateForSeat(tile);
+            p.first->updateTileStateForSeat(tile, false);
             tile->exportToPacketForUpdate(serverNotification.mPacket, p.first);
         }
         ODServer::getSingleton().sendAsyncMsg(serverNotification);

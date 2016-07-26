@@ -61,9 +61,10 @@ ConfigManager::ConfigManager(const std::string& configPath, const std::string& u
     mClaimingWallPenalty(0.8),
     mDigCoefGold(5.0),
     mDigCoefGem(1.0),
+    mDigCoefClaimedWall(0.5),
     mNbTurnsKoCreatureAttacked(10),
     mCreatureDefinitionDefaultWorker(nullptr),
-    mNbWorkersDigSameTile(2),
+    mNbWorkersDigSameFaceTile(2),
     mNbWorkersClaimSameTile(1)
 {
     // TODO: it might be better to go through the creature definitions and try to pickup the first worker we can find
@@ -527,6 +528,13 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
             // Not mandatory
         }
 
+        if(nextParam == "DigCoefClaimedWall")
+        {
+            configFile >> nextParam;
+            mDigCoefClaimedWall = Helper::toDouble(nextParam);
+            // Not mandatory
+        }
+
         if(nextParam == "CreatureBaseMood")
         {
             configFile >> nextParam;
@@ -562,10 +570,10 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
             // Not mandatory
         }
 
-        if(nextParam == "NbWorkersDigSameTile")
+        if(nextParam == "NbWorkersDigSameFaceTile")
         {
             configFile >> nextParam;
-            mNbWorkersDigSameTile = Helper::toUInt32(nextParam);
+            mNbWorkersDigSameFaceTile = Helper::toUInt32(nextParam);
             // Not mandatory
         }
 

@@ -46,6 +46,14 @@ bool CreatureActionGetFee::handleGetFee(Creature& creature)
         creature.popAction();
         return false;
     }
+
+    // If we are broke, no need to look for gold
+    if(creature.getSeat()->getGold() <= 0)
+    {
+        creature.popAction();
+        return false;
+    }
+
     // We check if we are on a treasury. If yes, we try to take our fee
     if((myTile->getCoveringRoom() != nullptr) &&
        (creature.getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())))

@@ -17,6 +17,7 @@
 
 #include "creatureaction/CreatureActionSearchJob.h"
 
+#include "creatureaction/CreatureActionGetFee.h"
 #include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionSleep.h"
 #include "creatureaction/CreatureActionUseRoom.h"
@@ -75,21 +76,32 @@ bool CreatureActionSearchJob::handleSearchJob(Creature& creature, bool forced)
             break;
     }
 
-    bool workForced = creature.hasSlapEffect();
-    // If we are sleepy, we go to bed unless we have been slapped
-    if (!workForced && (Random::Double(20.0, 30.0) > creature.getWakefulness()))
+    if(!creature.hasSlapEffect())
     {
-        creature.popAction();
-        creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));
-        return true;
-    }
+        // The creature should look for gold after payday if the keeper is not broke
+        if((creature.getGoldFee() > 0) &&
+           (!creature.hasActionBeenTried(CreatureActionType::getFee)) &&
+           (creature.getSeat()->getGold() > 0))
+        {
+            creature.pushAction(Utils::make_unique<CreatureActionGetFee>(creature));
+            return true;
+        }
 
-    // If we are hungry, we try to find food unless we have been slapped
-    if (!workForced && (Random::Double(70.0, 80.0) < creature.getHunger()))
-    {
-        creature.popAction();
-        creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, false));
-        return true;
+        // If we are sleepy, we go to bed unless we have been slapped
+        if (Random::Double(20.0, 30.0) > creature.getWakefulness())
+        {
+            creature.popAction();
+            creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));
+            return true;
+        }
+
+        // If we are hungry, we try to find food unless we have been slapped
+        if (Random::Double(70.0, 80.0) < creature.getHunger())
+        {
+            creature.popAction();
+            creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, false));
+            return true;
+        }
     }
 
     if(forced)

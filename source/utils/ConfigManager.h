@@ -146,6 +146,9 @@ public:
     inline double getDigCoefGem() const
     { return mDigCoefGem; }
 
+    inline double getDigCoefClaimedWall() const
+    { return mDigCoefClaimedWall; }
+
     inline int32_t getNbTurnsKoCreatureAttacked() const
     { return mNbTurnsKoCreatureAttacked; }
 
@@ -192,8 +195,8 @@ public:
     inline const CreatureDefinition* getCreatureDefinitionDefaultWorker() const
     { return mCreatureDefinitionDefaultWorker; }
 
-    inline uint32_t getNbWorkersDigSameTile() const
-    { return mNbWorkersDigSameTile; }
+    inline uint32_t getNbWorkersDigSameFaceTile() const
+    { return mNbWorkersDigSameFaceTile; }
 
     inline uint32_t getNbWorkersClaimSameTile() const
     { return mNbWorkersClaimSameTile; }
@@ -300,6 +303,7 @@ private:
     double mClaimingWallPenalty;
     double mDigCoefGold;
     double mDigCoefGem;
+    double mDigCoefClaimedWall;
     int32_t mNbTurnsKoCreatureAttacked;
     std::string mDefaultWorkerRogue;
     std::string mMainMenuMusic;
@@ -320,7 +324,7 @@ private:
     //! the default seat worker depending on seat faction
     CreatureDefinition* mCreatureDefinitionDefaultWorker;
 
-    uint32_t mNbWorkersDigSameTile;
+    uint32_t mNbWorkersDigSameFaceTile;
     uint32_t mNbWorkersClaimSameTile;
 
     //! \brief Allowed tilesets

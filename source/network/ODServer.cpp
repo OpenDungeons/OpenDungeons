@@ -1622,7 +1622,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     for(Tile* tile : affectedTiles)
                     {
                         gameMap->tileToPacket(notif.mPacket, tile);
-                        seat->updateTileStateForSeat(tile);
+                        seat->updateTileStateForSeat(tile, false);
                         tile->exportToPacketForUpdate(notif.mPacket, seat);
 
                     }

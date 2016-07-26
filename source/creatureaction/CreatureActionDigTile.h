@@ -25,7 +25,7 @@ class Tile;
 class CreatureActionDigTile : public CreatureAction
 {
 public:
-    CreatureActionDigTile(Creature& creature, Tile& tileDig);
+    CreatureActionDigTile(Creature& creature, Tile& tileDig, Tile& tilePos);
     virtual ~CreatureActionDigTile();
 
     CreatureActionType getType() const override
@@ -33,10 +33,11 @@ public:
 
     std::function<bool()> action() override;
 
-    static bool handleDigTile(Creature& creature, Tile& tileDig);
+    static bool handleDigTile(Creature& creature, Tile& tileDig, Tile& tilePos);
 
 private:
     Tile& mTileDig;
+    Tile& mTilePos;
 };
 
 #endif // CREATUREACTIONDIGTILE_H

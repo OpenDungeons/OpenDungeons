@@ -84,17 +84,34 @@ bool CreatureActionSearchTileToDig::handleSearchTileToDig(Creature& creature, in
             continue;
 
         // Check if there is still empty space for digging the tile
-        if (!tempTile->canWorkerDig(creature))
+        std::vector<Tile*> tiles;
+        tempTile->canWorkerDig(creature, tiles);
+        if(tiles.empty())
+            continue;
+
+        // Check if the position tile is in the list
+        bool isOk = false;
+        for(Tile* tile : tiles)
+        {
+            if(tile != myTile)
+                continue;
+
+            isOk = true;
+            break;
+        }
+
+        if(!isOk)
             continue;
 
         // We found a tile marked by our controlling seat, dig out the tile.
-        creature.pushAction(Utils::make_unique<CreatureActionDigTile>(creature, *tempTile));
+        creature.pushAction(Utils::make_unique<CreatureActionDigTile>(creature, *tempTile, *myTile));
         return true;
     }
 
     // Find the closest tile to dig
     float distBest = -1;
     Tile* tileToDig = nullptr;
+    Tile* tilePos = nullptr;
     for (Tile* tile : creature.getTilesWithinSightRadius())
     {
         // Check to see whether the tile is marked for digging
@@ -102,27 +119,13 @@ bool CreatureActionSearchTileToDig::handleSearchTileToDig(Creature& creature, in
             continue;
 
         // and there is still room to work on it
-        if(!tile->canWorkerDig(creature))
-            continue;
-
-        // and it can be reached by the worker
-        bool isReachable = false;
-        for (Tile* neighborTile : tile->getAllNeighbors())
-        {
-            if(neighborTile->isFullTile())
-                continue;
-
-            if (!creature.getGameMap()->pathExists(&creature, myTile, neighborTile))
-                continue;
-
-            isReachable = true;
-            break;
-        }
-        if(!isReachable)
+        std::vector<Tile*> tiles;
+        tile->canWorkerDig(creature, tiles);
+        if(tiles.empty())
             continue;
 
         // We search for the closest neighbor tile
-        for (Tile* neighborTile : tile->getAllNeighbors())
+        for (Tile* neighborTile : tiles)
         {
             if (!creature.getGameMap()->pathExists(&creature, myTile, neighborTile))
                 continue;
@@ -133,13 +136,14 @@ bool CreatureActionSearchTileToDig::handleSearchTileToDig(Creature& creature, in
 
             distBest = dist;
             tileToDig = tile;
+            tilePos = neighborTile;
         }
     }
 
-    if(tileToDig != nullptr)
+    if((tileToDig != nullptr) && (tilePos != nullptr))
     {
         // We also push the dig action to lock the tile to make sure not every worker will try to go to the same tile
-        creature.pushAction(Utils::make_unique<CreatureActionDigTile>(creature, *tileToDig));
+        creature.pushAction(Utils::make_unique<CreatureActionDigTile>(creature, *tileToDig, *tilePos));
         return true;
     }
 
