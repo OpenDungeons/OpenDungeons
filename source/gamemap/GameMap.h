@@ -441,6 +441,7 @@ public:
         Player* player);
 
     int addGoldToSeat(int gold, int seatId);
+    int addManaToSeat(int mana, int seatId);
 
     //! \brief Searches for a worker owned by the seat for path finding
     Creature* getWorkerForPathFinding(Seat* seat);

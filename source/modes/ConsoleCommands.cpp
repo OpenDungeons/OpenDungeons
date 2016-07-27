@@ -41,6 +41,7 @@ const std::string HELPMESSAGE =
         "\n\taddcreature - Adds a creature."
         "\n\tsetcreaturelevel - Sets the level of a given creature."
         "\n\taddgold - Gives gold to one player."
+        "\n\taddmana - Gives mana to one player."
         "\n\ticanseedeadpeople - Toggles on/off fog of war for every connected player."
         "\n\n==Developer\'s options=="
         "\n\tfps - Sets the maximum framerate cap."
@@ -388,6 +389,17 @@ Command::Result cSrvAddGold(const Command::ArgumentList_t& args, ConsoleInterfac
     return Command::Result::SUCCESS;
 }
 
+Command::Result cSrvAddMana(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
+{
+    if(args.size() < 3)
+        return Command::Result::INVALID_ARGUMENT;
+
+    int seatId = Helper::toInt(args[1]);
+    int mana = Helper::toInt(args[2]);
+    gameMap.addManaToSeat(mana, seatId);
+    return Command::Result::SUCCESS;
+}
+
 Command::Result cSrvSetCreatureDest(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {
     if(args.size() < 3)
@@ -597,12 +609,20 @@ void addConsoleCommands(ConsoleInterface& cl)
                    Command::cStubServer,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("addgold",
-                   "'addgold' adds the given amount of gold to one player. It takes as arguments the color of the player to"
+                   "'addgold' adds the given amount of gold to one player. It takes as arguments the ID of the player to"
                    "whom the gold should be given and the amount. If the player's treasuries are full, no more gold is given."
                    "Note that this command is available in server mode only. \n\nExample\n"
                    "to give 5000 gold to player color 1 : addgold 1 5000",
                    cSendCmdToServer,
                    cSrvAddGold,
+                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
+    cl.addCommand("addmana",
+                   "'addmana' adds the given amount of mana to one player. It takes as arguments the ID of the player to"
+                   "whom the man should be given and the amount. If the player's mana pool is full, no more mana is given."
+                   "Note that this command is available in server mode only. \n\nExample\n"
+                   "to give 25000 mana to player 1 : addmana 1 25000",
+                   cSendCmdToServer,
+                   cSrvAddMana,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("setcreaturedest",
                    "Sets the camera vertical field of view aspect ratio on the Y axis.\n\nExample:\n"

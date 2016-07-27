@@ -2579,6 +2579,20 @@ int GameMap::addGoldToSeat(int gold, int seatId)
     return gold;
 }
 
+int GameMap::addManaToSeat(int mana, int seatId)
+{
+    Seat* seat = getSeatById(seatId);
+    if(seat == nullptr)
+        return mana;
+
+    seat->mMana += mana;
+    double maxMana = ConfigManager::getSingleton().getMaxManaPerSeat();
+    if (seat->mMana > maxMana)
+        seat->mMana = maxMana;
+
+    return mana;
+}
+
 int GameMap::nextSeatId(int SeatId)
 {
     int firstSeatId = -1;
