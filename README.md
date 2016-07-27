@@ -84,7 +84,7 @@ materials/       - Materials (models texturing scripts and textures)
 models/          - Model files
 music/           - Music files
 particles/       - Particle effects scripts
-scripts/         - Our AngelScript code files
+scripts/         - Various packaging and CI scripts
 sounds/          - Game Sounds
 AUTHORS          - List of past and current contributors
 CREDITS          - Detailed listing of licenses and credits for our assets
@@ -98,8 +98,6 @@ RELEASE-NOTES.md - What's new in OpenDungeons
 cmake/           - Helper files for CMake
  |- config/      - Variable input files for the CMake script
  |- modules/     - Addon scripts for CMake to find dependencies
-dependencies/    - All external projects
- |- angelscript/ - AngelScript SDK, our scripting language
 sources/         - All our own .cpp and .h files of the game
 tools/           - Some developers shell scripts
 .gitignore       - The files and folders that are ignored by git locally
