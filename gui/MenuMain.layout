@@ -2,7 +2,7 @@
 
 <GUILayout version="4" >
     <Window type="DefaultWindow" name="Root" >
-        <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Property name="Area" value="{{0,40},{0,10},{1,-40},{1,-10}}" />
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Window type="OD/StaticImage" name="WelcomeBanner" >
             <Property name="Area" value="{{0.5,-320},{0,52},{0.5,320},{0,191}}" />
@@ -21,33 +21,33 @@
         </Window>
 
         <Window type="OD/MainMenuButton" name="StartCampaignButton" >
-            <Property name="Area" value="{{0.0,20},{0.5,-180},{0.0,200},{0.5,-100}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,-240},{0.0,200},{0.5,-160}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/LibraryButton'][vert-alignment='centre']Campaign" />
             <Property name="Disabled" value="True" />
         </Window>
         <Window type="OD/MainMenuButton" name="StartSkirmishButton" >
-            <Property name="Area" value="{{0.0,20},{0.5,-240},{0.0,200},{0.5,-160}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,-160},{0.0,200},{0.5,-80}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/FighterButton'][vert-alignment='centre']Skirmish" />
         </Window>
         <Window type="OD/MainMenuButton" name="MultiplayerModeButton" >
-            <Property name="Area" value="{{0.0,20},{0.5,-160},{0.0,200},{0.5,-80}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,-80},{0.0,200},{0.5,0}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/CasinoButton'][vert-alignment='centre']Multiplayer" />
         </Window>
         <Window type="OD/MainMenuButton" name="StartReplayButton" >
-            <Property name="Area" value="{{0.0,20},{0.5,-80},{0.0,200},{0.5,0}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,0},{0.0,200},{0.5,80}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/PortalButton'][vert-alignment='centre']Replay" />
         </Window>
 
         <Window type="OD/MainMenuButton" name="MapEditorButton" >
-            <Property name="Area" value="{{0.0,20},{0.5,0},{0.0,200},{0.5,80}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,80},{0.0,200},{0.5,160}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/SpellsButton'][vert-alignment='centre']Map Editor" />
         </Window>
         <Window type="OD/MainMenuButton" name="SettingsButton" >
-            <Property name="Area" value="{{0.0,20},{0.5,80},{0.0,200},{0.5,160}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,160},{0.0,200},{0.5,240}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/OptionsIcon'][vert-alignment='centre']Settings" />
         </Window>
         <Window type="OD/MainMenuButton" name="QuitButton" >
-            <Property name="Area" value="{{0.0,20},{0.5,160},{0.0,200},{0.5,240}}" />
+            <Property name="Area" value="{{0.0,20},{0.5,240},{0.0,200},{0.5,320}}" />
             <Property name="Text" value="[image='OpenDungeonsIcons/CryptButton'][vert-alignment='centre']Quit" />
         </Window>
         <LayoutImport type="DefaultWindow" filename="WindowSkirmishSubMenu.layout" name="SkirmishSubMenuMenuImport" />

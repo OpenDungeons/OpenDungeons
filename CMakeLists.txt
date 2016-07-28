@@ -13,8 +13,6 @@ else()
     set(PROJECT_BINARY_NAME "opendungeons")
 endif()
 
-set(AS_LIBRARY_NAME "angelscript")
-
 # Project version
 set(OD_MAJOR_VERSION 0)
 set(OD_MINOR_VERSION 7)
@@ -66,10 +64,6 @@ endif()
 
 #project paths
 set(SRC "${CMAKE_SOURCE_DIR}/source")
-#set(DEPENDENCIES_DIR "${CMAKE_SOURCE_DIR}/dependencies")
-#set(ANGELSCRIPT_DIR "${DEPENDENCIES_DIR}/angelscript")
-#set(ANGELSCRIPT_SRC_DIR "${ANGELSCRIPT_DIR}/angelscript/source")
-#set(ANGELSCRIPT_ADDON_DIR "${ANGELSCRIPT_DIR}/add_on")
 
 #cmake paths
 set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/cmake/config")
@@ -212,54 +206,6 @@ message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 ##################################
 
 #Add new .cpp files here so that they get compiled
-#set(AS_SOURCEFILES
-    #AngelScript sources
-#    ${ANGELSCRIPT_SRC_DIR}/as_atomic.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_builder.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_bytecode.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc.cpp
-#Disabling exotic platforms for now
-#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_arm.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_mips.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc_64.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_sh4.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_gcc.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_msvc.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_mingw.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x86.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_xenon.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_compiler.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_configgroup.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_context.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_datatype.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_gc.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_generic.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_globalproperty.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_memory.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_module.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_objecttype.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_outputbuffer.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_parser.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_restore.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_scriptcode.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_scriptengine.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_scriptfunction.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_scriptnode.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_scriptobject.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_string.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_string_util.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_thread.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_tokenizer.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_typeinfo.cpp
-#    ${ANGELSCRIPT_SRC_DIR}/as_variablescope.cpp
-
-    #AngelScript Addon sources
-#    ${ANGELSCRIPT_ADDON_DIR}/scriptarray/scriptarray.cpp
-#    ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder/scriptbuilder.cpp
-#    ${ANGELSCRIPT_ADDON_DIR}/scripthelper/scripthelper.cpp
-#    ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
-#)
 set(OD_SOURCEFILES
 
     #OpenDungeons sources
@@ -589,16 +535,6 @@ include_directories(
     #OpenDungeons includes
     ${CMAKE_SOURCE_DIR}/source
 
-    #Angelscript includes
-#    SYSTEM ${ANGELSCRIPT_DIR}/angelscript/include
-#    SYSTEM ${ANGELSCRIPT_SRC_DIR}
-
-    #AngelScript Addons, in-comment only the ones we actually use
-#    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scriptarray
-#    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder
-#    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scripthelper
-#    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring
-
     #external packages includes
     SYSTEM ${CEGUI_INCLUDE_DIR}
     SYSTEM ${SFML_INCLUDE_DIR}
@@ -641,10 +577,7 @@ if(OD_BUILD_SUFFIX)
     set(CMAKE_DEBUG_POSTFIX ${OD_BUILD_SUFFIX})
 endif()
 
-# Create the angelscript library file
-#add_library(${AS_LIBRARY_NAME} ${AS_SOURCEFILES})
-
-# Treat warnings as errors for main build, but not angelscript, since it would fail.
+# Treat warnings as errors
 if(NOT MSVC AND OD_TREAT_WARNINGS_AS_ERRORS)
     add_compile_options("-Werror")
 endif()
@@ -655,12 +588,6 @@ add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
 ##################################
 #### Link libraries ##############
 ##################################
-
-# Add threads when linking AngelScript
-#target_link_libraries(${AS_LIBRARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
-
-# Link angelscript
-#target_link_libraries(${PROJECT_BINARY_NAME} ${AS_LIBRARY_NAME})
 
 # Link libraries
 target_link_libraries(
