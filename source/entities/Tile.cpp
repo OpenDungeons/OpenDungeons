@@ -1620,7 +1620,7 @@ bool Tile::addTreasuryObject(TreasuryObject* obj)
     if(!getIsOnServerMap())
     {
         // On client side, we add the entity to tile. Merging is relevant on server side only
-        mEntitiesInTile.push_back(obj);
+        addEntity(obj);
         return true;
     }
 
@@ -1644,7 +1644,7 @@ bool Tile::addTreasuryObject(TreasuryObject* obj)
     }
 
     if(!isMerged)
-        mEntitiesInTile.push_back(obj);
+        addEntity(obj);
 
     return true;
 }
