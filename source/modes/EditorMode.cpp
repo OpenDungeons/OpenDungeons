@@ -169,17 +169,6 @@ EditorMode::EditorMode(ModeManager* modeManager):
     syncTabButtonTooltips(Gui::EDITOR);
 }
 
-EditorMode::~EditorMode()
-{
-    if(ODClient::getSingleton().isConnected())
-        ODClient::getSingleton().disconnect();
-    if(ODServer::getSingleton().isConnected())
-        ODServer::getSingleton().stopServer();
-
-    // Now that the server is stopped, we can clear the client game map
-    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
-}
-
 void EditorMode::activate()
 {
     // Loads the corresponding Gui sheet.

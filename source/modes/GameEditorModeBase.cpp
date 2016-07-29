@@ -23,6 +23,7 @@
 #include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
 #include "network/ChatEventMessage.h"
+#include "network/ODClient.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
 #include "rooms/RoomType.h"
@@ -94,6 +95,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     mChatMessageBoxDisplay(ChatMessageBoxDisplay::hide),
     mMiniMap(MiniMap::createMiniMap(rootWindow->getChild(Gui::MINIMAP))),
     mMainCullingManager(new CullingManager(mGameMap, CullingType::SHOW_MAIN_WINDOW)),
+    mKeepReplayAtDisconnect(false),
     mConsole(Utils::make_unique<GameEditorModeConsole>(modeManager))
 {
     addEventConnection(
@@ -145,6 +147,14 @@ GameEditorModeBase::~GameEditorModeBase()
     // Delete the potential pending event messages
     for (EventMessage* message : mEventMessages)
         delete message;
+
+    if(ODClient::getSingleton().isConnected())
+        ODClient::getSingleton().disconnect(mKeepReplayAtDisconnect);
+    if(ODServer::getSingleton().isConnected())
+        ODServer::getSingleton().stopServer();
+
+    // Now that the server is stopped, we can clear the client game map
+    mGameMap->clearAll();
 }
 
 void GameEditorModeBase::deactivate()

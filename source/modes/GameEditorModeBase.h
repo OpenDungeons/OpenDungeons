@@ -157,6 +157,10 @@ protected:
 
     PlayerSelection mPlayerSelection;
 
+    //! \brief This boolean is to be set by derived classes and will not erase the replay
+    //! when the destructor is called if true
+    bool mKeepReplayAtDisconnect;
+
     //! \brief Set the tab button tooltip according to the pane tooltip for every tabs
     //! in the 'tabControlName' widget.
     //! \param tabControlName The tab control widget name. Eg: "parentWidget/tabControlName"

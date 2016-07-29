@@ -33,7 +33,8 @@ class EditorMode final: public GameEditorModeBase, public InputCommand
 public:
     EditorMode(ModeManager* modeManager);
 
-    virtual ~EditorMode();
+    virtual ~EditorMode()
+    {}
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg) override;
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id) override;
