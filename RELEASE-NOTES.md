@@ -6,7 +6,7 @@ OpenDungeons since version 0.4.7, in reverse chronological order.
 The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on
 our repository at https://github.com/OpenDungeons/OpenDungeons
 
-### Version 0.7.0
+### Version 0.7.0 - 30 July 2016
 
 **Highlights:**
 
@@ -16,7 +16,8 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
 * Vastly improved creatures behaviour, including support for spell casting,
   elemental damage, better ranged behaviour, and many customisation features
 * New rooms: Arena, Bridges, Casino, Prison, Torture room
-* New creatures: Cultist, Elf, Dark Elf, Lich, Nature Monster, Rat, Roach, Skeleton
+* New creatures: Cultist, Elf, Dark Elf, Lava Spawn; Lich, Monk, Nature Monster,
+  Rat, Roach, Skeleton
 * New spells: Defense, Eye of Evil, Slow, Strength, Weak
 
 **General:**
@@ -25,6 +26,8 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
 * Unit tests (#578) and continuous integration (#960)
 * Display stacktrace in the logs on game crash (#1155)
 * A lot of code refactoring and technical improvements!
+* Culling of tiles and entities outside the camera range, increasing performance
+  (#1198)
 
 **Multiplayer:**
 
@@ -69,6 +72,7 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
 * New skirmish levels: Duel to Death, Forgotten Treasures (#1130)
 * Stonekeep Siege remake for bridge usage (#929)
 * Dehardcoded portal spawn rate (#1119)
+* Enemy and rogue portals at visible at game start (#1230)
 
 **UI:**
 
@@ -79,6 +83,7 @@ our repository at https://github.com/OpenDungeons/OpenDungeons
 * Display a scriptable 3D scene on the main menu, with lights and
   particle effects (#1064, #1074)
 * Fixed spell cooldown display (#974)
+* The two minimap styles can be now be used (#1217)
 
 **Graphics:**
 
