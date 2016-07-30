@@ -1083,6 +1083,11 @@ void Tile::updateFromPacket(ODPacket& is)
     {
         removePlayerMarkingTile(getGameMap()->getLocalPlayer());
     }
+
+    // TODO: It would be nice to check if a noticeable value changed
+    // before firing the event as it would avoid to update the minimap for
+    // unchanged tiles
+    fireTileStateChanged();
 }
 
 void Tile::loadFromLine(const std::string& line, Tile *t)
@@ -1198,6 +1203,7 @@ bool Tile::addEntity(GameEntity *entity)
         entity->setParentNodeDetachFlags(
             EntityParentNodeAttach::DETACH_CULLING, mTileCulling == CullingType::HIDE);
     }
+    fireTileStateChanged();
     return true;
 }
 
@@ -1211,6 +1217,7 @@ void Tile::removeEntity(GameEntity *entity)
     }
 
     mEntitiesInTile.erase(it);
+    fireTileStateChanged();
 }
 
 
@@ -1286,6 +1293,8 @@ void Tile::claimTile(Seat* seat)
             building->createMesh();
         }
     }
+
+    fireTileStateChanged();
 }
 
 void Tile::unclaimTile()
@@ -1308,6 +1317,8 @@ void Tile::unclaimTile()
             building->createMesh();
         }
     }
+
+    fireTileStateChanged();
 }
 
 double Tile::digOut(double digRate)
@@ -1960,6 +1971,28 @@ void Tile::setTileCullingFlags(uint32_t mask, bool value)
         for(GameEntity* entity : mEntitiesInTile)
             entity->setParentNodeDetachFlags(EntityParentNodeAttach::DETACH_CULLING, false);
     }
+}
+
+bool Tile::addTileStateListener(TileStateListener& listener)
+{
+    mStateListeners.push_back(&listener);
+    return true;
+}
+
+bool Tile::removeTileStateListener(TileStateListener& listener)
+{
+    auto it = std::find(mStateListeners.begin(), mStateListeners.end(), &listener);
+    if(it == mStateListeners.end())
+        return false;
+
+    mStateListeners.erase(it);
+    return true;
+}
+
+void Tile::fireTileStateChanged()
+{
+    for(TileStateListener* stateListener : mStateListeners)
+        stateListener->tileStateChanged(*this);
 }
 
 std::string Tile::displayAsString(const Tile* tile)

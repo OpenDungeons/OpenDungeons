@@ -19,6 +19,7 @@
 
 #include "gamemap/MiniMapCamera.h"
 #include "gamemap/MiniMapDrawn.h"
+#include "gamemap/MiniMapDrawnFull.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
@@ -26,12 +27,14 @@ namespace MiniMapTypes
 {
 static const std::string MINIMAP_CAMERA = "MiniMapCamera";
 static const std::string MINIMAP_DRAWN = "MiniMapDrawn";
+static const std::string MINIMAP_DRAWN_FULL = "MiniMapDrawnFull";
 
 static std::vector<std::string> buildMiniMapTypes()
 {
     std::vector<std::string> mapTypes;
     mapTypes.push_back(MINIMAP_CAMERA);
     mapTypes.push_back(MINIMAP_DRAWN);
+    mapTypes.push_back(MINIMAP_DRAWN_FULL);
     return mapTypes;
 }
 
@@ -47,6 +50,8 @@ MiniMap* MiniMap::createMiniMap(CEGUI::Window* miniMapWindow)
         return new MiniMapCamera(miniMapWindow);
     if(minimapType == MiniMapTypes::MINIMAP_DRAWN)
         return new MiniMapDrawn(miniMapWindow);
+    if(minimapType == MiniMapTypes::MINIMAP_DRAWN_FULL)
+        return new MiniMapDrawnFull(miniMapWindow);
 
     OD_LOG_ERR("Couldn't find requested minimap=" + minimapType);
     // Per default, we return the default minimap

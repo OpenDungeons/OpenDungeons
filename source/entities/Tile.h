@@ -108,6 +108,15 @@ enum class FloodFillType
     nbValues
 };
 
+/*! \brief Tile for listening for tile state events (like claiming or entity added/removed)
+ */
+class TileStateListener
+{
+public:
+    virtual void tileStateChanged(Tile& tile) = 0;
+};
+
+
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
  * A Tile is the basic building block for the GameMap.  It consists of a tile
@@ -453,6 +462,9 @@ public:
     virtual void updateFromPacket(ODPacket& is) override;
     void exportToPacketForUpdate(ODPacket& os, const Seat* seat, bool hideSeatId) const;
 
+    bool addTileStateListener(TileStateListener& listener);
+    bool removeTileStateListener(TileStateListener& listener);
+
 protected:
     virtual void exportHeadersToStream(std::ostream& os) const override
     {}
@@ -537,6 +549,9 @@ private:
     //! to the index in mNeighbors
     std::vector<uint32_t> mNbWorkersDigging;
     uint32_t mNbWorkersClaiming;
+    std::vector<TileStateListener*> mStateListeners;
+
+    void fireTileStateChanged();
 };
 
 #endif // TILE_H
