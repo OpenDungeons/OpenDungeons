@@ -1267,6 +1267,9 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
 void Tile::claimTile(Seat* seat)
 {
     // Claim the tile.
+    OD_LOG_INF(getGameMap()->serverStr() + "Tile=" + displayAsString(this)
+        + " claimed by seat=" + Seat::displayAsString(seat));
+
     // We need this because if we are a client, the tile may be from a non allied seat
     setSeat(seat);
     mClaimedPercentage = 1.0;
@@ -1300,6 +1303,9 @@ void Tile::claimTile(Seat* seat)
 void Tile::unclaimTile()
 {
     // Unclaim the tile.
+    OD_LOG_INF(getGameMap()->serverStr() + "Tile=" + displayAsString(this)
+        + " unclaimed. Previous seat=" + Seat::displayAsString(getSeat()));
+
     setSeat(nullptr);
     mClaimedPercentage = 0.0;
 

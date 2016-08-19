@@ -113,6 +113,8 @@ public:
     bool importFromPacketForUpdate(ODPacket& is);
     void exportToPacketForUpdate(ODPacket& os) const;
 
+    static std::string displayAsString(const SeatData* seat);
+
 protected:
     //! \brief The seat id. Allows to identify this seat. Must be unique per level file.
     int mId;
