@@ -337,6 +337,8 @@ void RoomPortal::restoreInitialEntityState()
     std::vector<Tile*> tilesToNotify = getCoveredTiles();
     for(Seat* seat : getGameMap()->getSeats())
     {
+        if(seat->getPlayer() == nullptr)
+            continue;
         if(!seat->getPlayer()->getIsHuman())
             continue;
 
