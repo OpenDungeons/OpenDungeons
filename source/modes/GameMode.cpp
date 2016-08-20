@@ -266,13 +266,8 @@ GameMode::~GameMode()
         dynamic_cast<CEGUI::ToggleButton*>(
             mRootWindow->getChild(
                 Gui::EXIT_CONFIRMATION_POPUP)->getChild("SaveReplayCheckbox"));
-    if(ODClient::getSingleton().isConnected())
-        ODClient::getSingleton().disconnect(checkBox->isSelected());
-    if(ODServer::getSingleton().isConnected())
-        ODServer::getSingleton().stopServer();
 
-    // Now that the server is stopped, we can clear the client game map
-    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
+    mKeepReplayAtDisconnect = checkBox->isSelected();
 
     CEGUI::Window* settingsWin = mRootWindow->getChild("PlayerSettingsWindow/Seats/SeatsSP");
     CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();

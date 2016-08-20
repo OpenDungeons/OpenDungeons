@@ -184,3 +184,11 @@ bool SeatData::importFromPacket(ODPacket& is)
 
     return true;
 }
+
+std::string SeatData::displayAsString(const SeatData* seat)
+{
+    if(seat == nullptr)
+        return "[id nullptr]";
+
+    return "[id=" + Helper::toString(seat->getId()) + "]";
+}
