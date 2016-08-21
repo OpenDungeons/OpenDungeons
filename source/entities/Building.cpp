@@ -418,8 +418,6 @@ bool Building::importFromStream(std::istream& is)
             continue;
         }
 
-        tile->setSeat(getSeat());
-
         TileData* tileData = createTileData(tile);
         mTileData[tile] = tileData;
         tileData->mSeatsVision.clear();
@@ -437,6 +435,9 @@ bool Building::importFromStream(std::istream& is)
             OD_LOG_ERR("name=" + getName() + ", tile=" + Tile::displayAsString(tile));
             return false;
         }
+
+        if(tileData->mHP > 0)
+            tile->setSeat(getSeat());
     }
 
     return true;
