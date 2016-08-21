@@ -52,6 +52,11 @@ void TrapTileData::fireSeatsSawTriggering()
 
 void TrapTileData::seatSawTriggering(Seat* seat)
 {
+    if(seat->getPlayer() == nullptr)
+        return;
+    if(!seat->getPlayer()->getIsHuman())
+        return;
+
     if(std::find(mSeatsVision.begin(), mSeatsVision.end(), seat) != mSeatsVision.end())
         return;
 
