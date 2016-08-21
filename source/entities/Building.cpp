@@ -20,6 +20,7 @@
 #include "entities/BuildingObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
+#include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "network/ODServer.h"
@@ -110,7 +111,7 @@ void Building::removeBuildingObject(BuildingObject* obj)
 
 bool Building::canBuildingBeRemoved()
 {
-    // We check if an human player still have vision on one of the building tiles
+    // We check if a human player still have vision on one of the building tiles
     bool ret = true;
     for(std::pair<Tile* const, TileData*>& p : mTileData)
     {
@@ -421,7 +422,16 @@ bool Building::importFromStream(std::istream& is)
 
         TileData* tileData = createTileData(tile);
         mTileData[tile] = tileData;
-        tileData->mSeatsVision = alliedSeats;
+        tileData->mSeatsVision.clear();
+        for(Seat* seat : alliedSeats)
+        {
+            if(seat->getPlayer() == nullptr)
+                continue;
+            if(!seat->getPlayer()->getIsHuman())
+                continue;
+
+            tileData->mSeatsVision.push_back(seat);
+        }
         if(!importTileDataFromStream(ss, tile, tileData))
         {
             OD_LOG_ERR("name=" + getName() + ", tile=" + Tile::displayAsString(tile));
@@ -434,6 +444,11 @@ bool Building::importFromStream(std::istream& is)
 
 void Building::notifySeatVision(Tile* tile, Seat* seat)
 {
+    if(seat->getPlayer() == nullptr)
+        return;
+    if(!seat->getPlayer()->getIsHuman())
+        return;
+
     TileData* tileData = mTileData[tile];
     auto it = std::find(tileData->mSeatsVision.begin(), tileData->mSeatsVision.end(), seat);
     if(tileData->mHP <= 0)
