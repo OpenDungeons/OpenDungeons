@@ -76,6 +76,10 @@ private:
 
     CullingManager* mCullingManager;
 
+    // Array of Vector3's for keeping the intersection points of camera viewfrustrum
+    // and the XY plane. It should contain 4 vectors corresponding to the 4 corners
+    std::vector<Ogre::Vector3> mCameraTilesIntersections;
+
     void updateMinimapCamera();
 };
 

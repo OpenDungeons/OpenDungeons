@@ -29,7 +29,7 @@
 #include <sstream>
 #include <algorithm>
 
-//! Values used to know whether to show and/or hide a mesh
+static const Ogre::Plane GROUND_PLANE(0, 0, 1, 0);
 
 CullingManager::CullingManager(GameMap* gameMap, uint32_t cullingMask):
     mFirstIter(false),
@@ -37,22 +37,14 @@ CullingManager::CullingManager(GameMap* gameMap, uint32_t cullingMask):
     mCullingMask(cullingMask),
     mCullTilesFlag(false)
 {
-    mActivePlanes =(Ogre::Plane(0, 0, 1, 0));
-    // init the Ogre vector
-    for (unsigned int i = 0; i < 4; ++i)
-    {
-        mOgreVectorsArray[i].x = static_cast<Ogre::Real>(0.0);
-        mOgreVectorsArray[i].y = static_cast<Ogre::Real>(0.0);
-        mOgreVectorsArray[i].z = static_cast<Ogre::Real>(0.0);
-    }
 }
 
-void CullingManager::cullTiles()
+void CullingManager::cullTiles(const std::vector<Ogre::Vector3>& ogreVectors)
 {
     mOldWalk = mWalk;
     mWalk.mVertices.mMyArray.clear();
     for (int ii = 0 ; ii < 4 ; ++ii)
-        mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
+        mWalk.mVertices.mMyArray.push_back(VectorInt64(ogreVectors[ii]));
 
     // create a slope -- a set of left and right path
     mWalk.convexHull();
@@ -68,13 +60,11 @@ void CullingManager::cullTiles()
     newBashAndSplashTiles(SHOW | HIDE);
 }
 
-void CullingManager::startTileCulling(Ogre::Camera* camera)
+void CullingManager::startTileCulling(Ogre::Camera* camera, const std::vector<Ogre::Vector3>& ogreVectors)
 {
-    getIntersectionPoints(camera);
-
     mWalk.mVertices.mMyArray.clear();
     for (int ii = 0 ; ii < 4 ; ++ii)
-        mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
+        mWalk.mVertices.mMyArray.push_back(VectorInt64(ogreVectors[ii]));
 
     mWalk.convexHull();
     mWalk.buildSlopes();
@@ -88,13 +78,13 @@ void CullingManager::startTileCulling(Ogre::Camera* camera)
 }
 
 
-void CullingManager::stopTileCulling()
+void CullingManager::stopTileCulling(const std::vector<Ogre::Vector3>& ogreVectors)
 {
     mCullTilesFlag = false;
     mOldWalk = mWalk;
     mWalk.mVertices.mMyArray.clear();
     for (int ii = 0 ; ii < 4 ; ++ii)
-        mWalk.mVertices.mMyArray.push_back(VectorInt64(mOgreVectorsArray[ii]));
+        mWalk.mVertices.mMyArray.push_back(VectorInt64(ogreVectors[ii]));
 
     // create a slope -- a set of left and rigth path
     mWalk.convexHull();
@@ -183,19 +173,21 @@ void CullingManager::newBashAndSplashTiles(uint32_t mode)
     }
 }
 
-bool CullingManager::getIntersectionPoints(Ogre::Camera* camera)
+bool CullingManager::computeIntersectionPoints(Ogre::Camera* camera, std::vector<Ogre::Vector3>& ogreVectors)
 {
+    if(ogreVectors.size() != 4)
+    {
+        OD_LOG_ERR("Unexpected size for ogreVectors size=" + Helper::toString(ogreVectors.size()));
+        return false;
+    }
+
     const Ogre::Vector3* cameraVector = camera->getWorldSpaceCorners();
     for(int ii = 0 ; ii < 4; ++ii)
-        mActiveRay[ii]= Ogre::Ray (cameraVector[ii], cameraVector[ii+4] - cameraVector[ii]);
-
-    std::pair<bool, Ogre::Real> intersectionResult;
-
-    for(int ii = 0; ii < 4; ++ii)
     {
-        intersectionResult =  mActiveRay[ii].intersects(mActivePlanes);
+        Ogre::Ray ray(cameraVector[ii], cameraVector[ii+4] - cameraVector[ii]);
+        std::pair<bool, Ogre::Real> intersectionResult =  ray.intersects(GROUND_PLANE);
         if(intersectionResult.first)
-            mOgreVectorsArray[ii]= (mActiveRay[ii].getPoint(intersectionResult.second));
+            ogreVectors[ii]= (ray.getPoint(intersectionResult.second));
         else
         {
             OD_LOG_ERR("I didn't find the intersection point for " + Helper::toString(ii) + "th ray ");
@@ -204,12 +196,10 @@ bool CullingManager::getIntersectionPoints(Ogre::Camera* camera)
     return true;
 }
 
-void CullingManager::update(Ogre::Camera* camera)
+void CullingManager::update(Ogre::Camera* camera, const std::vector<Ogre::Vector3>& ogreVectors)
 {
     if(mCullTilesFlag)
-        getIntersectionPoints(camera);
-    if(mCullTilesFlag)
-        cullTiles();
+        cullTiles(ogreVectors);
 }
 
 /*! \brief Sort two VectorInt64 p1 and p2  to satisfy p1 <= p2 according to

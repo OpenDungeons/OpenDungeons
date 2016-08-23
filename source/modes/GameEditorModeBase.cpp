@@ -96,7 +96,8 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     mMiniMap(MiniMap::createMiniMap(rootWindow->getChild(Gui::MINIMAP))),
     mMainCullingManager(new CullingManager(mGameMap, CullingType::SHOW_MAIN_WINDOW)),
     mKeepReplayAtDisconnect(false),
-    mConsole(Utils::make_unique<GameEditorModeConsole>(modeManager))
+    mConsole(Utils::make_unique<GameEditorModeConsole>(modeManager)),
+    mCameraTilesIntersections(std::vector<Ogre::Vector3>(4, Ogre::Vector3::ZERO))
 {
     addEventConnection(
         rootWindow->getChild(Gui::MINIMAP)->subscribeEvent(
@@ -133,8 +134,9 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     gameChatText->hide();
     mRootWindow->getChild("GameEventText")->setText("");
 
-    mMainCullingManager->startTileCulling(
-        ODFrameListener::getSingleton().getCameraManager()->getActiveCamera());
+    Ogre::Camera* cam = ODFrameListener::getSingleton().getCameraManager()->getActiveCamera();
+    mMainCullingManager->computeIntersectionPoints(cam, mCameraTilesIntersections);
+    mMainCullingManager->startTileCulling(cam, mCameraTilesIntersections);
 }
 
 GameEditorModeBase::~GameEditorModeBase()
@@ -192,8 +194,9 @@ void GameEditorModeBase::onFrameStarted(const Ogre::FrameEvent& evt)
 {
     updateMessages(evt.timeSinceLastFrame);
 
-    mMainCullingManager->update(
-        ODFrameListener::getSingleton().getCameraManager()->getActiveCamera());
+    Ogre::Camera* cam = ODFrameListener::getSingleton().getCameraManager()->getActiveCamera();
+    mMainCullingManager->computeIntersectionPoints(cam, mCameraTilesIntersections);
+    mMainCullingManager->update(cam, mCameraTilesIntersections);
 
     mMiniMap->update(evt.timeSinceLastFrame);
 }

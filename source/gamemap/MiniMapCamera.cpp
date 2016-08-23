@@ -73,7 +73,8 @@ MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     mCurCamPosX(-1),
     mCurCamPosY(-1),
     mMiniMapCam(RenderManager::getSingleton().getSceneManager()->createCamera("miniMapCam")),
-    mCullingManager(new CullingManager(&mGameMap, CullingType::SHOW_MINIMAP))
+    mCullingManager(new CullingManager(&mGameMap, CullingType::SHOW_MINIMAP)),
+    mCameraTilesIntersections(std::vector<Ogre::Vector3>(4, Ogre::Vector3::ZERO))
 {
     // We create a special camera that will look at the whole scene and render it in the minimap
     mMiniMapCam->setNearClipDistance(0.02);
@@ -106,7 +107,8 @@ MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     mHeight = mMiniMapWindow->getUnclippedOuterRect().get().getSize().d_height;
 
     updateMinimapCamera();
-    mCullingManager->startTileCulling(mMiniMapCam);
+    mCullingManager->computeIntersectionPoints(mMiniMapCam, mCameraTilesIntersections);
+    mCullingManager->startTileCulling(mMiniMapCam, mCameraTilesIntersections);
 }
 
 MiniMapCamera::~MiniMapCamera()
@@ -153,7 +155,8 @@ void MiniMapCamera::update(Ogre::Real timeSinceLastFrame)
 
     mElapsedTime = 0;
     updateMinimapCamera();
-    mCullingManager->update(mMiniMapCam);
+    mCullingManager->computeIntersectionPoints(mMiniMapCam, mCameraTilesIntersections);
+    mCullingManager->update(mMiniMapCam, mCameraTilesIntersections);
 
     Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
     rt->update();
