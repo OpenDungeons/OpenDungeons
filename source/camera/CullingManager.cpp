@@ -62,6 +62,8 @@ void CullingManager::cullTiles(const std::vector<Ogre::Vector3>& ogreVectors)
 
 void CullingManager::startTileCulling(Ogre::Camera* camera, const std::vector<Ogre::Vector3>& ogreVectors)
 {
+    showAllTiles();
+
     mWalk.mVertices.mMyArray.clear();
     for (int ii = 0 ; ii < 4 ; ++ii)
         mWalk.mVertices.mMyArray.push_back(VectorInt64(ogreVectors[ii]));
