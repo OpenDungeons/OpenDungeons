@@ -198,7 +198,7 @@ void GameEditorModeBase::onFrameStarted(const Ogre::FrameEvent& evt)
     mMainCullingManager->computeIntersectionPoints(cam, mCameraTilesIntersections);
     mMainCullingManager->update(cam, mCameraTilesIntersections);
 
-    mMiniMap->update(evt.timeSinceLastFrame);
+    mMiniMap->update(evt.timeSinceLastFrame, mCameraTilesIntersections);
 }
 
 void GameEditorModeBase::receiveChat(const ChatMessage& chat)

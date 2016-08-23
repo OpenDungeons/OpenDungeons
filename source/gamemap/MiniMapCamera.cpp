@@ -147,7 +147,7 @@ Ogre::Vector2 MiniMapCamera::camera_2dPositionFromClick(int xx, int yy)
     return pos;
 }
 
-void MiniMapCamera::update(Ogre::Real timeSinceLastFrame)
+void MiniMapCamera::update(Ogre::Real timeSinceLastFrame, const std::vector<Ogre::Vector3>& cornerTiles)
 {
     mElapsedTime += timeSinceLastFrame;
     if(mElapsedTime < MIN_TIME_REFRESH_SECS)

@@ -45,7 +45,7 @@ public:
 
     Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy) override;
 
-    void update(Ogre::Real timeSinceLastFrame) override;
+    void update(Ogre::Real timeSinceLastFrame, const std::vector<Ogre::Vector3>& cornerTiles) override;
 
     //! This functions allow to hook minimap rendering to adjust nodes we want to display or not
     virtual void preRenderTargetUpdate(const Ogre::RenderTargetEvent& rte) override;

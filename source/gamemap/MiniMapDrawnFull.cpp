@@ -60,7 +60,7 @@ public:
     virtual ~MiniMapDrawnFullTileStateListener()
     {}
 
-    virtual void tileStateChanged(Tile& tile) override
+    void tileStateChanged(Tile& tile) override
     {
         fireTileStateChanged();
     }
@@ -501,4 +501,143 @@ void MiniMapDrawnFull::updateTileState(uint32_t minimapXMin, uint32_t minimapXMa
     // We paint corresponding pixels
     colourFromPixelValue(curValue, seatIfClaimed, mPixelBuffer, mPixelBox,
         mWidth, mHeight, minimapXMin, minimapXMax, minimapYMin, minimapYMax);
+}
+
+bool MiniMapDrawnFull::crossSegment(const Ogre::Vector3& p1, const Ogre::Vector3& p2,
+        uint32_t xMin, uint32_t xMax, uint32_t yMin, uint32_t yMax)
+{
+    if((p1.x < static_cast<Ogre::Real>(xMin)) &&
+       (p2.x < static_cast<Ogre::Real>(xMin)))
+    {
+        return false;
+    }
+    if((p1.x > static_cast<Ogre::Real>(xMax)) &&
+       (p2.x > static_cast<Ogre::Real>(xMax)))
+    {
+        return false;
+    }
+
+    if((p1.y < static_cast<Ogre::Real>(yMin)) &&
+       (p2.y < static_cast<Ogre::Real>(yMin)))
+    {
+        return false;
+    }
+    if((p1.y > static_cast<Ogre::Real>(yMax)) &&
+       (p2.y > static_cast<Ogre::Real>(yMax)))
+    {
+        return false;
+    }
+
+    Ogre::Real diffYPoints = p2.y - p1.y;
+    Ogre::Real diffXPoints = p2.x - p1.x;
+    Ogre::Real diffYMin = p2.y - static_cast<Ogre::Real>(yMin);
+    Ogre::Real diffXMin = p2.x - static_cast<Ogre::Real>(xMin);
+    Ogre::Real diffYMax = p2.y - static_cast<Ogre::Real>(yMax);
+    Ogre::Real diffXMax = p2.x - static_cast<Ogre::Real>(xMax);
+
+    // Magic number to change the size of the line
+    static const Ogre::Real DIFF_MIN = 5;
+    if(
+       (
+        (diffYMin * diffXPoints - diffYPoints * diffXMin - DIFF_MIN< 0) &&
+        (diffYMax * diffXPoints - diffYPoints * diffXMax + DIFF_MIN >= 0)
+       ) ||
+       (
+        (diffYMax * diffXPoints - diffYPoints * diffXMax - DIFF_MIN< 0) &&
+        (diffYMin * diffXPoints - diffYPoints * diffXMin + DIFF_MIN >= 0)
+       )
+      )
+    {
+        return true;
+    }
+
+    return false;
+}
+
+void MiniMapDrawnFull::update(Ogre::Real timeSinceLastFrame, const std::vector<Ogre::Vector3>& cornerTiles)
+{
+    const Ogre::Vector3& topRight = cornerTiles[0];
+    const Ogre::Vector3& topLeft = cornerTiles[1];
+    const Ogre::Vector3& bottomLeft = cornerTiles[2];
+    const Ogre::Vector3& bottomRight = cornerTiles[3];
+
+    bool isSame = (mLastCornerTiles.size() == cornerTiles.size());
+    static const Ogre::Real squareDiffMin = 0.5;
+    for(uint32_t iii = 0; isSame && iii < mLastCornerTiles.size(); ++iii)
+    {
+        Ogre::Real val = (mLastCornerTiles[iii] - cornerTiles[iii]).squaredLength();
+        isSame &= (val <= squareDiffMin);
+    }
+
+    if(isSame)
+        return;
+
+    // We save corner tiles
+    mLastCornerTiles = cornerTiles;
+
+    // We refresh the old rectangle
+    for(MiniMapDrawnFullTileStateListener* listener : mVisibleRectangle)
+    {
+        listener->fireTileStateChanged();
+    }
+    mVisibleRectangle.clear();
+
+    // And we paint the new visible rectangle
+    mPixelBuffer->lock(mPixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
+
+    // we look for the tiles at the border of vision to paint them black
+    for(MiniMapDrawnFullTileStateListener* listener : mTileStateListeners)
+    {
+        bool isInBorder = false;
+
+        // We check if the listener tiles are on the top line
+        if(!isInBorder &&
+            crossSegment(topRight, topLeft, listener->mTileXMin, listener->mTileXMax,
+                listener->mTileYMin, listener->mTileYMax))
+        {
+            isInBorder = true;
+        }
+
+        if(!isInBorder &&
+            crossSegment(topLeft, bottomLeft, listener->mTileXMin, listener->mTileXMax,
+                listener->mTileYMin, listener->mTileYMax))
+        {
+            isInBorder = true;
+        }
+
+        if(!isInBorder &&
+            crossSegment(bottomLeft, bottomRight, listener->mTileXMin, listener->mTileXMax,
+                listener->mTileYMin, listener->mTileYMax))
+        {
+            isInBorder = true;
+        }
+
+        if(!isInBorder &&
+            crossSegment(bottomRight, topRight, listener->mTileXMin, listener->mTileXMax,
+                listener->mTileYMin, listener->mTileYMax))
+        {
+            isInBorder = true;
+        }
+
+        if(!isInBorder)
+            continue;
+
+        mVisibleRectangle.push_back(listener);
+        for(uint32_t xxx = listener->mMinimapXMin; xxx < listener->mMinimapXMax; ++xxx)
+        {
+            for(uint32_t yyy = listener->mMinimapYMin; yyy < listener->mMinimapYMax; ++yyy)
+            {
+                Ogre::uint8* pDest = static_cast<Ogre::uint8*>(mPixelBuffer->getCurrentLock().data) - 1;
+                pDest += (mWidth * (mHeight - yyy - 1) * 4);
+                pDest += (xxx * 4);
+
+                pDest++; //A, unused, shouldn't be here
+                // this is the order of colors I empirically found out to be working :)
+                *pDest++ = 0x00;  //B
+                *pDest++ = 0x00;  //G
+                *pDest++ = 0x00;  //R
+            }
+        }
+    }
+    mPixelBuffer->unlock();
 }

@@ -109,7 +109,7 @@ Ogre::Vector2 MiniMapDrawn::camera_2dPositionFromClick(int xx, int yy)
     return mCamera_2dPosition;
 }
 
-void MiniMapDrawn::update(Ogre::Real timeSinceLastFrame)
+void MiniMapDrawn::update(Ogre::Real timeSinceLastFrame, const std::vector<Ogre::Vector3>& cornerTiles)
 {
     Ogre::Vector3 vv = mCameraManager.getCameraViewTarget();
     double rotation = mCameraManager.getActiveCameraNode()->getOrientation().getRoll().valueRadians();

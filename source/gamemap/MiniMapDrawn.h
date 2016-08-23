@@ -75,7 +75,7 @@ public:
     Ogre::uint getHeight() const
     { return mHeight; }
 
-    void update(Ogre::Real timeSinceLastFrame) override;
+    void update(Ogre::Real timeSinceLastFrame, const std::vector<Ogre::Vector3>& cornerTiles) override;
 
     Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy) override;
 
