@@ -45,7 +45,7 @@ public:
 
     Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy) override;
 
-    void update(Ogre::Real timeSinceLastFrame) override;
+    void update(Ogre::Real timeSinceLastFrame, const std::vector<Ogre::Vector3>& cornerTiles) override;
 
     //! This functions allow to hook minimap rendering to adjust nodes we want to display or not
     virtual void preRenderTargetUpdate(const Ogre::RenderTargetEvent& rte) override;
@@ -75,6 +75,10 @@ private:
     Ogre::Camera* mMiniMapCam;
 
     CullingManager* mCullingManager;
+
+    // Array of Vector3's for keeping the intersection points of camera viewfrustrum
+    // and the XY plane. It should contain 4 vectors corresponding to the 4 corners
+    std::vector<Ogre::Vector3> mCameraTilesIntersections;
 
     void updateMinimapCamera();
 };

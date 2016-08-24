@@ -68,17 +68,19 @@ public:
 
     CullingManager(GameMap* gameMap, uint32_t cullingMask);
 
-    void startTileCulling(Ogre::Camera* camera);
+    void startTileCulling(Ogre::Camera* camera, const std::vector<Ogre::Vector3>& ogreVectors);
 
-    void stopTileCulling();
+    void stopTileCulling(const std::vector<Ogre::Vector3>& ogreVectors);
 
-    void update(Ogre::Camera* camera);
+    void update(Ogre::Camera* camera, const std::vector<Ogre::Vector3>& ogreVectors);
+
+    //! \brief Computes the intersection points from the camera with the XY plane. The corresponding
+    //! vectors are put in ogreVectors
+    bool computeIntersectionPoints(Ogre::Camera* camera, std::vector<Ogre::Vector3>& ogreVectors);
 
 private:
 
-    void cullTiles();
-
-    bool getIntersectionPoints(Ogre::Camera* camera);
+    void cullTiles(const std::vector<Ogre::Vector3>& ogreVectors);
 
     void hideAllTiles();
     void showAllTiles();
@@ -92,15 +94,8 @@ private:
     SlopeWalk mWalk;
     SlopeWalk mOldWalk;
 
-    // Array of Vector3's for keeping the intersection points of camera viewfrustrum
-    // and the XY plane
-    Ogre::Vector3 mOgreVectorsArray[8];
-
     bool mFirstIter;
     GameMap* mGameMap;
-
-    Ogre::Plane mActivePlanes;
-    Ogre::Ray mActiveRay[8];
 
     uint32_t mCullingMask;
 

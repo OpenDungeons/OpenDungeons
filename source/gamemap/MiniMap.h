@@ -33,7 +33,9 @@ public:
 
     virtual Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy) = 0;
 
-    virtual void update(Ogre::Real timeSinceLastFrame) = 0;
+    //! \brief This function will be called each frame. cornerTiles corresponds to
+    //! the corner tiles currently displayed in the main map
+    virtual void update(Ogre::Real timeSinceLastFrame, const std::vector<Ogre::Vector3>& cornerTiles) = 0;
 
     static const std::string& DEFAULT_MINIMAP;
 
