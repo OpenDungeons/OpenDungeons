@@ -6,6 +6,18 @@ OpenDungeons since version 0.4.7, in reverse chronological order.
 The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on
 our repository at https://github.com/OpenDungeons/OpenDungeons
 
+### Version 0.7.1 - 24 Aug 2016
+
+**Highlights:**
+
+* Fixed crash when entering editor (#1246)
+
+**General:**
+
+* Added a minimap that displays the whole map (#1246)
+* Added support to change overall ambient lighting factor in game settings (#1253)
+* Fixed bug with rooms not giving vision when built on an old enemy room (#1251)
+
 ### Version 0.7.0 - 30 July 2016
 
 **Highlights:**
