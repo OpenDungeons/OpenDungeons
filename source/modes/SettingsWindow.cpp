@@ -18,6 +18,7 @@
 #include "modes/SettingsWindow.h"
 
 #include "gamemap/MiniMap.h"
+#include "render/RenderManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 #include "utils/Helper.h"
@@ -91,6 +92,16 @@ SettingsWindow::SettingsWindow(CEGUI::Window* rootWindow):
         volumeSlider->subscribeEvent(
             CEGUI::Slider::EventValueChanged,
             CEGUI::Event::Subscriber(&SettingsWindow::onMusicVolumeChanged, this)
+        )
+    );
+
+    // Light factor slider
+    CEGUI::Slider* lightFactorSlider = static_cast<CEGUI::Slider*>(
+        mSettingsWindow->getChild("MainTabControl/Game/GameSP/LightSlider"));
+    addEventConnection(
+        lightFactorSlider->subscribeEvent(
+            CEGUI::Slider::EventValueChanged,
+            CEGUI::Event::Subscriber(&SettingsWindow::onLightFactorChanged, this)
         )
     );
 
@@ -192,6 +203,10 @@ void SettingsWindow::initConfig()
         }
         ++cptMiniMapType;
     }
+
+    std::string lightStr = config.getGameValue(Config::LIGHT_FACTOR, std::string(), false);
+    float lightFactor = lightStr.empty() ? 0.0f : Helper::toFloat(lightStr);
+    setLightFactorValue(lightFactor);
 
     // Input
     CEGUI::ToggleButton* keyboardGrabCheckbox = static_cast<CEGUI::ToggleButton*>(
@@ -352,10 +367,6 @@ void SettingsWindow::initConfig()
 
 void SettingsWindow::saveConfig()
 {
-    // Note: For now, only video settings will be stored thanks to Ogre config.
-    // But later, we may want to centralize everything in a common config file,
-    // And save volume values and other options.
-
     Ogre::Root* ogreRoot = Ogre::Root::getSingletonPtr();
     ConfigManager& config = ConfigManager::getSingleton();
 
@@ -380,6 +391,10 @@ void SettingsWindow::saveConfig()
         config.setGameValue(Config::MINIMAP_TYPE, minimapTypesItem->getText().c_str());
     else
         config.setGameValue(Config::MINIMAP_TYPE, "");
+
+    CEGUI::Slider* lightSlider = static_cast<CEGUI::Slider*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/LightSlider"));
+    config.setGameValue(Config::LIGHT_FACTOR, Helper::toString(lightSlider->getCurrentValue()));
 
     // Input
     CEGUI::ToggleButton* keyboardGrabCheckbox = static_cast<CEGUI::ToggleButton*>(
@@ -588,4 +603,27 @@ void SettingsWindow::setMusicVolumeValue(float volume)
     // Set the music volume text
     CEGUI::Window* volumeText = mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/AudioSP/MusicText");
     volumeText->setText("Music: " + Helper::toString(static_cast<int32_t>(volume)) + "%");
+}
+
+bool SettingsWindow::onLightFactorChanged(const CEGUI::EventArgs&)
+{
+    CEGUI::Slider* lightSlider = static_cast<CEGUI::Slider*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/LightSlider"));
+    setLightFactorValue(lightSlider->getCurrentValue());
+    return true;
+}
+
+void SettingsWindow::setLightFactorValue(float lightFactor)
+{
+    // Apply setting to ambient light.
+    RenderManager::getSingleton().setWorldAmbientLightingFactor(1.0f + (lightFactor / 100.0f));
+
+    // Set the slider position
+    CEGUI::Slider* lightSlider = static_cast<CEGUI::Slider*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/LightSlider"));
+    lightSlider->setCurrentValue(lightFactor);
+
+    // Set the light factor text
+    CEGUI::Window* lightFactorText = mRootWindow->getChild("SettingsWindow/MainTabControl/Game/GameSP/LightText");
+    lightFactorText->setText("Ambient Light: +" + Helper::toString(static_cast<int32_t>(lightFactor)) + "%");
 }

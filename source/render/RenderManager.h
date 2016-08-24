@@ -77,6 +77,9 @@ public:
     //! \brief setup the scene
     void createScene(Ogre::Viewport*);
 
+    //! \brief Sets/Updates the overall world lighting value with given factor.
+    void setWorldAmbientLightingFactor(float lightFactor);
+
     //! \brief Set the entity's opacity
     void setEntityOpacity(Ogre::Entity* ent, float opacity);
 

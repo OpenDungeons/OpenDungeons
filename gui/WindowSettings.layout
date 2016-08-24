@@ -126,13 +126,42 @@
                         <Property name="Area" value="{{0,160},{0,40},{0,320},{0,60}}" />
                         <Property name="Text" value="" />
                     </Window>
+                    <Window type="OD/StaticText" name="KeeperVoiceText" >
+                        <Property name="Area" value="{{0,32},{0,70},{0,150},{0,90}}" />
+                        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                        <Property name="Text" value="Keeper Voice:" />
+                        <Property name="BackgroundEnabled" value="False" />
+                        <Property name="FrameEnabled" value="False" />
+                    </Window>
                     <Window type="OD/Combobox" name="KeeperVoice" >
                         <Property name="Area" value="{{0,160},{0,70},{0,320},{0,150}}" />
                         <Property name="ReadOnly" value="True" />
                     </Window>
+                    <Window type="OD/StaticText" name="MinimapText" >
+                        <Property name="Area" value="{{0,32},{0,100},{0,150},{0,120}}" />
+                        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                        <Property name="Text" value="Minimap Type:" />
+                        <Property name="BackgroundEnabled" value="False" />
+                        <Property name="FrameEnabled" value="False" />
+                    </Window>
                     <Window type="OD/Combobox" name="MiniMapType" >
                         <Property name="Area" value="{{0,160},{0,100},{0,320},{0,180}}" />
                         <Property name="ReadOnly" value="True" />
+                    </Window>
+                    <Window type="OD/StaticText" name="LightText" >
+                        <Property name="Area" value="{{0,32},{0,130},{0,220},{0,150}}" />
+                        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                        <Property name="Text" value="Ambient Light: +" />
+                        <Property name="BackgroundEnabled" value="False" />
+                        <Property name="FrameEnabled" value="False" />
+                    </Window>
+                    <Window type="OD/HorizontalSlider" name="LightSlider" >
+                        <Property name="Area" value="{{0,32},{0,150},{0,327},{0,163}}" />
+                        <Property name="Text" value="" />
+                        <Property name="VerticalSlider" value="False" />
+                        <Property name="AutoRenderingSurface" value="True" />
+                        <Property name="MaximumValue" value="250" />
+                        <Property name="ClickStepSize" value="5" />
                     </Window>
                 </Window>
             </Window>
