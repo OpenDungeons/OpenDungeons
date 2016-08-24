@@ -76,6 +76,8 @@ const Ogre::Real RenderManager::KEEPER_HAND_WORLD_Z = KEEPER_HAND_POS_Z / Render
 const Ogre::Real KEEPER_HAND_CREATURE_PICKED_OFFSET = 0.05;
 const Ogre::Real KEEPER_HAND_CREATURE_PICKED_SCALE = 0.05;
 
+const Ogre::ColourValue BASE_AMBIENT_VALUE = Ogre::ColourValue(0.3, 0.3, 0.3);
+
 RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mHandAnimationState(nullptr),
     mViewport(nullptr),
@@ -198,7 +200,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mViewport->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
 
     // Sets the overall world lighting.
-    mSceneManager->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
+    mSceneManager->setAmbientLight(BASE_AMBIENT_VALUE);
 
     Ogre::ParticleSystem::setDefaultNonVisibleUpdateTimeout(5);
 
@@ -225,6 +227,12 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     handKeeperOverlay->show();
 
     mHandKeeperNode->setVisible(mHandKeeperHandVisibility == 0);
+}
+
+void RenderManager::setWorldAmbientLightingFactor(float lightFactor)
+{
+    Ogre::ColourValue factoredLighting(BASE_AMBIENT_VALUE * lightFactor);
+    mSceneManager->setAmbientLight(factoredLighting);
 }
 
 Ogre::Light* RenderManager::addPointLightMenu(const std::string& name, const Ogre::Vector3& pos,

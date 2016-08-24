@@ -93,6 +93,12 @@ private:
 
     //! \brief Set the volume value in the volume setting text and slider.
     void setMusicVolumeValue(float volume);
+
+    //! \brief Called when changing the ambient light factor value.
+    bool onLightFactorChanged(const CEGUI::EventArgs&);
+
+    //! \brief Set the volume value in the ambient light factor setting text and slider.
+    void setLightFactorValue(float lightFactor);
 };
 
 #endif // SETTINGSWINDOW_H
