@@ -585,11 +585,6 @@ public:
     bool searchBestTargetInList(const std::vector<GameEntity*>& listObjects, const std::vector<Tile*>& tilesFilter, GameEntity*& attackedEntity,
         Tile*& attackedTile, Tile*& positionTile, CreatureSkillData*& creatureSkillData);
 
-    //! \brief returns true if the creature needs to eat. forced should be true if
-    //! the creature is forced to eat (ie it has been dropped on a hatchery) and
-    //! false otherwise
-    bool needsToEat(bool forced) const;
-
     //! \brief Called when the creature changes seat (for example when it becomes rogue or after torture)
     void changeSeat(Seat* newSeat);
 

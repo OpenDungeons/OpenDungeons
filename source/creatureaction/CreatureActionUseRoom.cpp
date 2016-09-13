@@ -150,8 +150,8 @@ bool CreatureActionUseRoom::handleJob(Creature& creature, Room* room, bool force
             return true;
         }
 
-        // If we are hungry, we go to bed unless we have been slapped
-        if (Random::Double(70.0, 80.0) < creature.getHunger())
+        // If we are hungry, we look for food
+        if (creature.isHungry())
         {
             creature.popAction();
             creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, false));

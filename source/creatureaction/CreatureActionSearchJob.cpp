@@ -96,7 +96,7 @@ bool CreatureActionSearchJob::handleSearchJob(Creature& creature, bool forced)
         }
 
         // If we are hungry, we try to find food unless we have been slapped
-        if (Random::Double(70.0, 80.0) < creature.getHunger())
+        if (creature.isHungry())
         {
             creature.popAction();
             creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, false));

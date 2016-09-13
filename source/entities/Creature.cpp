@@ -3219,17 +3219,6 @@ void Creature::leaveDungeon()
     pushAction(Utils::make_unique<CreatureActionLeaveDungeon>(*this));
 }
 
-bool Creature::needsToEat(bool forced) const
-{
-    if (forced && getHunger() < 5.0)
-        return false;
-
-    if (!forced && (getHunger() <= Random::Double(0.0, 15.0)))
-        return false;
-
-    return true;
-}
-
 void Creature::changeSeat(Seat* newSeat)
 {
     OD_LOG_INF("creature=" + getName() + " changes side from seatId=" + Helper::toString(getSeat()->getId()) + " to seatId=" + Helper::toString(newSeat->getId()));
