@@ -143,7 +143,7 @@ bool CreatureActionUseRoom::handleJob(Creature& creature, Room* room, bool force
             return true;
         }
 
-        if (Random::Double(20.0, 30.0) > creature.getWakefulness())
+        if (creature.isTired())
         {
             creature.popAction();
             creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));

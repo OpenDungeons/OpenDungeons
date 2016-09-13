@@ -88,7 +88,7 @@ bool CreatureActionSearchJob::handleSearchJob(Creature& creature, bool forced)
         }
 
         // If we are sleepy, we go to bed unless we have been slapped
-        if (Random::Double(20.0, 30.0) > creature.getWakefulness())
+        if (creature.isTired())
         {
             creature.popAction();
             creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));
