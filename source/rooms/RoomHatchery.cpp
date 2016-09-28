@@ -183,7 +183,7 @@ bool RoomHatchery::hasOpenCreatureSpot(Creature* c)
 bool RoomHatchery::useRoom(Creature& creature, bool forced)
 {
     // Check if the creature needs to eat
-    if(!creature.needsToEat(forced))
+    if(creature.getHunger() <= 5.0)
     {
         creature.popAction();
         return true;

@@ -143,15 +143,15 @@ bool CreatureActionUseRoom::handleJob(Creature& creature, Room* room, bool force
             return true;
         }
 
-        if (Random::Double(20.0, 30.0) > creature.getWakefulness())
+        if (creature.isTired())
         {
             creature.popAction();
             creature.pushAction(Utils::make_unique<CreatureActionSleep>(creature));
             return true;
         }
 
-        // If we are hungry, we go to bed unless we have been slapped
-        if (Random::Double(70.0, 80.0) < creature.getHunger())
+        // If we are hungry, we look for food
+        if (creature.isHungry())
         {
             creature.popAction();
             creature.pushAction(Utils::make_unique<CreatureActionSearchFood>(creature, false));

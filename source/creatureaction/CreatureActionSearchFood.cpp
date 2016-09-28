@@ -52,7 +52,7 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
     }
 
     // Check if the creature needs to eat
-    if(!creature.needsToEat(forced))
+    if(!forced && !creature.isHungry())
     {
         creature.popAction();
         return true;
@@ -161,6 +161,8 @@ bool CreatureActionSearchFood::handleSearchFood(Creature& creature, bool forced)
         return true;
     }
 
+    // Now, we let the hatchery handle the creature
+    creature.popAction();
     creature.pushAction(Utils::make_unique<CreatureActionUseRoom>(creature, *chosenTile->getCoveringRoom(), forced));
     return true;
 }
