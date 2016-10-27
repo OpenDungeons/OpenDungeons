@@ -19,13 +19,8 @@
 #define CULLINGMANAGER_H_
 
 #include "camera/SlopeWalk.h"
-#include "entities/Tile.h"
 
 #include "utils/VectorInt64.h"
-
-#include <OgreRay.h>
-#include <OgrePlane.h>
-#include <set>
 
 class GameMap;
 

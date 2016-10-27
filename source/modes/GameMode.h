@@ -21,6 +21,7 @@
 #include "GameEditorModeBase.h"
 
 #include "modes/InputCommand.h"
+#include "modes/InputBridge.h"
 #include "modes/SettingsWindow.h"
 
 #include <CEGUI/EventArgs.h>
@@ -230,12 +231,14 @@ private:
     //! \brief Seats playing the game
     std::vector<int> mSeatIds;
 
+    MouseMoveEvent mPreviousMousePosition;
+
     //! \brief Set the help window (quite long) text.
     void setHelpWindowText();
 
     //! \brief A sub-function called by mouseMoved()
     //! It will handle the potential mouse wheel logic
-    void handleMouseWheel(const OIS::MouseEvent& arg);
+    void handleMouseWheel(const MouseWheelEvent& arg);
 
     //! \brief Set the state of the given skill button accordingly to the skill type given.
     //! \note: Called by refreshGuiSkill() for each skillType.
@@ -254,6 +257,7 @@ private:
 
     //! \brief Builds the player settings window
     void buildPlayerSettingsWindow();
+
 };
 
 #endif // GAMEMODE_H

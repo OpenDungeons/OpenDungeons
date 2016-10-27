@@ -32,7 +32,6 @@
 #include <OgreSingleton.h>
 #include <OgreWindowEventUtilities.h>
 
-#include <deque>
 #include <memory>
 
 class ChatMessage;

@@ -20,6 +20,10 @@
 
 #include <OgreVector3.h>
 
+#include <memory>
+
+#include "modes/Keyboard.h"
+
 namespace OIS
 {
     class InputManager;
@@ -29,8 +33,16 @@ namespace OIS
 
 namespace Ogre
 {
-  class RenderWindow;
+    class RenderWindow;
 }
+
+namespace sf
+{
+    class Event;
+}
+
+class AbstractApplicationMode;
+class SFMLToOISListener;
 
 enum class InputCommandState
 {
@@ -45,14 +57,18 @@ public:
     InputManager(Ogre::RenderWindow* renderWindow);
     ~InputManager();
 
+    void setWidthAndHeight(int width, int height);
+    void setCurrentAMode(AbstractApplicationMode& mode);
+    void handleSFMLEvent(const sf::Event& evt);
+
     OIS::InputManager*  mInputManager;
 
-    OIS::Keyboard*      mKeyboard;
+
     bool                mHotkeyLocationIsValid[10];
     Ogre::Vector3       mHotkeyLocation[10];
+    std::unique_ptr<Keyboard>           mKeyboard;
 
     //! \brief mouse handling related member
-    OIS::Mouse*         mMouse;
     bool                mLMouseDown, mRMouseDown, mMMouseDown;
     bool                mMouseDownOnCEGUIWindow;
 
@@ -63,6 +79,13 @@ public:
     //! \brief In editor mode, it contains the selected seat Id. In gamemode, it is not used
     int                 mSeatIdSelected;
     InputCommandState   mCommandState;
+    OIS::Mouse*         mMouse;
+
+    private:
+    AbstractApplicationMode* mCurrentAMode;
+#ifdef OD_USE_SFML_WINDOW
+    std::unique_ptr<SFMLToOISListener> mListener;
+#endif
 };
 
 #endif // INPUTMANAGER_H

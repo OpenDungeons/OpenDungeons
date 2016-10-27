@@ -36,11 +36,11 @@
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/Event.h>
 
-Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFileName)
+Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFileName, Ogre::RenderTarget &renderTarget)
   : mSoundEffectsManager(soundEffectsManager)
 {
     OD_LOG_INF("*** Initializing CEGUI ***");
-    CEGUI::OgreRenderer& renderer = CEGUI::OgreRenderer::create();
+    CEGUI::OgreRenderer& renderer = CEGUI::OgreRenderer::create(renderTarget);
     OD_LOG_INF("OgreRenderer created");
     CEGUI::OgreResourceProvider& rp = CEGUI::OgreRenderer::createOgreResourceProvider();
     OD_LOG_INF("OgreResourceProvider created");

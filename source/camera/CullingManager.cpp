@@ -17,9 +17,8 @@
 
 #include "camera/CullingManager.h"
 #include "camera/CameraManager.h"
-#include "entities/Creature.h"
+#include "entities/Tile.h"
 #include "gamemap/GameMap.h"
-#include "render/RenderManager.h"
 #include "utils/VectorInt64.h"
 #include "utils/LogManager.h"
 

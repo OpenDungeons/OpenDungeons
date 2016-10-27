@@ -20,6 +20,7 @@
 
 #include "modes/ModeManager.h"
 #include "modes/InputManager.h"
+#include "modes/InputBridge.h"
 
 #include <OIS/OISKeyboard.h>
 #include <OIS/OISMouse.h>
@@ -31,6 +32,7 @@
 
 class ChatMessage;
 class GameEntity;
+class Keyboard;
 
 class AbstractApplicationMode :
     public OIS::MouseListener,
@@ -65,20 +67,22 @@ public:
     { }
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg) override;
+    virtual bool mouseMovedN     (const MouseMoveEvent& arg);
+    virtual bool wheelMovedN     (const MouseWheelEvent& arg);
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id) override;
     virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id) override;
     virtual bool keyPressed     (const OIS::KeyEvent &arg) override;
     virtual bool keyReleased    (const OIS::KeyEvent &arg) override;
     virtual void handleHotkeys  (OIS::KeyCode keycode) {};
-
+/*
     virtual OIS::Mouse* getMouse()
     {
         return mModeManager->getInputManager().mMouse;
     }
-
-    virtual OIS::Keyboard* getKeyboard()
+*/
+    virtual Keyboard* getKeyboard()
     {
-        return mModeManager->getInputManager().mKeyboard;
+        return mModeManager->getInputManager().mKeyboard.get();
     }
 
     //! \brief Called when activating a new mode

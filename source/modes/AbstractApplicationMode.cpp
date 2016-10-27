@@ -20,7 +20,6 @@
 #include "network/ODClient.h"
 #include "network/ODServer.h"
 #include "render/Gui.h"
-#include "sound/SoundEffectsManager.h"
 
 #include <CEGUI/System.h>
 #include <CEGUI/GUIContext.h>
@@ -42,13 +41,25 @@ bool AbstractApplicationMode::isConnected()
 
 bool AbstractApplicationMode::mouseMoved(const OIS::MouseEvent& arg)
 {
+
     if(arg.state.Z.rel != 0)
     {
-        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange(
-                  static_cast<float>(arg.state.Z.rel) / 100.0f);
+        AbstractApplicationMode::wheelMovedN(toSFMLMouseWheel(arg));
     }
+    return mouseMovedN(toSFMLMouseMove(arg));
+}
+
+bool AbstractApplicationMode::mouseMovedN(const MouseMoveEvent& arg)
+{
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(
-              static_cast<float>(arg.state.X.abs), static_cast<float>(arg.state.Y.abs));
+              static_cast<float>(arg.x), static_cast<float>(arg.y));
+}
+
+bool AbstractApplicationMode::wheelMovedN(const MouseWheelEvent& arg)
+{
+    // TODO: Handle multiple mouse wheels
+    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange(
+              static_cast<float>(arg.delta) / 100.0f);
 }
 
 bool AbstractApplicationMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
@@ -85,8 +96,7 @@ bool AbstractApplicationMode::keyReleased(const OIS::KeyEvent& arg)
 
 void AbstractApplicationMode::giveFocus()
 {
-    mModeManager->getInputManager().mMouse->setEventCallback(this);
-    mModeManager->getInputManager().mKeyboard->setEventCallback(this);
+    mModeManager->getInputManager().setCurrentAMode(*this);
 }
 
 bool AbstractApplicationMode::goBack(const CEGUI::EventArgs&)

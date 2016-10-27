@@ -23,7 +23,6 @@
 #include "modes/InputManager.h"
 
 #include <vector>
-#include <string>
 #include <memory>
 
 class AbstractApplicationMode;

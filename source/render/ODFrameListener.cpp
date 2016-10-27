@@ -109,10 +109,7 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
     int left, top;
     rw->getMetrics(width, height, depth, left, top);
 
-    const OIS::MouseState &ms = mModeManager->getInputManager().mMouse->getMouseState();
-    ms.width = width;
-    ms.height = height;
-
+    mModeManager->getInputManager().setWidthAndHeight(width, height);
     //Notify CEGUI that the display size has changed.
     CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Size<float>(
             static_cast<float> (width), static_cast<float> (height)));

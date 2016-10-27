@@ -50,6 +50,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 # Compilation options
 option(OD_ENABLE_WARNINGS "Compile the game with all standard warnings enabled" ON)
 option(OD_TREAT_WARNINGS_AS_ERRORS "Treat any warning seen while compiling as errors." ON)
+option(OD_USE_SFML_WINDOW "Use SFML for window and input handling" OFF)
 
 # enable/disable unit tests
 option(OD_BUILD_TESTING "Compile unit tests (to enable unit tests both this and BUILD_TESTING has to be on." OFF)
@@ -198,6 +199,14 @@ if(WIN32)
     add_definitions(-DOIS_DYNAMIC_LIB)
 endif()
 
+if(OD_USE_SFML_WINDOW)
+    if(WIN32)
+        message(WARNING "SFML window is not implemented on windows yet!")
+    else()
+        add_definitions(-DOD_USE_SFML_WINDOW)
+    endif()
+endif()
+
 set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS}")
 message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 
@@ -342,7 +351,9 @@ set(OD_SOURCEFILES
     ${SRC}/modes/GameMode.cpp
     ${SRC}/modes/GameEditorModeBase.cpp
     ${SRC}/modes/GameEditorModeConsole.cpp
+    ${SRC}/modes/InputBridge.cpp
     ${SRC}/modes/InputManager.cpp
+    ${SRC}/modes/Keyboard.cpp
     ${SRC}/modes/MenuModeMain.cpp
     ${SRC}/modes/MenuModeConfigureSeats.cpp
     ${SRC}/modes/MenuModeEditorLoad.cpp
@@ -354,6 +365,7 @@ set(OD_SOURCEFILES
     ${SRC}/modes/MenuModeReplay.cpp
     ${SRC}/modes/MenuModeSkirmish.cpp
     ${SRC}/modes/ModeManager.cpp
+    ${SRC}/modes/SFMLToOISListener.cpp
     ${SRC}/modes/SettingsWindow.cpp
 
     ${SRC}/network/ChatEventMessage.cpp
@@ -483,8 +495,11 @@ find_package(Threads REQUIRED)
 find_package(OIS REQUIRED)
 find_package(OGRE REQUIRED)
 find_package(CEGUI REQUIRED)
-find_package(SFML 2 REQUIRED COMPONENTS Audio System Network)
-
+if(UNIX)
+    find_package(SFML 2 REQUIRED COMPONENTS Audio System Network Window Graphics)
+else()
+    find_package(SFML 2 REQUIRED COMPONENTS Audio System Network)
+endif()
 if((OGRE_VERSION_MAJOR LESS 1) AND (OGRE_VERSION_MINOR LESS 9))
     message(FATAL_ERROR "OGRE version >= 1.9.0 required")
 endif()

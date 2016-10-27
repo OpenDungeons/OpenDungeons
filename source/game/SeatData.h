@@ -23,7 +23,6 @@
 #include <OgreColourValue.h>
 #include <string>
 #include <vector>
-#include <iosfwd>
 #include <cstdint>
 
 class ODPacket;

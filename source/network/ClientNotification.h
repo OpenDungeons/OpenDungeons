@@ -20,8 +20,6 @@
 
 #include "network/ODPacket.h"
 
-#include <deque>
-
 enum class ClientNotificationType
 {
     // Communication with server

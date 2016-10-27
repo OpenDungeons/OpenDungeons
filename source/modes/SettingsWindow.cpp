@@ -475,17 +475,24 @@ void SettingsWindow::saveConfig()
 
     // Video
     Ogre::RenderWindow* win = ogreRoot->getAutoCreatedWindow();
-    std::vector<std::string> resVtr = Helper::split(resCb->getSelectedItem()->getText().c_str(), 'x');
-    if (resVtr.size() == 2)
+    if(win == nullptr)
     {
-        uint32_t width = static_cast<uint32_t>(Helper::toInt(resVtr[0]));
-        uint32_t height = static_cast<uint32_t>(Helper::toInt(resVtr[1]));
-        win->setFullscreen(fsCheckBox->isSelected(), width, height);
+        OD_LOG_WRN("Changing window options when using sfml is not implemented yet! Please restart for the changes to have an effect.");
+    }
+    else
+    {
+        std::vector<std::string> resVtr = Helper::split(resCb->getSelectedItem()->getText().c_str(), 'x');
+        if (resVtr.size() == 2)
+        {
+            uint32_t width = static_cast<uint32_t>(Helper::toInt(resVtr[0]));
+            uint32_t height = static_cast<uint32_t>(Helper::toInt(resVtr[1]));
+            win->setFullscreen(fsCheckBox->isSelected(), width, height);
 
-        // In windowed mode, the window needs resizing through other means
-        // NOTE: Doesn't work when the window is maximized on certain Composers.
-        if (!fsCheckBox->isSelected())
-            win->resize(width, height);
+            // In windowed mode, the window needs resizing through other means
+            // NOTE: Doesn't work when the window is maximized on certain Composers.
+            if (!fsCheckBox->isSelected())
+              win->resize(width, height);
+        }
     }
 }
 

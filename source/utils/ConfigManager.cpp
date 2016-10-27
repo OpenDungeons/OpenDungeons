@@ -1680,7 +1680,7 @@ bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
         }
 
         // Removes now invalid options from the video options.
-        for (std::string option : optionsToRemove)
+        for (const std::string& option : optionsToRemove)
             mVideoUserConfig.erase(option);
     }
 

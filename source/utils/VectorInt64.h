@@ -19,11 +19,8 @@
 #define VECTOR3I_H_
 
 #include <cstdint>
-#include <iostream>
+#include <iosfwd>
 #include <OgreVector3.h>
-
-
-
 
 //! \brief A custom vector used commonly between the CameraManager and the CullingManager classes
 class VectorInt64

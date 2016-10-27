@@ -39,7 +39,6 @@ ModeManager::ModeManager(Ogre::RenderWindow* renderWindow, Gui* gui) :
     mRequestedMode(ModeType::MENU_MAIN),
     mStoreCurrentModeAtChange(true)
 {
-    mInputManager.mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
 }
 
 ModeManager::~ModeManager()
@@ -156,10 +155,11 @@ void ModeManager::update(const Ogre::FrameEvent& evt)
     // We update the current mode
     AbstractApplicationMode* currentMode = getCurrentMode();
 
-    currentMode->getKeyboard()->capture();
-    currentMode->getMouse()->capture();
-
-    currentMode->mouseMoved(OIS::MouseEvent(nullptr, currentMode->getMouse()->getMouseState()));
+#ifndef OD_USE_SFML_WINDOW
+    mInputManager.mMouse->capture();
+    mInputManager.mKeyboard->getKeyboard()->capture();
+#endif
+    //currentMode->mouseMoved(OIS::MouseEvent(nullptr, currentMode->getMouse()->getMouseState()));
 
     currentMode->onFrameStarted(evt);
 }

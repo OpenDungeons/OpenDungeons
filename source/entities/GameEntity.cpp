@@ -34,6 +34,8 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <cassert>
+
 void EntityParticleEffect::exportParticleEffectToPacket(const EntityParticleEffect& effect, ODPacket& os)
 {
     os << effect.mName;

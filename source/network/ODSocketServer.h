@@ -22,8 +22,6 @@
 
 #include <SFML/Network.hpp>
 
-#include <string>
-
 class ODPacket;
 
 class ODSocketServer

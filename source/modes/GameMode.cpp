@@ -29,6 +29,7 @@
 #include "gamemap/GameMap.h"
 #include "gamemap/Pathfinding.h"
 #include "modes/GameEditorModeConsole.h"
+#include "modes/InputBridge.h"
 #include "network/ChatEventMessage.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
@@ -75,7 +76,8 @@ GameMode::GameMode(ModeManager *modeManager):
     mSettings(SettingsWindow(mRootWindow)),
     mIsSkillWindowOpen(false),
     mCurrentSkillType(SkillType::nullSkillType),
-    mCurrentSkillProgress(0.0)
+    mCurrentSkillProgress(0.0),
+    mPreviousMousePosition{0, 0}
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
@@ -343,6 +345,10 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 {
     AbstractApplicationMode::mouseMoved(arg);
 
+    auto mouseEvent = toSFMLMouseMove(arg);
+    auto mouseDelta = MouseMoveEvent{mPreviousMousePosition.x - mouseEvent.x, mPreviousMousePosition.y - mouseEvent.y};
+    mPreviousMousePosition = mouseEvent;
+
     if (!isConnected())
         return true;
 
@@ -352,20 +358,20 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     // TODO: Here we should check whether the terminal is active...
     if(inputManager.mMMouseDown)
     {
-        ODFrameListener::getSingleton().moveCamera(CameraManager::randomRotateX,arg.state.X.rel);
-        ODFrameListener::getSingleton().moveCamera(CameraManager::randomRotateY,arg.state.Y.rel);
+        ODFrameListener::getSingleton().moveCamera(CameraManager::randomRotateX,mouseDelta.x);
+        ODFrameListener::getSingleton().moveCamera(CameraManager::randomRotateY,mouseDelta.y);
     }
 
     // If we have a room/trap/spell selected, show it
     // TODO: This should be changed, or combined with an icon or something later.
     TextRenderer& textRenderer = TextRenderer::getSingleton();
     textRenderer.moveText(ODApplication::POINTER_INFO_STRING,
-        static_cast<Ogre::Real>(arg.state.X.abs + 30), static_cast<Ogre::Real>(arg.state.Y.abs));
+        static_cast<Ogre::Real>(mouseEvent.x + 30), static_cast<Ogre::Real>(mouseEvent.y));
 
     // We notify current selection input
     checkInputCommand();
 
-    handleMouseWheel(arg);
+    handleMouseWheel(toSFMLMouseWheel(arg));
 
     // Since this is a tile selection query we loop over the result set
     // and look for the first object which is actually a tile.
@@ -420,14 +426,14 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     return true;
 }
 
-void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
+void GameMode::handleMouseWheel(const MouseWheelEvent &arg)
 {
     if(isMouseWheelOnCEGUIWindow())
         return;
 
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
 
-    if (arg.state.Z.rel > 0)
+    if (arg.delta > 0)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
@@ -438,7 +444,7 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
             frameListener.moveCamera(CameraManager::moveDown);
         }
     }
-    else if (arg.state.Z.rel < 0)
+    else if (arg.delta < 0)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
@@ -760,7 +766,10 @@ bool GameMode::keyPressed(const OIS::KeyEvent& arg)
 {
     // Inject key to Gui
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown(static_cast<CEGUI::Key::Scan>(arg.key));
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
+    if (arg.text != 0)
+    {
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
+    }
 
     switch (mCurrentInputMode)
     {

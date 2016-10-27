@@ -22,7 +22,6 @@
 #ifndef RENDERMANAGER_H
 #define RENDERMANAGER_H
 
-#include <deque>
 #include <string>
 #include <OgreSingleton.h>
 #include <OgreMath.h>

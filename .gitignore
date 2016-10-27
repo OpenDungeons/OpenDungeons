@@ -38,3 +38,6 @@ opendungeons.kdev4
 opendungeons.desktop
 ODscreenshot*
 shaderCache
+
+source/tests/BoostTestTargetConfig.h
+source/tests/CTestTestfile.cmake

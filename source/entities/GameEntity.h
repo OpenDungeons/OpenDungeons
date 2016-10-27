@@ -24,7 +24,6 @@
 #define GAMEENTITY_H
 
 #include <OgreVector3.h>
-#include <cassert>
 #include <string>
 #include <vector>
 #include <cstdint>

@@ -1,4 +1,4 @@
-/*!
+/*
  *  Copyright (C) 2011-2016  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -15,33 +15,4 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AIMANAGER_H
-#define AIMANAGER_H
-
-#include <vector>
-
-class BaseAI;
-class GameMap;
-class Player;
-
-enum class KeeperAIType;
-
-class AIManager
-{
-
-public:
-    typedef std::vector<BaseAI*> AIList;
-
-    AIManager(GameMap& gameMap);
-    virtual ~AIManager();
-
-    bool assignAI(Player& player, KeeperAIType type);
-    bool doTurn(double timeSinceLastTurn);
-    void clearAIList();
-
-private:
-    GameMap& mGameMap;
-    AIList mAiList;
-};
-
-#endif // AIMANAGER_H
+#include "modes/InputBridge.h"

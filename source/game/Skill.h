@@ -20,7 +20,6 @@
 
 #include <cstdint>
 #include <vector>
-#include <string>
 
 class ODPacket;
 class Player;

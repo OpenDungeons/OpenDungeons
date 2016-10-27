@@ -17,18 +17,21 @@
 
 #include "InputManager.h"
 
+#include "modes/AbstractApplicationMode.h"
+#include "modes/SFMLToOISListener.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
+#include "utils/MakeUnique.h"
 
 #include <OIS/OISMouse.h>
 #include <OIS/OISKeyboard.h>
+
 #include <OIS/OISInputManager.h>
 #include <OgreRenderWindow.h>
 
 InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     mInputManager(nullptr),
     mKeyboard(nullptr),
-    mMouse(nullptr),
     mLMouseDown(false),
     mRMouseDown(false),
     mMMouseDown(false),
@@ -41,7 +44,13 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     mRStartDragX(0),
     mRStartDragY(0),
     mSeatIdSelected(0),
-    mCommandState(InputCommandState::infoOnly)
+    mCommandState(InputCommandState::infoOnly),
+    mMouse(nullptr),
+    mCurrentAMode(nullptr)
+#ifdef OD_USE_SFML_WINDOW
+    ,
+    mListener(Utils::make_unique<SFMLToOISListener>(*mCurrentAMode, renderWindow->getWidth(), renderWindow->getHeight()))
+#endif
 {
     OD_LOG_INF("*** Initializing OIS - Input Manager ***");
 
@@ -50,6 +59,8 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
         mHotkeyLocationIsValid[i] = false;
         mHotkeyLocation[i] = Ogre::Vector3::ZERO;
     }
+
+#ifndef OD_USE_SFML_WINDOW
 
     // Get the Window attribute for OIS.
     size_t windowHnd = 0;
@@ -80,17 +91,56 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     mInputManager = OIS::InputManager::createInputSystem(paramList);
 
     //setup Keyboard
-    mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject(OIS::OISKeyboard, true));
+    auto oisKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject(OIS::OISKeyboard, true));
+
+    oisKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
+
+    mKeyboard.reset(new Keyboard(oisKeyboard));
 
     //setup Mouse
     mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject(OIS::OISMouse, true));
+#else
+    mKeyboard.reset(new Keyboard());
+#endif
 }
 
 InputManager::~InputManager()
 {
     OD_LOG_INF("*** Destroying Input Manager ***");
+#ifndef OD_USE_SFML_WINDOW
     mInputManager->destroyInputObject(mMouse);
-    mInputManager->destroyInputObject(mKeyboard);
+    mInputManager->destroyInputObject(mKeyboard->getKeyboard());
+
     OIS::InputManager::destroyInputSystem(mInputManager);
     mInputManager = nullptr;
+#endif
+}
+
+void InputManager::setWidthAndHeight(int width, int height)
+{
+#ifndef OD_USE_SFML_WINDOW
+    const OIS::MouseState& ms = mMouse->getMouseState();
+    ms.width = width;
+    ms.height = height;
+#endif
+}
+
+void InputManager::setCurrentAMode(AbstractApplicationMode& mode)
+{
+    mCurrentAMode = &mode;
+#ifndef OD_USE_SFML_WINDOW
+    mMouse->setEventCallback(&mode);
+    mKeyboard->getKeyboard()->setEventCallback(&mode);
+#else
+    mListener->setReceiver(mode);
+#endif
+}
+
+void InputManager::handleSFMLEvent(const sf::Event& evt)
+{
+#ifdef OD_USE_SFML_WINDOW
+    mListener->handleEvent(evt);
+#else
+    OD_LOG_ERR("TRIED TO USE SFML EVENTS BUT THEY ARE DISABLED!");
+#endif
 }

@@ -17,6 +17,8 @@
 
 #include "VectorInt64.h"
 
+#include <iostream>
+
 VectorInt64& VectorInt64::operator+(VectorInt64& vv)
 {
     x += vv.x;

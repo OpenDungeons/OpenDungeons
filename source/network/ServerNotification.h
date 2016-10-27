@@ -20,7 +20,6 @@
 
 #include "network/ODPacket.h"
 
-#include <deque>
 #include <string>
 #include <OgreVector3.h>
 

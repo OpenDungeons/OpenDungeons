@@ -19,7 +19,6 @@
 #define LOGMANAGER_H
 
 #include <memory>
-#include <mutex>
 #include <string>
 
 #include <SFML/System.hpp>

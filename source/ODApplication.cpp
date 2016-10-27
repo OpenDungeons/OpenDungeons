@@ -43,6 +43,14 @@
 #include <Overlay/OgreOverlaySystem.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
 
+#ifdef OD_USE_SFML_WINDOW
+#include "modes/ModeManager.h"
+
+#include <SFML/Window.hpp>
+#include <SFML/OpenGL.hpp>
+#include <SFML/Graphics.hpp>
+#endif /* OD_USE_SFML_WINDOW */
+
 #include <boost/program_options.hpp>
 
 #include <string>
@@ -122,7 +130,54 @@ void ODApplication::startClient()
     // Needed for the TextRenderer and the Render Manager
     Ogre::OverlaySystem overlaySystem;
 
+    const std::string windowTitle = "OpenDungeons " + VERSION;
+
+    OD_LOG_INF("Creating window...");
+#ifdef OD_USE_SFML_WINDOW
+    const unsigned int MIN_WIDTH = 300;
+    const unsigned int MIN_HEIGHT = 200;
+
+    // Get width/height values from config
+    unsigned int w = MIN_WIDTH;
+    unsigned int h = MIN_HEIGHT;
+    {
+        auto videoMode = configManager.getVideoValue(Config::VIDEO_MODE, "1280 x 720", false);
+        std::stringstream ss(videoMode);
+        // Ignore the x in the middle
+        char ignore;
+        ss >> w >> ignore >> h >> h;
+
+        w = std::max(w, MIN_WIDTH);
+        h = std::max(h, MIN_HEIGHT);
+    }
+
+    // Check if the config specifies fullscreen or windowed
+    auto style = configManager.getVideoValue(Config::FULL_SCREEN, "No", false) == "Yes" && sf::VideoMode(w, h).isValid() ? sf::Style::Fullscreen : sf::Style::Default;
+
+    // Create an SFML window
+    // we make sure to grab the right bit depth from the current desktop mode as otherwise full screen
+    // can end up not working properly.
+    // TODO: Check anti-aliasing settings here.
+    sf::RenderWindow sfmlWindow(sf::VideoMode(w, h, sf::VideoMode::getDesktopMode().bitsPerPixel)
+                                , windowTitle, style, sf::ContextSettings(0, 0, 2, 1));
+
+    ogreRoot.initialise(false);
+    Ogre::NameValuePairList misc;
+
+    Ogre::RenderWindow* renderWindow = [&](){
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        OD_LOG_ERR("SFML WINDOW not implemented on windows yet!")
+        std::terminate();
+#else
+        misc["currentGLContext"] = Ogre::String("true");
+#endif
+        return ogreRoot.createRenderWindow(windowTitle, w, h, style == sf::Style::Fullscreen, &misc);
+    }();
+    renderWindow->setVisible(true);
+#else /* OD_USE_SFML_WINDOW */
     Ogre::RenderWindow* renderWindow = ogreRoot.initialise(true, "OpenDungeons " + VERSION);
+#endif /* OD_USE_SFML_WINDOW */
+
 
     //NOTE: This is currently done here as it has to be done after initialising mRoot,
     // but before running initialiseAllResourceGroups()
@@ -159,7 +214,7 @@ void ODApplication::startClient()
     ODServer server;
     ODClient client;
 
-    Gui gui(&soundEffectsManager, resMgr.getCeguiLogFile());
+    Gui gui(&soundEffectsManager, resMgr.getCeguiLogFile(), *renderWindow);
     TextRenderer textRenderer;
     textRenderer.addTextBox("DebugMessages", ODApplication::MOTD.c_str(), 840,
                                 30, 50, 70, Ogre::ColourValue::Green);
@@ -170,7 +225,36 @@ void ODApplication::startClient()
         renderWindow, &overlaySystem, &gui);
 
     ogreRoot.addFrameListener(&frameListener);
+
+#ifdef OD_USE_SFML_WINDOW
+    bool running = true;
+    while(running)
+    {
+        sf::Event event;
+        while (sfmlWindow.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+            {
+                frameListener.requestExit();
+                break;
+            }
+            else
+            {
+                if (event.type == sf::Event::Resized)
+                {
+                    renderWindow->resize(event.size.width, event.size.height);
+                    frameListener.windowResized(renderWindow);
+                }
+                frameListener.getModeManager()->getInputManager().handleSFMLEvent(event);
+            }
+        }
+        sfmlWindow.clear();
+        // If renderOneFrame returns false, it indicates that an exit has been requested
+        running = ogreRoot.renderOneFrame();
+        sfmlWindow.display();
+    }
+#else /* OD_USE_SFML_WINDOW */
     ogreRoot.startRendering();
+#endif /* OD_USE_SFML_WINDOW */
 
     OD_LOG_INF("Disconnecting client...");
     client.disconnect();

@@ -23,6 +23,8 @@
 
 #include <OgreSingleton.h>
 
+#include <deque>
+
 class GameMap;
 class ODPacket;
 class ChatMessage;

@@ -39,6 +39,11 @@ namespace CEGUI
     class EventArgs;
 }
 
+namespace Ogre
+{
+    class RenderTarget;
+}
+
 //! \brief This class handles the CEGUI system
 class Gui
 {
@@ -66,7 +71,8 @@ public:
      *  including renderer, system, resource provider, setting defaults,
      *  loading all sheets, assigning all event handler
      */
-    Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFileName);
+    Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFileName, Ogre::RenderTarget& renderTarget);
+    Gui(const Gui&) = delete;
 
     ~Gui();
 
