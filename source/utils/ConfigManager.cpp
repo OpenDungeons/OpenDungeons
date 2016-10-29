@@ -373,7 +373,7 @@ bool ConfigManager::loadGlobalConfigSeatColors(std::stringstream& configFile)
             if(nextParam == "ColorR")
             {
                 configFile >> nextParam;
-                double v = Helper::toDouble(nextParam);
+                float v = Helper::toFloat(nextParam);
                 if(v < 0.0 || v > 1.0)
                 {
                     OD_LOG_ERR("Wrong parameter read nextParam=" + nextParam);
@@ -387,7 +387,7 @@ bool ConfigManager::loadGlobalConfigSeatColors(std::stringstream& configFile)
             if(nextParam == "ColorG")
             {
                 configFile >> nextParam;
-                double v = Helper::toDouble(nextParam);
+				float v = Helper::toFloat(nextParam);
                 if(v < 0.0 || v > 1.0)
                 {
                     OD_LOG_ERR("Wrong parameter read nextParam=" + nextParam);
@@ -401,7 +401,7 @@ bool ConfigManager::loadGlobalConfigSeatColors(std::stringstream& configFile)
             if(nextParam == "ColorB")
             {
                 configFile >> nextParam;
-                double v = Helper::toDouble(nextParam);
+                float v = Helper::toFloat(nextParam);
                 if(v < 0.0 || v > 1.0)
                 {
                     OD_LOG_ERR("Wrong parameter read nextParam=" + nextParam);

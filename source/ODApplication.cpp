@@ -49,6 +49,11 @@
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#include <wingdi.h>
+#pragma comment(lib, "OpenGL32.lib")
+#endif /* OGRE_PLATFORM == OGRE_PLATFORM_WIN32 */
 #endif /* OD_USE_SFML_WINDOW */
 
 #include <boost/program_options.hpp>
@@ -162,12 +167,15 @@ void ODApplication::startClient()
                                 , windowTitle, style, sf::ContextSettings(0, 0, 2, 1));
 
     ogreRoot.initialise(false);
-    Ogre::NameValuePairList misc;
 
     Ogre::RenderWindow* renderWindow = [&](){
+		Ogre::NameValuePairList misc;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-        OD_LOG_ERR("SFML WINDOW not implemented on windows yet!")
-        std::terminate();
+		auto winHandle = reinterpret_cast<size_t>(sfmlWindow.getSystemHandle());
+		auto winGlContext = reinterpret_cast<size_t>(wglGetCurrentContext());
+		misc["externalWindowHandle"] = Helper::toString(winHandle);
+		misc["externalGLContext"] = Helper::toString(winGlContext);
+		misc["externalGLControl"] = Ogre::String("True");
 #else
         misc["currentGLContext"] = Ogre::String("true");
 #endif

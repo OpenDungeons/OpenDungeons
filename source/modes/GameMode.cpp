@@ -77,7 +77,7 @@ GameMode::GameMode(ModeManager *modeManager):
     mIsSkillWindowOpen(false),
     mCurrentSkillType(SkillType::nullSkillType),
     mCurrentSkillProgress(0.0),
-    mPreviousMousePosition{0, 0}
+    mPreviousMousePosition(MouseMoveEvent{0, 0})
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
