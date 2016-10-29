@@ -187,11 +187,19 @@ bool SFMLToOISListener::handleEvent(const sf::Event& event)
         case et::MouseButtonReleased:
             mMouseState.buttons &= ~(1 << static_cast<int>(event.mouseButton.button));
             return mReceiver->mouseReleased(OIS::MouseEvent(nullptr, mMouseState), static_cast<OIS::MouseButtonID>(event.mouseButton.button));
+#if SFML_VERSION_MINOR > 2
         case et::MouseWheelScrolled:
             mMouseState.Z.rel = static_cast<int>(event.mouseWheelScroll.delta);
             mMouseState.X.abs = event.mouseWheelScroll.x;
             mMouseState.Y.abs = event.mouseWheelScroll.y;
             return mReceiver->mouseMoved(OIS::MouseEvent(nullptr, mMouseState));
+#else /* SFML_VERSION_MINOR > 2 */
+        case et::MouseWheelMoved:
+            mMouseState.Z.rel = event.mouseWheel.delta;
+            mMouseState.X.abs = event.mouseWheel.x;
+            mMouseState.Y.abs = event.mouseWheel.y;
+            return mReceiver->mouseMoved(OIS::MouseEvent(nullptr, mMouseState));
+#endif /* SFML_VERSION_MINOR > 2 */
         case et::Resized:
             mMouseState.width = event.size.width;
             mMouseState.height = event.size.height;

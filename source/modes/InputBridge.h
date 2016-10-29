@@ -18,8 +18,6 @@
 #ifndef INPUTBRIDGE_H
 #define INPUTBRIDGE_H
 
-
-//#include <OIS/OISKeyboard.h>
 #include <OIS/OISMouse.h>
 
 #include <SFML/Window/Event.hpp>
@@ -29,9 +27,15 @@ namespace OIS {
     class KeyEvent;
 }
 
-using MouseMoveEvent = sf::Event::MouseMoveEvent;
-using MouseWheelEvent = sf::Event::MouseWheelScrollEvent;
 
+using MouseMoveEvent = sf::Event::MouseMoveEvent;
+
+// MouseWheelEvent is deprecated in newer versions, but MouseWheelScrollEvent does not exist prior to SFML 2.2
+#if SFML_VERSION_MINOR > 2
+using MouseWheelEvent = sf::Event::MouseWheelScrollEvent;
+#else
+using MouseWheelEvent = sf::Event::MouseWheelEvent;
+#endif
 
 inline MouseMoveEvent toSFMLMouseMove(const OIS::MouseEvent& evt)
 {
@@ -41,7 +45,11 @@ inline MouseMoveEvent toSFMLMouseMove(const OIS::MouseEvent& evt)
 inline MouseWheelEvent toSFMLMouseWheel(const OIS::MouseEvent& evt)
 {
     // TODO: Not sure if the sfml wheel event would correspond to relative or absolute state
-    return MouseWheelEvent{sf::Mouse::VerticalWheel, static_cast<float>(evt.state.Z.rel), evt.state.X.abs, evt.state.Y.abs};
+#if SFML_VERSION_MINOR > 2
+        return MouseWheelEvent{sf::Mouse::VerticalWheel, static_cast<float>(evt.state.Z.rel), evt.state.X.abs, evt.state.Y.abs};
+#else
+        return MouseWheelEvent{evt.state.Z.rel, evt.state.X.abs, evt.state.Y.abs};
+#endif
 }
 
 #endif // INPUTBRIDGE_H
