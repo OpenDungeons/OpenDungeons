@@ -48,6 +48,7 @@ In a few words, to build OpenDungeons, you need the following libraries:
 - Boost (same version that OGRE was linked against)
 - CEGUI SDK (0.8.x)
 - SFML (2.x)
+- OIS
 
 You will also need a recent CMake version (2.8 or newer) and a compiler
 that supports C++11 features reasonably well, i.e.:
