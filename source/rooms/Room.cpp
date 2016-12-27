@@ -560,11 +560,6 @@ bool Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
             continue;
         }
 
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-
         tileData->mSeatsVision.push_back(seat);
     }
 

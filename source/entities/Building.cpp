@@ -115,11 +115,19 @@ bool Building::canBuildingBeRemoved()
     bool ret = true;
     for(std::pair<Tile* const, TileData*>& p : mTileData)
     {
-        if(!p.second->mSeatsVision.empty())
+        for(Seat* seat : p.second->mSeatsVision)
         {
+            if(seat->getPlayer() == nullptr)
+                continue;
+            if(!seat->getPlayer()->getIsHuman())
+                continue;
+
             ret = false;
             break;
         }
+
+        if(!ret)
+            break;
     }
 
     if(mBuildingObjects.empty())
@@ -420,16 +428,7 @@ bool Building::importFromStream(std::istream& is)
 
         TileData* tileData = createTileData(tile);
         mTileData[tile] = tileData;
-        tileData->mSeatsVision.clear();
-        for(Seat* seat : alliedSeats)
-        {
-            if(seat->getPlayer() == nullptr)
-                continue;
-            if(!seat->getPlayer()->getIsHuman())
-                continue;
-
-            tileData->mSeatsVision.push_back(seat);
-        }
+        tileData->mSeatsVision = alliedSeats;
         if(!importTileDataFromStream(ss, tile, tileData))
         {
             OD_LOG_ERR("name=" + getName() + ", tile=" + Tile::displayAsString(tile));
@@ -445,11 +444,6 @@ bool Building::importFromStream(std::istream& is)
 
 void Building::notifySeatVision(Tile* tile, Seat* seat)
 {
-    if(seat->getPlayer() == nullptr)
-        return;
-    if(!seat->getPlayer()->getIsHuman())
-        return;
-
     TileData* tileData = mTileData[tile];
     auto it = std::find(tileData->mSeatsVision.begin(), tileData->mSeatsVision.end(), seat);
     if(tileData->mHP <= 0)
