@@ -24,6 +24,7 @@
 
 #include <OgreVector3.h>
 #include <OgreCamera.h>
+#include <OgreRay.h>
 
 #include <sstream>
 #include <algorithm>
