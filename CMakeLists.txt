@@ -634,13 +634,13 @@ if(MINGW)
 # MinGW32 needs intl while not MinGW64. To differentiate them, we test the compiler version as it does not change very often for MinGW32
     if(${OD_MINGW_COMPILER_VERSION} EQUAL 48)
         message(STATUS "MINGW32 COMPILER VERSION: " ${CMAKE_CXX_COMPILER_VERSION})
-        target_link_libraries(${PROJECT_BINARY_NAME} imagehlp bfd intl iberty z)
+        target_link_libraries(${PROJECT_BINARY_NAME} OpenGL32 imagehlp bfd intl iberty z)
     else()
         message(STATUS "MINGW64 COMPILER VERSION: " ${CMAKE_CXX_COMPILER_VERSION})
-        target_link_libraries(${PROJECT_BINARY_NAME} imagehlp bfd iberty z)
+        target_link_libraries(${PROJECT_BINARY_NAME} OpenGL32 imagehlp bfd iberty z)
     endif()
 elseif(MSVC)
-    target_link_libraries(${PROJECT_BINARY_NAME} imagehlp)
+    target_link_libraries(${PROJECT_BINARY_NAME} OpenGL32 imagehlp)
 endif()
 
 # MSVC automatically links boost

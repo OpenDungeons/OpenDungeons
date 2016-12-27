@@ -52,7 +52,6 @@
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <wingdi.h>
-#pragma comment(lib, "OpenGL32.lib")
 #endif /* OGRE_PLATFORM == OGRE_PLATFORM_WIN32 */
 #endif /* OD_USE_SFML_WINDOW */
 
