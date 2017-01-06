@@ -402,12 +402,12 @@ Command::Result cSrvAddMana(const Command::ArgumentList_t& args, ConsoleInterfac
 
 Command::Result cSrvSetCreatureDest(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {
-    if(args.size() < 3)
+    if(args.size() < 4)
         return Command::Result::INVALID_ARGUMENT;
 
-    const std::string& name = args[0];
-    int x = Helper::toInt(args[1]);
-    int y = Helper::toInt(args[2]);
+    const std::string& name = args[1];
+    int x = Helper::toInt(args[2]);
+    int y = Helper::toInt(args[3]);
     gameMap.consoleSetCreatureDestination(name, x, y);
     return Command::Result::SUCCESS;
 }
