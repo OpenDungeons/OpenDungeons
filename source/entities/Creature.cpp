@@ -1002,11 +1002,19 @@ void Creature::doUpkeep()
         loopBack = false;
 
         if (mActions.empty())
+        {
             loopBack = handleIdleAction();
+            OD_LOG_DBG("creature=" + getName() + " action queue empty, defaulting to idle, result=" + (loopBack?"1":"0"));
+        }
         else
         {
-            std::function<bool()> func = mActions.back().get()->action();
+            CreatureAction* act = mActions.back().get();
+            // We save the action type here because the action may be removed after calling
+            // the action function
+            CreatureActionType actType = act->getType();
+            std::function<bool()> func = act->action();
             loopBack = func();
+            OD_LOG_DBG("creature=" + getName() + " trying action=" + CreatureAction::toString(actType) + ", result=" + std::string(loopBack?"1":"0"));
         }
     } while (loopBack && loops < 20);
 

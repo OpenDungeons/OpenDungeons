@@ -402,12 +402,12 @@ Command::Result cSrvAddMana(const Command::ArgumentList_t& args, ConsoleInterfac
 
 Command::Result cSrvSetCreatureDest(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {
-    if(args.size() < 3)
+    if(args.size() < 4)
         return Command::Result::INVALID_ARGUMENT;
 
-    const std::string& name = args[0];
-    int x = Helper::toInt(args[1]);
-    int y = Helper::toInt(args[2]);
+    const std::string& name = args[1];
+    int x = Helper::toInt(args[2]);
+    int y = Helper::toInt(args[3]);
     gameMap.consoleSetCreatureDestination(name, x, y);
     return Command::Result::SUCCESS;
 }
@@ -441,6 +441,31 @@ Command::Result cListMeshAnims(const Command::ArgumentList_t& args, ConsoleInter
     }
     std::string anims = RenderManager::consoleListAnimationsForMesh(args[1]);
     c.print("\nAnimations for " + args[1] + ": " + anims);
+    return Command::Result::SUCCESS;
+}
+
+Command::Result cSetLogLevel(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+{
+    if(args.size() < 2)
+    {
+        c.print("\nERROR : Need to specify log level or module + log level");
+        return Command::Result::INVALID_ARGUMENT;
+    }
+
+    if(args.size() == 2)
+    {
+        uint32_t val = Helper::toUInt32(args[1]);
+        LogMessageLevel lml = static_cast<LogMessageLevel>(val);
+        c.print("\nSetting global log level to " + std::string(LogMessageLevelToString(lml)));
+        LogManager::getSingleton().setLevel(lml);
+        return Command::Result::SUCCESS;
+    }
+
+    const std::string& module = args[1];
+    uint32_t val = Helper::toUInt32(args[2]);
+    LogMessageLevel lml = static_cast<LogMessageLevel>(val);
+    c.print("\nSetting log for module '" + module + "' to " + LogMessageLevelToString(lml));
+    LogManager::getSingleton().setModuleLevel(module.c_str(), lml);
     return Command::Result::SUCCESS;
 }
 
@@ -643,6 +668,15 @@ void addConsoleCommands(ConsoleInterface& cl)
                    Command::cStubServer,
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR},
                    {"listmeshanimations"});
+    cl.addCommand("setloglevel",
+                   "'setloglevel' sets the logging level. If no module (source file) is given, sets global log level."
+                   " Otherwise, sets log level of given module\nExample:\n"
+                   "setloglevel ODApplication 0 => Sets specific log level for ODApplication source file\n"
+                   "setloglevel 1 => Sets global log level",
+                   cSetLogLevel,
+                   Command::cStubServer,
+                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR},
+                   {});
     cl.addCommand("keys",
                    "list keys",
                    cKeys,
