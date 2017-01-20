@@ -15,31 +15,31 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CREATUREACTIONLEAVEDUNGEON_H
-#define CREATUREACTIONLEAVEDUNGEON_H
+#ifndef CREATUREACTIONGOCALLTOWAR_H
+#define CREATUREACTIONGOCALLTOWAR_H
 
 #include "creatureaction/CreatureAction.h"
 #include "entities/CreatureMoodValues.h"
 
-class CreatureActionLeaveDungeon : public CreatureAction
+class CreatureActionGoCallToWar : public CreatureAction
 {
 public:
-    CreatureActionLeaveDungeon(Creature& creature) :
+    CreatureActionGoCallToWar(Creature& creature) :
         CreatureAction(creature)
     {}
 
-    virtual ~CreatureActionLeaveDungeon()
+    virtual ~CreatureActionGoCallToWar()
     {}
 
     CreatureActionType getType() const override
-    { return CreatureActionType::leaveDungeon; }
-
-    uint32_t updateMoodModifier() const override
-    { return CreatureMoodValues::LeaveDungeon; }
+    { return CreatureActionType::goCallToWar; }
 
     std::function<bool()> action() override;
 
-    static bool handleLeaveDungeon(Creature& creature);
+    uint32_t updateMoodModifier() const override
+    { return CreatureMoodValues::GoToCallToWar; }
+
+    static bool handleWalkToTile(Creature& creature);
 };
 
-#endif // CREATUREACTIONLEAVEDUNGEON_H
+#endif // CREATUREACTIONGOCALLTOWAR_H

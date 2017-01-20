@@ -18,6 +18,8 @@
 #ifndef CREATUREACTION_H
 #define CREATUREACTION_H
 
+#include "entities/CreatureMoodValues.h"
+
 #include <cstdint>
 #include <functional>
 #include <istream>
@@ -48,6 +50,7 @@ enum class CreatureActionType
     getFee, // (fighter only) Gets the creature fee
     leaveDungeon, // (fighter only) Try to go to the portal to leave the dungeon
     stealFreeGold, // (fighters only) check in the visible tiles if there is gold not protected by a treasury
+    goCallToWar, // (fighters only) When a creature goes to a call to war spell
     nb // Must be the last value of this enum
 };
 
@@ -82,6 +85,12 @@ public:
     //! pop themselves which might result in errors. Instead, we expect every action
     //! to call the expected action from CreatureAction with the good parameters.
     virtual std::function<bool()> action() = 0;
+
+    //! \brief Returns the mood value modifier that should be applied to the creature
+    //! when this action is in its list. The value should be used as defined
+    //! in CreatureMoodValues
+    virtual uint32_t updateMoodModifier() const
+    { return CreatureMoodValues::Nothing; }
 
     static std::string toString(CreatureActionType actionType);
 

@@ -133,3 +133,18 @@ material CreatureOverlayStatus_256
         }
     }
 }
+
+material CreatureOverlayStatus_512
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureRallyTroops.png
+            }
+        }
+    }
+}

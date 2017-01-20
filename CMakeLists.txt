@@ -237,6 +237,7 @@ set(OD_SOURCEFILES
     ${SRC}/creatureaction/CreatureActionFindHome.cpp
     ${SRC}/creatureaction/CreatureActionFlee.cpp
     ${SRC}/creatureaction/CreatureActionGetFee.cpp
+    ${SRC}/creatureaction/CreatureActionGoCallToWar.cpp
     ${SRC}/creatureaction/CreatureActionGrabEntity.cpp
     ${SRC}/creatureaction/CreatureActionLeaveDungeon.cpp
     ${SRC}/creatureaction/CreatureActionSearchEntityToCarry.cpp

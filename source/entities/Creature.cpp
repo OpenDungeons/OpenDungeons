@@ -25,6 +25,7 @@
 #include "creatureaction/CreatureActionFindHome.h"
 #include "creatureaction/CreatureActionFlee.h"
 #include "creatureaction/CreatureActionGetFee.h"
+#include "creatureaction/CreatureActionGoCallToWar.h"
 #include "creatureaction/CreatureActionGrabEntity.h"
 #include "creatureaction/CreatureActionLeaveDungeon.h"
 #include "creatureaction/CreatureActionSearchEntityToCarry.h"
@@ -45,6 +46,7 @@
 #include "creatureskill/CreatureSkill.h"
 #include "entities/ChickenEntity.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/CreatureMoodValues.h"
 #include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
@@ -97,25 +99,6 @@ static const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 
 const int32_t Creature::NB_TURNS_BEFORE_CHECKING_TASK = 15;
 const uint32_t Creature::NB_OVERLAY_HEALTH_VALUES = 8;
-
-enum CreatureMoodEnum
-{
-    Angry = 0x0001,
-    Furious = 0x0002,
-    GetFee = 0x0004,
-    LeaveDungeon = 0x0008,
-    KoDeath = 0x0010,
-    Hungry = 0x0020,
-    Tired = 0x0040,
-    KoTemp = 0x0080,
-    InJail = 0x0100,
-    // To know if a creature is KO
-    KoDeathOrTemp = KoTemp | KoDeath,
-    // Mood filters for creatures in prison that every player will see
-    MoodPrisonFiltersAllPlayers = InJail,
-    // Mood filters for creatures in prison that prison allied will see
-    MoodPrisonFiltersPrisonAllies = KoTemp | InJail
-};
 
 CreatureParticuleEffect::CreatureParticuleEffect(Creature& creature, const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
         CreatureEffect* effect) :
@@ -179,7 +162,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat*
     mMoodPoints              (0),
     mNbTurnFurious           (-1),
     mOverlayHealthValue      (0),
-    mOverlayMoodValue        (0),
+    mOverlayMoodValue        (CreatureMoodValues::Nothing),
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false),
     mDropCooldown            (0),
@@ -567,9 +550,9 @@ void Creature::exportToPacket(ODPacket& os, const Seat* seat) const
     else if(mSeatPrison != nullptr)
     {
         if(mSeatPrison->isAlliedSeat(seat))
-            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersPrisonAllies;
+            moodValue = mOverlayMoodValue & CreatureMoodValues::MoodPrisonFiltersPrisonAllies;
         else
-            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersAllPlayers;
+            moodValue = mOverlayMoodValue & CreatureMoodValues::MoodPrisonFiltersAllPlayers;
     }
 
     os << moodValue;
@@ -1116,7 +1099,7 @@ bool Creature::handleIdleAction()
                 std::vector<Ogre::Vector3> path;
                 tileToVector3(tempPath, path, true, 0.0);
                 setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
-                pushAction(Utils::make_unique<CreatureActionWalkToTile>(*this));
+                pushAction(Utils::make_unique<CreatureActionGoCallToWar>(*this));
                 return false;
             }
         }
@@ -1591,9 +1574,9 @@ void Creature::exportToPacketForUpdate(ODPacket& os, const Seat* seat) const
     else if(mSeatPrison != nullptr)
     {
         if(mSeatPrison->isAlliedSeat(seat))
-            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersPrisonAllies;
+            moodValue = mOverlayMoodValue & CreatureMoodValues::MoodPrisonFiltersPrisonAllies;
         else
-            moodValue = mOverlayMoodValue & CreatureMoodEnum::MoodPrisonFiltersAllPlayers;
+            moodValue = mOverlayMoodValue & CreatureMoodValues::MoodPrisonFiltersAllPlayers;
     }
 
     os << moodValue;
@@ -2922,30 +2905,35 @@ void Creature::computeCreatureOverlayMoodValue()
     // The creature mood applies only if the creature is alive
     if(isAlive())
     {
-        if(mMoodValue == CreatureMoodLevel::Angry)
-            value |= CreatureMoodEnum::Angry;
-        else if(mMoodValue == CreatureMoodLevel::Furious)
-            value |= CreatureMoodEnum::Furious;
+        switch(mMoodValue)
+        {
+            case CreatureMoodLevel::Angry:
+                value |= CreatureMoodValues::Angry;
+                break;
+            case CreatureMoodLevel::Furious:
+                value |= CreatureMoodValues::Furious;
+                break;
+            default:
+                break;
+        }
 
-        if(isActionInList(CreatureActionType::getFee))
-            value |= CreatureMoodEnum::GetFee;
-
-        if(isActionInList(CreatureActionType::leaveDungeon))
-            value |= CreatureMoodEnum::LeaveDungeon;
+        // We update the mood bit array according to actions in the list
+        for (const std::unique_ptr<CreatureAction>& ca : mActions)
+            value |= ca.get()->updateMoodModifier();
 
         if(mKoTurnCounter < 0)
-            value |= CreatureMoodEnum::KoDeath;
+            value |= CreatureMoodValues::KoDeath;
         else if(mKoTurnCounter > 0)
-            value |= CreatureMoodEnum::KoTemp;
+            value |= CreatureMoodValues::KoTemp;
 
         if(isHungry())
-            value |= CreatureMoodEnum::Hungry;
+            value |= CreatureMoodValues::Hungry;
 
         if(isTired())
-            value |= CreatureMoodEnum::Tired;
+            value |= CreatureMoodValues::Tired;
 
         if(mSeatPrison != nullptr)
-            value |= CreatureMoodEnum::InJail;
+            value |= CreatureMoodValues::InJail;
     }
 
     if(mOverlayMoodValue != value)
@@ -2984,7 +2972,7 @@ bool Creature::isKo() const
         return mKoTurnCounter != 0;
 
     // On client side, we test mood overlay value
-    return (mOverlayMoodValue & KoDeathOrTemp) != 0;
+    return (mOverlayMoodValue & CreatureMoodValues::KoDeathOrTemp) != 0;
 }
 
 bool Creature::isKoDeath() const
@@ -2993,7 +2981,7 @@ bool Creature::isKoDeath() const
         return mKoTurnCounter < 0;
 
     // On client side, we test mood overlay value
-    return (mOverlayMoodValue & CreatureMoodEnum::KoDeath) != 0;
+    return (mOverlayMoodValue & CreatureMoodValues::KoDeath) != 0;
 }
 
 bool Creature::isKoTemp() const
@@ -3002,7 +2990,7 @@ bool Creature::isKoTemp() const
         return mKoTurnCounter > 0;
 
     // On client side, we test mood overlay value
-    return (mOverlayMoodValue & CreatureMoodEnum::KoTemp) != 0;
+    return (mOverlayMoodValue & CreatureMoodValues::KoTemp) != 0;
 }
 
 bool Creature::isInPrison() const
@@ -3063,7 +3051,7 @@ bool Creature::isTired() const
     if(getIsOnServerMap())
         return mWakefulness <= 20.0;
 
-    return (mOverlayMoodValue & CreatureMoodEnum::Tired) != 0;
+    return (mOverlayMoodValue & CreatureMoodValues::Tired) != 0;
 }
 
 bool Creature::isHungry() const
@@ -3071,7 +3059,7 @@ bool Creature::isHungry() const
     if(getIsOnServerMap())
         return mHunger >= 80.0;
 
-    return (mOverlayMoodValue & CreatureMoodEnum::Hungry) != 0;
+    return (mOverlayMoodValue & CreatureMoodValues::Hungry) != 0;
 }
 
 void Creature::resetKoTurns()
