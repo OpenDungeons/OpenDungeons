@@ -163,7 +163,7 @@ void ODApplication::startClient()
     // can end up not working properly.
     // TODO: Check anti-aliasing settings here.
     sf::RenderWindow sfmlWindow(sf::VideoMode(w, h, sf::VideoMode::getDesktopMode().bitsPerPixel)
-                                , windowTitle, style, sf::ContextSettings(0, 0, 2, 1));
+                                , windowTitle, style, sf::ContextSettings(32, 0, 2, 1));
 
     ogreRoot.initialise(false);
 
