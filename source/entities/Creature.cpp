@@ -25,6 +25,7 @@
 #include "creatureaction/CreatureActionFindHome.h"
 #include "creatureaction/CreatureActionFlee.h"
 #include "creatureaction/CreatureActionGetFee.h"
+#include "creatureaction/CreatureActionGoCallToWar.h"
 #include "creatureaction/CreatureActionGrabEntity.h"
 #include "creatureaction/CreatureActionLeaveDungeon.h"
 #include "creatureaction/CreatureActionSearchEntityToCarry.h"
@@ -109,6 +110,7 @@ enum CreatureMoodEnum
     Tired = 0x0040,
     KoTemp = 0x0080,
     InJail = 0x0100,
+    GoToCallToWar = 0x0200,
     // To know if a creature is KO
     KoDeathOrTemp = KoTemp | KoDeath,
     // Mood filters for creatures in prison that every player will see
@@ -1116,7 +1118,7 @@ bool Creature::handleIdleAction()
                 std::vector<Ogre::Vector3> path;
                 tileToVector3(tempPath, path, true, 0.0);
                 setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
-                pushAction(Utils::make_unique<CreatureActionWalkToTile>(*this));
+                pushAction(Utils::make_unique<CreatureActionGoCallToWar>(*this));
                 return false;
             }
         }
@@ -2929,6 +2931,9 @@ void Creature::computeCreatureOverlayMoodValue()
 
         if(isActionInList(CreatureActionType::getFee))
             value |= CreatureMoodEnum::GetFee;
+
+        if(isActionInList(CreatureActionType::goCallToWar))
+            value |= CreatureMoodEnum::GoToCallToWar;
 
         if(isActionInList(CreatureActionType::leaveDungeon))
             value |= CreatureMoodEnum::LeaveDungeon;
