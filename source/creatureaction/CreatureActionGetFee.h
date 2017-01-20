@@ -33,6 +33,9 @@ public:
     CreatureActionType getType() const override
     { return CreatureActionType::getFee; }
 
+    uint32_t updateMoodModifier() const override
+    { return CreatureMoodValues::GetFee; }
+
     std::function<bool()> action() override;
 
     static bool handleGetFee(Creature& creature);

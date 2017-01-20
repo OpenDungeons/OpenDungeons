@@ -46,6 +46,7 @@
 #include "creatureskill/CreatureSkill.h"
 #include "entities/ChickenEntity.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/CreatureMoodValues.h"
 #include "entities/GameEntityType.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
@@ -98,27 +99,6 @@ static const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 
 const int32_t Creature::NB_TURNS_BEFORE_CHECKING_TASK = 15;
 const uint32_t Creature::NB_OVERLAY_HEALTH_VALUES = 8;
-
-namespace CreatureMoodValues
-{
-    const uint32_t Nothing = 0x0000;
-    const uint32_t Angry = 0x0001;
-    const uint32_t Furious = 0x0002;
-    const uint32_t GetFee = 0x0004;
-    const uint32_t LeaveDungeon = 0x0008;
-    const uint32_t KoDeath = 0x0010;
-    const uint32_t Hungry = 0x0020;
-    const uint32_t Tired = 0x0040;
-    const uint32_t KoTemp = 0x0080;
-    const uint32_t InJail = 0x0100;
-    const uint32_t GoToCallToWar = 0x0200;
-    // To know if a creature is KO
-    const uint32_t KoDeathOrTemp = KoTemp | KoDeath;
-    // Mood filters for creatures in prison that every player will see
-    const uint32_t MoodPrisonFiltersAllPlayers = InJail;
-    // Mood filters for creatures in prison that prison allied will see
-    const uint32_t MoodPrisonFiltersPrisonAllies = KoTemp | InJail;
-}
 
 CreatureParticuleEffect::CreatureParticuleEffect(Creature& creature, const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
         CreatureEffect* effect) :
@@ -2937,14 +2917,9 @@ void Creature::computeCreatureOverlayMoodValue()
                 break;
         }
 
-        if(isActionInList(CreatureActionType::getFee))
-            value |= CreatureMoodValues::GetFee;
-
-        if(isActionInList(CreatureActionType::goCallToWar))
-            value |= CreatureMoodValues::GoToCallToWar;
-
-        if(isActionInList(CreatureActionType::leaveDungeon))
-            value |= CreatureMoodValues::LeaveDungeon;
+        // We update the mood bit array according to actions in the list
+        for (const std::unique_ptr<CreatureAction>& ca : mActions)
+            value |= ca.get()->updateMoodModifier();
 
         if(mKoTurnCounter < 0)
             value |= CreatureMoodValues::KoDeath;

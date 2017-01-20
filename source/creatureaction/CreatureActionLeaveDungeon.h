@@ -19,6 +19,7 @@
 #define CREATUREACTIONLEAVEDUNGEON_H
 
 #include "creatureaction/CreatureAction.h"
+#include "entities/CreatureMoodValues.h"
 
 class CreatureActionLeaveDungeon : public CreatureAction
 {
@@ -32,6 +33,9 @@ public:
 
     CreatureActionType getType() const override
     { return CreatureActionType::leaveDungeon; }
+
+    uint32_t updateMoodModifier() const override
+    { return CreatureMoodValues::LeaveDungeon; }
 
     std::function<bool()> action() override;
 

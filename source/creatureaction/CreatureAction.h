@@ -18,6 +18,8 @@
 #ifndef CREATUREACTION_H
 #define CREATUREACTION_H
 
+#include "entities/CreatureMoodValues.h"
+
 #include <cstdint>
 #include <functional>
 #include <istream>
@@ -83,6 +85,12 @@ public:
     //! pop themselves which might result in errors. Instead, we expect every action
     //! to call the expected action from CreatureAction with the good parameters.
     virtual std::function<bool()> action() = 0;
+
+    //! \brief Returns the mood value modifier that should be applied to the creature
+    //! when this action is in its list. The value should be used as defined
+    //! in CreatureMoodValues
+    virtual uint32_t updateMoodModifier() const
+    { return CreatureMoodValues::Nothing; }
 
     static std::string toString(CreatureActionType actionType);
 

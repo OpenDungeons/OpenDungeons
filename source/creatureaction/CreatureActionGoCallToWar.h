@@ -19,6 +19,7 @@
 #define CREATUREACTIONGOCALLTOWAR_H
 
 #include "creatureaction/CreatureAction.h"
+#include "entities/CreatureMoodValues.h"
 
 class CreatureActionGoCallToWar : public CreatureAction
 {
@@ -34,6 +35,9 @@ public:
     { return CreatureActionType::goCallToWar; }
 
     std::function<bool()> action() override;
+
+    uint32_t updateMoodModifier() const override
+    { return CreatureMoodValues::GoToCallToWar; }
 
     static bool handleWalkToTile(Creature& creature);
 };
