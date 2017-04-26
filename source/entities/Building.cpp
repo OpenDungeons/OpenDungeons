@@ -426,6 +426,7 @@ bool Building::importFromStream(std::istream& is)
             continue;
         }
 
+        //FIXME: Some of these are not deleted. Maybe use smart pointers here?
         TileData* tileData = createTileData(tile);
         mTileData[tile] = tileData;
         tileData->mSeatsVision = alliedSeats;

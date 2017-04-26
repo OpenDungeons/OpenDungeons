@@ -160,7 +160,7 @@ class GameEntity
           Seat*           seat        = nullptr
           );
 
-    virtual ~GameEntity() {}
+    virtual ~GameEntity();
 
     std::string getOgreNamePrefix() const;
 

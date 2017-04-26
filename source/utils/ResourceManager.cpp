@@ -481,10 +481,10 @@ void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
             // for locating your configuration files and resources.
 
             Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                    Ogre::String(std::string(mMacBundlePath) + archName), typeName, secName, true);
+                    Ogre::String(std::string(mMacBundlePath) + archName), typeName, secName, false);
 #else
             Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                    archName, typeName, secName, true);
+                    archName, typeName, secName, false);
 #endif
         }
     }

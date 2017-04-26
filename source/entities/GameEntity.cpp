@@ -103,6 +103,14 @@ GameEntity::GameEntity(
     assert(mGameMap != nullptr);
 }
 
+GameEntity::~GameEntity()
+{
+    for (auto* e : mEntityParticleEffects)
+    {
+        delete e;
+    };
+}
+
 void GameEntity::deleteYourself()
 {
     destroyMesh();

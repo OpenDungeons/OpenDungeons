@@ -69,7 +69,7 @@ static SpellRegister reg(new SpellCallToWarFactory);
 }
 
 SpellCallToWar::SpellCallToWar(GameMap* gameMap) :
-    Spell(gameMap, SpellManager::getSpellNameFromSpellType(getSpellType()), "WarBanner", 0.0,
+    Spell(gameMap, SpellManager::getSpellNameFromSpellType(SpellType::callToWar), "WarBanner", 0.0,
         ConfigManager::getSingleton().getSpellConfigInt32("CallToWarNbTurnsMax"))
 {
     mPrevAnimationState = "Loop";
