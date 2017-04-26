@@ -59,6 +59,7 @@ void CreatureEffectSpeedChange::applyEffect(Creature& creature)
 
 void CreatureEffectSpeedChange::releaseEffect(Creature& creature)
 {
+    //FIXME: sanitizer reports that this is called at least once on something that is not a creature.
     if(!creature.isAlive())
         return;
 
