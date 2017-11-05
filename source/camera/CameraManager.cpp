@@ -253,6 +253,17 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
     else if (newPosition.z >= MAX_CAMERA_Z)
         newPosition.z = MAX_CAMERA_Z;
 
+    if (newPosition.x <= 0)
+        newPosition.x = 0;
+    else if (newPosition.x >= mGameMap->getMapSizeX())
+        newPosition.x = mGameMap->getMapSizeX();
+
+    if (newPosition.y <= 0)
+        newPosition.y = 0;
+    else if (newPosition.y >= mGameMap->getMapSizeY())
+        newPosition.y = mGameMap->getMapSizeY();
+
+    
     // Prevent the tilting to show a reversed world or looking too high.
     if (mRotateLocalVector.x != 0)
     {
