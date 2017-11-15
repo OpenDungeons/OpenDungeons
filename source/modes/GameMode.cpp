@@ -370,7 +370,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         else
             ODFrameListener::getSingleton().moveCamera(CameraManager::stopLeft);
 
-        if (arg.state.X.abs == arg.state.width)
+        if (arg.state.X.abs >= 0.98 * arg.state.width)
             ODFrameListener::getSingleton().moveCamera(CameraManager::moveRight);
         else
             ODFrameListener::getSingleton().moveCamera(CameraManager::stopRight);
@@ -380,7 +380,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         else
             ODFrameListener::getSingleton().moveCamera(CameraManager::stopForward);
 
-        if (arg.state.Y.abs == arg.state.height)
+        if (arg.state.Y.abs >= 0.98 * arg.state.height)
             ODFrameListener::getSingleton().moveCamera(CameraManager::moveBackward);
         else
             ODFrameListener::getSingleton().moveCamera(CameraManager::stopBackward);            
