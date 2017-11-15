@@ -36,7 +36,7 @@
 #include <algorithm>
 
 //! The camera base moving speed.
-const Ogre::Real MOVE_SPEED = 2.0;
+const Ogre::Real MOVE_SPEED = 1.0;
 const Ogre::Real MOVE_SPEED_ACCELERATION = 2.0 * MOVE_SPEED;
 
 //! The camera moving speed factor on Z axis.
@@ -253,6 +253,17 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
     else if (newPosition.z >= MAX_CAMERA_Z)
         newPosition.z = MAX_CAMERA_Z;
 
+    if (newPosition.x <= 0)
+        newPosition.x = 0;
+    else if (newPosition.x >= mGameMap->getMapSizeX())
+        newPosition.x = mGameMap->getMapSizeX();
+
+    if (newPosition.y <= 0)
+        newPosition.y = 0;
+    else if (newPosition.y >= mGameMap->getMapSizeY())
+        newPosition.y = mGameMap->getMapSizeY();
+
+    
     // Prevent the tilting to show a reversed world or looking too high.
     if (mRotateLocalVector.x != 0)
     {
@@ -477,7 +488,8 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case stopRight:
-        mTranslateVectorAccel.x = 0;
+        if(mTranslateVectorAccel.x >= 0)
+            mTranslateVectorAccel.x = 0;
         break;
 
     case moveLeft:
@@ -488,7 +500,8 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case stopLeft:
-        mTranslateVectorAccel.x = 0;
+        if(mTranslateVectorAccel.x <= 0)
+            mTranslateVectorAccel.x = 0;
         break;
 
     case moveBackward:
@@ -499,6 +512,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case stopBackward:
+        if(mTranslateVectorAccel.y <= 0)
             mTranslateVectorAccel.y = 0;
         break;
 
@@ -510,7 +524,8 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case stopForward:
-        mTranslateVectorAccel.y = 0;
+        if(mTranslateVectorAccel.y >= 0)
+            mTranslateVectorAccel.y = 0;
         break;
 
     case moveUp:
