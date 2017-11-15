@@ -36,7 +36,7 @@
 #include <algorithm>
 
 //! The camera base moving speed.
-const Ogre::Real MOVE_SPEED = 2.0;
+const Ogre::Real MOVE_SPEED = 1.0;
 const Ogre::Real MOVE_SPEED_ACCELERATION = 2.0 * MOVE_SPEED;
 
 //! The camera moving speed factor on Z axis.
@@ -488,7 +488,8 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case stopRight:
-        mTranslateVectorAccel.x = 0;
+        if(mTranslateVectorAccel.x >= 0)
+            mTranslateVectorAccel.x = 0;
         break;
 
     case moveLeft:
@@ -499,7 +500,8 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case stopLeft:
-        mTranslateVectorAccel.x = 0;
+        if(mTranslateVectorAccel.x <= 0)
+            mTranslateVectorAccel.x = 0;
         break;
 
     case moveBackward:
@@ -510,6 +512,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case stopBackward:
+        if(mTranslateVectorAccel.y <= 0)
             mTranslateVectorAccel.y = 0;
         break;
 
@@ -521,7 +524,8 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case stopForward:
-        mTranslateVectorAccel.y = 0;
+        if(mTranslateVectorAccel.y >= 0)
+            mTranslateVectorAccel.y = 0;
         break;
 
     case moveUp:

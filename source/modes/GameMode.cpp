@@ -46,7 +46,6 @@
 #include "traps/Trap.h"
 #include "traps/TrapManager.h"
 #include "traps/TrapType.h"
-#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
@@ -77,7 +76,9 @@ GameMode::GameMode(ModeManager *modeManager):
     mIsSkillWindowOpen(false),
     mCurrentSkillType(SkillType::nullSkillType),
     mCurrentSkillProgress(0.0),
-    mPreviousMousePosition(MouseMoveEvent{0, 0})
+    mPreviousMousePosition(MouseMoveEvent{0, 0}),
+    directionKeyPressed(false),
+    config(ConfigManager::getSingleton())
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
@@ -362,6 +363,29 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         ODFrameListener::getSingleton().moveCamera(CameraManager::randomRotateY,mouseDelta.y);
     }
 
+    if (!directionKeyPressed && config.getInputValue(Config::AUTOSCROLL, "No", false) == "Yes")
+    {
+        if (arg.state.X.abs == 0)
+            ODFrameListener::getSingleton().moveCamera(CameraManager::moveLeft);
+        else
+            ODFrameListener::getSingleton().moveCamera(CameraManager::stopLeft);
+
+        if (arg.state.X.abs == arg.state.width)
+            ODFrameListener::getSingleton().moveCamera(CameraManager::moveRight);
+        else
+            ODFrameListener::getSingleton().moveCamera(CameraManager::stopRight);
+
+        if (arg.state.Y.abs == 0)
+            ODFrameListener::getSingleton().moveCamera(CameraManager::moveForward);
+        else
+            ODFrameListener::getSingleton().moveCamera(CameraManager::stopForward);
+
+        if (arg.state.Y.abs == arg.state.height)
+            ODFrameListener::getSingleton().moveCamera(CameraManager::moveBackward);
+        else
+            ODFrameListener::getSingleton().moveCamera(CameraManager::stopBackward);            
+    }
+ 
     // If we have a room/trap/spell selected, show it
     // TODO: This should be changed, or combined with an icon or something later.
     TextRenderer& textRenderer = TextRenderer::getSingleton();
@@ -829,21 +853,25 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
     case OIS::KC_LEFT:
     case OIS::KC_A:
         frameListener.moveCamera(CameraManager::Direction::moveLeft);
+        directionKeyPressed = true;
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
         frameListener.moveCamera(CameraManager::Direction::moveRight);
+        directionKeyPressed = true;        
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
         frameListener.moveCamera(CameraManager::Direction::moveForward);
+        directionKeyPressed = true;
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
         frameListener.moveCamera(CameraManager::Direction::moveBackward);
+        directionKeyPressed = true;
         break;
 
     case OIS::KC_Q:
@@ -1026,21 +1054,25 @@ bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
     case OIS::KC_LEFT:
     case OIS::KC_A:
         frameListener.moveCamera(CameraManager::Direction::stopLeft);
+        directionKeyPressed = false;
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
         frameListener.moveCamera(CameraManager::Direction::stopRight);
+        directionKeyPressed = false;
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
         frameListener.moveCamera(CameraManager::Direction::stopForward);
+        directionKeyPressed = false;       
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
         frameListener.moveCamera(CameraManager::Direction::stopBackward);
+        directionKeyPressed = false;
         break;
 
     case OIS::KC_Q:

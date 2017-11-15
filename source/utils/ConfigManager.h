@@ -56,6 +56,7 @@ const std::string MUSIC_VOLUME = "Music Volume";
 // Input
 const std::string KEYBOARD_GRAB = "Keyboard Grab";
 const std::string MOUSE_GRAB = "Mouse Grab";
+const std::string AUTOSCROLL = "Autoscroll";
 // Game
 const std::string NICKNAME = "Nickname";
 const std::string KEEPERVOICE = "KeeperVoice";

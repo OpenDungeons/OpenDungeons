@@ -105,6 +105,11 @@
                         <Property name="Text" value="Mouse grab" />
                         <Property name="TooltipText" value="When checked, the mouse is grabbed and can't be used in other applications (requires restart)." />
                     </Window>
+                    <Window type="OD/Checkbox" name="AutoscrollCheckbox" >
+                        <Property name="Area" value="{{0,32},{0,120},{0,150},{0,140}}" />
+                        <Property name="Text" value="Autoscroll" />
+                        <Property name="TooltipText" value="When checked, if the mouse cousor is on the screen border it will make camera fly " />
+                    </Window>
                 </Window>
             </Window>
             <Window type="DefaultWindow" name="Game" >

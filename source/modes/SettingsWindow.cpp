@@ -217,6 +217,10 @@ void SettingsWindow::initConfig()
         mRootWindow->getChild("SettingsWindow/MainTabControl/Input/InputSP/MouseGrabCheckbox"));
     mouseGrabCheckbox->setSelected(config.getInputValue(Config::MOUSE_GRAB, "No", false) == "Yes");
 
+    CEGUI::ToggleButton* autoscrollCheckbox = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Input/InputSP/AutoscrollCheckbox"));
+    autoscrollCheckbox->setSelected(config.getInputValue(Config::AUTOSCROLL, "No", false) == "Yes");
+    
     // Audio
     std::string volumeStr = config.getAudioValue(Config::MUSIC_VOLUME, std::string(), false);
     float volume = volumeStr.empty() ? sf::Listener::getGlobalVolume() : Helper::toFloat(volumeStr);
@@ -405,6 +409,10 @@ void SettingsWindow::saveConfig()
         mRootWindow->getChild("SettingsWindow/MainTabControl/Input/InputSP/MouseGrabCheckbox"));
     config.setInputValue(Config::MOUSE_GRAB, mouseGrabCheckbox->isSelected() ? "Yes" : "No");
 
+    CEGUI::ToggleButton* autoscrollCheckbox = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Input/InputSP/AutoscrollCheckbox"));
+    config.setInputValue(Config::AUTOSCROLL, autoscrollCheckbox->isSelected() ? "Yes" : "No");
+    
     // Audio
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/AudioSP/MusicSlider"));

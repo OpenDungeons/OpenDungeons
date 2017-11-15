@@ -24,6 +24,7 @@
 #include "modes/InputBridge.h"
 #include "modes/SettingsWindow.h"
 
+#include "utils/ConfigManager.h"
 #include <CEGUI/EventArgs.h>
 
 namespace CEGUI
@@ -250,6 +251,10 @@ private:
     bool isMouseDownOnCEGUIWindow();
     bool isMouseWheelOnCEGUIWindow();
 
+     //! \brief Whether the keyboard keys moving camera are pressed down
+    bool directionKeyPressed;
+    const ConfigManager &config;
+    
     //! \brief Called when there is a mouse input change
     void checkInputCommand();
     void handlePlayerActionNone();
