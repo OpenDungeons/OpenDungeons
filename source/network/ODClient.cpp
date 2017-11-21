@@ -1000,6 +1000,7 @@ void ODClient::addEventMessage(EventMessage* event)
         }
         // Note: Later, we can handle other modes here.
         default:
+            delete event;
             break;
     }
 }
