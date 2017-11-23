@@ -114,11 +114,11 @@ private:
 
     inline void drawPixelToMemory(Ogre::uint8*& pDest, unsigned char RR, unsigned char GG, unsigned char BB)
     {
-        pDest++; //A, unused, shouldn't be here
+        // pDest++; //A, unused, shouldn't be here
         // this is the order of colors I empirically found outto be working :)
         *pDest++ = BB;  //B
-        *pDest++ = GG;  //G
-        *pDest++ = RR;  //R
+        *pDest++ = RR;  //G
+        *pDest++ = GG;  //R
     }
 
     GameMap& mGameMap;
