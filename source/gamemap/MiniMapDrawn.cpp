@@ -233,14 +233,19 @@ void MiniMapDrawn::update(Ogre::Real timeSinceLastFrame, const std::vector<Ogre:
     //     }
     // }
 
-    mPixelBuffer->lock(mPixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
+    auto output = mPixelBuffer->lock(mPixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
 
-    Ogre::uint8* pDest;
-    pDest = static_cast<Ogre::uint8*>(mPixelBuffer->getCurrentLock().data) - 1;
-
+    size_t x = 0;
+    size_t y = 0;
     for(const Color& color : mTiles)
     {
-        drawPixelToMemory(pDest, color.RR, color.GG, color.BB);
+        // TODO: This is probably a bit inefficient at the moment.
+        output.setColourAt(Ogre::ColourValue(color.RR/255.0, color.GG/255.0, color.BB/255.0), x, y, 0);
+        ++x;
+        if(x == mWidth) {
+            x = 0;
+            ++y;
+        }
     }
 
     mPixelBuffer->unlock();
