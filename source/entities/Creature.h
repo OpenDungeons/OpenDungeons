@@ -2,7 +2,7 @@
  * \file   Creature.h
  * \brief  Creature class
  *
- *  Copyright (C) 2011-2016  OpenDungeons Team
+ *  Copyright (C) 2011-2017  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -82,13 +82,13 @@ public:
 };
 
 //! Class used on server side to link creature effects (spells, slap, ...) with particle effects
-class CreatureParticuleEffect : public EntityParticleEffect
+class CreatureParticleEffect : public EntityParticleEffect
 {
 public:
-    CreatureParticuleEffect(Creature& creature, const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
+    CreatureParticleEffect(Creature& creature, const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
         CreatureEffect* effect);
 
-    virtual ~CreatureParticuleEffect();
+    virtual ~CreatureParticleEffect();
 
     virtual EntityParticleEffectType getEntityParticleEffectType() const override
     { return EntityParticleEffectType::creature; }

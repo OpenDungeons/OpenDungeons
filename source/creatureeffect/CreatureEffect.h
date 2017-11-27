@@ -52,6 +52,8 @@ public:
     bool upkeepEffect(Creature& creature);
 
     //! This function will be called when the effect is released
+    //!
+    //! Note that this will not be called when a creature object is deleted.
     virtual void releaseEffect(Creature& creature)
     {}
 

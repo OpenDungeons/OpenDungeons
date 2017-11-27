@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2016  OpenDungeons Team
+ *  Copyright (C) 2011-2017  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -100,7 +100,7 @@ static const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 const int32_t Creature::NB_TURNS_BEFORE_CHECKING_TASK = 15;
 const uint32_t Creature::NB_OVERLAY_HEALTH_VALUES = 8;
 
-CreatureParticuleEffect::CreatureParticuleEffect(Creature& creature, const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
+CreatureParticleEffect::CreatureParticleEffect(Creature& creature, const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
         CreatureEffect* effect) :
     EntityParticleEffect(name, script, nbTurnsEffect),
     mEffect(effect),
@@ -115,15 +115,15 @@ CreatureParticuleEffect::CreatureParticuleEffect(Creature& creature, const std::
     mEffect->startEffect(mCreature);
 }
 
-CreatureParticuleEffect::~CreatureParticuleEffect()
+CreatureParticleEffect::~CreatureParticleEffect()
 {
     if(mEffect != nullptr)
     {
-        mEffect->releaseEffect(mCreature);
+        // We don't call release here as the
+        // creature object is already partially destroyed.
+        // mEffect->releaseEffect(mCreature);
         delete mEffect;
     }
-
-    mEffect = nullptr;
 }
 
 Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position) :
@@ -393,9 +393,9 @@ void Creature::exportToStream(std::ostream& os) const
         if(effect->getEntityParticleEffectType() != EntityParticleEffectType::creature)
             continue;
 
-        CreatureParticuleEffect* creatureParticuleEffect = static_cast<CreatureParticuleEffect*>(effect);
+        CreatureParticleEffect* creatureParticleEffect = static_cast<CreatureParticleEffect*>(effect);
         os << "\t";
-        CreatureEffectManager::write(*creatureParticuleEffect->mEffect, os);
+        CreatureEffectManager::write(*creatureParticleEffect->mEffect, os);
     }
 }
 
@@ -792,7 +792,7 @@ void Creature::doUpkeep()
     // We apply creature effects if any
     for(auto it = mEntityParticleEffects.begin(); it != mEntityParticleEffects.end();)
     {
-        CreatureParticuleEffect* effect = static_cast<CreatureParticuleEffect*>(*it);
+        CreatureParticleEffect* effect = static_cast<CreatureParticleEffect*>(*it);
         if(effect->mEffect->upkeepEffect(*this))
         {
             ++it;
@@ -2949,7 +2949,7 @@ void Creature::addCreatureEffect(CreatureEffect* effect)
 
     OD_LOG_INF("Added CreatureEffect name=" + effectName + " on creature=" + getName());
 
-    CreatureParticuleEffect* particleEffect = new CreatureParticuleEffect(*this, effectName, effect->getParticleEffectScript(),
+    CreatureParticleEffect* particleEffect = new CreatureParticleEffect(*this, effectName, effect->getParticleEffectScript(),
         effect->getNbTurnsEffect(), effect);
     mEntityParticleEffects.push_back(particleEffect);
 
