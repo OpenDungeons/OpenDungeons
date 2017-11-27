@@ -313,14 +313,13 @@ void colourFromPixelValue(MiniMapDrawnFullPixel pixelValue, Seat* seatIfClaimed,
         for(uint32_t y = minimapYMin; y < minimapYMax; ++y)
         {
             Ogre::uint8* pDest = static_cast<Ogre::uint8*>(pixelBuffer->getCurrentLock().data) - 1;
-            pDest += (minimapWidth * (minimapHeight - y - 1) * 4);
-            pDest += (x * 4);
+            pDest += (minimapWidth * (minimapHeight - y - 1) * 3);
+            pDest += (x * 3);
 
-            pDest++; //A, unused, shouldn't be here
             // this is the order of colors I empirically found out to be working :)
             *pDest++ = BB;  //B
-            *pDest++ = GG;  //G
-            *pDest++ = RR;  //R
+            *pDest++ = RR;  //G
+            *pDest++ = GG;  //R
         }
     }
     pixelBuffer->unlock();
@@ -628,10 +627,10 @@ void MiniMapDrawnFull::update(Ogre::Real timeSinceLastFrame, const std::vector<O
             for(uint32_t yyy = listener->mMinimapYMin; yyy < listener->mMinimapYMax; ++yyy)
             {
                 Ogre::uint8* pDest = static_cast<Ogre::uint8*>(mPixelBuffer->getCurrentLock().data) - 1;
-                pDest += (mWidth * (mHeight - yyy - 1) * 4);
-                pDest += (xxx * 4);
+                pDest += (mWidth * (mHeight - yyy - 1) * 3);
+                pDest += (xxx * 3);
 
-                pDest++; //A, unused, shouldn't be here
+                // pDest++; //A, unused, shouldn't be here
                 // this is the order of colors I empirically found out to be working :)
                 *pDest++ = 0x00;  //B
                 *pDest++ = 0x00;  //G
