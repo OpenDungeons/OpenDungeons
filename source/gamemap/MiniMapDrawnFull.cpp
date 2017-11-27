@@ -307,10 +307,10 @@ void colourFromPixelValue(MiniMapDrawnFullPixel pixelValue, Seat* seatIfClaimed,
         }
     }
 
+    auto output = pixelBuffer->lock(pixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
+
     assert(minimapXMax <= output.getWidth());
     assert(minimapYMax <= output.getHeight());
-
-    auto output = pixelBuffer->lock(pixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
 
     for(size_t xx = minimapXMin; xx < minimapXMax; ++xx)
     {
