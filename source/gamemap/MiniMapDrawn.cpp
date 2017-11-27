@@ -235,16 +235,16 @@ void MiniMapDrawn::update(Ogre::Real timeSinceLastFrame, const std::vector<Ogre:
 
     auto output = mPixelBuffer->lock(mPixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
 
-    size_t x = 0;
-    size_t y = 0;
+    size_t xx = 0;
+    size_t yy = 0;
     for(const Color& color : mTiles)
     {
         // TODO: This is probably a bit inefficient at the moment.
-        output.setColourAt(Ogre::ColourValue(color.RR/255.0, color.GG/255.0, color.BB/255.0), x, y, 0);
-        ++x;
-        if(x == mWidth) {
-            x = 0;
-            ++y;
+        output.setColourAt(Ogre::ColourValue(color.RR/255.0, color.GG/255.0, color.BB/255.0), xx, yy, 0);
+        ++xx;
+        if(xx == mWidth) {
+            xx = 0;
+            ++yy;
         }
     }
 
