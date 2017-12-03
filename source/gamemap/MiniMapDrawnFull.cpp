@@ -185,7 +185,7 @@ MiniMapDrawnFullPixel getPixelValueFromTile(Seat& playerSeat, Tile& tile)
 }
 
 void colourFromPixelValue(MiniMapDrawnFullPixel pixelValue, Seat* seatIfClaimed,
-        Ogre::HardwarePixelBufferSharedPtr pixelBuffer, Ogre::PixelBox pixelBox,
+        Ogre::HardwarePixelBufferSharedPtr& pixelBuffer, Ogre::PixelBox pixelBox,
         uint32_t minimapWidth, uint32_t minimapHeight, uint32_t minimapXMin,
         uint32_t minimapXMax, uint32_t minimapYMin, uint32_t minimapYMax)
 {
@@ -307,22 +307,21 @@ void colourFromPixelValue(MiniMapDrawnFullPixel pixelValue, Seat* seatIfClaimed,
         }
     }
 
-    pixelBuffer->lock(pixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
-    for(uint32_t x = minimapXMin; x < minimapXMax; ++x)
-    {
-        for(uint32_t y = minimapYMin; y < minimapYMax; ++y)
-        {
-            Ogre::uint8* pDest = static_cast<Ogre::uint8*>(pixelBuffer->getCurrentLock().data) - 1;
-            pDest += (minimapWidth * (minimapHeight - y - 1) * 4);
-            pDest += (x * 4);
+    auto output = pixelBuffer->lock(pixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
 
-            pDest++; //A, unused, shouldn't be here
-            // this is the order of colors I empirically found out to be working :)
-            *pDest++ = BB;  //B
-            *pDest++ = GG;  //G
-            *pDest++ = RR;  //R
+    assert(minimapXMax <= output.getWidth());
+    assert(minimapYMax <= output.getHeight());
+
+    for(size_t xx = minimapXMin; xx < minimapXMax; ++xx)
+    {
+        for(size_t yy = minimapYMin; yy < minimapYMax; ++yy)
+        {
+            // TODO: This is probably a bit inefficient at the moment.
+            output.setColourAt(Ogre::ColourValue(RR/255.0, GG/255.0, BB/255.0), xx, output.getHeight() - yy, 0);
+
         }
     }
+
     pixelBuffer->unlock();
 }
 }
@@ -583,7 +582,7 @@ void MiniMapDrawnFull::update(Ogre::Real timeSinceLastFrame, const std::vector<O
     mVisibleRectangle.clear();
 
     // And we paint the new visible rectangle
-    mPixelBuffer->lock(mPixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
+    auto output = mPixelBuffer->lock(mPixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
 
     // we look for the tiles at the border of vision to paint them black
     for(MiniMapDrawnFullTileStateListener* listener : mTileStateListeners)
@@ -627,15 +626,8 @@ void MiniMapDrawnFull::update(Ogre::Real timeSinceLastFrame, const std::vector<O
         {
             for(uint32_t yyy = listener->mMinimapYMin; yyy < listener->mMinimapYMax; ++yyy)
             {
-                Ogre::uint8* pDest = static_cast<Ogre::uint8*>(mPixelBuffer->getCurrentLock().data) - 1;
-                pDest += (mWidth * (mHeight - yyy - 1) * 4);
-                pDest += (xxx * 4);
-
-                pDest++; //A, unused, shouldn't be here
-                // this is the order of colors I empirically found out to be working :)
-                *pDest++ = 0x00;  //B
-                *pDest++ = 0x00;  //G
-                *pDest++ = 0x00;  //R
+                output.setColourAt(Ogre::ColourValue(0.0f, 0.0f, 0.0f), xxx,
+                                   output.getHeight() - yyy, 0);
             }
         }
     }
