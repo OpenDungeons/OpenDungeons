@@ -1,0 +1,25 @@
+// Background
+material Background
+{
+    receive_shadows off
+    depth_write on
+    technique
+    {
+        pass
+        {
+            ambient 0.0 0.0 0.0 1.0
+            diffuse 0.8 0.8 0.8 1.0
+            specular 0.0 0.0 0.0 1.0 2.0
+            emissive 1.0 1.0 1.0 1.0
+            depth_write on
+            texture_unit
+            {
+                texture starsedit.jpg
+                tex_address_mode wrap
+                scale 1.0 1.0
+                depth_write on
+                filtering trilinear
+            }
+        }
+    }
+}

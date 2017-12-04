@@ -232,6 +232,9 @@ private:
     //! \brief Checks if the camera is moving at all by evaluating all momentums
     //! This permits to avoid useless computations when the camera doesn't move.
     bool isCameraMovingAtAll() const;
+
+    Ogre::Real mMoveSpeed;
+    Ogre::Real mMoveSpeedAcceleration;
 };
 
 #endif // CAMERAMANAGER_H_
