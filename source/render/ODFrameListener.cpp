@@ -232,6 +232,11 @@ void ODFrameListener::renderQueueStarted(Ogre::uint8 queueGroupId, const Ogre::S
         Ogre::Root::getSingleton().getRenderSystem()->clearFrameBuffer(Ogre::FBT_DEPTH);
         CEGUI::System::getSingleton().renderAllGUIContexts();
     }
+    else if(queueGroupId == Ogre::RenderQueueGroupID::RENDER_QUEUE_MAIN )
+    {
+        Ogre::Root::getSingleton().getRenderSystem()->clearFrameBuffer(Ogre::FBT_DEPTH);
+    }
+    
 }
 
 bool ODFrameListener::quit(const CEGUI::EventArgs &e)

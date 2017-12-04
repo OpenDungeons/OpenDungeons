@@ -31,13 +31,13 @@
 #include <OgreSceneManager.h>
 #include <OgreViewport.h>
 #include <OgreRenderWindow.h>
-
+#include <OgreMaterialManager.h>
+#include <OgreRectangle2D.h>
 
 #include <algorithm>
 
-//! The camera base moving speed.
-const Ogre::Real MOVE_SPEED = 1.0;
-const Ogre::Real MOVE_SPEED_ACCELERATION = 2.0 * MOVE_SPEED;
+const Ogre::Real Z_MOVE_SPEED = 1.0;
+const Ogre::Real Z_MOVE_SPEED_ACCELERATION = 2.0 * Z_MOVE_SPEED;
 
 //! The camera moving speed factor on Z axis.
 const Ogre::Real ZOOM_SPEED = 4.0;
@@ -83,6 +83,23 @@ CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre
     setActiveCamera("RTS");
     setActiveCameraNode("RTS");
 
+
+    //Create the Background Material
+    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("Background");
+	 
+    // Create background rectangle covering the whole screen
+    Ogre::Rectangle2D* rect = new Ogre::Rectangle2D(true);
+    rect->setCorners(-1.0, 1.0, 1.0, -1.0);
+    rect->setMaterial("Background");
+    // Render the background before everything else
+    rect->setRenderQueueGroup(Ogre::RenderQueueGroupID::RENDER_QUEUE_SKIES_EARLY);
+    // Set the bounding box to something big
+    rect->setBoundingBox(Ogre::AxisAlignedBox(-100000.0*Ogre::Vector3::UNIT_SCALE, 100000.0*Ogre::Vector3::UNIT_SCALE));
+	 
+    // Attach background to the scene
+    Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode("Background");
+    node->attachObject(rect);
+    
     OD_LOG_INF("Created camera manager");
 }
 
@@ -203,19 +220,22 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
     if (!isCameraMovingAtAll())
         return;
 
+    mMoveSpeed = getActiveCameraNode()->getPosition().z / 16.0;
+    mMoveSpeedAcceleration = 2.0 * mMoveSpeed;
+    
     // Carry out the acceleration/deceleration calculations on the camera translation.
     Ogre::Real speed = mTranslateVector.normalise();
-    mTranslateVector *= static_cast<Ogre::Real>(std::max(0.0, speed - (0.75 + (speed / MOVE_SPEED))
-                        * MOVE_SPEED_ACCELERATION * frameTime));
+    mTranslateVector *= static_cast<Ogre::Real>(std::max(0.0, speed - (0.75 + (speed / mMoveSpeed))
+                        * mMoveSpeedAcceleration * frameTime));
     mTranslateVector += mTranslateVectorAccel * static_cast<Ogre::Real>(frameTime * 2.0);
 
     // If we have sped up to more than the maximum moveSpeed then rescale the
     // vector to that length. We use the squaredLength() in this calculation
     // since squaring the RHS is faster than sqrt'ing the LHS.
-    if (mTranslateVector.squaredLength() > MOVE_SPEED * MOVE_SPEED)
+    if (mTranslateVector.squaredLength() > mMoveSpeed * mMoveSpeed)
     {
         speed = mTranslateVector.length();
-        mTranslateVector *= MOVE_SPEED / speed;
+        mTranslateVector *= mMoveSpeed / speed;
     }
 
     // Get the camera's current position.
@@ -239,9 +259,9 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
         // We also stow and stop the movement here, as the keyboard release events
         // and mouse wheel event are otherwise colliding on handling the zoom.
         if (mZChange > 0)
-            mZChange -= MOVE_SPEED;
+            mZChange -= Z_MOVE_SPEED;
         else if (mZChange < 0)
-            mZChange += MOVE_SPEED;
+            mZChange += Z_MOVE_SPEED;
     }
 
     // Update the position for the other axices.
@@ -482,9 +502,9 @@ void CameraManager::move(const Direction direction, double aux)
     {
     case moveRight:
         if (currentPitch <= 0.0)
-            mTranslateVectorAccel.x += MOVE_SPEED_ACCELERATION;
+            mTranslateVectorAccel.x += mMoveSpeedAcceleration;
         else
-            mTranslateVectorAccel.x -= MOVE_SPEED_ACCELERATION;
+            mTranslateVectorAccel.x -= mMoveSpeedAcceleration;
         break;
 
     case stopRight:
@@ -494,9 +514,9 @@ void CameraManager::move(const Direction direction, double aux)
 
     case moveLeft:
         if (currentPitch <= 0.0)
-            mTranslateVectorAccel.x -= MOVE_SPEED_ACCELERATION;
+            mTranslateVectorAccel.x -= mMoveSpeedAcceleration;
         else
-            mTranslateVectorAccel.x += MOVE_SPEED_ACCELERATION;
+            mTranslateVectorAccel.x += mMoveSpeedAcceleration;
         break;
 
     case stopLeft:
@@ -506,9 +526,9 @@ void CameraManager::move(const Direction direction, double aux)
 
     case moveBackward:
         if (currentPitch <= 0.0)
-            mTranslateVectorAccel.y -= MOVE_SPEED_ACCELERATION;
+            mTranslateVectorAccel.y -= mMoveSpeedAcceleration;
         else
-            mTranslateVectorAccel.y += MOVE_SPEED_ACCELERATION;
+            mTranslateVectorAccel.y += mMoveSpeedAcceleration;
         break;
 
     case stopBackward:
@@ -518,9 +538,9 @@ void CameraManager::move(const Direction direction, double aux)
 
     case moveForward:
         if (currentPitch <= 0.0)
-            mTranslateVectorAccel.y += MOVE_SPEED_ACCELERATION;
+            mTranslateVectorAccel.y += mMoveSpeedAcceleration;
         else
-            mTranslateVectorAccel.y -= MOVE_SPEED_ACCELERATION;
+            mTranslateVectorAccel.y -= mMoveSpeedAcceleration;
         break;
 
     case stopForward:
@@ -529,14 +549,14 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case moveUp:
-        mZChange += MOVE_SPEED_ACCELERATION;
+        mZChange += Z_MOVE_SPEED_ACCELERATION;
         break;
 
     case stopUp:
         break;
 
     case moveDown:
-        mZChange -= MOVE_SPEED_ACCELERATION;
+        mZChange -= Z_MOVE_SPEED_ACCELERATION;
         break;
 
     case stopDown:
