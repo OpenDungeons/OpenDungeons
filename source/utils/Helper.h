@@ -138,6 +138,7 @@ namespace Helper
     std::string toString(uint32_t d);
     std::string toString(int64_t d);
     std::string toString(uint64_t d);
+    std::string toString(size_t d);
     std::string toString(const Ogre::Vector3& v);
     std::string toStringWithoutZ(const Ogre::Vector3& v);
     std::string toString(const Ogre::ColourValue& c);

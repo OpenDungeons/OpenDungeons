@@ -206,6 +206,19 @@ endif()
 set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS}")
 message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 
+set(EXTRA_LIBRARIES "")
+
+if(CMAKE_SYSTEM_NAME MATCHES "BSD")
+    find_path(EXECINFO_INC execinfo.h)
+    find_library(EXECINFO_LIB execinfo)
+    if (NOT EXECINFO_INC OR NOT EXECINFO_LIB)
+        message(FATAL_ERROR "Needs execinfo library for backtrace")
+    endif()
+
+    include_directories(${EXECINFO_LIB})
+    set(EXTRA_LIBRARIES ${EXECINFO_LIB})
+endif()
+
 ##################################
 #### Source files (.cpp) #########
 ##################################
@@ -613,6 +626,7 @@ target_link_libraries(
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES}
     ${CEGUI_OgreRenderer_LIBRARIES}
+    ${EXTRA_LIBRARIES}
 )
 
 # Set linker options in MSVC
