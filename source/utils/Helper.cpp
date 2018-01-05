@@ -274,10 +274,12 @@ namespace Helper
     {
         return TTostring(d);
     }
+    #ifndef __x86_64
     std::string toString(size_t d)
     {
         return TTostring(d);
     }
+    #endif
     std::string toString(const Ogre::Vector3& v)
     {
         return "(" + TTostring(v.x)
