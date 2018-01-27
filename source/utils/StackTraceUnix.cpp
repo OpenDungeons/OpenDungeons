@@ -107,13 +107,13 @@ void StackTracePrintPrivateData::critErrHandler(int sig_num, siginfo_t* info, vo
     sig_ucontext_t* uc = static_cast<sig_ucontext_t*>(ucontext);
 
 #if defined(__i386__) // gcc specific
-#if !defined(__OpenBSD__)
+#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
     caller_address = reinterpret_cast<void*>(uc->uc_mcontext.eip); // EIP: x86 specific
 #else
     caller_address = reinterpret_cast<void*>(uc->uc_mcontext.sc_eip); // EIP: x86 specific
 #endif
 #elif defined(__x86_64__) // gcc specific
-#if !defined(__OpenBSD__)
+#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
     caller_address = reinterpret_cast<void*>(uc->uc_mcontext.rip); // RIP: x86_64 specific
 #else
     caller_address = reinterpret_cast<void*>(uc->uc_mcontext.sc_rip); // RIP: x86_64 specific
