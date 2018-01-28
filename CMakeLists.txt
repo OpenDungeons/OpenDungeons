@@ -32,8 +32,8 @@ else()
     # Set binary and data install locations if we want to use the installer
     set(OD_BIN_PATH ${CMAKE_INSTALL_PREFIX}/games CACHE PATH "Absolute path to the game binary directory")
     set(OD_DATA_PATH ${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME} CACHE PATH "Absolute path to the game data directory")
-    set(OD_MAN_PATH ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Absolute path to the manpages directory")
     set(OD_SHARE_PATH ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Absolute path to the shared data directory (desktop file, icons, etc.)")
+    set(OD_MAN_PATH ${OD_SHARE_PATH}/man CACHE PATH "Absolute path to the manpages directory")
     # Set the plugins.cfg file path to a common but architecture-dependent location.
     # Because the plugins.cfg Ogre plugins path path may vary depending on the architecture used.
     set(OD_PLUGINS_CFG_PATH /etc/${PROJECT_NAME} CACHE PATH "Absolute path to the Ogre plugins.cfg file")
@@ -782,7 +782,7 @@ if(UNIX)
     install(FILES ${CMAKE_BINARY_DIR}/opendungeons.desktop
             DESTINATION ${OD_SHARE_PATH}/applications)
     install(FILES ${CMAKE_BINARY_DIR}/opendungeons.6
-	    DESTINATION ${OD_MAN_PATH}/man/man6)
+            DESTINATION ${OD_MAN_PATH}/man6)
     install(FILES ${OD_DOC}
             DESTINATION ${OD_SHARE_PATH}/doc/${PROJECT_NAME})
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/hicolor
