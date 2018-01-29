@@ -630,11 +630,6 @@ target_link_libraries(
     ${EXTRA_LIBRARIES}
 )
 
-# backtrace functions are not part of libc like on Linux platform
-if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
-    target_link_libraries(${PROJECT_BINARY_NAME} execinfo)
-endif()
-
 # Set linker options in MSVC
 if(WIN32 AND MSVC)
     # We need to force output because of the boost lib used, defining two times the
