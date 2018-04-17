@@ -660,7 +660,7 @@ endif()
 
 # MSVC automatically links boost
 if(NOT MSVC)
-    target_link_libraries(${PROJECT_BINARY_NAME} ${Boost_LIBRARIES})
+    target_link_libraries(${PROJECT_BINARY_NAME} ${Boost_LIBRARIES} Threads::Threads)
 endif()
 
 # Link sfml
