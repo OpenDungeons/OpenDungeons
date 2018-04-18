@@ -31,7 +31,7 @@ public:
     GiftBoxSkill(GameMap* gameMap, const std::string& baseName, SkillType skillType);
     GiftBoxSkill(GameMap* gameMap);
 
-    virtual void applyEffect();
+    virtual void applyEffect() override;
 
 protected:
     virtual void exportToStream(std::ostream& os) const override;

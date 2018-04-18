@@ -31,7 +31,7 @@ public:
     static const std::string ANIMATION_OPEN;
     static const std::string ANIMATION_CLOSE;
 
-    const TrapType getType() const
+    const TrapType getType() const override
     { return TrapType::doorWooden; }
 
     bool isDoor() const override

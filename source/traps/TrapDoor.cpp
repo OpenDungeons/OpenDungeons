@@ -62,7 +62,7 @@ class TrapDoorFactory : public TrapFactory
         return meshName;
     }
 
-    virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    virtual void checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         Player* player = gameMap->getLocalPlayer();
         TrapType type = TrapType::doorWooden;
@@ -128,7 +128,7 @@ class TrapDoorFactory : public TrapFactory
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
 
-    virtual bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const
+    virtual bool buildTrap(GameMap* gameMap, Player* player, ODPacket& packet) const override
     {
         Tile* tile = gameMap->tileFromPacket(packet);
         if(tile == nullptr)
@@ -151,7 +151,7 @@ class TrapDoorFactory : public TrapFactory
         return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
     }
 
-    virtual void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const
+    virtual void checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand) const override
     {
         Seat* seat = gameMap->getSeatById(inputManager.mSeatIdSelected);
         if(seat == nullptr)
@@ -208,7 +208,7 @@ class TrapDoorFactory : public TrapFactory
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
 
-    virtual bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const
+    virtual bool buildTrapEditor(GameMap* gameMap, ODPacket& packet) const override
     {
         int32_t seatId;
         OD_ASSERT_TRUE(packet >> seatId);

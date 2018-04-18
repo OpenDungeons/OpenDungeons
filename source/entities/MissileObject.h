@@ -52,7 +52,7 @@ public:
 
     virtual ~MissileObject();
 
-    virtual void doUpkeep();
+    virtual void doUpkeep() override;
 
     /*! brief Function called when the missile hits a wall. If it returns true, the missile direction
      * will be set to nextDirection.

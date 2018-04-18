@@ -26,11 +26,11 @@ class TrapBoulder : public Trap
 public:
     TrapBoulder(GameMap* gameMap);
 
-    virtual const TrapType getType() const
+    virtual const TrapType getType() const override
     { return TrapType::boulder; }
 
-    virtual bool shoot(Tile* tile);
-    virtual bool isAttackable(Tile* tile, Seat* seat) const
+    virtual bool shoot(Tile* tile) override;
+    virtual bool isAttackable(Tile* tile, Seat* seat) const override
     {
         return false;
     }
@@ -39,10 +39,10 @@ public:
     { return true; }
 
     //! \brief The boulder trap should let the ground tile visible.
-    virtual bool shouldDisplayGroundTile() const
+    virtual bool shouldDisplayGroundTile() const override
     { return true; }
 
-    virtual TrapEntity* getTrapEntity(Tile* tile);
+    virtual TrapEntity* getTrapEntity(Tile* tile) override;
 
     static const TrapType mTrapType;
 };

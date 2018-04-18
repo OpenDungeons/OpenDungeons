@@ -26,24 +26,24 @@ class RoomDungeonTemple: public Room
 public:
     RoomDungeonTemple(GameMap* gameMap);
 
-    virtual RoomType getType() const
+    virtual RoomType getType() const override
     { return mRoomType; }
 
     //! \brief Updates the temple position when in editor mode.
-    void updateActiveSpots();
+    void updateActiveSpots() override;
 
-    bool hasCarryEntitySpot(GameEntity* carriedEntity);
-    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
-    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
+    bool hasCarryEntitySpot(GameEntity* carriedEntity) override;
+    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
+    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
 
     virtual void restoreInitialEntityState() override;
 
     static const RoomType mRoomType;
 
 protected:
-    virtual void destroyMeshLocal();
+    virtual void destroyMeshLocal() override;
 
-    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override
     {
         // This Room keeps its building object until it is destroyed (they will be released when
         // the room is destroyed)

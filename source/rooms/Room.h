@@ -47,7 +47,7 @@ public:
     virtual bool isBridge() const
     { return false; }
 
-    virtual void addToGameMap();
+    virtual void addToGameMap() override;
     virtual void removeFromGameMap() override;
 
     virtual void absorbRoom(Room* r);
@@ -84,7 +84,7 @@ public:
     { return true; }
 
     //! \brief Updates the active spot lists.
-    virtual void updateActiveSpots();
+    virtual void updateActiveSpots() override;
 
     inline unsigned int getNumActiveSpots() const
     { return mNumActiveSpots; }
@@ -140,8 +140,8 @@ protected:
      * The content of the Room will be exported by exportToPacket.
      */
     virtual void exportHeadersToStream(std::ostream& os) const override;
-    void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const;
-    bool importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData);
+    void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const override;
+    bool importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData) override;
 
     enum ActiveSpotPlace
     {

@@ -478,8 +478,8 @@ protected:
     virtual void importFromPacket(ODPacket& is) override
     {}
 
-    virtual void createMeshLocal();
-    virtual void destroyMeshLocal();
+    virtual void createMeshLocal() override;
+    virtual void destroyMeshLocal() override;
 private:
     //! \brief The tile position
     int mX, mY;

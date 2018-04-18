@@ -166,7 +166,7 @@ public:
     virtual ~Trap()
     {}
 
-    virtual GameEntityType getObjectType() const;
+    virtual GameEntityType getObjectType() const override;
 
     virtual void addToGameMap() override;
     virtual void removeFromGameMap() override;
@@ -191,18 +191,18 @@ public:
     //! \brief Sets the name, seat and associates the given tiles with the trap
     virtual void setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);
 
-    virtual bool removeCoveredTile(Tile* t);
-    virtual void updateActiveSpots();
+    virtual bool removeCoveredTile(Tile* t) override;
+    virtual void updateActiveSpots() override;
 
     virtual int32_t getNbNeededCraftedTrap() const;
 
-    bool hasCarryEntitySpot(GameEntity* carriedEntity);
-    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
-    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
+    bool hasCarryEntitySpot(GameEntity* carriedEntity) override;
+    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
+    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
 
-    virtual bool isAttackable(Tile* tile, Seat* seat) const;
+    virtual bool isAttackable(Tile* tile, Seat* seat) const override;
 
-    virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile);
+    virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile) override;
 
     virtual void restoreInitialEntityState() override;
 

@@ -54,7 +54,7 @@ public:
 
     virtual bool isEqual(const CreatureSkill& creatureSkill) const override;
 
-    virtual void getFormatString(std::string& format) const;
+    virtual void getFormatString(std::string& format) const override;
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;
 

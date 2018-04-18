@@ -119,14 +119,14 @@ public:
 
     static const uint32_t NB_OVERLAY_HEALTH_VALUES;
 
-    virtual GameEntityType getObjectType() const;
+    virtual GameEntityType getObjectType() const override;
 
-    virtual void addToGameMap();
+    virtual void addToGameMap() override;
     virtual void removeFromGameMap() override;
 
     bool canDisplayStatsWindow(Seat* seat) override
     { return true; }
-    void createStatsWindow();
+    void createStatsWindow() override;
     void destroyStatsWindow();
     bool CloseStatsWindow(const CEGUI::EventArgs& /*e*/);
     void updateStatsWindow(const std::string& txt);
@@ -182,7 +182,7 @@ public:
     void setPosition(const Ogre::Vector3& v) override;
 
     //! \brief Gets the move speed on the current tile.
-    virtual double getMoveSpeed() const;
+    virtual double getMoveSpeed() const override;
 
     //! \brief Gets the move speed on the current tile.
     double getMoveSpeed(Tile* tile) const;
@@ -200,7 +200,7 @@ public:
 
     //! \brief Updates the entity path, movement, and direction, and creature attack time
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
-    virtual void update(Ogre::Real timeSinceLastFrame);
+    virtual void update(Ogre::Real timeSinceLastFrame) override;
 
     bool setDestination(Tile* tile);
 
@@ -247,12 +247,12 @@ public:
      * walking toward the tile as a new action, and when it arrives at the tile it will
      * revert to the 'digTile' action.
      */
-    void doUpkeep();
+    void doUpkeep() override;
 
     //! \brief Computes the visible tiles and tags them to know which are visible
     void computeVisibleTiles();
 
-    virtual bool isAttackable(Tile* tile, Seat* seat) const;
+    virtual bool isAttackable(Tile* tile, Seat* seat) const override;
 
     double getPhysicalDefense() const;
     double getMagicalDefense() const;
@@ -282,8 +282,8 @@ public:
     std::vector<GameEntity*> getVisibleForce(Seat* seat, bool invert);
 
     //! \brief Conform: GameEntity functions handling covered tiles
-    std::vector<Tile*> getCoveredTiles();
-    Tile* getCoveredTile(int index);
+    std::vector<Tile*> getCoveredTiles() override;
+    Tile* getCoveredTile(int index) override;
     uint32_t numCoveredTiles() const override;
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
@@ -384,12 +384,12 @@ public:
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(Tile* tile) const;
 
-    virtual EntityCarryType getEntityCarryType(Creature* carrier);
-    virtual void notifyEntityCarryOn(Creature* carrier);
-    virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
+    virtual EntityCarryType getEntityCarryType(Creature* carrier) override;
+    virtual void notifyEntityCarryOn(Creature* carrier) override;
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position) override;
 
-    bool canSlap(Seat* seat);
-    void slap();
+    bool canSlap(Seat* seat) override;
+    void slap() override;
 
     void fireCreatureSound(CreatureSound sound);
 
@@ -594,10 +594,10 @@ protected:
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;
 
-    virtual void createMeshLocal();
-    virtual void destroyMeshLocal();
-    virtual void fireAddEntity(Seat* seat, bool async);
-    virtual void fireRemoveEntity(Seat* seat);
+    virtual void createMeshLocal() override;
+    virtual void destroyMeshLocal() override;
+    virtual void fireAddEntity(Seat* seat, bool async) override;
+    virtual void fireRemoveEntity(Seat* seat) override;
 private:
     enum ForceAction
     {

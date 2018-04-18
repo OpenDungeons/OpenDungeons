@@ -37,7 +37,7 @@ public:
         Ogre::Real timeSinceLastFrame) override;
     void freeRessources(CameraManager& cameraManager, RenderManager& renderManager) override;
 
-    void notifySyncPost(const std::string& event);
+    void notifySyncPost(const std::string& event) override;
     bool importFromStream(std::istream& is) override;
 
 private:

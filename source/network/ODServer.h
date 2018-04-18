@@ -75,7 +75,7 @@ class ODServer: public Ogre::Singleton<ODServer>,
     { return mServerMode; }
 
     bool startServer(const std::string& creator, const std::string& levelFilename, ServerMode mode, bool useMasterServer);
-    void stopServer();
+    void stopServer() override;
 
     //! \brief Adds a server notification to the server notification queue. The message will be sent to the concerned player
     void queueServerNotification(ServerNotification* n);

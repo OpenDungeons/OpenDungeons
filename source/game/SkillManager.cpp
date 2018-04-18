@@ -102,7 +102,7 @@ public:
     {
     }
 
-    SkillFamily getSkillFamily() const
+    SkillFamily getSkillFamily() const override
     { return SkillFamily::rooms; }
 
     void connectGuiButtons(GameEditorModeBase* mode, CEGUI::Window* rootWindow, PlayerSelection& playerSelection) const override
@@ -115,13 +115,13 @@ public:
         );
     }
 
-    const std::string& getGuiPath() const
+    const std::string& getGuiPath() const override
     {
         static const std::string guiPath = "MainTabControl/Rooms/";
         return guiPath;
     }
 
-    void mapSkill(std::vector<std::vector<SkillType>>& skillsFamily) const
+    void mapSkill(std::vector<std::vector<SkillType>>& skillsFamily) const override
     {
         uint32_t index = static_cast<uint32_t>(SkillFamily::rooms);
         std::vector<SkillType>& family = skillsFamily[index];
@@ -147,7 +147,7 @@ public:
     {
     }
 
-    SkillFamily getSkillFamily() const
+    SkillFamily getSkillFamily() const override
     { return SkillFamily::traps; }
 
     void connectGuiButtons(GameEditorModeBase* mode, CEGUI::Window* rootWindow, PlayerSelection& playerSelection) const override
@@ -160,13 +160,13 @@ public:
         );
     }
 
-    const std::string& getGuiPath() const
+    const std::string& getGuiPath() const override
     {
         static const std::string guiPath = "MainTabControl/Traps/";
         return guiPath;
     }
 
-    void mapSkill(std::vector<std::vector<SkillType>>& skillsFamily) const
+    void mapSkill(std::vector<std::vector<SkillType>>& skillsFamily) const override
     {
         uint32_t index = static_cast<uint32_t>(SkillFamily::traps);
         std::vector<SkillType>& family = skillsFamily[index];
@@ -192,7 +192,7 @@ public:
     {
     }
 
-    SkillFamily getSkillFamily() const
+    SkillFamily getSkillFamily() const override
     { return SkillFamily::spells; }
 
     void connectGuiButtons(GameEditorModeBase* mode, CEGUI::Window* rootWindow, PlayerSelection& playerSelection) const override
@@ -205,13 +205,13 @@ public:
         );
     }
 
-    const std::string& getGuiPath() const
+    const std::string& getGuiPath() const override
     {
         static const std::string guiPath = "MainTabControl/Spells/";
         return guiPath;
     }
 
-    void mapSkill(std::vector<std::vector<SkillType>>& skillsFamily) const
+    void mapSkill(std::vector<std::vector<SkillType>>& skillsFamily) const override
     {
         uint32_t index = static_cast<uint32_t>(SkillFamily::spells);
         std::vector<SkillType>& family = skillsFamily[index];

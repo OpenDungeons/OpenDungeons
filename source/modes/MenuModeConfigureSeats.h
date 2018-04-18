@@ -46,7 +46,7 @@ public:
     void receiveChat(const ChatMessage& chat) override;
 
     bool launchSelectedButtonPressed(const CEGUI::EventArgs&);
-    bool goBack(const CEGUI::EventArgs& e = {});
+    bool goBack(const CEGUI::EventArgs& e = {}) override;
     bool chatText(const CEGUI::EventArgs& e);
 
     bool comboChanged(const CEGUI::EventArgs& ea);

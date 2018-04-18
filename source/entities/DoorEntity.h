@@ -39,8 +39,8 @@ public:
     virtual TrapEntityType getTrapEntityType() const override
     { return TrapEntityType::doorEntity; }
 
-    bool canSlap(Seat* seat);
-    void slap();
+    bool canSlap(Seat* seat) override;
+    void slap() override;
 
     std::string getListenerName() const override;
     bool notifyDead(GameEntity* entity) override;

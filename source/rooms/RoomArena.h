@@ -40,7 +40,7 @@ public:
     bool useRoom(Creature& creature, bool forced) override;
 
 
-    bool shouldStopUseIfHungrySleepy(Creature& creature, bool forced);
+    bool shouldStopUseIfHungrySleepy(Creature& creature, bool forced) override;
 
     std::string getListenerName() const override;
     bool notifyDead(GameEntity* entity) override;
@@ -51,7 +51,7 @@ public:
     static const RoomType mRoomType;
 
 protected:
-    virtual BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual BuildingObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
     virtual void exportToStream(std::ostream& os) const override;
     virtual bool importFromStream(std::istream& is) override;
 
