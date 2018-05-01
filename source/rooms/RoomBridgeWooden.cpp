@@ -55,7 +55,7 @@ class RoomBridgeWoodenFactory : public BridgeRoomFactory
         checkBuildBridge(RoomBridgeWooden::mRoomType, gameMap, player->getSeat(), inputManager, inputCommand, allowedTilesVisual, false);
     }
 
-    bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const
+    bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet) const override
     {
         std::vector<Tile*> tiles;
         if(!readBridgeFromPacket(tiles, gameMap, player->getSeat(), allowedTilesVisual, packet, false))

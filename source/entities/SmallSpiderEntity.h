@@ -43,7 +43,7 @@ public:
 
     virtual void correctEntityMovePosition(Ogre::Vector3& position) override;
 
-    void slap()
+    void slap() override
     { mIsSlapped = true; }
 
     static SmallSpiderEntity* getSmallSpiderEntityFromPacket(GameMap* gameMap, ODPacket& is);

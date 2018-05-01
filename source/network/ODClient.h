@@ -53,7 +53,7 @@ class ODClient: public Ogre::Singleton<ODClient>,
     bool connect(const std::string& host, const int port, uint32_t timeout, const std::string& outputReplayFilename) override;
 
     //! \brief Connects to the server host:port
-    bool replay(const std::string& filename);
+    bool replay(const std::string& filename) override;
 
     //! \brief Adds a client notification to the client notification queue.
     void queueClientNotification(ClientNotification* n);
@@ -75,7 +75,7 @@ class ODClient: public Ogre::Singleton<ODClient>,
 
     //! \brief Disconnect the client.
     //! \param keepReplay Tells whether to keep the new replay file.
-    void disconnect(bool keepReplay = false);
+    void disconnect(bool keepReplay = false) override;
 
     //! \brief Adds a client notification to the client notification queue.
     void notifyExit();

@@ -103,10 +103,10 @@ public:
 
     virtual bool canSeatSellBuilding(Seat* seat) const;
 
-    virtual bool isAttackable(Tile* tile, Seat* seat) const;
+    virtual bool isAttackable(Tile* tile, Seat* seat) const override;
     virtual bool removeCoveredTile(Tile* t);
-    std::vector<Tile*> getCoveredTiles();
-    Tile* getCoveredTile(int index);
+    std::vector<Tile*> getCoveredTiles() override;
+    Tile* getCoveredTile(int index) override;
     uint32_t numCoveredTiles() const override
     { return mCoveredTiles.size(); }
 
@@ -118,7 +118,7 @@ public:
     { return 0.0; }
 
     virtual void clearCoveredTiles();
-    double getHP(Tile *tile) const;
+    double getHP(Tile *tile) const override;
     double takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
         Tile *tileTakingDamage, bool ko) override;
     std::string getNameTile(Tile* tile);
@@ -193,9 +193,9 @@ protected:
     void removeBuildingObject(BuildingObject* obj);
     BuildingObject* getBuildingObjectFromTile(Tile* tile);
     //! \brief Buildings are handled by the tile, they don't fire add/remove events
-    void fireAddEntity(Seat* seat, bool async)
+    void fireAddEntity(Seat* seat, bool async) override
     {}
-    void fireRemoveEntity(Seat* seat)
+    void fireRemoveEntity(Seat* seat) override
     {}
 
     std::map<Tile*, BuildingObject*> mBuildingObjects;

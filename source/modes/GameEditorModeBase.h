@@ -109,7 +109,7 @@ public:
     void receiveEventShortNotice(EventMessage* event);
 
     //! \brief Called when the mode is activated.
-    virtual void activate() = 0;
+    virtual void activate() override = 0;
 
     //! \brief Called when the mode is activated.
     void deactivate() override;

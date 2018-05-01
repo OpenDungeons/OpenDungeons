@@ -171,7 +171,7 @@ protected:
     void exportToStream(std::ostream& os) const override;
     bool importFromStream(std::istream& is) override;
 
-    RoomDormitoryTileData* createTileData(Tile* tile);
+    RoomDormitoryTileData* createTileData(Tile* tile) override;
     // Because dormitory do not use active spots, we don't want the default
     // behaviour (removing the active spot tile) as it could result in removing an
     // unwanted bed

@@ -51,18 +51,18 @@ class RoomTreasury: public Room
 public:
     RoomTreasury(GameMap* gameMap);
 
-    virtual RoomType getType() const
+    virtual RoomType getType() const override
     { return mRoomType; }
 
     // Functions overriding virtual functions in the Room base class.
-    bool removeCoveredTile(Tile* t);
+    bool removeCoveredTile(Tile* t) override;
 
     // Functions specific to this class.
-    virtual void doUpkeep();
+    virtual void doUpkeep() override;
 
-    bool hasCarryEntitySpot(GameEntity* carriedEntity);
-    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
-    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
+    bool hasCarryEntitySpot(GameEntity* carriedEntity) override;
+    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
+    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
 
     virtual int getTotalGoldStorage() const override;
     virtual int getTotalGoldStored() const override;
@@ -78,7 +78,7 @@ protected:
     // Because treasury do not use active spots, we don't want the default
     // behaviour (removing the active spot tile) as it could result in removing an
     // unwanted treasury
-    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override
     {}
 
 private:

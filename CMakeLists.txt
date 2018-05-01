@@ -151,8 +151,11 @@ else()
     if(OD_ENABLE_WARNINGS)
         # Help getting compilation warnings
         set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wall -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wold-style-cast")
-        set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Woverloaded-virtual -Wredundant-decls -Wswitch-default -Wstrict-null-sentinel -Winvalid-pch")
+        set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Woverloaded-virtual -Wredundant-decls -Winvalid-pch")
         set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wswitch-default -Wstack-protector")
+        if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+          set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wstrict-null-sentinel")
+        endif()
         #for later https://stackoverflow.com/questions/5088460/flags-to-enable-thorough-and-verbose-g-warnings/9862800#9862800:
         #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -pedantic -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization ")
         #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept")

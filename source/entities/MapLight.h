@@ -49,7 +49,7 @@ public:
     virtual ~MapLight()
     {}
 
-    virtual GameEntityType getObjectType() const;
+    virtual GameEntityType getObjectType() const override;
 
     inline Ogre::SceneNode* getFlickerNode() const
     { return mFlickerNode; }
@@ -59,18 +59,18 @@ public:
 
     static const std::string MAPLIGHT_NAME_PREFIX;
 
-    virtual void addToGameMap();
+    virtual void addToGameMap() override;
     virtual void removeFromGameMap() override;
 
-    virtual void doUpkeep()
+    virtual void doUpkeep() override
     {}
 
     //! \brief Conform: GameEntity functions handling covered tiles
-    std::vector<Tile*> getCoveredTiles();
-    Tile* getCoveredTile(int index);
+    std::vector<Tile*> getCoveredTiles() override;
+    Tile* getCoveredTile(int index) override;
     uint32_t numCoveredTiles() const override;
 
-    virtual double getHP(Tile *tile) const
+    virtual double getHP(Tile *tile) const override
     { return 0.0; }
 
     virtual double takeDamage(GameEntity* attacker, double absoluteDamage, double physicalDamage, double magicalDamage, double elementDamage,
@@ -99,20 +99,20 @@ public:
      * \param time The time variable indicates how much time has elapsed since the last update
      * in seconds.
      */
-    void update(Ogre::Real timeSinceLastFrame);
+    void update(Ogre::Real timeSinceLastFrame) override;
 
     //! NOTE: If we want to add MapLights on claimed tiles, we should do that on client side
     //! only if possible (and maybe create another class for that that cannot be picked up)
-    void notifySeatsWithVision(const std::vector<Seat*>& seats);
+    void notifySeatsWithVision(const std::vector<Seat*>& seats) override;
 
     void fireAddEntityToAll();
 
-    virtual bool tryPickup(Seat* seat);
-    virtual void pickup();
-    virtual bool tryDrop(Seat* seat, Tile* tile);
-    virtual void drop(const Ogre::Vector3& v);
-    virtual bool canSlap(Seat* seat);
-    virtual void slap();
+    virtual bool tryPickup(Seat* seat) override;
+    virtual void pickup() override;
+    virtual bool tryDrop(Seat* seat, Tile* tile) override;
+    virtual void drop(const Ogre::Vector3& v) override;
+    virtual bool canSlap(Seat* seat) override;
+    virtual void slap() override;
 
     static MapLight* getMapLightFromStream(GameMap* gameMap, std::istream& is);
     static MapLight* getMapLightFromPacket(GameMap* gameMap, ODPacket& is);
@@ -125,10 +125,10 @@ protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;
 
-    virtual void createMeshLocal();
-    virtual void destroyMeshLocal();
-    virtual void fireAddEntity(Seat* seat, bool async);
-    virtual void fireRemoveEntity(Seat* seat);
+    virtual void createMeshLocal() override;
+    virtual void destroyMeshLocal() override;
+    virtual void fireAddEntity(Seat* seat, bool async) override;
+    virtual void fireRemoveEntity(Seat* seat) override;
 
 private:
     Ogre::ColourValue mDiffuseColor;

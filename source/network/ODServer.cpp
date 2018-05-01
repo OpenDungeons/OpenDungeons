@@ -1507,20 +1507,20 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                         // We look for the Skirmish or multiplayer prefix and keep it.
                         uint32_t indexSk = fileLevel.find(SAVEGAME_SKIRMISH_PREFIX);
                         uint32_t indexMp = fileLevel.find(SAVEGAME_MULTIPLAYER_PREFIX);
-                        if((indexSk != std::string::npos) && (indexMp == std::string::npos))
+                        if(((size_t)indexSk != std::string::npos) && ((size_t)indexMp == std::string::npos))
                         {
                             // Skirmish savegame
                             ss << SAVEGAME_SKIRMISH_PREFIX;
                             ss << fileLevel.substr(indexSk + SAVEGAME_SKIRMISH_PREFIX.length());
 
                         }
-                        else if((indexSk == std::string::npos) && (indexMp != std::string::npos))
+                        else if(((size_t)indexSk == std::string::npos) && ((size_t)indexMp != std::string::npos))
                         {
                             // Multiplayer savegame
                             ss << SAVEGAME_MULTIPLAYER_PREFIX;
                             ss << fileLevel.substr(indexMp + SAVEGAME_MULTIPLAYER_PREFIX.length());
                         }
-                        else if((indexSk != std::string::npos) && (indexMp != std::string::npos))
+                        else if(((size_t)indexSk != std::string::npos) && ((size_t)indexMp != std::string::npos))
                         {
                             // We found both prefixes. That can happen if the name contains the other
                             // prefix. Because of filename construction, we know that the lowest is the good

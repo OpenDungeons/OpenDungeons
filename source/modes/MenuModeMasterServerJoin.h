@@ -33,7 +33,7 @@ public:
     bool clientButtonPressed(const CEGUI::EventArgs&);
     bool updateDescription(const CEGUI::EventArgs&);
 
-    void onFrameStarted(const Ogre::FrameEvent& evt);
+    void onFrameStarted(const Ogre::FrameEvent& evt) override;
 
 private:
     void refreshList();
