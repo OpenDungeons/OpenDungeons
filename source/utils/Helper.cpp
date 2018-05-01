@@ -274,7 +274,7 @@ namespace Helper
     {
         return TTostring(d);
     }
-    #ifndef __x86_64
+    #if defined(__OpenBSD__) && defined(__LP64__)
     std::string toString(size_t d)
     {
         return TTostring(d);

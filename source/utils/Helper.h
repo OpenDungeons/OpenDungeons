@@ -138,7 +138,7 @@ namespace Helper
     std::string toString(uint32_t d);
     std::string toString(int64_t d);
     std::string toString(uint64_t d);
-    #ifndef __x86_64
+    #if defined(__OpenBSD__) && defined(__LP64__)
     std::string toString(size_t d);
     #endif
     std::string toString(const Ogre::Vector3& v);
