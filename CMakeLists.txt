@@ -626,6 +626,7 @@ target_link_libraries(
 
     #libraries
     ${OGRE_LIBRARIES}
+    ${OGRE_Bites_LIBRARIES}
     ${OGRE_RTShaderSystem_LIBRARIES}
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES}

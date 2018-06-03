@@ -28,9 +28,14 @@
 
 #include <OgreFrameListener.h>
 #include <OgreSceneQuery.h>
-#include <OgreRenderQueueListener.h>
 #include <OgreSingleton.h>
+#include <OgrePrerequisites.h>
+#include <OgreRenderQueueListener.h>
+#if defined(OGRE_VERSION) && OGRE_VERSION < 0x10B00 // before 1.11
 #include <OgreWindowEventUtilities.h>
+#else
+#include <Bites/OgreWindowEventUtilities.h>
+#endif
 
 #include <memory>
 
