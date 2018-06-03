@@ -34,8 +34,8 @@ class AbstractApplicationMode;
 class SFMLToOISListener
 {
 public:
-    SFMLToOISListener(AbstractApplicationMode& receiver, int windowWidth, int windowHeigth);
-    void setReceiver(AbstractApplicationMode& receiver);
+    SFMLToOISListener(AbstractApplicationMode* receiver, int windowWidth, int windowHeigth);
+    void setReceiver(AbstractApplicationMode* receiver);
     //! \brief Convert an SFML event into the appropriate action and send it to the supplied listener.
     bool handleEvent(const sf::Event& event);
 private:

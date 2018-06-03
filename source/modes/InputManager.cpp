@@ -49,7 +49,7 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     mCurrentAMode(nullptr)
 #ifdef OD_USE_SFML_WINDOW
     ,
-    mListener(Utils::make_unique<SFMLToOISListener>(*mCurrentAMode, renderWindow->getWidth(), renderWindow->getHeight()))
+    mListener(Utils::make_unique<SFMLToOISListener>(mCurrentAMode, renderWindow->getWidth(), renderWindow->getHeight()))
 #endif
 {
     OD_LOG_INF("*** Initializing OIS - Input Manager ***");
@@ -132,7 +132,7 @@ void InputManager::setCurrentAMode(AbstractApplicationMode& mode)
     mMouse->setEventCallback(&mode);
     mKeyboard->getKeyboard()->setEventCallback(&mode);
 #else
-    mListener->setReceiver(mode);
+    mListener->setReceiver(&mode);
 #endif
 }
 

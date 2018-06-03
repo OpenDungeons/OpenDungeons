@@ -20,8 +20,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ODFRAMELISTENER_H__
-#define __ODFRAMELISTENER_H__
+#ifndef ODFRAMELISTENER_H
+#define ODFRAMELISTENER_H
 
 #include "camera/CameraManager.h"
 #include "utils/FrameRateLimiter.h"
@@ -76,7 +76,7 @@ public:
     // Constructor takes a RenderWindow because it uses that to determine input context
     ODFrameListener(const std::string& mainSceneFileName, Ogre::RenderWindow* renderWindow,
         Ogre::OverlaySystem* overLaySystem, Gui* gui);
-    virtual ~ODFrameListener();
+    virtual ~ODFrameListener() override;
 
     void requestExit();
 
@@ -210,4 +210,4 @@ private:
     void readMainScene(const std::string& fileName);
 };
 
-#endif // __ODFRAMELISTENER_H__
+#endif // ODFRAMELISTENER_H

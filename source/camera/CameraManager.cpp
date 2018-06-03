@@ -37,7 +37,7 @@
 #include <algorithm>
 
 const Ogre::Real Z_MOVE_SPEED = 1.0;
-const Ogre::Real Z_MOVE_SPEED_ACCELERATION = 2.0 * Z_MOVE_SPEED;
+const Ogre::Real Z_MOVE_SPEED_ACCELERATION = 2.0f * Z_MOVE_SPEED;
 
 //! The camera moving speed factor on Z axis.
 const Ogre::Real ZOOM_SPEED = 4.0;
@@ -50,6 +50,8 @@ const Ogre::Degree ROTATION_SPEED = Ogre::Degree(90);
 
 //! Default orientation on the X Axis
 const Ogre::Real DEFAULT_X_AXIS_VIEW = 25.0;
+
+const Ogre::String BACKGROUND_RECT_NAME = "BackgroundRect";
 
 CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre::RenderWindow* renderWindow) :
     mCircleMode(false),
@@ -86,11 +88,11 @@ CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre
 
     //Create the Background Material
     Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("Background");
-	 
+
     // Create background rectangle covering the whole screen
-    Ogre::Rectangle2D* rect = new Ogre::Rectangle2D(true);
+    Ogre::Rectangle2D* rect = new Ogre::Rectangle2D(BACKGROUND_RECT_NAME, true);
     rect->setCorners(-1.0, 1.0, 1.0, -1.0);
-    rect->setMaterial("Background");
+    rect->setMaterial(mat);
     // Render the background before everything else
     rect->setRenderQueueGroup(Ogre::RenderQueueGroupID::RENDER_QUEUE_SKIES_EARLY);
     // Set the bounding box to something big
@@ -103,16 +105,21 @@ CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre
     OD_LOG_INF("Created camera manager");
 }
 
+CameraManager::~CameraManager()
+{
+    // Delete the rectangle manually as it's not deleted automatically.
+    // Surely there should be a better way of handling this?
+    Ogre::SceneNode* node = mSceneManager->getSceneNode("Background");
+    Ogre::MovableObject* rect = node->detachObject(static_cast<unsigned short>(0));
+    OD_ASSERT_TRUE(rect->getName() == BACKGROUND_RECT_NAME);
+    delete rect;
+}
+
 void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double farClip)
 {
     Ogre::Camera* tmpCamera = mSceneManager->createCamera(ss);
     tmpCamera->setNearClipDistance(static_cast<Ogre::Real>(nearClip));
     tmpCamera->setFarClipDistance(static_cast<Ogre::Real>(farClip));
-    tmpCamera->setAutoTracking(false, mSceneManager->getRootSceneNode()
-                                ->createChildSceneNode("CameraTarget_" + ss),
-                                    Ogre::Vector3(static_cast<Ogre::Real>(mGameMap->getMapSizeX() / 2),
-                                                  static_cast<Ogre::Real>(mGameMap->getMapSizeY() / 2),
-                                                  static_cast<Ogre::Real>(0)));
 
     mRegisteredCameraNames.insert(ss);
     OD_LOG_INF("Creating " + ss + " camera...");
@@ -121,9 +128,20 @@ void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double
 void CameraManager::createCameraNode(const std::string& name)
 {
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(name + "_node");
+    OD_ASSERT_TRUE(node);
+    // Get camera (throws if camera does not exist).
     Ogre::Camera* tmpCamera = getCamera(name);
     Ogre::SceneNode* node2 = node->createChildSceneNode(name + "_node2");
+    OD_ASSERT_TRUE(node2);
     node2->attachObject(tmpCamera);
+    Ogre::SceneNode* cameraTargetNode =
+            mSceneManager->getRootSceneNode()->createChildSceneNode("CameraTarget_" + name);
+    OD_ASSERT_TRUE(cameraTargetNode);
+    node2->setAutoTracking(false,
+                           cameraTargetNode,
+                           Ogre::Vector3(static_cast<Ogre::Real>(mGameMap->getMapSizeX() / 2),
+                                         static_cast<Ogre::Real>(mGameMap->getMapSizeY() / 2),
+                                         static_cast<Ogre::Real>(0)));
 
     mRegisteredCameraNodeNames.insert(name);
 
@@ -220,14 +238,14 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
     if (!isCameraMovingAtAll())
         return;
 
-    mMoveSpeed = getActiveCameraNode()->getPosition().z / 16.0;
-    mMoveSpeedAcceleration = 2.0 * mMoveSpeed;
+    mMoveSpeed = getActiveCameraNode()->getPosition().z / 16.0f;
+    mMoveSpeedAcceleration = 2.0f * mMoveSpeed;
     
     // Carry out the acceleration/deceleration calculations on the camera translation.
     Ogre::Real speed = mTranslateVector.normalise();
-    mTranslateVector *= static_cast<Ogre::Real>(std::max(0.0, speed - (0.75 + (speed / mMoveSpeed))
+    mTranslateVector *= static_cast<Ogre::Real>(std::max(0.0f, speed - (0.75f + (speed / mMoveSpeed))
                         * mMoveSpeedAcceleration * frameTime));
-    mTranslateVector += mTranslateVectorAccel * static_cast<Ogre::Real>(frameTime * 2.0);
+    mTranslateVector += mTranslateVectorAccel * static_cast<Ogre::Real>(frameTime * 2.0f);
 
     // If we have sped up to more than the maximum moveSpeed then rescale the
     // vector to that length. We use the squaredLength() in this calculation
@@ -496,12 +514,12 @@ void CameraManager::move(const Direction direction, double aux)
     // when the camera pitch is more than 90 degrees.
     // So we invert the panning in that case.
     Ogre::Real currentPitch = getActiveCameraNode()->getOrientation().getPitch().valueDegrees();
-    currentPitch = std::fmod(currentPitch, 90);
+    currentPitch = std::fmod(currentPitch, 90.0f);
 
     switch (direction)
     {
     case moveRight:
-        if (currentPitch <= 0.0)
+        if (currentPitch <= 0.0f)
             mTranslateVectorAccel.x += mMoveSpeedAcceleration;
         else
             mTranslateVectorAccel.x -= mMoveSpeedAcceleration;
@@ -513,7 +531,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case moveLeft:
-        if (currentPitch <= 0.0)
+        if (currentPitch <= 0.0f)
             mTranslateVectorAccel.x -= mMoveSpeedAcceleration;
         else
             mTranslateVectorAccel.x += mMoveSpeedAcceleration;
@@ -525,7 +543,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case moveBackward:
-        if (currentPitch <= 0.0)
+        if (currentPitch <= 0.0f)
             mTranslateVectorAccel.y -= mMoveSpeedAcceleration;
         else
             mTranslateVectorAccel.y += mMoveSpeedAcceleration;
@@ -537,7 +555,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case moveForward:
-        if (currentPitch <= 0.0)
+        if (currentPitch <= 0.0f)
             mTranslateVectorAccel.y += mMoveSpeedAcceleration;
         else
             mTranslateVectorAccel.y -= mMoveSpeedAcceleration;
@@ -627,6 +645,7 @@ bool CameraManager::onFrameStarted()
 
 bool CameraManager::isCameraMovingAtAll() const
 {
+    // FIXME: Don't compare floating point for equality!
     return (mTranslateVectorAccel.x != 0 ||
             mTranslateVectorAccel.y != 0 ||
             mTranslateVector.x != 0 ||

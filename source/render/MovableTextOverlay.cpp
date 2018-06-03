@@ -37,9 +37,9 @@ ChildOverlay::ChildOverlay(const Ogre::String& fontName, Ogre::Real charHeight,
     mForcedHeight(-1),
     mCharHeight(charHeight),
     mTimeToDisplay(0),
-    mFont(dynamic_cast<Ogre::Font*>(Ogre::FontManager::getSingleton().getByName(fontName).getPointer()))
+    mFont(Ogre::FontManager::getSingleton().getByName(fontName))
 {
-    if(mFont == nullptr)
+    if(!mFont)
     {
         OD_LOG_ERR("fontName=" + fontName);
         return;

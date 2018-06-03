@@ -66,7 +66,7 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mColorCustomMesh    (true),
     mHasBridge          (false),
     mLocalPlayerHasVision   (false),
-    mTileCulling        (CullingType::HIDE),
+    mTileCulling        (CullingType::SHOW_ALL),
     mNbWorkersClaiming(0)
 {
     computeTileVisual();

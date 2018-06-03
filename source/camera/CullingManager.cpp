@@ -49,10 +49,10 @@ void CullingManager::cullTiles(const std::vector<Ogre::Vector3>& ogreVectors)
     // create a slope -- a set of left and right path
     mWalk.convexHull();
     mWalk.buildSlopes();
-
+#ifdef DEBUG_CULLING
     OD_LOG_DBG(mOldWalk.debug());
     OD_LOG_DBG(mWalk.debug());
-
+#endif // DEBUG_CULLING
     // reset index pointers to the begging of collections
     mOldWalk.prepareWalk();
     mWalk.prepareWalk();
@@ -135,7 +135,11 @@ void CullingManager::newBashAndSplashTiles(uint32_t mode)
     int64_t xxRight = mWalk.getTopRightVertex().x;
     int64_t xxp, yyp;
     std::stringstream ss;
-    int64_t bb = ((std::min(mWalk.getBottomLeftVertex().y, mOldWalk.getBottomRightVertex().y) >> VectorInt64::PRECISION_DIGITS) - 2) << VectorInt64::PRECISION_DIGITS;
+    // NOTE(oyvindln): Added code to avoid shifting a negative number here, not sure if it's correct.
+    int64_t bb = std::max(
+                     (std::max(std::min(mWalk.getBottomLeftVertex().y, mOldWalk.getBottomRightVertex().y), 0L)
+                        >> VectorInt64::PRECISION_DIGITS) - 2
+                 ,0L) << VectorInt64::PRECISION_DIGITS;
 
     for (int64_t yy = ((std::max(mWalk.getTopLeftVertex().y, mOldWalk.getTopRightVertex().y  ) >> VectorInt64::PRECISION_DIGITS) + 2) << VectorInt64::PRECISION_DIGITS; yy >= bb; yy -= VectorInt64::UNIT)
     {
@@ -146,7 +150,8 @@ void CullingManager::newBashAndSplashTiles(uint32_t mode)
         xxRight = mWalk.getCurrentXRight(yy);
         xxRightOld = mOldWalk.getCurrentXRight(yy);
 
-        int64_t mm = ((std::min(xxLeft, xxLeftOld) >> VectorInt64::PRECISION_DIGITS) << VectorInt64::PRECISION_DIGITS) ;
+        // NOTE(oyvindln): Added code to avoid shifting a negative number here, not sure if it's correct.
+        int64_t mm = (std::max(std::min(xxLeft, xxLeftOld),0L) >> VectorInt64::PRECISION_DIGITS) << VectorInt64::PRECISION_DIGITS;
         if(std::min(xxLeft, xxLeftOld) < std::max(xxRight,xxRightOld))
         {
             for (int64_t xx = mm ; xx <= std::max(xxRight,xxRightOld); xx += VectorInt64::UNIT)
@@ -200,8 +205,8 @@ bool CullingManager::computeIntersectionPoints(Ogre::Camera* camera, std::vector
 
 void CullingManager::update(Ogre::Camera* camera, const std::vector<Ogre::Vector3>& ogreVectors)
 {
-    if(mCullTilesFlag)
-        cullTiles(ogreVectors);
+    /*if(mCullTilesFlag)
+        cullTiles(ogreVectors);*/
 }
 
 /*! \brief Sort two VectorInt64 p1 and p2  to satisfy p1 <= p2 according to

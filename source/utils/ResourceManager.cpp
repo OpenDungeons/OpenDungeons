@@ -458,21 +458,18 @@ void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
     Ogre::ConfigFile cf;
     cf.load(mGameDataPath + RESOURCECFG);
 
-    // Go through all sections & settings in the file
-    Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
+    const auto settings = cf.getSettingsBySection();
 
-    Ogre::String secName = "";
-    Ogre::String typeName = "";
-    Ogre::String archName = "";
-    while(seci.hasMoreElements())
+    for(const auto& section : settings)
     {
-        secName = seci.peekNextKey();
-        Ogre::ConfigFile::SettingsMultiMap* settings = seci.getNext();
-        Ogre::ConfigFile::SettingsMultiMap::iterator i;
-        for (i = settings->begin(); i != settings->end(); ++i)
+        const Ogre::String& secName = section.first;
+        const auto& settingsMap = section.second;
+        for(const auto& setting: settingsMap)
         {
-            typeName = i->first;
-            archName = mGameDataPath + i->second;
+            const Ogre::String& typeName = setting.first;
+            const Ogre::String& archName = mGameDataPath + setting.second;
+            OD_LOG_INF("Resource in section: " + secName + " Type: " + typeName
+                       + " Path: " + archName);
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
             // OS X does not set the working directory relative to the app,
             // In order to make things portable on OS X we need to provide

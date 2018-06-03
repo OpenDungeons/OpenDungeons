@@ -73,10 +73,14 @@ const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0f;
 const Ogre::Real KEEPER_HAND_POS_Z = 20.0;
 const Ogre::Real RenderManager::KEEPER_HAND_WORLD_Z = KEEPER_HAND_POS_Z / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT;
 
-const Ogre::Real KEEPER_HAND_CREATURE_PICKED_OFFSET = 0.05;
-const Ogre::Real KEEPER_HAND_CREATURE_PICKED_SCALE = 0.05;
+const Ogre::Real KEEPER_HAND_CREATURE_PICKED_OFFSET = 0.05f;
+const Ogre::Real KEEPER_HAND_CREATURE_PICKED_SCALE = 0.05f;
 
-const Ogre::ColourValue BASE_AMBIENT_VALUE = Ogre::ColourValue(0.3, 0.3, 0.3);
+const Ogre::ColourValue BASE_AMBIENT_VALUE = Ogre::ColourValue(0.3f, 0.3f, 0.3f);
+
+namespace {
+    Ogre::SceneNode* mHandLightNode = nullptr;
+}
 
 RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mHandAnimationState(nullptr),
@@ -90,8 +94,7 @@ RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mCreatureTextOverlayDisplayed(false),
     mHandKeeperHandVisibility(0)
 {
-    // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
-    mSceneManager = Ogre::Root::getSingleton().createSceneManager(Ogre::ST_INTERIOR, "SceneManager");
+    mSceneManager = Ogre::Root::getSingleton().createSceneManager("OctreeSceneManager", "SceneManager");
     mSceneManager->addRenderQueueListener(overlaySystem);
 
     mCreatureSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
@@ -107,6 +110,8 @@ RenderManager::~RenderManager()
 
 void RenderManager::initGameRenderer(GameMap* gameMap)
 {
+    OD_ASSERT_TRUE(gameMap);
+    OD_ASSERT_TRUE(mHandKeeperNode);
     mCreatureTextOverlayDisplayed = false;
 
     // Create the light which follows the single tile selection mesh
@@ -114,9 +119,15 @@ void RenderManager::initGameRenderer(GameMap* gameMap)
     {
         mHandLight = mSceneManager->createLight("MouseLight");
         mHandLight->setType(Ogre::Light::LT_POINT);
-        mHandLight->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-        mHandLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-        mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
+        mHandLight->setDiffuseColour(Ogre::ColourValue(0.65f, 0.65f, 0.45f));
+        mHandLight->setSpecularColour(Ogre::ColourValue(0.65f, 0.65f, 0.45f));
+        mHandLight->setAttenuation(7, 1.0, 0.00, 0.3f);
+        if(mHandLightNode == nullptr)
+        {
+            mHandLightNode = mLightSceneNode->createChildSceneNode(); //mSceneManager->createSceneNode();
+        }
+
+        //mHandLightNode->attachObject(mHandLight);
     }
 
     //Add a too small to be visible dummy dirt tile to the hand node
@@ -144,6 +155,11 @@ void RenderManager::initGameRenderer(GameMap* gameMap)
     for(uint32_t i = 0; i < gameMap->numClassDescriptions(); ++i)
     {
         const CreatureDefinition* def = gameMap->getClassDescription(i);
+        if(!def)
+        {
+            OD_LOG_WRN("Class description not found!");
+            continue;
+        }
         // We check if the mesh is already loaded. If not, we load it
         if(mSceneManager->hasEntity(def->getClassName() + "_dummyEnt"))
             continue;
@@ -158,7 +174,7 @@ void RenderManager::initGameRenderer(GameMap* gameMap)
     }
 }
 
-void RenderManager::stopGameRenderer(GameMap* gameMap)
+void RenderManager::stopGameRenderer(GameMap*)
 {
     // We do not remove the entities from mDummyEntities as it is a workaround avoiding a crash and removing
     // them can cause the crash to happen
@@ -509,13 +525,13 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
 
         // We rotate depending on the tileset
         Ogre::Quaternion q;
-        if(tileSetValue.getRotationX() != 0.0)
+        if(tileSetValue.getRotationX() != 0.0f)
             q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationX()), Ogre::Vector3::UNIT_X);
 
-        if(tileSetValue.getRotationY() != 0.0)
+        if(tileSetValue.getRotationY() != 0.0f)
             q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationY()), Ogre::Vector3::UNIT_Y);
 
-        if(tileSetValue.getRotationZ() != 0.0)
+        if(tileSetValue.getRotationZ() != 0.0f)
             q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationZ()), Ogre::Vector3::UNIT_Z);
 
         if(q != Ogre::Quaternion::IDENTITY)
@@ -1239,11 +1255,14 @@ std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshN
         }
     }
 
-    Ogre::Skeleton::BoneIterator boneIterator = objectEntity->getSkeleton()->getBoneIterator();
-    while (boneIterator.hasMoreElements())
+    auto bones = objectEntity->getSkeleton()->getBones();
+    for(const auto b : bones)
     {
-        std::string boneName = boneIterator.getNext()->getName();
-        ret += "\nBone: " + boneName;
+        if(b)
+        {
+            std::string boneName = b->getName();
+            ret += "\nBone: " + boneName;
+        }
     }
     msSingleton->mSceneManager->destroyEntity(objectEntity);
     return ret;
@@ -1295,7 +1314,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
     //cout << "\nCloning material:  " << tempSS.str();
 
     // If this texture has been copied and colourized, we can return
-    if (!requestedMaterial.isNull())
+    if (requestedMaterial)
         return tempSS.str();
 
     // If not yet, then do so
@@ -1441,7 +1460,7 @@ std::string RenderManager::setMaterialOpacity(const std::string& materialName, f
     Ogre::MaterialPtr requestedMaterial = Ogre::MaterialManager::getSingleton().getByName(newMaterialName.str());
 
     // If this texture has been copied and colourized, we can return
-    if (!requestedMaterial.isNull())
+    if (requestedMaterial)
         return newMaterialName.str();
 
     // If not yet, then do so
@@ -1524,8 +1543,10 @@ void RenderManager::moveCursor(float relX, float relY)
 
 void RenderManager::moveWorldCoords(Ogre::Real x, Ogre::Real y)
 {
-    if(mHandLight != nullptr)
-        mHandLight->setPosition(x, y, KEEPER_HAND_WORLD_Z);
+    if(mHandLightNode != nullptr)
+    {
+        mHandLightNode->setPosition(x, y, KEEPER_HAND_WORLD_Z);
+    }
 }
 
 void RenderManager::entitySlapped()
@@ -1543,7 +1564,7 @@ std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialN
     Ogre::MaterialPtr requestedMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialNameToUse));
 
     // If this texture has been copied and colourized, we can return
-    if (!requestedMaterial.isNull())
+    if (requestedMaterial)
         return materialNameToUse;
 
     Ogre::MaterialPtr oldMaterial = Ogre::MaterialManager::getSingleton().getByName(materialNameBase);
@@ -1555,7 +1576,7 @@ std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialN
         OD_LOG_ERR("Failed to clone rtss for material: " + materialNameBase);
     }
 
-    for (unsigned int j = 0; j < newMaterial->getNumTechniques(); ++j)
+    for (unsigned short j = 0; j < newMaterial->getNumTechniques(); ++j)
     {
         Ogre::Technique* technique = newMaterial->getTechnique(j);
         if (technique->getNumPasses() == 0)
@@ -1583,13 +1604,13 @@ void RenderManager::rrMinimapRendering(bool postRender)
 
 void RenderManager::changeRenderQueueRecursive(Ogre::SceneNode* node, uint8_t renderQueueId)
 {
-    for(uint32_t i = 0; i < node->numAttachedObjects(); ++i)
+    for(unsigned short i = 0; i < node->numAttachedObjects(); ++i)
     {
         Ogre::MovableObject* obj = node->getAttachedObject(i);
         obj->setRenderQueueGroup(renderQueueId);
     }
 
-    for(uint32_t i = 0; i < node->numChildren(); ++i)
+    for(unsigned short i = 0; i < node->numChildren(); ++i)
     {
         Ogre::SceneNode* childNode = dynamic_cast<Ogre::SceneNode *>(node->getChild(i));
         if(childNode == nullptr)
