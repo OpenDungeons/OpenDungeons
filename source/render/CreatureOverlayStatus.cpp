@@ -88,7 +88,6 @@ void CreatureOverlayStatus::updateHealth()
         std::string material = RenderManager::getSingleton().rrBuildSkullFlagMaterial(
             "CreatureOverlay" + Helper::toString(mHealthValue),
             mSeat->getColorValue());
-        OD_LOG_INF("Created creature overlay with name \"" + material + "\"");
         uint32_t healthId = mOverlayIds[static_cast<uint32_t>(CreatureOverlays::health)];
         mMovableTextOverlay->setMaterialName(healthId, material);
     }

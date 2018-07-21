@@ -990,7 +990,6 @@ void EditorMode::selectTiles(const std::vector<Tile*> tiles)
 void EditorMode::unselectAllTiles()
 {
     Player* player = mGameMap->getLocalPlayer();
-    //mGameMap->forEachTile([&](Tile* t) {t->setSelected(false, player);});
     // Compute selected tiles
     for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
     {
