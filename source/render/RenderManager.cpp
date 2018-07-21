@@ -78,16 +78,13 @@ const Ogre::Real KEEPER_HAND_CREATURE_PICKED_SCALE = 0.05f;
 
 const Ogre::ColourValue BASE_AMBIENT_VALUE = Ogre::ColourValue(0.3f, 0.3f, 0.3f);
 
-namespace {
-    Ogre::SceneNode* mHandLightNode = nullptr;
-}
-
 RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mHandAnimationState(nullptr),
     mViewport(nullptr),
     mShaderGenerator(nullptr),
     mHandKeeperNode(nullptr),
     mHandLight(nullptr),
+    mHandLightNode(nullptr),
     mCurrentFOVy(0.0f),
     mFactorWidth(0.0f),
     mFactorHeight(0.0f),
@@ -127,7 +124,7 @@ void RenderManager::initGameRenderer(GameMap* gameMap)
             mHandLightNode = mLightSceneNode->createChildSceneNode(); //mSceneManager->createSceneNode();
         }
 
-        //mHandLightNode->attachObject(mHandLight);
+        mHandLightNode->attachObject(mHandLight);
     }
 
     //Add a too small to be visible dummy dirt tile to the hand node

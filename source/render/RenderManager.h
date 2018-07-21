@@ -218,6 +218,7 @@ private:
     //! For the keeper hand
     Ogre::SceneNode* mHandKeeperNode;
     Ogre::Light* mHandLight;
+    Ogre::SceneNode* mHandLightNode;
     Ogre::Radian mCurrentFOVy;
     Ogre::Real mFactorWidth;
     Ogre::Real mFactorHeight;

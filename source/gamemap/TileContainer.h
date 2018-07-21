@@ -97,17 +97,6 @@ public:
     //! the furthest
     std::vector<Tile*> visibleTiles(int x, int y, int radius);
 
-    template<typename F> void forEachTile(F f)
-    {
-        for (int ii = 0; ii < mMapSizeX; ++ii)
-        {
-            for (int jj = 0; jj < mMapSizeY; ++jj)
-            {
-                f(mTiles[ii][jj]);
-            }
-        }
-    }
-
 protected:
     //! \brief The map size
     int mMapSizeX;
