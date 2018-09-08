@@ -62,13 +62,7 @@ void SlopeWalk::buildSlopes()
     for(int ii = mTopRightIndex; ii != mDownRightIndex ; ++ii, ii %= mVertices.mMyArray.size())
     {
         int64_t divisor = mVertices[ii].y - mVertices[ii+1].y;
-        // NOTE(oyvindln): Avoid divide by zero.
-        if(divisor == 0) {
-            break;
-        }
-
         mRightSlopes.push_back((mVertices[ii].x - mVertices[ii+1].x) * VectorInt64::UNIT / divisor);
-
         mRightVertices.push_back(ii);
 
     }
@@ -82,9 +76,6 @@ void SlopeWalk::buildSlopes()
     for(int ii =  mTopLeftIndex; ii != mDownLeftIndex ; ii+=mVertices.mMyArray.size() - 1, ii%=mVertices.mMyArray.size())
     {
         int64_t divisor = mVertices[ii].y - mVertices[ii-1].y;
-        if(divisor == 0) {
-            break;
-        }
         mLeftSlopes.push_back((mVertices[ii].x - mVertices[ii-1].x) * VectorInt64::UNIT / divisor);
         mLeftVertices.push_back(ii);
     }

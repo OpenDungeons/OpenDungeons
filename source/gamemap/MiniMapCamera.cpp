@@ -82,7 +82,7 @@ MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     mMiniMapCam->setNearClipDistance(0.02f);
     mMiniMapCam->setFarClipDistance(300.0f);
     mMiniMapCam->setFOVy(ANGLE_CAM);
-
+    mMiniMapCamNode->attachObject(mMiniMapCam);
     Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
     rt->addListener(this);
     rt->setAutoUpdated(false);
@@ -109,8 +109,8 @@ MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     mHeight = mMiniMapWindow->getUnclippedOuterRect().get().getSize().d_height;
 
     updateMinimapCamera();
-    //mCullingManager->computeIntersectionPoints(mMiniMapCam, mCameraTilesIntersections);
-    //mCullingManager->startTileCulling(mMiniMapCam, mCameraTilesIntersections);
+    mCullingManager->computeIntersectionPoints(mMiniMapCam, mCameraTilesIntersections);
+    mCullingManager->startTileCulling(mMiniMapCam, mCameraTilesIntersections);
 }
 
 MiniMapCamera::~MiniMapCamera()
@@ -157,8 +157,8 @@ void MiniMapCamera::update(Ogre::Real timeSinceLastFrame, const std::vector<Ogre
 
     mElapsedTime = 0;
     updateMinimapCamera();
-    //mCullingManager->computeIntersectionPoints(mMiniMapCam, mCameraTilesIntersections);
-    //mCullingManager->update(mMiniMapCam, mCameraTilesIntersections);
+    mCullingManager->computeIntersectionPoints(mMiniMapCam, mCameraTilesIntersections);
+    mCullingManager->update(mMiniMapCam, mCameraTilesIntersections);
 
     Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
     rt->update();
@@ -173,7 +173,7 @@ void MiniMapCamera::updateMinimapCamera()
     const Ogre::Quaternion& orientation = mCameraManager.getActiveCameraNode()->getOrientation();
     mMiniMapCamNode->setPosition(mCurCamPosX, mCurCamPosY, CAM_HEIGHT);
     mMiniMapCamNode->lookAt(Ogre::Vector3(mCurCamPosX, mCurCamPosY, 0.0),
-                            Ogre::Node::TransformSpace::TS_LOCAL);
+                     Ogre::Node::TransformSpace::TS_WORLD);
     mMiniMapCamNode->roll(orientation.getRoll());
 }
 
