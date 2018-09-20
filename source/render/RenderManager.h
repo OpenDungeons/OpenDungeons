@@ -68,7 +68,7 @@ public:
 
     //! \brief Initialize the renderer when a new game (Game or Editor) is launched
     void initGameRenderer(GameMap* gameMap);
-    void stopGameRenderer(GameMap* gameMap);
+    void stopGameRenderer(GameMap*);
 
     //! \brief starts the compositor compositorName.
     void triggerCompositor(const std::string& compositorName);
@@ -218,6 +218,7 @@ private:
     //! For the keeper hand
     Ogre::SceneNode* mHandKeeperNode;
     Ogre::Light* mHandLight;
+    Ogre::SceneNode* mHandLightNode;
     Ogre::Radian mCurrentFOVy;
     Ogre::Real mFactorWidth;
     Ogre::Real mFactorHeight;

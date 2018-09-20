@@ -95,11 +95,11 @@ public:
     {}
 
     AstarEntry(Tile* tile, int x1, int y1, int x2, int y2) :
-        mHasBeenProcessed (false),
         tile    (tile),
         parent  (nullptr),
         g       (0.0),
-        h       (0.0)
+        h       (0.0),
+        mHasBeenProcessed (false)
     {
         h = computeHeuristic(x1, y1, x2, y2);
     }
@@ -142,11 +142,11 @@ public:
     { g = newG; }
 
 private:
-    bool        mHasBeenProcessed;
     Tile*       tile;
     AstarEntry* parent;
     double      g;
     double      h;
+    bool        mHasBeenProcessed;
 };
 
 
@@ -1472,10 +1472,10 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
             break;
 
         // openList being sorted, the last element is the smallest
-        auto smallestAstar = openList.rbegin();
+        AstarEntry* smallestAstar = *openList.rbegin();
         openList.pop_back();
 
-        currentEntry = *smallestAstar;
+        currentEntry = smallestAstar;
         currentEntry->setHasBeenProcessed();
 
         // We found the path, break out of the search loop

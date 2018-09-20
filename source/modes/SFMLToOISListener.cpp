@@ -138,17 +138,17 @@ void initKeyTable(std::array<CEGUI::Key::Scan,sf::Keyboard::KeyCount>& keyMap)
         keyMap[sf::Mouse::XButton2)]	= CEGUI::X2Button;*/
 }
 
-SFMLToOISListener::SFMLToOISListener(AbstractApplicationMode& receiver, int windowWidth, int windowHeigth)
-    : mReceiver(&receiver)
+SFMLToOISListener::SFMLToOISListener(AbstractApplicationMode* receiver, int windowWidth, int windowHeigth)
+    : mReceiver(receiver)
 {
     mMouseState.width = windowWidth;
     mMouseState.height = windowHeigth;
     initKeyTable(mKeyMap);
 }
 
-void SFMLToOISListener::setReceiver(AbstractApplicationMode& receiver)
+void SFMLToOISListener::setReceiver(AbstractApplicationMode* receiver)
 {
-    mReceiver = &receiver;
+    mReceiver = receiver;
 }
 
 bool SFMLToOISListener::handleEvent(const sf::Event& event)

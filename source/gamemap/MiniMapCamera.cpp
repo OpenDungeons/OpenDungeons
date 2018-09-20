@@ -49,7 +49,7 @@
 
 static const Ogre::Real NB_TILES_DISPLAYED_IN_MINIMAP = 30.0;
 static const Ogre::Radian ANGLE_CAM = Ogre::Degree(90.0);
-static const Ogre::Real CAM_HEIGHT = NB_TILES_DISPLAYED_IN_MINIMAP * 0.5 / Ogre::Math::Tan(ANGLE_CAM * 0.5);
+static const Ogre::Real CAM_HEIGHT = NB_TILES_DISPLAYED_IN_MINIMAP * 0.5f / Ogre::Math::Tan(ANGLE_CAM * 0.5f);
 static const Ogre::uint TEXTURE_SIZE = 512;
 static const Ogre::Real MIN_TIME_REFRESH_SECS = 0.5;
 
@@ -73,14 +73,16 @@ MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     mCurCamPosX(-1),
     mCurCamPosY(-1),
     mMiniMapCam(RenderManager::getSingleton().getSceneManager()->createCamera("miniMapCam")),
+    mMiniMapCamNode(RenderManager::getSingleton().getSceneManager()->createSceneNode("minimapCameraNode")),
     mCullingManager(new CullingManager(&mGameMap, CullingType::SHOW_MINIMAP)),
     mCameraTilesIntersections(std::vector<Ogre::Vector3>(4, Ogre::Vector3::ZERO))
 {
-    // We create a special camera that will look at the whole scene and render it in the minimap
-    mMiniMapCam->setNearClipDistance(0.02);
-    mMiniMapCam->setFarClipDistance(300.0);
-    mMiniMapCam->setFOVy(ANGLE_CAM);
 
+    // We create a special camera that will look at the whole scene and render it in the minimap
+    mMiniMapCam->setNearClipDistance(0.02f);
+    mMiniMapCam->setFarClipDistance(300.0f);
+    mMiniMapCam->setFOVy(ANGLE_CAM);
+    mMiniMapCamNode->attachObject(mMiniMapCam);
     Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
     rt->addListener(this);
     rt->setAutoUpdated(false);
@@ -169,9 +171,10 @@ void MiniMapCamera::updateMinimapCamera()
     mCurCamPosY = Helper::round(camPos.y);
 
     const Ogre::Quaternion& orientation = mCameraManager.getActiveCameraNode()->getOrientation();
-    mMiniMapCam->setPosition(mCurCamPosX, mCurCamPosY, CAM_HEIGHT);
-    mMiniMapCam->lookAt(mCurCamPosX, mCurCamPosY, 0.0);
-    mMiniMapCam->roll(orientation.getRoll());
+    mMiniMapCamNode->setPosition(mCurCamPosX, mCurCamPosY, CAM_HEIGHT);
+    mMiniMapCamNode->lookAt(Ogre::Vector3(mCurCamPosX, mCurCamPosY, 0.0),
+                     Ogre::Node::TransformSpace::TS_WORLD);
+    mMiniMapCamNode->roll(orientation.getRoll());
 }
 
 void MiniMapCamera::preRenderTargetUpdate(const Ogre::RenderTargetEvent& rte)

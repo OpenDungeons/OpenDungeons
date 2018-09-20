@@ -65,8 +65,7 @@ public:
     };
 
     CameraManager(Ogre::SceneManager* sceneManager, GameMap* gameMap, Ogre::RenderWindow* renderWindow);
-    virtual ~CameraManager()
-    {}
+    virtual ~CameraManager();
 
     inline void circleAround(int x, int y, unsigned int radius)
     {

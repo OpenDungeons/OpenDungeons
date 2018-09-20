@@ -115,7 +115,7 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
             static_cast<float> (width), static_cast<float> (height)));
 }
 
-void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
+void ODFrameListener::windowClosed(Ogre::RenderWindow*)
 {
     // We remove the mode manager to make sure it is destroyed before the window is. That
     // allows to release all taken resources in the mode
@@ -225,7 +225,7 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 }
 
 void ODFrameListener::renderQueueStarted(Ogre::uint8 queueGroupId, const Ogre::String& invocation,
-    bool& skipThisInvocation)
+    bool&)
 {
     if(queueGroupId == RenderManager::OD_RENDER_QUEUE_ID_GUI && invocation.empty())
     {
@@ -239,7 +239,7 @@ void ODFrameListener::renderQueueStarted(Ogre::uint8 queueGroupId, const Ogre::S
     
 }
 
-bool ODFrameListener::quit(const CEGUI::EventArgs &e)
+bool ODFrameListener::quit(const CEGUI::EventArgs &)
 {
     requestExit();
     return true;

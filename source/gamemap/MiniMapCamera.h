@@ -41,7 +41,7 @@ class MiniMapCamera : public MiniMap, public Ogre::RenderTargetListener
 {
 public:
     MiniMapCamera(CEGUI::Window* miniMapWindow);
-    ~MiniMapCamera();
+    ~MiniMapCamera() override;
 
     Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy) override;
 
@@ -73,6 +73,7 @@ private:
     int mCurCamPosX;
     int mCurCamPosY;
     Ogre::Camera* mMiniMapCam;
+    Ogre::SceneNode* mMiniMapCamNode;
 
     CullingManager* mCullingManager;
 

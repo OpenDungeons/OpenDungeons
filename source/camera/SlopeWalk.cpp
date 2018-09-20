@@ -61,7 +61,8 @@ void SlopeWalk::buildSlopes()
     mRightSlopes.push_back(0);
     for(int ii = mTopRightIndex; ii != mDownRightIndex ; ++ii, ii %= mVertices.mMyArray.size())
     {
-        mRightSlopes.push_back((mVertices[ii].x - mVertices[ii+1].x) * VectorInt64::UNIT / (mVertices[ii].y - mVertices[ii+1].y));
+        int64_t divisor = mVertices[ii].y - mVertices[ii+1].y;
+        mRightSlopes.push_back((mVertices[ii].x - mVertices[ii+1].x) * VectorInt64::UNIT / divisor);
         mRightVertices.push_back(ii);
 
     }
@@ -74,7 +75,8 @@ void SlopeWalk::buildSlopes()
     mLeftSlopes.push_back(0);
     for(int ii =  mTopLeftIndex; ii != mDownLeftIndex ; ii+=mVertices.mMyArray.size() - 1, ii%=mVertices.mMyArray.size())
     {
-        mLeftSlopes.push_back((mVertices[ii].x - mVertices[ii-1].x) * VectorInt64::UNIT / (mVertices[ii].y - mVertices[ii-1].y));
+        int64_t divisor = mVertices[ii].y - mVertices[ii-1].y;
+        mLeftSlopes.push_back((mVertices[ii].x - mVertices[ii-1].x) * VectorInt64::UNIT / divisor);
         mLeftVertices.push_back(ii);
     }
     mLeftSlopes.push_back(0);

@@ -19,6 +19,7 @@
 #define MOVABLETEXTOVERLAY_H
 
 #include <OgrePrerequisites.h>
+#include <OgreSharedPtr.h>
 
 #include <cstdint>
 
@@ -28,7 +29,9 @@ class Font;
 class Overlay;
 class OverlayContainer;
 class OverlayElement;
+typedef Ogre::SharedPtr<Ogre::Font> FontPtr;
 }
+
 
 class ChildOverlay
 {
@@ -86,7 +89,7 @@ private:
     Ogre::Real mTimeToDisplay;
 
     //! Font used to display the text
-    Ogre::Font* mFont;
+    Ogre::FontPtr mFont;
 };
 
 class MovableTextOverlay
