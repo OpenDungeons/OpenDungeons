@@ -921,17 +921,3 @@ elseif(WIN32)
             DESTINATION ${OD_BIN_PATH})
 endif()
 
-##################################
-#### Packaging ###################
-##################################
-
-#Not used at the moment, more flexible to do the deb packages manually
-#TODO - set up for making tarballs
-# set(CPACK_SOURCE_IGNORE_FILES "~$" "${CMAKE_SOURCE_DIR}.*/.svn/" "${CMAKE_SOURCE_DIR}/debian/")
-# set(CPACK_PACKAGE_NAME opendungeons)
-# set(CPACK_PACKAGE_VERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_LEVEL})
-# set(CPACK_PACKAGE_CONTACT OpenDungeons Team)
-# set(CPACK_GENERATOR "DEB")
-# set(CPACK_SOURCE_GENERATOR "DEB")
-# set(CPACK_DEBIAN_PACKAGE_DEPENDS "libcegui (>= 0.8.3), libois-1.2.0, libsfml-audio2.0, libopenal1, libogremain-1.9.0")
-# include(CPack)
