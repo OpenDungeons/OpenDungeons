@@ -308,7 +308,7 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
     else if (newPosition.y >= mGameMap->getMapSizeY())
         newPosition.y = mGameMap->getMapSizeY();
 
-    
+
     // Prevent the tilting to show a reversed world or looking too high.
     if (mRotateLocalVector.x != 0)
     {
@@ -328,8 +328,7 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
         // Tilt the camera up or down.
         getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_Z,
                                       Ogre::Degree(mRotateLocalVector.y * frameTime),
-                                      Ogre::Node::TS_WORLD);
-
+                                      Ogre::Node::TS_LOCAL);
     }
 
     // Swivel the camera to the left or right, while maintaining the same
