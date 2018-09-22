@@ -300,8 +300,9 @@ void RenderManager::removeEntityMenu(Ogre::Entity* ent)
     Ogre::SceneNode* entNode = mSceneManager->getSceneNode(ent->getName() + "_node");
     entNode->detachObject(ent);
     mMainMenuSceneNode->removeChild(entNode);
+    mSceneManager->destroySceneNode(entNode->getName() );    
     mSceneManager->destroyEntity(ent);
-    mSceneManager->destroySceneNode(entNode->getName());
+
 }
 
 Ogre::AnimationState* RenderManager::setMenuEntityAnimation(const std::string& entityName, const std::string& animation, bool loop)

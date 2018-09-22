@@ -321,7 +321,7 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
         // Tilt the camera up or down.
         getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_Z,
                                       Ogre::Degree(mRotateLocalVector.y * frameTime),
-                                      Ogre::Node::TS_WORLD);
+                                      Ogre::Node::TS_LOCAL);
 
     }
 

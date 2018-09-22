@@ -174,7 +174,9 @@ void MiniMapCamera::updateMinimapCamera()
     mMiniMapCamNode->setPosition(mCurCamPosX, mCurCamPosY, CAM_HEIGHT);
     mMiniMapCamNode->lookAt(Ogre::Vector3(mCurCamPosX, mCurCamPosY, 0.0),
                      Ogre::Node::TransformSpace::TS_WORLD);
-    mMiniMapCamNode->roll(orientation.getRoll());
+    Ogre::Quaternion qq;
+    qq.FromAngleAxis( orientation.getRoll() ,Ogre::Vector3::UNIT_Z);
+    mMiniMapCamNode->setOrientation(qq);
 }
 
 void MiniMapCamera::preRenderTargetUpdate(const Ogre::RenderTargetEvent& rte)
