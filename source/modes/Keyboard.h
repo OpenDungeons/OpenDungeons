@@ -1,7 +1,7 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-#include <OIS/OISKeyboard.h>
+#include <OISKeyboard.h>
 
 //! \brief A class to abstract between the SFML and OIS keyboard functionality
 class Keyboard

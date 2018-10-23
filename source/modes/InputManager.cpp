@@ -23,10 +23,10 @@
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 
-#include <OIS/OISMouse.h>
-#include <OIS/OISKeyboard.h>
+#include <OISMouse.h>
+#include <OISKeyboard.h>
 
-#include <OIS/OISInputManager.h>
+#include <OISInputManager.h>
 #include <OgreRenderWindow.h>
 
 InputManager::InputManager(Ogre::RenderWindow* renderWindow):

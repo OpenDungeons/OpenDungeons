@@ -22,8 +22,8 @@
 #include "modes/InputManager.h"
 #include "modes/InputBridge.h"
 
-#include <OIS/OISKeyboard.h>
-#include <OIS/OISMouse.h>
+#include <OISKeyboard.h>
+#include <OISMouse.h>
 
 #include <CEGUI/EventArgs.h>
 #include <CEGUI/Event.h>
