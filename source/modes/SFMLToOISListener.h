@@ -21,7 +21,7 @@
 #include <array>
 #include <SFML/Window/Keyboard.hpp>
 #include <CEGUI/InputEvent.h>
-#include <OIS/OISMouse.h>
+#include <OISMouse.h>
 
 namespace sf {
     class Event;

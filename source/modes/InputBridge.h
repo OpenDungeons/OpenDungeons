@@ -18,7 +18,7 @@
 #ifndef INPUTBRIDGE_H
 #define INPUTBRIDGE_H
 
-#include <OIS/OISMouse.h>
+#include <OISMouse.h>
 
 #include <SFML/Window/Event.hpp>
 
