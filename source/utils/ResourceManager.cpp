@@ -25,6 +25,7 @@
 
 #include <OgreConfigFile.h>
 #include <OgrePlatform.h>
+#include <OgrePrerequisites.h>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #include <pwd.h> // getpwuid()
@@ -458,6 +459,23 @@ void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
     Ogre::ConfigFile cf;
     cf.load(mGameDataPath + RESOURCECFG);
 
+#if defined(OGRE_VERSION) && OGRE_VERSION < 0x10A00
+    // Go through all sections & settings in the file
+    Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
+
+    Ogre::String secName = "";
+    Ogre::String typeName = "";
+    Ogre::String archName = "";
+    while(seci.hasMoreElements())
+    {
+        secName = seci.peekNextKey();
+        Ogre::ConfigFile::SettingsMultiMap* settings = seci.getNext();
+        Ogre::ConfigFile::SettingsMultiMap::iterator i;
+        for (i = settings->begin(); i != settings->end(); ++i)
+        {
+            typeName = i->first;
+            archName = mGameDataPath + i->second;
+#else
     const auto settings = cf.getSettingsBySection();
 
     for(const auto& section : settings)
@@ -468,6 +486,7 @@ void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
         {
             const Ogre::String& typeName = setting.first;
             const Ogre::String& archName = mGameDataPath + setting.second;
+#endif // OGRE_VERSION < 0x10A00
             OD_LOG_INF("Resource in section: " + secName + " Type: " + typeName
                        + " Path: " + archName);
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE

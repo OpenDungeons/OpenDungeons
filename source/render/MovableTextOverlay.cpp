@@ -21,6 +21,7 @@
 #include "utils/LogManager.h"
 
 #include <OgreCamera.h>
+#include <OgrePrerequisites.h>
 #include <Overlay/OgreFont.h>
 #include <Overlay/OgreFontManager.h>
 #include <Overlay/OgreOverlay.h>
@@ -39,7 +40,11 @@ ChildOverlay::ChildOverlay(const Ogre::String& fontName, Ogre::Real charHeight,
     mTimeToDisplay(0),
     mFont(Ogre::FontManager::getSingleton().getByName(fontName))
 {
-    if(!mFont)
+#if defined(OGRE_VERSION) && OGRE_VERSION < 0x10A00
+    if (mFont.isNull())
+#else
+    if (!mFont)
+#endif
     {
         OD_LOG_ERR("fontName=" + fontName);
         return;

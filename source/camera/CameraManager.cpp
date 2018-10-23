@@ -26,13 +26,15 @@
 #include "camera/CullingManager.h"
 #include "utils/LogManager.h"
 #include "gamemap/GameMap.h"
+
 #include <OgreCamera.h>
-#include <OgreSceneNode.h>
-#include <OgreSceneManager.h>
-#include <OgreViewport.h>
-#include <OgreRenderWindow.h>
 #include <OgreMaterialManager.h>
+#include <OgrePrerequisites.h>
 #include <OgreRectangle2D.h>
+#include <OgreRenderWindow.h>
+#include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
+#include <OgreViewport.h>
 
 #include <algorithm>
 
@@ -86,22 +88,27 @@ CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre
     setActiveCameraNode("RTS");
 
 
-    //Create the Background Material
-    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("Background");
 
     // Create background rectangle covering the whole screen
     Ogre::Rectangle2D* rect = new Ogre::Rectangle2D(BACKGROUND_RECT_NAME, true);
     rect->setCorners(-1.0, 1.0, 1.0, -1.0);
+#if defined(OGRE_VERSION) && OGRE_VERSION < 0x10A00
+    // setMaterial(const String&) is replaced by setMaterial(MaterialPtr&) in Ogre 1.10,
+    // and eventually dropped in Ogre 1.11.
+    rect->setMaterial("Background");
+#else
+    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("Background");
     rect->setMaterial(mat);
+#endif
     // Render the background before everything else
     rect->setRenderQueueGroup(Ogre::RenderQueueGroupID::RENDER_QUEUE_SKIES_EARLY);
     // Set the bounding box to something big
     rect->setBoundingBox(Ogre::AxisAlignedBox(-100000.0*Ogre::Vector3::UNIT_SCALE, 100000.0*Ogre::Vector3::UNIT_SCALE));
-	 
+
     // Attach background to the scene
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode("Background");
     node->attachObject(rect);
-    
+
     OD_LOG_INF("Created camera manager");
 }
 
