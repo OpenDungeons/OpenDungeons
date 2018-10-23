@@ -47,6 +47,7 @@
 #include <OgreMesh.h>
 #include <OgreMovableObject.h>
 #include <OgreParticleSystem.h>
+#include <OgrePrerequisites.h>
 #include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
@@ -1252,6 +1253,15 @@ std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshN
         }
     }
 
+#if defined(OGRE_VERSION) && OGRE_VERSION < 0x10A00
+    // For Ogre < 1.10 we still need to use Skeleton::BoneIterator
+    Ogre::Skeleton::BoneIterator boneIterator = objectEntity->getSkeleton()->getBoneIterator();
+    while (boneIterator.hasMoreElements())
+    {
+        std::string boneName = boneIterator.getNext()->getName();
+        ret += "\nBone: " + boneName;
+    }
+#else
     auto bones = objectEntity->getSkeleton()->getBones();
     for(const auto b : bones)
     {
@@ -1261,6 +1271,7 @@ std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshN
             ret += "\nBone: " + boneName;
         }
     }
+#endif
     msSingleton->mSceneManager->destroyEntity(objectEntity);
     return ret;
 }
@@ -1311,7 +1322,11 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
     //cout << "\nCloning material:  " << tempSS.str();
 
     // If this texture has been copied and colourized, we can return
+#if defined(OGRE_VERSION) && OGRE_VERSION < 0x10A00
+    if (!requestedMaterial.isNull())
+#else
     if (requestedMaterial)
+#endif
         return tempSS.str();
 
     // If not yet, then do so
@@ -1457,7 +1472,11 @@ std::string RenderManager::setMaterialOpacity(const std::string& materialName, f
     Ogre::MaterialPtr requestedMaterial = Ogre::MaterialManager::getSingleton().getByName(newMaterialName.str());
 
     // If this texture has been copied and colourized, we can return
+#if defined(OGRE_VERSION) && OGRE_VERSION < 0x10A00
+    if (!requestedMaterial.isNull())
+#else
     if (requestedMaterial)
+#endif
         return newMaterialName.str();
 
     // If not yet, then do so
@@ -1561,7 +1580,11 @@ std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialN
     Ogre::MaterialPtr requestedMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialNameToUse));
 
     // If this texture has been copied and colourized, we can return
+#if defined(OGRE_VERSION) && OGRE_VERSION < 0x10A00
+    if (!requestedMaterial.isNull())
+#else
     if (requestedMaterial)
+#endif
         return materialNameToUse;
 
     Ogre::MaterialPtr oldMaterial = Ogre::MaterialManager::getSingleton().getByName(materialNameBase);
