@@ -5,18 +5,9 @@ dist: trusty
 
 os:
   - linux
-# would be nice to check build with osx
-#  - osx
 
 compiler:
   - gcc
-
-#addons:
-  #apt:
-    #packages:
-    #- make
-    #- cmake
-    #- binutils-dev
 
 before_install:
   - gcc --version
@@ -25,14 +16,14 @@ before_install:
   - sudo apt-get install -y cmake pkg-config libogre-1.9-dev libopenal-dev libsfml-dev libois-dev
   - sudo apt-get install -y libboost-filesystem-dev libboost-locale-dev libboost-program-options-dev libboost-date-time-dev libboost-thread-dev libboost-system-dev libboost-test-dev
 # Install CEGUI from GetDeb
-  - wget -q -O - http://archive.getdeb.net/getdeb-archive.key | sudo apt-key add -
-  - sudo sh -c 'echo "deb http://archive.getdeb.net/ubuntu trusty-getdeb games" >> /etc/apt/sources.list.d/getdeb.list'
-  - sudo apt-get update -qq; sudo apt-get install -y libcegui-0.8-dev
+  # GetDeb repo is down, can't find the key anymore
+  # We can however still use its MegaGlest mirror for now
+  #- wget -q -O - http://archive.getdeb.net/getdeb-archive.key | sudo apt-key add -
+  - sudo sh -c 'echo "deb http://getdeb.megaglest.org/ubuntu trusty-getdeb games" >> /etc/apt/sources.list.d/getdeb.list'
+  - sudo apt-get update -qq --allow-unauthenticated; sudo apt-get install -y --allow-unauthenticated libcegui-0.8-dev
 
 script:
   - cmake . -DOD_BUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release
   - make -j2
   - make install DESTDIR=./install-root
   - ./scripts/unix/run_unit_tests.sh
-
-#cache: apt
