@@ -514,7 +514,7 @@ if(OD_USE_SFML_WINDOW)
 else()
     find_package(SFML 2 REQUIRED COMPONENTS Audio System Network)
 endif()
-if((OGRE_VERSION_MAJOR LESS 1) AND (OGRE_VERSION_MINOR LESS 9))
+if("${OGRE_VERSION}" VERSION_LESS "1.9.0")
     message(FATAL_ERROR "OGRE version >= 1.9.0 required")
 endif()
 
@@ -702,7 +702,14 @@ else()
     message(STATUS "Plugin path dbg: " ${OD_OGRE_PLUGIN_DIR_DBG})
 endif()
 
-#Do the configuration
+# Do the configuration
+# Convoluted check because old CMake has no VERSION_GREATER_EQUAL,
+# we want this true for 1.11 or later since plugins have to be declared manually.
+if("${OGRE_VERSION}" VERSION_LESS "1.11")
+    set(OD_OGRE_VERSION_SPECIFIC_PLUGINS "")
+else()
+    set(OD_OGRE_VERSION_SPECIFIC_PLUGINS "Plugin=Codec_FreeImage")
+endif()
 configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_BINARY_DIR}/plugins.cfg)
 if(WIN32)
     configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_BINARY_DIR}/plugins_d.cfg)
