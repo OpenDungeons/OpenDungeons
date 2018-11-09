@@ -38,7 +38,8 @@ ChildOverlay::ChildOverlay(const Ogre::String& fontName, Ogre::Real charHeight,
     mForcedHeight(-1),
     mCharHeight(charHeight),
     mTimeToDisplay(0),
-    mFont(Ogre::FontManager::getSingleton().getByName(fontName))
+    // FIXME: Move FontManager usage to ResourceManager somehow and dehardcode "GUI"?
+    mFont(Ogre::FontManager::getSingleton().getByName(fontName, "GUI"))
 {
 #if defined(OGRE_VERSION) && OGRE_VERSION < 0x10A00
     if (mFont.isNull())
