@@ -2890,7 +2890,7 @@ std::vector<Spell*> GameMap::getSpellsBySeatAndType(Seat* seat, SpellType type) 
 const std::string& GameMap::getMeshForDefaultTile() const
 {
     // 0 means tile not linked to any neighboor
-    return mTileSet->getTileValues(TileVisual::dirtFull).at(0).getMeshName();
+    return mTileSet->getTileValues(TileVisual::dirtFull).at(0).at(0).getMeshName();
 }
 
 const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
@@ -2928,7 +2928,7 @@ const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
             index |= (1 << i);
     }
 
-    return mTileSet->getTileValues(tile->getTileVisual()).at(index);
+    return mTileSet->getTileValues(tile->getTileVisual()).at(index).at((tile->getX()/3 + tile->getY()/5 -tile->getX() - tile->getY()) % mTileSet->getTileValues(tile->getTileVisual()).at(index).size()) ;
 }
 
 uint32_t GameMap::getMaxNumberCreatures(Seat* seat) const

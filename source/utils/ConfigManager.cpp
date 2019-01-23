@@ -1160,7 +1160,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
     return true;
 }
 
-bool ConfigManager::loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues)
+bool ConfigManager::loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<std::vector<TileSetValue>>& tileValues)
 {
     std::string nextParam;
     std::string beginTag = "[" + Tile::tileVisualToString(tileVisual) + "]";
@@ -1184,18 +1184,46 @@ bool ConfigManager::loadTilesetValues(std::istream& defFile, TileVisual tileVisu
         std::string meshName;
         defFile >> meshName;
 
+
         std::string materialName;
+        double rotX, rotY, rotZ;
+        
+        if(meshName=="[oneOf]"){
+            defFile >> nextParam;
+            while(nextParam!="[/oneOf]"){
+
+                meshName = nextParam;
+               
+                defFile >> materialName;
+                if(materialName.compare("''") == 0)
+                    materialName.clear();
+
+                defFile >> rotX;
+
+                defFile >> rotY;
+
+                defFile >> rotZ;
+
+                if(index >= tileValues.size())
+                {
+                    OD_LOG_ERR("Tileset index too high in tileset=" + endTag + ", index=" + indexStr);
+                    return false;
+                }
+
+                tileValues[index].push_back(TileSetValue(meshName, materialName, rotX, rotY, rotZ));
+                defFile >> nextParam;
+            }
+            continue;
+        }
+        
         defFile >> materialName;
         if(materialName.compare("''") == 0)
             materialName.clear();
 
-        double rotX;
         defFile >> rotX;
 
-        double rotY;
         defFile >> rotY;
 
-        double rotZ;
         defFile >> rotZ;
 
         if(index >= tileValues.size())
@@ -1204,7 +1232,7 @@ bool ConfigManager::loadTilesetValues(std::istream& defFile, TileVisual tileVisu
             return false;
         }
 
-        tileValues[index] = TileSetValue(meshName, materialName, rotX, rotY, rotZ);
+        tileValues[index].push_back(TileSetValue(meshName, materialName, rotX, rotY, rotZ));
     }
 }
 

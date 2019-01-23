@@ -260,7 +260,7 @@ private:
     bool loadSpellConfig(const std::string& fileName);
     bool loadSkills(const std::string& fileName);
     bool loadTilesets(const std::string& fileName);
-    bool loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues);
+    bool loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<std::vector<TileSetValue>>& tileValues);
 
     //! \brief Loads the user configuration values, and use default ones if it cannot do it.
     void loadUserConfig(const std::string& fileName);

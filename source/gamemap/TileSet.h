@@ -74,9 +74,9 @@ class TileSet
 public:
     TileSet();
 
-    std::vector<TileSetValue>& configureTileValues(TileVisual tileVisual);
+    std::vector<std::vector<TileSetValue>>& configureTileValues(TileVisual tileVisual);
 
-    const std::vector<TileSetValue>& getTileValues(TileVisual tileVisual) const;
+    const std::vector<std::vector<TileSetValue>>& getTileValues(TileVisual tileVisual) const;
 
     //! Returns true if the 2 tiles are linked and false otherwise.
     //! Used on client side only
@@ -85,7 +85,7 @@ public:
     void addTileLink(TileVisual tileVisual1, TileVisual tileVisual2);
 
 private:
-    std::vector<std::vector<TileSetValue>> mTileValues;
+    std::vector<std::vector<std::vector<TileSetValue>>> mTileValues;
     //! Represents the links between tiles. The uint is used as a bit array.
     //! The index in the vector corresponds to the TileVisual
     std::vector<uint32_t> mTileLinks;
