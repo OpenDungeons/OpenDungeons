@@ -73,6 +73,7 @@ public:
     bool                mMouseDownOnCEGUIWindow;
 
     Ogre::Vector3       mKeeperHandPos;
+    Ogre::Vector3       mKeeperHandGroundPos;
     int                 mXPos, mYPos;
     int                 mLStartDragX, mLStartDragY;
     int                 mRStartDragX, mRStartDragY;
