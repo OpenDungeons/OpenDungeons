@@ -1752,9 +1752,6 @@ void GameMode::handlePlayerActionNone()
         unselectAllTiles();
         return;
     }
-
-    selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
-        inputManager.mYPos);
 }
 
 void GameMode::handlePlayerActionSelectTile()
