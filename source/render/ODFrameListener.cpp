@@ -66,6 +66,8 @@ namespace
     const unsigned int DEFAULT_FRAME_RATE = 60;
 }
 
+const double ODFrameListener::TILE_HIGH_WORLD_Z  = 1.50;
+
 /*! \brief This constructor is where the OGRE rendering system is initialized and started.
  *
  * The primary function of this routine is to initialize variables, and start
@@ -245,21 +247,28 @@ bool ODFrameListener::quit(const CEGUI::EventArgs &)
     return true;
 }
 
-bool ODFrameListener::findWorldPositionFromMouse(const OIS::MouseEvent &arg, Ogre::Vector3& keeperHand3DPos)
+bool ODFrameListener::findWorldPositionFromMouse(const OIS::MouseEvent &arg, Ogre::Vector3& keeperHand3DPos,  Ogre::Vector3& keeperHand3DGround)
 {
     // Setup the ray scene query, use CEGUI's mouse position
     CEGUI::Vector2<float> mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();// * mMouseScale;
     Ogre::Ray mouseRay = mCameraManager.getActiveCamera()->getCameraToViewportRay(mousePos.d_x / float(
             arg.state.width), mousePos.d_y / float(arg.state.height));
 
+    Ogre::Plane handPlane(Ogre::Vector3::UNIT_Z, TILE_HIGH_WORLD_Z) ;
     Ogre::Plane groundPlane(Ogre::Vector3::UNIT_Z, 0.0);
-    std::pair<bool, Ogre::Real> p = mouseRay.intersects(groundPlane);
-    if(p.first)
+    std::pair<bool, Ogre::Real> pp = mouseRay.intersects(handPlane);
+    std::pair<bool, Ogre::Real> qq = mouseRay.intersects(groundPlane);
+    
+    if(pp.first && qq.first )
     {
-        keeperHand3DPos = mouseRay.getPoint(p.second);
+        keeperHand3DPos = mouseRay.getPoint(pp.second);
+        keeperHand3DGround = mouseRay.getPoint(qq.second);
         return true;
     }
 
+
+
+    
     return false;
 
 }

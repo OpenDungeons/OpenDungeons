@@ -399,7 +399,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     // Since this is a tile selection query we loop over the result set
     // and look for the first object which is actually a tile.
-    ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, inputManager.mKeeperHandPos);
+    ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, inputManager.mKeeperHandPos, inputManager.mKeeperHandGroundPos);
     RenderManager::getSingleton().moveWorldCoords(inputManager.mKeeperHandPos.x, inputManager.mKeeperHandPos.y);
 
     int tileX = Helper::round(inputManager.mKeeperHandPos.x);
@@ -554,7 +554,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     if(mGameMap->getGamePaused())
         return true;
 
-    if(!ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, inputManager.mKeeperHandPos))
+    if(!ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, inputManager.mKeeperHandPos,  inputManager.mKeeperHandPos ))
         return true;
 
     RenderManager::getSingleton().moveWorldCoords(inputManager.mKeeperHandPos.x, inputManager.mKeeperHandPos.y);
@@ -626,7 +626,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
         if(mGameMap->getLocalPlayer()->numObjectsInHand() > 0)
         {
             // If we right clicked with the mouse over a valid map tile, try to drop what we have in hand on the map.
-            Tile *curTile = mGameMap->getTile(inputManager.mXPos, inputManager.mYPos);
+            Tile *curTile = mGameMap->getTile(inputManager.mKeeperHandGroundPos.x, inputManager.mKeeperHandGroundPos.y);
 
             if (curTile == nullptr)
                 return true;
@@ -659,7 +659,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
                     continue;
 
                 const Ogre::Vector3& entityPos = entity->getPosition();
-                double dist = Pathfinding::squaredDistance(entityPos.x, inputManager.mKeeperHandPos.x, entityPos.y, inputManager.mKeeperHandPos.y);
+                double dist = Pathfinding::squaredDistance(entityPos.x, inputManager.mKeeperHandGroundPos.x, entityPos.y, inputManager.mKeeperHandGroundPos.y);
                 if(closestEntity == nullptr)
                 {
                     closestDist = dist;
@@ -707,7 +707,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
                 continue;
 
             const Ogre::Vector3& entityPos = entity->getPosition();
-            double dist = Pathfinding::squaredDistance(entityPos.x, inputManager.mKeeperHandPos.x, entityPos.y, inputManager.mKeeperHandPos.y);
+            double dist = Pathfinding::squaredDistance(entityPos.x, inputManager.mKeeperHandGroundPos.x, entityPos.y, inputManager.mKeeperHandGroundPos.y);
             if(closestEntity == nullptr)
             {
                 closestDist = dist;
