@@ -148,7 +148,7 @@ else()
 endif ()
 
 # redo search if any of the environmental hints changed
-set(OGRE_COMPONENTS Paging Terrain Volume Overlay 
+set(OGRE_COMPONENTS Paging Terrain Volume Overlay Bites
   Plugin_BSPSceneManager Plugin_CgProgramManager Plugin_OctreeSceneManager
   Plugin_OctreeZone Plugin_PCZSceneManager Plugin_ParticleFX
   RenderSystem_Direct3D11 RenderSystem_Direct3D9 RenderSystem_GL RenderSystem_GL3Plus RenderSystem_GLES RenderSystem_GLES2)
@@ -422,6 +422,8 @@ ogre_find_component(RTShaderSystem OgreRTShaderSystem.h)
 ogre_find_component(Volume OgreVolumePrerequisites.h)
 # look for Overlay component
 ogre_find_component(Overlay OgreOverlaySystem.h)
+# look for Bites component
+ogre_find_component(Bites OgreBitesPrerequisites.h)
 
 #########################################################
 # Find Ogre plugins

@@ -49,6 +49,7 @@
 #include <OgreString.h>
 #include <OgreRenderTarget.h>
 #include <OgreGpuProgramManager.h>
+#include <OgreFileSystemLayer.h>
 
 #include "utils/LogManager.h"
 #include "utils/Helper.h"
@@ -133,6 +134,10 @@ void ResourceManager::setupDataPath(boost::program_options::variables_map& optio
         {
             mGameDataPath.append("/");
         }
+
+#if defined(OGRE_VERSION) && OGRE_VERSION >= 0x10A00
+        mGameDataPath = Ogre::FileSystemLayer::resolveBundlePath(mGameDataPath);
+#endif
     }
 
     // Test whether there is data in "./" and remove the system path in that case.
@@ -150,12 +155,15 @@ void ResourceManager::setupDataPath(boost::program_options::variables_map& optio
     std::cout << "Game data path is: " << mGameDataPath << std::endl;
 
 #ifndef OGRE_STATIC_LIB
-    #ifdef OD_PLUGINS_CFG_PATH
-        path = std::string(OD_PLUGINS_CFG_PATH);
-    #else
-        path = "./";
-    #endif
+#ifdef OD_PLUGINS_CFG_PATH
+    path = std::string(OD_PLUGINS_CFG_PATH);
+#else
+    path = "./";
+#endif
     mPluginsPath = path + "/" + PLUGINSCFG;
+#if defined(OGRE_VERSION) && OGRE_VERSION >= 0x10A00
+    mPluginsPath = Ogre::FileSystemLayer::resolveBundlePath(mPluginsPath);
+#endif
 #endif
 
     // Test whether there is a plugins.cfg file in "./" and remove the system plugins.cfg path in that case.
