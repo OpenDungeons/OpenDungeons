@@ -37,7 +37,6 @@
 #include "utils/Random.h"
 #include "utils/ResourceManager.h"
 
-#include <OgreErrorDialog.h>
 #include <OgreRenderWindow.h>
 #include <OgreRoot.h>
 #include <Overlay/OgreOverlaySystem.h>

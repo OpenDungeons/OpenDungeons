@@ -28,8 +28,9 @@
 
 #include <OgreFrameListener.h>
 #include <OgreSceneQuery.h>
-#include <OgreRenderQueueListener.h>
 #include <OgreSingleton.h>
+#include <OgrePrerequisites.h>
+#include <OgreRenderQueueListener.h>
 #include <OgreWindowEventUtilities.h>
 
 #include <memory>

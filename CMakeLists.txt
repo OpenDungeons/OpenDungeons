@@ -507,14 +507,20 @@ ENDIF ()
 
 find_package(Threads REQUIRED)
 find_package(OIS REQUIRED)
-find_package(OGRE REQUIRED)
+find_package(OGRE)
+if(NOT ${OGRE_FOUND})
+    find_package(OldOGRE REQUIRED)
+else()
+    set(OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR})
+    set(OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR})
+endif()
 find_package(CEGUI REQUIRED)
 if(OD_USE_SFML_WINDOW)
     find_package(SFML 2 REQUIRED COMPONENTS Audio System Network Window Graphics)
 else()
     find_package(SFML 2 REQUIRED COMPONENTS Audio System Network)
 endif()
-if((OGRE_VERSION_MAJOR LESS 1) AND (OGRE_VERSION_MINOR LESS 9))
+if("${OGRE_VERSION}" VERSION_LESS "1.9.0")
     message(FATAL_ERROR "OGRE version >= 1.9.0 required")
 endif()
 
@@ -626,6 +632,7 @@ target_link_libraries(
 
     #libraries
     ${OGRE_LIBRARIES}
+    ${OGRE_Bites_LIBRARIES}
     ${OGRE_RTShaderSystem_LIBRARIES}
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES}
@@ -701,7 +708,14 @@ else()
     message(STATUS "Plugin path dbg: " ${OD_OGRE_PLUGIN_DIR_DBG})
 endif()
 
-#Do the configuration
+# Do the configuration
+# Convoluted check because old CMake has no VERSION_GREATER_EQUAL,
+# we want this true for 1.11 or later since plugins have to be declared manually.
+if("${OGRE_VERSION}" VERSION_LESS "1.11")
+    set(OD_OGRE_VERSION_SPECIFIC_PLUGINS "")
+else()
+    set(OD_OGRE_VERSION_SPECIFIC_PLUGINS "Plugin=Codec_STBI")
+endif()
 configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_BINARY_DIR}/plugins.cfg)
 if(WIN32)
     configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_BINARY_DIR}/plugins_d.cfg)

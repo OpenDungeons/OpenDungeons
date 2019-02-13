@@ -1,0 +1,116 @@
+name: opendungeons
+version: 0.8.0
+confinement: strict
+summary: OpenDungeons
+description: Open source game inspired by Dungeon Keeper - Dark, damp and dangerous.
+
+apps:
+    opendungeons:
+        command: desktop-launch $SNAP/usr/games/opendungeons
+        environment:
+            CEGUI_MODULE_DIR: $SNAP/usr/lib/cegui-0.8
+        plugs: [opengl, x11, pulseaudio, network, network-bind]
+parts:
+    ogre:
+        plugin: cmake
+        configflags:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DOGRE_CONFIG_THREAD_PROVIDER=std
+            - -DOGRE_CONFIG_THREADS=3
+            - -DOGRE_STATIC=FALSE
+            - -DOGRE_BUILD_DEPENDENCIES=FALSE
+            - -DOGRE_BUILD_RENDERSYSTEM_GL=TRUE
+            - -DOGRE_RESOURCEMANAGER_STRICT=0
+            # stuff we dont need
+            - -DOGRE_BUILD_RENDERSYSTEM_GL3PLUS=FALSE
+            - -DOGRE_BUILD_RENDERSYSTEM_GLES2=FALSE
+            - -DOGRE_BUILD_TOOLS=FALSE
+            - -DOGRE_BUILD_SAMPLES=FALSE
+            - -DOGRE_BUILD_PLUGIN_FREEIMAGE=FALSE
+            - -DOGRE_BUILD_PLUGIN_EXRCODEC=FALSE
+            - -DOGRE_BUILD_PLUGIN_BSP=FALSE
+            - -DOGRE_BUILD_PLUGIN_PCZ=FALSE
+            - -DOGRE_BUILD_COMPONENT_JAVA=FALSE
+            - -DOGRE_BUILD_COMPONENT_VOLUME=FALSE
+            - -DOGRE_BUILD_COMPONENT_PAGING=FALSE
+            - -DOGRE_BUILD_COMPONENT_TERRAIN=FALSE
+            - -DOGRE_BUILD_COMPONENT_PROPERTY=FALSE
+            - -DOGRE_BUILD_COMPONENT_MESHLODGENERATOR=FALSE
+            - -DOGRE_BUILD_COMPONENT_HLMS=FALSE
+            - -DCMAKE_INSTALL_PREFIX=/usr/
+        source: https://github.com/OGRECave/ogre.git
+        source-tag: stable
+        source-depth: 1
+        build-packages:
+            - libxaw7-dev
+            - libzzip-dev
+            - libxrandr-dev
+            - libfreetype6-dev
+            - libxt-dev
+            - libgl1-mesa-dev
+            - libglu1-mesa-dev
+        stage-packages:
+            - libfreetype6
+            - libzzip-0-13
+            - libxaw7
+            - libxt6
+        stage:
+            - -usr/share/OGRE/Media/volumeTerrain
+            - -usr/share/OGRE/Media/materials
+            - -usr/share/OGRE/Media/models
+            - -usr/share/OGRE/Media/thumbnails
+            - -usr/share/OGRE/Media/packs/chiropteraDM.pk3
+            - -usr/share/OGRE/Media/packs/fresneldemo.zip
+            - -usr/share/OGRE/Media/packs/DamagedHelmet.zip
+            - -usr/share/OGRE/resources.cfg
+    cegui:
+        plugin: cmake
+        configflags:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DCMAKE_INSTALL_PREFIX=/usr/
+            - -DCMAKE_CXX_FLAGS=-std=c++11
+            - -DCEGUI_BUILD_IMAGECODEC_STB=TRUE # we dont use it, silence cmake warning
+            - -DCEGUI_OPTION_DEFAULT_IMAGECODEC=OgreRenderer-0
+            - -DCEGUI_BUILD_XMLPARSER_RAPIDXML=TRUE
+            - -DCEGUI_SAMPLES_ENABLED=FALSE
+        source: https://bitbucket.org/cegui/cegui
+        source-type: hg
+        source-tag: v0-8
+        build-packages:
+            - librapidxml-dev
+        override-pull: |
+            snapcraftctl pull
+            sed -i -e 's/target_compile_features/\#target_compile_features/g' cegui/src/RendererModules/Ogre/CMakeLists.txt
+        after: [ogre]
+    opendungeons:
+        plugin: cmake
+        source: https://github.com/paroj/OpenDungeons.git
+        source-tag: ogre1.11
+        source-depth: 1
+        configflags:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DCMAKE_INSTALL_PREFIX=/usr/
+            - -DCMAKE_CXX_FLAGS=-std=c++11
+        override-build: |
+            snapcraftctl build
+            sed -i -e 's/\/.*\/stage//g' $SNAPCRAFT_PART_INSTALL/etc/opendungeons/plugins.cfg # drop stage prefix
+        build-packages:
+            - libsfml-dev
+            - libois-dev
+            - libboost-thread-dev
+            - libboost-locale-dev
+            - libboost-filesystem-dev
+            - libboost-program-options-dev
+        stage-packages:
+            - libsfml-window2.3v5
+            - libsfml-audio2.3v5
+            - libsfml-system2.3v5
+            - libsfml-network2.3v5
+            - libboost-thread1.58.0
+            - libboost-program-options1.58.0
+            - libboost-filesystem1.58.0
+            - libboost-system1.58.0
+            - libboost-locale1.58.0
+            - libois-1.3.0v5
+            - libpulse0
+        after: [ogre, cegui, desktop-glib-only]

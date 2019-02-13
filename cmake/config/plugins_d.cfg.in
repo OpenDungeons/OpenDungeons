@@ -7,6 +7,9 @@ PluginFolder=@OD_OGRE_PLUGIN_DIR_DBG@
 Plugin=RenderSystem_GL_d
 Plugin=Plugin_ParticleFX_d
 
+# Version-specific plugins (e.g. codecs for 1.11+)
+@OD_OGRE_VERSION_SPECIFIC_PLUGINS@
+
 #This is a card specific library, installed on some systems but not on others
 #Cg is also obsolete and nonfree
 #Plugin=Plugin_CgProgramManager_d
