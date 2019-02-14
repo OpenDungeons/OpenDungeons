@@ -348,8 +348,6 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     auto mouseEvent = toSFMLMouseMove(arg);
     auto mouseDelta = MouseMoveEvent{mPreviousMousePosition.x - mouseEvent.x, mPreviousMousePosition.y - mouseEvent.y};
-    ODFrameListener::getSingleton().printDebugInfoTail.str(std::string());
-    ODFrameListener::getSingleton().printDebugInfoTail << "mouseDelta x:" << mouseDelta.x << " y:" << mouseDelta.y << " " << std::endl;
     mPreviousMousePosition = mouseEvent;
 
     if (!isConnected())
