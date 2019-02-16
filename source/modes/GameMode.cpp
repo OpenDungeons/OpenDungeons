@@ -402,8 +402,8 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, inputManager.mKeeperHandPos, inputManager.mKeeperHandGroundPos);
     RenderManager::getSingleton().moveWorldCoords(inputManager.mKeeperHandPos.x, inputManager.mKeeperHandPos.y);
 
-    int tileX = Helper::round(inputManager.mKeeperHandPos.x);
-    int tileY = Helper::round(inputManager.mKeeperHandPos.y);
+    int tileX = Helper::round(inputManager.mKeeperHandGroundPos.x);
+    int tileY = Helper::round(inputManager.mKeeperHandGroundPos.y);
     Tile* tileClicked = mGameMap->getTile(tileX, tileY);
     if(tileClicked == nullptr)
         return true;
@@ -440,8 +440,8 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     if(closestCreature != nullptr)
         RenderManager::getSingleton().rrTemporaryDisplayCreaturesTextOverlay(closestCreature, 0.5f);
 
-    inputManager.mXPos = tileClicked->getX();
-    inputManager.mYPos = tileClicked->getY();
+    inputManager.mXPos = Helper::round(inputManager.mKeeperHandPos.x);
+    inputManager.mYPos = Helper::round(inputManager.mKeeperHandPos.y);
     if (!inputManager.mLMouseDown)
     {
         inputManager.mLStartDragX = inputManager.mXPos;
@@ -554,7 +554,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     if(mGameMap->getGamePaused())
         return true;
 
-    if(!ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, inputManager.mKeeperHandPos,  inputManager.mKeeperHandPos ))
+    if(!ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, inputManager.mKeeperHandPos,  inputManager.mKeeperHandGroundPos ))
         return true;
 
     RenderManager::getSingleton().moveWorldCoords(inputManager.mKeeperHandPos.x, inputManager.mKeeperHandPos.y);
@@ -611,8 +611,8 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     {
         inputManager.mRMouseDown = true;
         // Stop creating rooms, traps, etc.
-        inputManager.mLStartDragX = inputManager.mXPos;
-        inputManager.mLStartDragY = inputManager.mYPos;
+        inputManager.mRStartDragX = inputManager.mXPos;
+        inputManager.mRStartDragY = inputManager.mYPos;
         unselectAllTiles();
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
         // If we have a currently selected action, we cancel it and don't try to slap or
@@ -736,9 +736,15 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     if(mPlayerSelection.getCurrentAction() == SelectedAction::none)
         mPlayerSelection.setCurrentAction(SelectedAction::selectTile);
 
+
+    inputManager.mLStartDragX = Helper::round(inputManager.mKeeperHandPos.x);
+    inputManager.mLStartDragY = Helper::round(inputManager.mKeeperHandPos.y);
+    inputManager.mXPos = inputManager.mLStartDragX ;
+    inputManager.mYPos = inputManager.mLStartDragY ;
+    
     // If we are in a game we store the opposite of whether this tile is marked for digging or not, this allows us to mark tiles
     // by dragging out a selection starting from an unmarcked tile, or unmark them by starting the drag from a marked one.
-    mDigSetBool = !(tileClicked->getMarkedForDigging(mGameMap->getLocalPlayer()));
+    mDigSetBool = !(mGameMap->getTile(inputManager.mLStartDragX,inputManager.mLStartDragY)->getMarkedForDigging(mGameMap->getLocalPlayer()));
 
     return true;
 }
