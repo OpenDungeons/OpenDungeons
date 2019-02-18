@@ -84,8 +84,8 @@ parts:
         after: [ogre]
     opendungeons:
         plugin: cmake
-        source: https://github.com/paroj/OpenDungeons.git
-        source-tag: ogre1.11
+        source: https://github.com/OpenDungeons/OpenDungeons.git
+        source-tag: development
         source-depth: 1
         configflags:
             - -DCMAKE_BUILD_TYPE=Release
