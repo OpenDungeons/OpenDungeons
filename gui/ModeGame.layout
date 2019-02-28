@@ -133,13 +133,13 @@
             <Property name="Visible" value="True" />
         </Window>
         <Window type="OD/StaticImage" name="MiniMap" >
-            <Property name="Area" value="{{1,-201},{1,-202},{1,-1},{1,-2}}" />
+            <Property name="Area" value="{{0.8958,-1},{0.833333,-2},{1,-1},{1,-2}}" />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
-            <Property name="Area" value="{{0,0},{1,-133},{1,-200},{1,0}}" />
-            <Property name="TabHeight" value="{0,35}" />
+            <Property name="Area" value="{{0,0},{0.80,0},{1,0},{1,0}}" />
+            <Property name="TabHeight" value="{0.15,0}" />
             <Property name="RiseOnClickEnabled" value="False" />
             <LayoutImport type="DefaultWindow" filename="WindowTabRooms.layout" name="RoomsImport" />
             <LayoutImport type="DefaultWindow" filename="WindowTabTraps.layout" name="TrapsImport" />
