@@ -1626,7 +1626,7 @@ bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
     }
 
     ogreRoot.setRenderSystem(renderSystem);
-    Ogre::ConfigOptionMap& options = renderSystem->getConfigOptions();
+    const Ogre::ConfigOptionMap& options = renderSystem->getConfigOptions();
 
     // If the renderer was changed, we need to reset the video options.
     if (sameRenderer == false)
@@ -1637,7 +1637,7 @@ bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
         for (std::pair<Ogre::String, Ogre::ConfigOption> option : options)
         {
             std::string optionName = option.first;
-            Ogre::ConfigOption& values = option.second;
+            const Ogre::ConfigOption& values = option.second;
             // We don't store options that are immutable or empty
             if (values.immutable || values.possibleValues.empty())
                 continue;
@@ -1660,7 +1660,7 @@ bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
             }
 
             // Check the desired option value exists.
-            Ogre::ConfigOption& values = options.find(setting.first)->second;
+            const Ogre::ConfigOption& values = options.find(setting.first)->second;
             bool valueIsPossible = false;
             for (std::string value : values.possibleValues)
             {
