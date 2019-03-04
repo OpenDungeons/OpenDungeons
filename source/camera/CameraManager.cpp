@@ -320,6 +320,7 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
             getActiveCameraNode()->getChild(0)->rotate(Ogre::Vector3::UNIT_X,
                                         Ogre::Degree(mRotateLocalVector.x * frameTime),
                                         Ogre::Node::TS_LOCAL);
+            mRotateLocalVector.x = 0;
         }
 
     }
@@ -329,6 +330,7 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
         getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_Z,
                                       Ogre::Degree(mRotateLocalVector.y * frameTime),
                                       Ogre::Node::TS_LOCAL);
+        mRotateLocalVector.y = 0;
     }
 
     // Swivel the camera to the left or right, while maintaining the same

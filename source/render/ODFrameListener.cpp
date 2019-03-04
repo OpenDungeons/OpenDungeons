@@ -277,7 +277,8 @@ void ODFrameListener::printDebugInfo()
         infoSS << "\ntriangleCount: " << mWindow->getStatistics().triangleCount;
         infoSS << "\nBatches: " << mWindow->getStatistics().batchCount;
         infoSS << "\nTurn number:  " << mGameMap->getTurnNumber();
-        infoSS << "\nCursor:  " << mModeManager->getInputManager().mXPos << ", " << mModeManager->getInputManager().mYPos;
+        infoSS << "\nCursor:  " << mModeManager->getInputManager().mXPos << ", " << mModeManager->getInputManager().mYPos << std::endl;
+        infoSS << printDebugInfoTail.str() << std::endl;
         if(ODClient::getSingleton().isConnected())
         {
             int32_t gameTime = ODClient::getSingleton().getGameTimeMillis() / 1000;

@@ -33,6 +33,7 @@
 #include <OgreRenderQueueListener.h>
 #include <OgreWindowEventUtilities.h>
 
+#include <sstream>
 #include <memory>
 
 class ChatMessage;
@@ -170,7 +171,8 @@ public:
     {
         return mFpsLimiter.getFrameRate();
     }
-
+    std::stringstream printDebugInfoTail;
+    
 private:
     //! \brief Tells whether the frame listener is initialized.
     bool mInitialized;
