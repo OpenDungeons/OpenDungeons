@@ -1432,8 +1432,8 @@ bool GameMode::toggleHelpWindow(const CEGUI::EventArgs& e)
 void GameMode::setHelpWindowText()
 {
     CEGUI::Window* textWindow = mRootWindow->getChild("GameHelpWindow/TextDisplay");
-    const std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
-    const std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
+    const std::string formatTitleOn = "[font='MedievalSharp-6'][colour='CCBBBBFF']";
+    const std::string formatTitleOff = "[font='MedievalSharp-5'][colour='FFFFFFFF']";
     std::stringstream txt("");
     txt << "Always skipping classes to play with kobolds in the torture room, were you?" << std::endl
         << "Well, at least you don't seem as dumb as a pit demon, so let's cover the basics again." << std::endl << std::endl;

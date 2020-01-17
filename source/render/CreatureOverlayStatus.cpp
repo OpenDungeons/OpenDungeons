@@ -53,7 +53,6 @@ CreatureOverlayStatus::CreatureOverlayStatus(Creature* creature, Ogre::Entity* e
     mMovableTextOverlay->setCaption(healthId, Helper::toString(creature->getLevel()));
     mMovableTextOverlay->forceTextArea(healthId, 42,42);
     mMovableTextOverlay->displayOverlay(healthId, 0);
-
     updateHealth();
 
     uint32_t statusId = mMovableTextOverlay->createChildOverlay("MedievalSharp", 16, Ogre::ColourValue::White, "");
