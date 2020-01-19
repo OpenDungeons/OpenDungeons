@@ -6,6 +6,7 @@
     <Imageset filename="ODMainMenuButtons.imageset" name="ODMainMenuButtons" />
     <Imageset filename="ODMainMenuBackground.imageset" name="ODMainMenuBackground" />
     <Font filename="LiberationSans-5.font" name="LiberationSans-5" />
+    <Font filename="LiberationSans-7.font" name="LiberationSans-7" />
     <Font filename="MedievalSharp-5.font" name="MedievalSharp-5" />
     <Font filename="MedievalSharp-6.font" name="MedievalSharp-6" />
     <Font filename="MedievalSharp-10.font" name="MedievalSharp-10" />
