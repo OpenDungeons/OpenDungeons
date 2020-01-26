@@ -150,6 +150,21 @@ Command::Result cFPS(const Command::ArgumentList_t& args, ConsoleInterface& c, A
     return Command::Result::SUCCESS;
 }
 
+Command::Result cPrintNodes(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+{
+    std::function<void(Ogre::SceneNode*)> printNodesAux = [&](Ogre::SceneNode* sn){
+        c.print(sn->getName());        
+        for( Ogre::Node::ChildNodeIterator chni = sn->getChildIterator(); chni.hasMoreElements(); chni.moveNext()   ){
+            printNodesAux( static_cast<Ogre::SceneNode*>(chni.peekNextValue()));
+        } 
+    };
+    
+    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();   
+    printNodesAux(mSceneMgr->getRootSceneNode());
+
+    return Command::Result::SUCCESS;
+}
+
 Command::Result cSrvAddCreature(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {
     if (args.size() < 6)
@@ -530,6 +545,11 @@ void addConsoleCommands(ConsoleInterface& cl)
                   cFPS,
                   Command::cStubServer,
                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
+    cl.addCommand("printnodes",
+                  "prints all the scene nodes ",
+                  cPrintNodes,
+                  Command::cStubServer,
+                  {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});    
     cl.addCommand("nearclip",
                    "Sets the minimal viewpoint clipping distance. Objects nearer than that won't be rendered.\n\nE.g.: nearclip 3.0",
                    [](const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&) {
