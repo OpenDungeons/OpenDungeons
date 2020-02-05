@@ -11,7 +11,7 @@ material RunelordDwarf : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map RunelordDwarfNormal.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map RunelordDwarfNormal.png tangent_space 0 bilinear 1 -1.0
             }
         }
 

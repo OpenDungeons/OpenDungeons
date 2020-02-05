@@ -32,19 +32,6 @@ THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-void SGX_CopyDepth(in vec4 clipSpacePos,
-			 out float oDepth)
-{
-	oDepth = clipSpacePos.z;
-}
-
-//-----------------------------------------------------------------------------
-void SGX_ModulateScalar(in float vIn0, in vec4 vIn1, out vec4 vOut)
-{
-	vOut = vIn0 * vIn1;
-}
-	
-//-----------------------------------------------------------------------------
 void SGX_ApplyShadowFactor_Diffuse(in vec4 ambient, 
 					  in vec4 lightSum, 
 					  in float fShadowFactor, 
@@ -55,19 +42,28 @@ void SGX_ApplyShadowFactor_Diffuse(in vec4 ambient,
 }
 	
 //-----------------------------------------------------------------------------
-float _SGX_ShadowPCF4(sampler2D shadowMap, vec4 shadowMapPos, vec2 offset)
+void SGX_ShadowPCF4(in sampler2D shadowMap, in vec4 shadowMapPos, in vec2 offset, out float c)
 {
 	shadowMapPos = shadowMapPos / shadowMapPos.w;
+	shadowMapPos.z = shadowMapPos.z * 0.5 + 0.5; // convert -1..1 to 0..1
 	vec2 uv = shadowMapPos.xy;
 	vec3 o = vec3(offset, -offset.x) * 0.3;
 
 	// Note: We using 2x2 PCF. Good enough and is a lot faster.
-	float c =	(shadowMapPos.z <= texture2D(shadowMap, uv.xy - o.xy).r) ? 1.0 : 0.0; // top left
-	c +=		(shadowMapPos.z <= texture2D(shadowMap, uv.xy + o.xy).r) ? 1.0 : 0.0; // bottom right
-	c +=		(shadowMapPos.z <= texture2D(shadowMap, uv.xy + o.zy).r) ? 1.0 : 0.0; // bottom left
-	c +=		(shadowMapPos.z <= texture2D(shadowMap, uv.xy - o.zy).r) ? 1.0 : 0.0; // top right
+	c =	 (shadowMapPos.z <= texture2D(shadowMap, uv.xy - o.xy).r) ? 1.0 : 0.0; // top left
+	c += (shadowMapPos.z <= texture2D(shadowMap, uv.xy + o.xy).r) ? 1.0 : 0.0; // bottom right
+	c += (shadowMapPos.z <= texture2D(shadowMap, uv.xy + o.zy).r) ? 1.0 : 0.0; // bottom left
+	c += (shadowMapPos.z <= texture2D(shadowMap, uv.xy - o.zy).r) ? 1.0 : 0.0; // top right
 		
-	return c / 4.0;
+	c /= 4.0;
+}
+
+void SGX_ShadowPCF4(in sampler2DShadow shadowMap, in vec4 shadowMapPos, out float c)
+{
+#ifndef GL_ES
+    shadowMapPos.z = shadowMapPos.z * 0.5 + 0.5 * shadowMapPos.w; // convert -1..1 to 0..1
+    c = shadow2DProj(shadowMap, shadowMapPos).r;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -84,24 +80,40 @@ void SGX_ComputeShadowFactor_PSSM3(in float fDepth,
 							in vec4 invShadowMapSize2,																			
 							out float oShadowFactor)
 {
-	float shadowFactor0;
-	float shadowFactor1;
-	float shadowFactor2;
-														
-	shadowFactor0 = _SGX_ShadowPCF4(shadowMap0, lightPosition0, invShadowMapSize0.xy);																								
-	shadowFactor1 = _SGX_ShadowPCF4(shadowMap1, lightPosition1, invShadowMapSize1.xy);												
-	shadowFactor2 = _SGX_ShadowPCF4(shadowMap2, lightPosition2, invShadowMapSize2.xy);							
-		
 	if (fDepth  <= vSplitPoints.x)
 	{									
-		oShadowFactor = shadowFactor0;				
+		SGX_ShadowPCF4(shadowMap0, lightPosition0, invShadowMapSize0.xy, oShadowFactor);
 	}
 	else if (fDepth <= vSplitPoints.y)
 	{									
-		oShadowFactor = shadowFactor1;		
+		SGX_ShadowPCF4(shadowMap1, lightPosition1, invShadowMapSize1.xy, oShadowFactor);
 	}
 	else
 	{										
-		oShadowFactor = shadowFactor2;				
+		SGX_ShadowPCF4(shadowMap2, lightPosition2, invShadowMapSize2.xy, oShadowFactor);
+	}
+}
+
+void SGX_ComputeShadowFactor_PSSM3(in float fDepth,
+							in vec4 vSplitPoints,
+							in vec4 lightPosition0,
+							in vec4 lightPosition1,
+							in vec4 lightPosition2,
+							in sampler2DShadow shadowMap0,
+							in sampler2DShadow shadowMap1,
+							in sampler2DShadow shadowMap2,
+							out float oShadowFactor)
+{
+	if (fDepth  <= vSplitPoints.x)
+	{
+        SGX_ShadowPCF4(shadowMap0, lightPosition0, oShadowFactor);
+	}
+	else if (fDepth <= vSplitPoints.y)
+	{
+        SGX_ShadowPCF4(shadowMap1, lightPosition1, oShadowFactor);
+	}
+	else
+	{
+        SGX_ShadowPCF4(shadowMap2, lightPosition2, oShadowFactor);
 	}
 }

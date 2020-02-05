@@ -25,40 +25,43 @@ THE SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
+//-----------------------------------------------------------------------------
+// Program Name: SGXLib_NormalMapLighting
+// Program Desc: Normal map lighting functions.
+// Program Type: Vertex/Pixel shader
+// Language: GLSL
+//-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Simple masked reflection map effect.
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-void SGX_ApplyReflectionMap(in sampler2D maskSampler, 
-						    in vec2 maskSamplerTexCoord,
-						    in sampler2D reflectionSampler, 
-						    in vec2 reflectionSamplerTexCoord,						    
-						    in vec3 baseColor,
-						    in float reflectionPower,
-						    out vec3 vOut)
+void SGX_ConstructTBNMatrix(in vec3 vNormal,
+				   in vec3 vTangent,
+				   out mat3 vOut)
 {
-	vec3 maskTexel	   = texture2D(maskSampler, maskSamplerTexCoord).xyz;
-	reflectionSamplerTexCoord.y = -reflectionSamplerTexCoord.y; // Hack for gl 
-	vec3 reflectionTexel = texture2D(reflectionSampler, reflectionSamplerTexCoord).xyz;
-	
-	vOut = baseColor + reflectionTexel.xyz*maskTexel.xyz*reflectionPower;
+	vec3 vBinormal = cross(vNormal, vTangent);
+
+	vOut[0][0] = vTangent.x;
+	vOut[1][0] = vTangent.y;
+	vOut[2][0] = vTangent.z;
+
+	vOut[0][1] = vBinormal.x;
+	vOut[1][1] = vBinormal.y;
+	vOut[2][1] = vBinormal.z;
+
+	vOut[0][2] = vNormal.x;
+	vOut[1][2] = vNormal.y;
+	vOut[2][2] = vNormal.z;
 }
 
 //-----------------------------------------------------------------------------
-void SGX_ApplyReflectionMap(in sampler2D maskSampler, 
-						    in vec2 maskSamplerTexCoord,
-						    in samplerCube reflectionSampler, 
-						    in vec3 reflectionSamplerTexCoord,						   
-						    in vec3 baseColor,
-						    in float reflectionPower,
-						    out vec3 vOut)
+void SGX_Generate_Parallax_Texcoord(in sampler2D normalHeightMap,
+						in vec2 texCoord,
+						in vec3 eyeVec,
+						in vec2 scaleBias,
+						out vec2 newTexCoord)
 {
-	vec3 maskTexel	   = texture2D(maskSampler, maskSamplerTexCoord).xyz;
-	reflectionSamplerTexCoord.z = -reflectionSamplerTexCoord.z; // Hack for gl 
-	vec3 reflectionTexel = textureCube(reflectionSampler, reflectionSamplerTexCoord).xyz;
-	
-	vOut = baseColor + reflectionTexel.xyz*maskTexel.xyz*reflectionPower;
+	eyeVec = normalize(eyeVec);
+	float height = texture2D(normalHeightMap, texCoord).a;
+	float displacement = (height * scaleBias.x) + scaleBias.y;
+	vec3 scaledEyeDir = eyeVec * displacement;
+	newTexCoord = (scaledEyeDir  + vec3(texCoord, 1.0)).xy;
 }
-	

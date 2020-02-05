@@ -29,7 +29,7 @@ THE SOFTWARE.
 // Program Name: FFPLib_Transform
 // Program Desc: Transform functions of the FFP.
 // Program Type: Vertex shader
-// Language: HLSL
+// Language: CG
 // Notes: Implements core functions for FFPTransform class.
 // based on transform engine. 
 // See http://msdn.microsoft.com/en-us/library/bb206269.aspx
@@ -42,7 +42,6 @@ void FFP_Transform(in float3x3 m,
 {
 	vOut = mul(m, v);
 }
-
 //-----------------------------------------------------------------------------
 void FFP_Transform(in float4x4 m, 
 				   in float4 v, 
@@ -50,6 +49,15 @@ void FFP_Transform(in float4x4 m,
 {
 	vOut = mul(m, v);
 }
+//-----------------------------------------------------------------------------
+void FFP_Transform(in float4x4 m,
+				   in float4 v,
+				   out float3 vOut)
+{
+	vOut = mul(m, v).xyz;
+}
+//-----------------------------------------------------------------------------
+#ifndef OPENGL_ES_2
 
 //-----------------------------------------------------------------------------
 void FFP_Transform(in float3x4 m, 
@@ -66,7 +74,8 @@ void FFP_Transform(in float3x4 m,
 {
 	vOut = mul((float3x3)m, v);
 }
-
+//-----------------------------------------------------------------------------
+#endif 
 //-----------------------------------------------------------------------------
 void FFP_Transform(in float4x4 m, 
 				   in float3 v, 
@@ -74,5 +83,3 @@ void FFP_Transform(in float4x4 m,
 {
 	vOut = mul((float3x3)m, v);
 }
-
-
