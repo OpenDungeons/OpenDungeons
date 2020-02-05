@@ -610,6 +610,22 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
             break;
         }
 
+        case ServerNotificationType::orientEntity:
+        {            
+            std::string entityName;
+            Ogre::Vector3 vv;
+
+            
+            OD_ASSERT_TRUE(packetReceived >> entityName);
+            OD_ASSERT_TRUE(packetReceived >> vv);            
+
+            MovableGameEntity* entity = gameMap->getRenderedMovableEntity(entityName);
+            RenderManager::getSingleton().rrOrientEntityToward(entity,vv);
+            
+
+            break;            
+        }
+        
         case ServerNotificationType::playerFighting:
         {
             int32_t playerFightingId;

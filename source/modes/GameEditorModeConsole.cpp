@@ -24,8 +24,10 @@
 
 #include <CEGUI/widgets/Editbox.h>
 #include <CEGUI/widgets/FrameWindow.h>
+//include <CEGUI/widgets/ListWidget.h>
 #include <CEGUI/widgets/Listbox.h>
 #include <CEGUI/widgets/ListboxTextItem.h>
+
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/widgets/Scrollbar.h>
 
@@ -132,7 +134,12 @@ bool GameEditorModeConsole::keyPressed(const OIS::KeyEvent &arg)
 
 void GameEditorModeConsole::printToConsole(const std::string& text)
 {
-    mConsoleHistoryWindow->addItem(new CEGUI::ListboxTextItem(text));
+
+    CEGUI::ListboxTextItem* lbi = new CEGUI::ListboxTextItem("");
+    lbi->setTextParsingEnabled(false);
+    lbi->setText(text);
+
+    mConsoleHistoryWindow->addItem(lbi);
 }
 
 bool GameEditorModeConsole::executeCurrentPrompt(const CEGUI::EventArgs& e)

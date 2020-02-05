@@ -20,6 +20,7 @@
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
 #include "entities/MissileOneHit.h"
+#include "entities/GameEntityType.h"
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
@@ -28,6 +29,11 @@
 #include "utils/ConfigManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
+#include "network/ODServer.h"
+#include "network/ServerMode.h"
+#include "network/ServerNotification.h"
+
+#include <iostream>
 
 const std::string TrapCannonName = "Cannon";
 const std::string TrapCannonNameDisplay = "Cannon trap";
@@ -157,6 +163,16 @@ bool TrapCannon::shoot(Tile* tile)
     // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
     // we can safely call the missile doUpkeep as we know the engine will not call it the turn
     // it has been added
+
+    
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::orientEntity, nullptr);
+
+    serverNotification->mPacket << savedTrapEntityName;
+    serverNotification->mPacket << direction;    
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+
+
     missile->doUpkeep();
 
     fireTrapSound(*tile, "Cannon/Fire");
@@ -166,7 +182,9 @@ bool TrapCannon::shoot(Tile* tile)
 
 TrapEntity* TrapCannon::getTrapEntity(Tile* tile)
 {
-    return new TrapEntity(getGameMap(), *this, reg.getTrapFactory()->getMeshName(), tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
+    TrapEntity *te = new TrapEntity(getGameMap(), *this, reg.getTrapFactory()->getMeshName(), tile, 180.0, false, isActivated(tile) ? 1.0f : 0.5f);
+    savedTrapEntityName = te->getName();
+    return te;
 }
 
 double TrapCannon::getPhysicalDefense() const

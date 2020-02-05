@@ -76,6 +76,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "removeEntity";
         case ServerNotificationType::entitiesRefresh:
             return "entitiesRefresh";
+        case ServerNotificationType::orientEntity:
+            return "orientEntity";
         case ServerNotificationType::playerFighting:
             return "playerFighting";
         case ServerNotificationType::playerNoMoreFighting:

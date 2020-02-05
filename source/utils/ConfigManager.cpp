@@ -1626,7 +1626,7 @@ bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
     }
 
     ogreRoot.setRenderSystem(renderSystem);
-    Ogre::ConfigOptionMap& options = renderSystem->getConfigOptions();
+    const Ogre::ConfigOptionMap& options = renderSystem->getConfigOptions();
 
     // If the renderer was changed, we need to reset the video options.
     if (sameRenderer == false)
@@ -1660,7 +1660,7 @@ bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
             }
 
             // Check the desired option value exists.
-            Ogre::ConfigOption& values = options.find(setting.first)->second;
+            const Ogre::ConfigOption& values = options.find(setting.first)->second;
             bool valueIsPossible = false;
             for (std::string value : values.possibleValues)
             {

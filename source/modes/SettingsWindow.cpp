@@ -229,7 +229,7 @@ void SettingsWindow::initConfig()
     // Video
     Ogre::Root* ogreRoot = Ogre::Root::getSingletonPtr();
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
-    Ogre::ConfigOptionMap& options = renderer->getConfigOptions();
+    const Ogre::ConfigOptionMap& options = renderer->getConfigOptions();
 
     // Get the video settings.
 
