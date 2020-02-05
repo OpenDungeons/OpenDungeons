@@ -151,21 +151,19 @@ Command::Result cFPS(const Command::ArgumentList_t& args, ConsoleInterface& c, A
     return Command::Result::SUCCESS;
 }
 
-    Command::Result cPrintNodes(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
-    {
-        std::function<void(Ogre::SceneNode*)> printNodesAux = [&](Ogre::SceneNode* sn){
-            c.print(sn->getName());
-            Ogre::Node::ChildNodeMap   chnm = sn->getChildren();
-            for(auto it : chnm   ){
-                printNodesAux( static_cast<Ogre::SceneNode*>(it));
-            } 
-        };
-    
-        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();   
-        printNodesAux(mSceneMgr->getRootSceneNode());
-
-        return Command::Result::SUCCESS;
-    }
+Command::Result cPrintNodes(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+{
+    std::function<void(Ogre::SceneNode*)> printNodesAux = [&](Ogre::SceneNode* sn){
+        c.print(sn->getName());
+        Ogre::Node::ChildNodeMap   chnm = sn->getChildren();
+        for(auto it : chnm   ){
+            printNodesAux( static_cast<Ogre::SceneNode*>(it));
+        } 
+    };
+    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();   
+    printNodesAux(mSceneMgr->getRootSceneNode());
+    return Command::Result::SUCCESS;
+}
 
 Command::Result cSrvAddCreature(const Command::ArgumentList_t& args, ConsoleInterface& c, GameMap& gameMap)
 {

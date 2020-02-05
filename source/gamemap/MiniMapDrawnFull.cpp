@@ -442,9 +442,7 @@ MiniMapDrawnFull::~MiniMapDrawnFull()
         delete listener;
     }
     mTileStateListeners.clear();
-
     mMiniMapWindow->setProperty("Image", "");
-
     Ogre::String mm("miniMapOgreTexture");
     Ogre::TextureManager::getSingletonPtr()->remove(mm,Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);    
     CEGUI::ImageManager::getSingletonPtr()->destroy("MiniMapImageset");
