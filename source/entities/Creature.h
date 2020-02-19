@@ -588,6 +588,10 @@ public:
     //! \brief Called when the creature changes seat (for example when it becomes rogue or after torture)
     void changeSeat(Seat* newSeat);
 
+    void stopWalking();
+    bool parkingBit;
+    bool parkedBit;
+    
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;

@@ -3236,3 +3236,28 @@ void Creature::changeSeat(Seat* newSeat)
         home->releaseTileForSleeping(getHomeTile(), this);
     }
 }
+
+void Creature::stopWalking(){
+    if(parkingBit)
+        parkedBit = true;
+    MovableGameEntity::stopWalking();
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
