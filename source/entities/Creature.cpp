@@ -28,6 +28,7 @@
 #include "creatureaction/CreatureActionGoCallToWar.h"
 #include "creatureaction/CreatureActionGrabEntity.h"
 #include "creatureaction/CreatureActionLeaveDungeon.h"
+#include "creatureaction/CreatureActionParkToTile.h"
 #include "creatureaction/CreatureActionSearchEntityToCarry.h"
 #include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionSearchGroundTileToClaim.h"
@@ -2330,6 +2331,39 @@ bool Creature::resizeMeshAfterDrop()
 {
     RenderManager::getSingleton().rrScaleCreature(*this);
     return false;
+}
+
+
+bool Creature::parkToWallTile(Tile* wallTile, Tile* nTile)
+{
+    if(nTile == nullptr || wallTile == nullptr || nTile->getPosition()==Ogre::Vector3::ZERO || wallTile->getPosition()==Ogre::Vector3::ZERO)
+        return false;
+
+    Tile *posTile = getPositionTile();
+    if(posTile == nullptr)
+        return false;
+
+    parkingBit = true;
+    Ogre::Vector3 parkingPoint;
+    parkingPoint = (wallTile->getPosition() - nTile->getPosition())*0.4 + nTile->getPosition() ;
+    std::stringstream ss;
+    ss << "parking point: " << parkingPoint;
+    ss << "wallTile->getPosition(): " << wallTile->getPosition();
+    ss << "nTile->getPosition(): " << nTile->getPosition();
+    
+    std::list<Tile*> result = getGameMap()->path(this, nTile);
+
+    std::vector<Ogre::Vector3> path;
+    tileToVector3(result, path, false, 0.0);
+    
+    OD_LOG_ERR(ss.str());
+    path.push_back(parkingPoint);
+    
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
+
+    pushAction(Utils::make_unique<CreatureActionParkToTile>(*this));    
+    pushAction(Utils::make_unique<CreatureActionWalkToTile>(*this));
+    return true;
 }
 
 bool Creature::setDestination(Tile* tile)

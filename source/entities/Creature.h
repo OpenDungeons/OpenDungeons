@@ -202,6 +202,8 @@ public:
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
     virtual void update(Ogre::Real timeSinceLastFrame) override;
 
+    bool parkToWallTile(Tile* wallTile, Tile* nTile);
+    
     bool setDestination(Tile* tile);
 
     //! \brief Picks a destination far away in the visible tiles and goes there

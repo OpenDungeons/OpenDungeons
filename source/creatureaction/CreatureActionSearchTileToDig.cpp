@@ -102,7 +102,9 @@ bool CreatureActionSearchTileToDig::handleSearchTileToDig(Creature& creature, in
 
         if(!isOk)
             continue;
-
+        
+        assert(tempTile!=nullptr);
+        assert(myTile!=nullptr);
         // We found a tile marked by our controlling seat, dig out the tile.
         creature.pushAction(Utils::make_unique<CreatureActionDigTile>(creature, *tempTile, *myTile));
         return true;
@@ -140,7 +142,7 @@ bool CreatureActionSearchTileToDig::handleSearchTileToDig(Creature& creature, in
         }
     }
 
-    if((tileToDig != nullptr) && (tilePos != nullptr))
+    if((tileToDig != nullptr) && (tilePos != nullptr) && tileToDig->getPosition()!=Ogre::Vector3::ZERO && tilePos->getPosition()!=Ogre::Vector3::ZERO)
     {
         // We also push the dig action to lock the tile to make sure not every worker will try to go to the same tile
         creature.pushAction(Utils::make_unique<CreatureActionDigTile>(creature, *tileToDig, *tilePos));
