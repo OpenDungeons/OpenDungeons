@@ -789,8 +789,8 @@ if(UNIX)
             DESTINATION ${OD_DATA_PATH})
 
     # Additional distribution content (desktop file, icons, man page, doc)
-    install(FILES ${CMAKE_SOURCE_DIR}/dist/opendungeons.appdata.xml
-            DESTINATION ${OD_SHARE_PATH}/appdata)
+    install(FILES ${CMAKE_SOURCE_DIR}/dist/opendungeons.metainfo.xml
+            DESTINATION ${OD_SHARE_PATH}/metainfo)
     install(FILES ${CMAKE_BINARY_DIR}/opendungeons.desktop
             DESTINATION ${OD_SHARE_PATH}/applications)
     install(FILES ${CMAKE_BINARY_DIR}/opendungeons.6
