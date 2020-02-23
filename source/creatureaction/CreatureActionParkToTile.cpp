@@ -25,14 +25,14 @@
 CreatureActionParkToTile::CreatureActionParkToTile(Creature& creature) :
     CreatureAction(creature)
 {
-    mCreature.parkingBit =true;
+    mCreature.parkingBit = true;
     mCreature.parkedBit = false;
 }
 
 CreatureActionParkToTile::~CreatureActionParkToTile()
 {
-    mCreature.parkedBit = false;
     mCreature.parkingBit = false;
+    mCreature.parkedBit = true;
 }
 
 std::function<bool()> CreatureActionParkToTile::action()

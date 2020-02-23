@@ -105,6 +105,7 @@ bool CreatureActionSearchTileToDig::handleSearchTileToDig(Creature& creature, in
         
         assert(tempTile!=nullptr);
         assert(myTile!=nullptr);
+        assert(! (tempTile->getPosition() == Ogre::Vector3::ZERO ) &&  !(myTile->getPosition() == Ogre::Vector3::ZERO));
         // We found a tile marked by our controlling seat, dig out the tile.
         creature.pushAction(Utils::make_unique<CreatureActionDigTile>(creature, *tempTile, *myTile));
         return true;

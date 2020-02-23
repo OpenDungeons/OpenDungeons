@@ -128,7 +128,10 @@ CreatureParticleEffect::~CreatureParticleEffect()
 }
 
 Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position) :
+
     MovableGameEntity        (gameMap),
+    parkingBit               (false),
+    parkedBit                (false),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mElementDefense          (0.0),
@@ -173,7 +176,6 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat*
     mNbTurnsTorture          (0),
     mNbTurnsPrison           (0),
     mActiveSlapsCount        (0)
-
 {
     //TODO: This should be set in initialiser list in parent classes
     setSeat(seat);
@@ -2343,7 +2345,6 @@ bool Creature::parkToWallTile(Tile* wallTile, Tile* nTile)
     if(posTile == nullptr)
         return false;
 
-    parkingBit = true;
     Ogre::Vector3 parkingPoint;
     parkingPoint = (wallTile->getPosition() - nTile->getPosition())*0.4 + nTile->getPosition() ;
     std::stringstream ss;
@@ -2354,7 +2355,7 @@ bool Creature::parkToWallTile(Tile* wallTile, Tile* nTile)
     std::list<Tile*> result = getGameMap()->path(this, nTile);
 
     std::vector<Ogre::Vector3> path;
-    tileToVector3(result, path, false, 0.0);
+    tileToVector3(result, path, true, 0.0);
     
     OD_LOG_ERR(ss.str());
     path.push_back(parkingPoint);
@@ -2362,7 +2363,6 @@ bool Creature::parkToWallTile(Tile* wallTile, Tile* nTile)
     setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
 
     pushAction(Utils::make_unique<CreatureActionParkToTile>(*this));    
-    pushAction(Utils::make_unique<CreatureActionWalkToTile>(*this));
     return true;
 }
 
@@ -3034,15 +3034,15 @@ bool Creature::isInPrison() const
 
 void Creature::correctEntityMovePosition(Ogre::Vector3& position)
 {
-    static const double offset = 0.3;
-    if(position.x > 0)
-        position.x += Random::Double(-offset, offset);
+    // static const double offset = 0.3;
+    // if(position.x > 0)
+    //     position.x += Random::Double(-offset, offset);
 
-    if(position.y > 0)
-        position.y += Random::Double(-offset, offset);
+    // if(position.y > 0)
+    //     position.y += Random::Double(-offset, offset);
 
-    if(position.z > 0)
-        position.z += Random::Double(-offset, offset);
+    // if(position.z > 0)
+    //     position.z += Random::Double(-offset, offset);
 }
 
 void Creature::checkWalkPathValid()

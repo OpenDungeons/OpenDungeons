@@ -111,6 +111,11 @@ class Creature: public MovableGameEntity
 {
     friend class ODClient;
 public:
+    
+    bool parkingBit;
+    
+    bool parkedBit;
+    
     static const int32_t NB_TURNS_BEFORE_CHECKING_TASK;
 
     //! \brief Constructor for creatures. It generates an unique name
@@ -591,8 +596,6 @@ public:
     void changeSeat(Seat* newSeat);
 
     void stopWalking();
-    bool parkingBit;
-    bool parkedBit;
     
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;

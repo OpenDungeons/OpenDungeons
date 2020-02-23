@@ -70,14 +70,18 @@ bool CreatureActionDigTile::handleDigTile(Creature& creature, Tile& tileDig, Til
     }
 
     // We go to the tile we locked
-    if(&tilePos != myTile || creature.parkedBit)
+    if(&tilePos != myTile )
     {
-        if(!creature.parkToWallTile( &tileDig, &tilePos))
+        if(!creature.setDestination( &tilePos))
         {
             OD_LOG_ERR("creature=" + creature.getName() + ", myTile=" + Tile::displayAsString(myTile) + ", tileDig=" + Tile::displayAsString(&tileDig) + ", tilePos=" + Tile::displayAsString(&tilePos));
             creature.popAction();
-            creature.popAction();
         }
+        return true;
+    }
+    else if(!creature.parkedBit)
+    {
+        creature.parkToWallTile(&tileDig, &tilePos);
         return true;
     }
 
