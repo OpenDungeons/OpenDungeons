@@ -209,6 +209,8 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat*
 
 Creature::Creature(GameMap* gameMap) :
     MovableGameEntity        (gameMap),
+    parkingBit               (false),
+    parkedBit                (false),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mElementDefense          (0.0),
@@ -3034,15 +3036,15 @@ bool Creature::isInPrison() const
 
 void Creature::correctEntityMovePosition(Ogre::Vector3& position)
 {
-    // static const double offset = 0.3;
-    // if(position.x > 0)
-    //     position.x += Random::Double(-offset, offset);
+    static const double offset = 0.3;
+    if(position.x > 0)
+        position.x += Random::Double(-offset, offset);
 
-    // if(position.y > 0)
-    //     position.y += Random::Double(-offset, offset);
+    if(position.y > 0)
+        position.y += Random::Double(-offset, offset);
 
-    // if(position.z > 0)
-    //     position.z += Random::Double(-offset, offset);
+    if(position.z > 0)
+        position.z += Random::Double(-offset, offset);
 }
 
 void Creature::checkWalkPathValid()
@@ -3275,9 +3277,6 @@ void Creature::stopWalking(){
     if(parkingBit)
         parkedBit = true;
     MovableGameEntity::stopWalking();
-
-
-
 }
 
 
