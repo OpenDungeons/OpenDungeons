@@ -491,17 +491,17 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
             }
 
             std::vector<Ogre::Vector3> path;
-            if(walkDistortion)
+                        
+            while(nbDest > 0)
             {
-                while(nbDest > 0)
-                {
-                    --nbDest;
-                    Ogre::Vector3 dest;
-                    OD_ASSERT_TRUE(packetReceived >> dest);
+                --nbDest;
+                Ogre::Vector3 dest;
+                OD_ASSERT_TRUE(packetReceived >> dest);
+                if(walkDistortion)
                     tempAnimatedObject->correctEntityMovePosition(dest);
-                    path.push_back(dest);
-                }
+                path.push_back(dest);
             }
+            
             tempAnimatedObject->setWalkPath(walkAnim, endAnim, loopEndAnim, playIdleWhenAnimationEnds, path,walkDistortion);
             break;
         }
