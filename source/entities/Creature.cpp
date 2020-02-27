@@ -1103,7 +1103,7 @@ bool Creature::handleIdleAction()
             {
                 std::vector<Ogre::Vector3> path;
                 tileToVector3(tempPath, path, true, 0.0);
-                setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
+                setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path, true);
                 pushAction(Utils::make_unique<CreatureActionGoCallToWar>(*this));
                 return false;
             }
@@ -2362,7 +2362,7 @@ bool Creature::parkToWallTile(Tile* wallTile, Tile* nTile)
     OD_LOG_ERR(ss.str());
     path.push_back(parkingPoint);
     
-    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path,false);
 
     pushAction(Utils::make_unique<CreatureActionParkToTile>(*this));    
     return true;
@@ -2381,7 +2381,7 @@ bool Creature::setDestination(Tile* tile)
 
     std::vector<Ogre::Vector3> path;
     tileToVector3(result, path, true, 0.0);
-    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path,true);
     pushAction(Utils::make_unique<CreatureActionWalkToTile>(*this));
     return true;
 }

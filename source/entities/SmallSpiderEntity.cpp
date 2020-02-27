@@ -117,7 +117,7 @@ void SmallSpiderEntity::doUpkeep()
         return;
     }
 
-    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, moves);
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, moves,true);
 }
 
 bool SmallSpiderEntity::canSlap(Seat* seat)

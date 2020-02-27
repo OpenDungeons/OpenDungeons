@@ -476,10 +476,11 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
             std::string objName;
             std::string walkAnim;
             std::string endAnim;
+            bool walkDistortion;
             bool loopEndAnim;
             bool playIdleWhenAnimationEnds;
             uint32_t nbDest;
-            OD_ASSERT_TRUE(packetReceived >> objName >> walkAnim >> endAnim);
+            OD_ASSERT_TRUE(packetReceived >> walkDistortion >> objName >> walkAnim >> endAnim);
             OD_ASSERT_TRUE(packetReceived >> loopEndAnim >> playIdleWhenAnimationEnds >> nbDest);
 
             MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
@@ -490,15 +491,18 @@ bool ODClient::processMessage(ServerNotificationType cmd, ODPacket& packetReceiv
             }
 
             std::vector<Ogre::Vector3> path;
-            while(nbDest > 0)
+            if(walkDistortion)
             {
-                --nbDest;
-                Ogre::Vector3 dest;
-                OD_ASSERT_TRUE(packetReceived >> dest);
-                tempAnimatedObject->correctEntityMovePosition(dest);
-                path.push_back(dest);
+                while(nbDest > 0)
+                {
+                    --nbDest;
+                    Ogre::Vector3 dest;
+                    OD_ASSERT_TRUE(packetReceived >> dest);
+                    tempAnimatedObject->correctEntityMovePosition(dest);
+                    path.push_back(dest);
+                }
             }
-            tempAnimatedObject->setWalkPath(walkAnim, endAnim, loopEndAnim, playIdleWhenAnimationEnds, path);
+            tempAnimatedObject->setWalkPath(walkAnim, endAnim, loopEndAnim, playIdleWhenAnimationEnds, path,walkDistortion);
             break;
         }
 

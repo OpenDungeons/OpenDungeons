@@ -156,7 +156,7 @@ bool CreatureActionFightFriendly::handleFight(Creature& creature, GameEntity* en
 
             std::vector<Ogre::Vector3> path;
             creature.tileToVector3(result, path, true, 0.0);
-            creature.setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
+            creature.setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path, true);
             creature.pushAction(Utils::make_unique<CreatureActionWalkToTile>(creature));
             return false;
         }
@@ -193,7 +193,7 @@ bool CreatureActionFightFriendly::handleFight(Creature& creature, GameEntity* en
 
             std::vector<Ogre::Vector3> path;
             creature.tileToVector3(result, path, true, 0.0);
-            creature.setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
+            creature.setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path, true);
             creature.pushAction(Utils::make_unique<CreatureActionWalkToTile>(creature));
             return false;
         }
