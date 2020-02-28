@@ -179,7 +179,6 @@ bool CreatureActionDigTile::handleDigTile(Creature& creature, Tile& tileDig, Til
             // We do not push CreatureActionType::searchEntityToCarry because we want
             // this worker to be count as digging, not as carrying stuff
             creature.pushAction(Utils::make_unique<CreatureActionGrabEntity>(creature, *obj));
-            // creature.parkedBit = false;
             return true;
         }
 
@@ -190,6 +189,5 @@ bool CreatureActionDigTile::handleDigTile(Creature& creature, Tile& tileDig, Til
             creature.getSeat()->getPlayer()->notifyNoTreasuryAvailable();
         }
     }
-    // creature.parkedBit = false;
     return false;
 }

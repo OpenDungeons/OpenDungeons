@@ -2340,7 +2340,7 @@ bool Creature::resizeMeshAfterDrop()
 
 bool Creature::parkToWallTile(Tile* wallTile, Tile* nTile)
 {
-    if(nTile == nullptr || wallTile == nullptr || nTile->getPosition()==Ogre::Vector3::ZERO || wallTile->getPosition()==Ogre::Vector3::ZERO)
+    if(nTile == nullptr || wallTile == nullptr )
         return false;
 
     Tile *posTile = getPositionTile();
