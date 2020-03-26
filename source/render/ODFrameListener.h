@@ -82,6 +82,8 @@ public:
 
     void requestExit();
 
+    static const double TILE_HIGH_WORLD_Z ;
+    
     inline float getEventMaxTimeDisplay() const
     { return mEventMaxTimeDisplay; }
 
@@ -118,7 +120,7 @@ public:
     //! \brief This permits to get the keeperHand world coordinates from the cursor position
     //! returns true if the keeper hand position was successfully computed and false otherwise.
     //! If it returns false, keeperHand3DPos will stay unchanged
-    bool findWorldPositionFromMouse(const OIS::MouseEvent &arg, Ogre::Vector3& keeperHand3DPos);
+    bool findWorldPositionFromMouse(const OIS::MouseEvent &arg, Ogre::Vector3& keeperHand3DPos, Ogre::Vector3& keeperHand3DGround);
 
     /*! \brief Print a string in the upper right corner of the screen.
      *  Usually used for system or debug info
