@@ -126,6 +126,7 @@ public:
  */
 class Tile : public GameEntity
 {
+    friend class GameMap;
 public:
     Tile(GameMap* gameMap, int x = 0, int y = 0, TileType type = TileType::dirt, double fullness = 100.0);
 

@@ -21,12 +21,12 @@
 #include "utils/LogManager.h"
 
 TileSet::TileSet() :
-    mTileValues(static_cast<uint32_t>(TileVisual::countTileVisual), std::vector<TileSetValue>(16)),
+    mTileValues(static_cast<uint32_t>(TileVisual::countTileVisual), std::vector<std::vector<TileSetValue>>(16)),
     mTileLinks(std::vector<uint32_t>(static_cast<uint32_t>(TileVisual::countTileVisual), 0))
 {
 }
 
-std::vector<TileSetValue>& TileSet::configureTileValues(TileVisual tileVisual)
+std::vector<std::vector<TileSetValue>>& TileSet::configureTileValues(TileVisual tileVisual)
 {
     uint32_t tileTypeNumber = static_cast<uint32_t>(tileVisual);
     if(tileTypeNumber >= mTileValues.size())
@@ -38,7 +38,7 @@ std::vector<TileSetValue>& TileSet::configureTileValues(TileVisual tileVisual)
     return mTileValues[tileTypeNumber];
 }
 
-const std::vector<TileSetValue>& TileSet::getTileValues(TileVisual tileVisual) const
+const std::vector<std::vector<TileSetValue>>& TileSet::getTileValues(TileVisual tileVisual) const
 {
     uint32_t tileTypeNumber = static_cast<uint32_t>(tileVisual);
     if(tileTypeNumber >= mTileValues.size())
