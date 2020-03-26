@@ -5,9 +5,13 @@
     <Imageset filename="ODBackgrounds.imageset" name="ODBackgrounds" />
     <Imageset filename="ODMainMenuButtons.imageset" name="ODMainMenuButtons" />
     <Imageset filename="ODMainMenuBackground.imageset" name="ODMainMenuBackground" />
-    <Font filename="LiberationSans-10.font" name="LiberationSans-10" />
+    <Font filename="LiberationSans-5.font" name="LiberationSans-5" />
+    <Font filename="LiberationSans-7.font" name="LiberationSans-7" />
+    <Font filename="MedievalSharp-5.font" name="MedievalSharp-5" />
+    <Font filename="MedievalSharp-6.font" name="MedievalSharp-6" />
     <Font filename="MedievalSharp-10.font" name="MedievalSharp-10" />
     <Font filename="MedievalSharp-12.font" name="MedievalSharp-12" />
+    <Font filename="LiberationSans-10.font" name="LiberationSans-10" />
     <LookNFeel filename="OD.looknfeel" />
     <WindowRendererSet filename="CEGUICoreWindowRendererSet" />
     <FalagardMapping lookNFeel="OD/Button" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/Button" />

@@ -63,6 +63,7 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     // Needed to get the correct offset when using up to CEGUI 0.8.4
     // We're thus using an empty mouse cursor.
     CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
+    context.setDefaultFont("LiberationSans-7");
     context.getMouseCursor().setDefaultImage("OpenDungeonsSkin/MouseArrow");
     context.getMouseCursor().setVisible(true);
     context.setDefaultTooltipType("OD/Tooltip");

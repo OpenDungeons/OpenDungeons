@@ -106,8 +106,8 @@
             <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
-            <Property name="Area" value="{{0,0},{1,-133},{1,-200},{1,0}}" />
-            <Property name="TabHeight" value="{0,35}" />
+            <Property name="Area" value="{{0,0},{0.80,0},{1,0},{1,0}}" />
+            <Property name="TabHeight" value="{0.15,0}" />
             <Property name="RiseOnClickEnabled" value="False" />
             <Window type="DefaultWindow" name="Tiles" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
@@ -116,43 +116,43 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="RiseOnClickEnabled" value="False" />
                 <Window type="OD/GameTabButton" name="DirtButton" >
-                    <Property name="Area" value="{{0,20},{0,25},{0,80},{0,85}}" />
+                    <Property name="Area" value="{{0.06,0},{0.25,0},{0.12,0},{0.75,0}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/DirtButton" />
                     <Property name="TooltipText" value="Place dirt tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/GameTabButton" name="RockButton" >
-                    <Property name="Area" value="{{0,80},{0,25},{0,140},{0,85}}" />
+                    <Property name="Area" value="{{0.18,0},{0,0},{0.24,0},{0.5,0}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/RockButton" />
                     <Property name="TooltipText" value="Place undiggable rock tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/GameTabButton" name="GoldButton" >
-                    <Property name="Area" value="{{0,140},{0,25},{0,200},{0,85}}" />
+                    <Property name="Area" value="{{0.24,0},{0,0},{0.30,0},{0.5,0}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/GoldButton" />
                     <Property name="TooltipText" value="Place gold tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/GameTabButton" name="WaterButton" >
-                    <Property name="Area" value="{{0,200},{0,25},{0,260},{0,85}}" />
+                    <Property name="Area" value="{{0.30,0},{0,0},{0.36,0},{0.5,0}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/WaterButton" />
                     <Property name="TooltipText" value="Place some water." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/GameTabButton" name="LavaButton" >
-                    <Property name="Area" value="{{0,260},{0,25},{0,320},{0,85}}" />
+                    <Property name="Area" value="{{0.36,0},{0,0},{0.42,0},{0.5,0}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/LavaButton" />
                     <Property name="TooltipText" value="Place some lava." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/GameTabButton" name="ClaimedButton" >
-                    <Property name="Area" value="{{0,320},{0,25},{0,380},{0,85}}" />
+                    <Property name="Area" value="{{0.42,0},{0,0},{0.48,0},{0.5,0}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/ClaimedButton" />
                     <Property name="TooltipText" value="Place some claimed/dungeon tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/GameTabButton" name="GemButton" >
-                    <Property name="Area" value="{{0,380},{0,25},{0,440},{0,85}}" />
+                <Property name="Area" value="{{0.48,0},{0,0},{0.54,0},{0.5,0}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/GemButton" />
                     <Property name="TooltipText" value="Place gem tiles." />
                     <Property name="InheritsAlpha" value="False" />
@@ -170,7 +170,7 @@
                 <Property name="Visible" value="False" />
                 <Property name="RiseOnClickEnabled" value="False" />
                 <Window type="OD/GameTabButton" name="MapLightButton" >
-                    <Property name="Area" value="{{0,20},{0,25},{0,80},{0,85}}" />
+                    <Property name="Area" value="{{0.18,0},{0,0},{0.24,0},{0.5,0}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/MapLightButton" />
                     <Property name="TooltipText" value="Adds a Map light" />
                     <Property name="InheritsAlpha" value="False" />

@@ -1905,8 +1905,8 @@ std::string Creature::getStatsText()
 {
     // The creatures are not refreshed at each turn so this information is relevant in the server
     // GameMap only
-    const std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
-    const std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
+    const std::string formatTitleOn = "[font='MedievalSharp-6'][colour='CCBBBBFF']";
+    const std::string formatTitleOff = "[font='MedievalSharp-5'][colour='FFFFFFFF']";
 
     std::stringstream tempSS;
     tempSS << formatTitleOn << "Characteristics" << formatTitleOff << std::endl;
