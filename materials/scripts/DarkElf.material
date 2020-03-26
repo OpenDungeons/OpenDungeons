@@ -11,7 +11,7 @@ material DarkElfCloth : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map DarkElfClothNormal.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map DarkElfClothNormal.png tangent_space 0 bilinear 1 -1.0
             }
         }
 
@@ -46,7 +46,7 @@ material DarkElfSkin : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map DarkElfSkinNormal.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map DarkElfSkinNormal.png tangent_space 0 bilinear 1 -1.0
             }
         }
 
@@ -81,7 +81,7 @@ material DarkElfHorns : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map DarkElfHornsNormal.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map DarkElfHornsNormal.png tangent_space 0 bilinear 1 -1.0
             }
         }
 
@@ -116,7 +116,7 @@ material DarkElfHair : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map DarkElfHairNormal.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map DarkElfHairNormal.png tangent_space 0 bilinear 1 -1.0
             }
         }
 

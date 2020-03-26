@@ -8,7 +8,7 @@ fragment_program Ogre/RTShader/shadow_caster_ps_cg cg
 	// source file
 	source HardwareSkinningShadow.cg
 	// will run on pixel shader 2.0+
-	profiles ps_2_0 arbfp1
+	profiles ps_2_0 fp40
 	// entry function
 	entry_point shadow_caster_ps
  	default_params
@@ -21,7 +21,7 @@ vertex_program Ogre/RTShader/shadow_caster_skinning_1weight_vs cg
 {
 	source HardwareSkinningShadow.cg
 	//will run on 3 to accommodate the amount of registers
-	profiles vs_3_0 vp40 arbvp1
+	profiles vs_3_0 vp40
 	entry_point shadow_caster_skinning_1weight_vs
 
 	default_params
@@ -35,7 +35,7 @@ vertex_program Ogre/RTShader/shadow_caster_skinning_2weight_vs_cg cg
 {
 	source HardwareSkinningShadow.cg
 	//will run on 3 to accommodate the amount of registers
-	profiles vs_3_0 vp40 arbvp1
+	profiles vs_3_0 vp40
 	entry_point shadow_caster_skinning_2weight_vs
 
 	default_params
@@ -49,7 +49,7 @@ vertex_program Ogre/RTShader/shadow_caster_skinning_3weight_vs cg
 {
 	source HardwareSkinningShadow.cg
 	//will run on 3 to accommodate the amount of registers
-	profiles vs_3_0 vp40 arbvp1
+	profiles vs_3_0 vp40
 	entry_point shadow_caster_skinning_3weight_vs
 
 	default_params
@@ -64,8 +64,42 @@ vertex_program Ogre/RTShader/shadow_caster_skinning_4weight_vs cg
 {
 	source HardwareSkinningShadow.cg
 	//will run on 3 to accommodate the amount of registers
-	profiles vs_3_0 vp40 arbvp1
+	profiles vs_3_0 vp40
 	entry_point shadow_caster_skinning_4weight_vs
+
+	default_params
+	{
+		param_named_auto viewProjectionMatrix viewproj_matrix	
+		param_named_auto worldMatrix3x4Array world_matrix_array_3x4
+	}
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+/// Declare HLSL shaders for casters
+///////////////////////////////////////////////////////////////////////////
+
+// declare the fragment shader (HLSL for the language)
+fragment_program Ogre/RTShader/shadow_caster_ps_hlsl hlsl
+{
+	// source file
+	source HardwareSkinningShadow.hlsl
+	// will run on pixel shader 2.0+
+	target ps_4_0
+	// entry function
+	entry_point shadow_caster_ps
+ 	default_params
+	{
+		
+	}
+}
+
+vertex_program Ogre/RTShader/shadow_caster_skinning_2weight_vs_hlsl hlsl
+{
+	source HardwareSkinningShadow.hlsl
+	//will run on 3 to accommodate the amount of registers
+	target vs_4_0
+	entry_point shadow_caster_skinning_2weight_vs
 
 	default_params
 	{
@@ -101,14 +135,16 @@ vertex_program Ogre/RTShader/shadow_caster_skinning_2weight_vs_glsl glsl
 ///////////////////////////////////////////////////////////////////////////
 fragment_program Ogre/RTShader/shadow_caster_ps unified
 {
-	delegate Ogre/RTShader/shadow_caster_ps_glsl
 	delegate Ogre/RTShader/shadow_caster_ps_cg
+    delegate Ogre/RTShader/shadow_caster_ps_glsl
+	delegate Ogre/RTShader/shadow_caster_ps_hlsl
 }
 
 vertex_program Ogre/RTShader/shadow_caster_skinning_2weight_vs unified
 {
+    delegate Ogre/RTShader/shadow_caster_skinning_2weight_vs_cg
+	delegate Ogre/RTShader/shadow_caster_skinning_2weight_vs_hlsl
 	delegate Ogre/RTShader/shadow_caster_skinning_2weight_vs_glsl
-	delegate Ogre/RTShader/shadow_caster_skinning_2weight_vs_cg
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -119,7 +155,7 @@ material Ogre/RTShader/shadow_caster_skinning_1weight
 {
 	technique
 	{
-		// all this will do is write depth and depth² to red and green
+		// all this will do is write depth and depthï¿½ to red and green
 		pass
 		{
 			vertex_program_ref Ogre/RTShader/shadow_caster_skinning_1weight_vs
@@ -138,7 +174,7 @@ material Ogre/RTShader/shadow_caster_skinning_2weight
 {
 	technique
 	{
-		// all this will do is write depth and depth² to red and green
+		// all this will do is write depth and depthï¿½ to red and green
 		pass
 		{
 			vertex_program_ref Ogre/RTShader/shadow_caster_skinning_2weight_vs
@@ -157,7 +193,7 @@ material Ogre/RTShader/shadow_caster_skinning_3weight
 {
 	technique
 	{
-		// all this will do is write depth and depth² to red and green
+		// all this will do is write depth and depthï¿½ to red and green
 		pass
 		{
 			vertex_program_ref Ogre/RTShader/shadow_caster_skinning_3weight_vs
@@ -176,7 +212,7 @@ material Ogre/RTShader/shadow_caster_skinning_4weight
 {
 	technique
 	{
-		// all this will do is write depth and depth² to red and green
+		// all this will do is write depth and depthï¿½ to red and green
 		pass
 		{
 			vertex_program_ref Ogre/RTShader/shadow_caster_skinning_4weight_vs
@@ -191,7 +227,7 @@ material Ogre/RTShader/shadow_caster_skinning_4weight
 }
 
 ///////////////////////////////////////////////////////////////////////////
-/// Declare programs for receivers
+/// Declare programs for recievers
 ///////////////////////////////////////////////////////////////////////////
 
 

@@ -132,7 +132,10 @@ bool GameEditorModeConsole::keyPressed(const OIS::KeyEvent &arg)
 
 void GameEditorModeConsole::printToConsole(const std::string& text)
 {
-    mConsoleHistoryWindow->addItem(new CEGUI::ListboxTextItem(text));
+    CEGUI::ListboxTextItem* lbi = new CEGUI::ListboxTextItem("");
+    lbi->setTextParsingEnabled(false);
+    lbi->setText(text);
+    mConsoleHistoryWindow->addItem(lbi);
 }
 
 bool GameEditorModeConsole::executeCurrentPrompt(const CEGUI::EventArgs& e)

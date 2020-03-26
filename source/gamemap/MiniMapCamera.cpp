@@ -122,7 +122,8 @@ MiniMapCamera::~MiniMapCamera()
     rt->removeAllListeners();
     Ogre::SceneManager* sceneManager = RenderManager::getSingleton().getSceneManager();
     sceneManager->destroyCamera(mMiniMapCam);
-    Ogre::TextureManager::getSingletonPtr()->remove("miniMapOgreTexture");
+    Ogre::String mm("miniMapOgreTexture");
+    Ogre::TextureManager::getSingletonPtr()->remove(mm,Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     CEGUI::ImageManager::getSingletonPtr()->destroy("MiniMapImageset");
     CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture("miniMapTextureGui");
 }

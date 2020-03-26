@@ -20,6 +20,7 @@
 
 #include "Trap.h"
 #include "traps/TrapType.h"
+#include "string.h"
 
 class ODPacket;
 
@@ -50,6 +51,7 @@ public:
 
 private:
     uint32_t mRange;
+    std::string savedTrapEntityName;
 };
 
 #endif // TRAPCANNON_H

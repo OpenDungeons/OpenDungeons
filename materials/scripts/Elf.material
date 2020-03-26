@@ -11,7 +11,7 @@ material ElfSkin : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map ElfSkinNormal.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map ElfSkinNormal.png tangent_space 0 bilinear 1 -1.0
             }
         }
 
@@ -46,7 +46,7 @@ material ElfHair : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map DarkElfHairNormal.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map DarkElfHairNormal.png tangent_space 0 bilinear 1 -1.0
             }
         }
 
@@ -81,7 +81,7 @@ material ElfCloth : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map ElfClothNormal.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map ElfClothNormal.png tangent_space 0 bilinear 1 -1.0
             }
         }
 
