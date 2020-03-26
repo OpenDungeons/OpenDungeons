@@ -213,7 +213,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     // Read in the map tiles from disk
     gameMap.disableFloodFill();
-
+    gameMap.setProperPositions();
     while (true)
     {
         if(!levelFile.good())

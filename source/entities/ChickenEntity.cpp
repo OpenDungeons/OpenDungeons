@@ -141,7 +141,7 @@ void ChickenEntity::doUpkeep()
     Ogre::Vector3 v (static_cast<Ogre::Real>(tileDest->getX()), static_cast<Ogre::Real>(tileDest->getY()), 0.0);
     std::vector<Ogre::Vector3> path;
     path.push_back(v);
-    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path,true);
 }
 
 void ChickenEntity::addTileToListIfPossible(int x, int y, Room* currentHatchery, std::vector<Tile*>& possibleTileMove)

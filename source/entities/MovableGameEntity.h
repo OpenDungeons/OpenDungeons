@@ -56,7 +56,7 @@ public:
      * it will play endAnim (looped or not depending on loopEndAnim).
      */
     void setWalkPath(const std::string& walkAnim, const std::string& endAnim, bool loopEndAnim,
-        bool playIdleWhenAnimationEnds, const std::vector<Ogre::Vector3>& path);
+                     bool playIdleWhenAnimationEnds, const std::vector<Ogre::Vector3>& path, bool walkDistortion);
 
     /*! \brief Converts a tile list to a vector of Ogre::Vector3
      *

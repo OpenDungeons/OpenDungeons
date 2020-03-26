@@ -242,6 +242,20 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
     return true;
 }
 
+
+void GameMap::setProperPositions()
+{
+    for (int ii = 0; ii < mMapSizeX; ++ii)
+    {
+        for (int jj = 0; jj < mMapSizeY; ++jj)
+        {
+            Tile* tile = getTile(ii, jj);
+            tile->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(ii), static_cast<Ogre::Real>(jj), 0.0f));
+        }
+    }
+}
+
+
 void GameMap::setAllFullnessAndNeighbors()
 {
     for (int ii = 0; ii < mMapSizeX; ++ii)

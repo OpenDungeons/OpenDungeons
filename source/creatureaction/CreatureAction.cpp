@@ -39,6 +39,9 @@ std::string CreatureAction::toString(CreatureActionType actionType)
     case CreatureActionType::searchTileToDig:
         return "searchTileToDig";
 
+    case CreatureActionType::parkToTile:
+        return "parkToTile";
+        
     case CreatureActionType::digTile:
         return "digTile";
 

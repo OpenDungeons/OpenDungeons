@@ -102,7 +102,7 @@ bool CreatureActionSearchTileToDig::handleSearchTileToDig(Creature& creature, in
 
         if(!isOk)
             continue;
-
+        
         // We found a tile marked by our controlling seat, dig out the tile.
         creature.pushAction(Utils::make_unique<CreatureActionDigTile>(creature, *tempTile, *myTile));
         return true;

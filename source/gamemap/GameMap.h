@@ -126,6 +126,9 @@ public:
     //! Used when loading a map to setup the initial tile state.
     void setAllFullnessAndNeighbors();
 
+    //! \brief set proper mPosition for all Tiles
+    void setProperPositions();
+
     //! \brief Creates meshes for all the tiles, creatures, rooms, traps and lights stored in this GameMap.
     void createAllEntities();
 

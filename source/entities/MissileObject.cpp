@@ -198,7 +198,7 @@ void MissileObject::doUpkeep()
     }
 
     path.push_back(destination);
-    setWalkPath(EntityAnimation::idle_anim, EntityAnimation::idle_anim, true, true, path);
+    setWalkPath(EntityAnimation::idle_anim, EntityAnimation::idle_anim, true, true, path,true);
 }
 
 bool MissileObject::computeDestination(const Ogre::Vector3& position, double moveDist, const Ogre::Vector3& direction,

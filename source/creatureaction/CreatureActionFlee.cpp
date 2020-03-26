@@ -68,7 +68,7 @@ bool CreatureActionFlee::handleFlee(Creature& creature, int32_t nbTurns)
             result.resize(5);
             std::vector<Ogre::Vector3> path;
             creature.tileToVector3(result, path, true, 0.0);
-            creature.setWalkPath(EntityAnimation::flee_anim, EntityAnimation::idle_anim, true, true, path);
+            creature.setWalkPath(EntityAnimation::flee_anim, EntityAnimation::idle_anim, true, true, path, true);
             creature.pushAction(Utils::make_unique<CreatureActionWalkToTile>(creature));
             return false;
         }

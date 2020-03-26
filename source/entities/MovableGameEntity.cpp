@@ -65,7 +65,7 @@ void MovableGameEntity::tileToVector3(const std::list<Tile*>& tiles, std::vector
 }
 
 void MovableGameEntity::setWalkPath(const std::string& walkAnim, const std::string& endAnim, bool loopEndAnim,
-        bool playIdleWhenAnimationEnds, const std::vector<Ogre::Vector3>& path)
+                                    bool playIdleWhenAnimationEnds, const std::vector<Ogre::Vector3>& path, bool walkDistortion)
 {
     mWalkQueue.clear();
     // We set the animation after clearing mWalkQueue and before filling it to be
@@ -102,7 +102,7 @@ void MovableGameEntity::setWalkPath(const std::string& walkAnim, const std::stri
         uint32_t nbDest = mWalkQueue.size();
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::animatedObjectSetWalkPath, seat->getPlayer());
-        serverNotification->mPacket << name << walkAnim << endAnim << loopEndAnim << playIdleWhenAnimationEnds << nbDest;
+        serverNotification->mPacket << walkDistortion << name << walkAnim << endAnim << loopEndAnim << playIdleWhenAnimationEnds << nbDest;
         for(const Ogre::Vector3& v : mWalkQueue)
             serverNotification->mPacket << v;
 

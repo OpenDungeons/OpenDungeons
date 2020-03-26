@@ -111,6 +111,11 @@ class Creature: public MovableGameEntity
 {
     friend class ODClient;
 public:
+    
+    bool parkingBit;
+    
+    bool parkedBit;
+    
     static const int32_t NB_TURNS_BEFORE_CHECKING_TASK;
 
     //! \brief Constructor for creatures. It generates an unique name
@@ -202,6 +207,8 @@ public:
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
     virtual void update(Ogre::Real timeSinceLastFrame) override;
 
+    bool parkToWallTile(Tile* wallTile, Tile* nTile);
+    
     bool setDestination(Tile* tile);
 
     //! \brief Picks a destination far away in the visible tiles and goes there
@@ -588,6 +595,8 @@ public:
     //! \brief Called when the creature changes seat (for example when it becomes rogue or after torture)
     void changeSeat(Seat* newSeat);
 
+    void stopWalking();
+    
 protected:
     virtual void exportToPacket(ODPacket& os, const Seat* seat) const override;
     virtual void importFromPacket(ODPacket& is) override;

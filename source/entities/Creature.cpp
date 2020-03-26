@@ -28,6 +28,7 @@
 #include "creatureaction/CreatureActionGoCallToWar.h"
 #include "creatureaction/CreatureActionGrabEntity.h"
 #include "creatureaction/CreatureActionLeaveDungeon.h"
+#include "creatureaction/CreatureActionParkToTile.h"
 #include "creatureaction/CreatureActionSearchEntityToCarry.h"
 #include "creatureaction/CreatureActionSearchFood.h"
 #include "creatureaction/CreatureActionSearchGroundTileToClaim.h"
@@ -127,7 +128,10 @@ CreatureParticleEffect::~CreatureParticleEffect()
 }
 
 Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position) :
+
     MovableGameEntity        (gameMap),
+    parkingBit               (false),
+    parkedBit                (false),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mElementDefense          (0.0),
@@ -172,7 +176,6 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat*
     mNbTurnsTorture          (0),
     mNbTurnsPrison           (0),
     mActiveSlapsCount        (0)
-
 {
     //TODO: This should be set in initialiser list in parent classes
     setSeat(seat);
@@ -206,6 +209,8 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat*
 
 Creature::Creature(GameMap* gameMap) :
     MovableGameEntity        (gameMap),
+    parkingBit               (false),
+    parkedBit                (false),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mElementDefense          (0.0),
@@ -1098,7 +1103,7 @@ bool Creature::handleIdleAction()
             {
                 std::vector<Ogre::Vector3> path;
                 tileToVector3(tempPath, path, true, 0.0);
-                setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
+                setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path, true);
                 pushAction(Utils::make_unique<CreatureActionGoCallToWar>(*this));
                 return false;
             }
@@ -2332,6 +2337,37 @@ bool Creature::resizeMeshAfterDrop()
     return false;
 }
 
+
+bool Creature::parkToWallTile(Tile* wallTile, Tile* nTile)
+{
+    if(nTile == nullptr || wallTile == nullptr )
+        return false;
+
+    Tile *posTile = getPositionTile();
+    if(posTile == nullptr)
+        return false;
+
+    Ogre::Vector3 parkingPoint;
+    parkingPoint = (wallTile->getPosition() - nTile->getPosition())*0.4 + nTile->getPosition() ;
+    std::stringstream ss;
+    ss << "parking point: " << parkingPoint;
+    ss << "wallTile->getPosition(): " << wallTile->getPosition();
+    ss << "nTile->getPosition(): " << nTile->getPosition();
+    
+    std::list<Tile*> result = getGameMap()->path(this, nTile);
+
+    std::vector<Ogre::Vector3> path;
+    tileToVector3(result, path, true, 0.0);
+    
+    OD_LOG_ERR(ss.str());
+    path.push_back(parkingPoint);
+    
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path,false);
+
+    pushAction(Utils::make_unique<CreatureActionParkToTile>(*this));    
+    return true;
+}
+
 bool Creature::setDestination(Tile* tile)
 {
     if(tile == nullptr)
@@ -2345,7 +2381,7 @@ bool Creature::setDestination(Tile* tile)
 
     std::vector<Ogre::Vector3> path;
     tileToVector3(result, path, true, 0.0);
-    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path);
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, true, path,true);
     pushAction(Utils::make_unique<CreatureActionWalkToTile>(*this));
     return true;
 }
@@ -3236,3 +3272,25 @@ void Creature::changeSeat(Seat* newSeat)
         home->releaseTileForSleeping(getHomeTile(), this);
     }
 }
+
+void Creature::stopWalking(){
+    if(parkingBit)
+        parkedBit = true;
+    MovableGameEntity::stopWalking();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
