@@ -1,4 +1,5 @@
 [Graphics]
+FileSystem=@OGRE_MEDIA_DIR@/ShadowVolume
 FileSystem=@RTSHADER_DIR@/GLSL
 FileSystem=@RTSHADER_DIR@/HLSL
 FileSystem=@RTSHADER_DIR@/HLSL_Cg
