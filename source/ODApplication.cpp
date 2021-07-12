@@ -41,6 +41,10 @@
 #include <OgreRoot.h>
 #include <Overlay/OgreOverlaySystem.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
+#if OGRE_VERSION > 0x10A00
+#include <OgreMaterialManager.h>
+#include <OgreSGTechniqueResolverListener.h>
+#endif
 
 #ifdef OD_USE_SFML_WINDOW
 #include "modes/ModeManager.h"
@@ -211,6 +215,12 @@ void ODApplication::startClient()
                 "Failed to initialize the Real Time Shader System, exiting");
         return;
     }
+#if OGRE_VERSION > 0x10A00
+    else
+    {
+        Ogre::MaterialManager::getSingleton().addListener(new OgreBites::SGTechniqueResolverListener(Ogre::RTShader::ShaderGenerator::getSingletonPtr()));
+    }
+#endif
 
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
 
