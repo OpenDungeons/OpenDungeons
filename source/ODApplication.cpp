@@ -216,10 +216,8 @@ void ODApplication::startClient()
         return;
     }
 #if OGRE_VERSION > 0x10A00
-    else
-    {
-        Ogre::MaterialManager::getSingleton().addListener(new OgreBites::SGTechniqueResolverListener(Ogre::RTShader::ShaderGenerator::getSingletonPtr()));
-    }
+    auto sgListener = new OgreBites::SGTechniqueResolverListener(Ogre::RTShader::ShaderGenerator::getSingletonPtr());
+    Ogre::MaterialManager::getSingleton().addListener(sgListener);
 #endif
 
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
@@ -277,6 +275,8 @@ void ODApplication::startClient()
     OD_LOG_INF("Stopping server...");
     server.stopServer();
     ogreRoot.removeFrameListener(&frameListener);
+    Ogre::MaterialManager::getSingleton().removeListener(sgListener);
+    delete sgListener;
     Ogre::RTShader::ShaderGenerator::destroy();
     ogreRoot.destroyRenderTarget(renderWindow);
 }
