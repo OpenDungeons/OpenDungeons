@@ -439,7 +439,7 @@ void SettingsWindow::saveConfig()
             renderer = *renderers.begin();
             OD_LOG_WRN("Wanted renderer : " + std::string(rdrCb->getSelectedItem()->getText().c_str()) + " not found. Using the first available: " + renderer->getName());
         }
-        ogreRoot->setRenderSystem(renderer);
+
         config.setVideoValue(Config::RENDERER, renderer->getName());
         config.saveUserConfig();
 
