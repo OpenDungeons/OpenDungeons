@@ -17,6 +17,8 @@
 
 #include "network/ODPacket.h"
 
+#include <fstream>
+
 #define OD_INT64TOINT32H(valInt64)              (static_cast<int32_t>(valInt64 >> 32))
 #define OD_INT64TOINT32L(valInt64)              (static_cast<int32_t>(valInt64))
 #define OD_INT32TOINT64(valInt32h,valInt32l)    ((((static_cast<int64_t>(valInt32h)) << 32) & static_cast<int64_t>(0xFFFFFFFF00000000)) + ((static_cast<int64_t>(valInt32l)) & static_cast<int64_t>(0x00000000FFFFFFFF)))

@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <string>
+#include <sstream>
 
 class RenderScene;
 

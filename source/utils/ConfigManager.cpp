@@ -29,6 +29,8 @@
 #include <boost/dynamic_bitset.hpp>
 #include <OgreRoot.h>
 
+#include <fstream>
+
 const std::vector<std::string> EMPTY_SPAWNPOOL;
 const std::string EMPTY_STRING;
 const Ogre::ColourValue DEFAULT_SEAT_COLOURVALUE;

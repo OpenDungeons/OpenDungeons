@@ -20,6 +20,8 @@
 #include "creaturemood/CreatureMoodManager.h"
 #include "entities/Creature.h"
 
+#include <sstream>
+
 static const std::string CreatureMoodWakefulnessName = "Wakefulness";
 
 namespace
