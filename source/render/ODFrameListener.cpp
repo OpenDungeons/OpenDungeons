@@ -105,9 +105,9 @@ ODFrameListener::ODFrameListener(const std::string& mainSceneFileName, Ogre::Ren
 
 void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
 {
-    unsigned int width, height, depth;
+    unsigned int width, height;
     int left, top;
-    rw->getMetrics(width, height, depth, left, top);
+    rw->getMetrics(width, height, left, top);
 
     mModeManager->getInputManager().setWidthAndHeight(width, height);
     //Notify CEGUI that the display size has changed.

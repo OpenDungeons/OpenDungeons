@@ -56,8 +56,7 @@ void TextRenderer::addTextBox(const std::string& ID, const std::string& text,
     textBox->setParameter("char_height", "16");
     textBox->setColour(color);
 
-    // Note: We make ogre handle an UTF8 string
-    textBox->setCaption(static_cast<Ogre::UTFString>(Helper::atow(text)));
+    textBox->setCaption(text);
 
     mPanel->addChild(textBox);
 }
@@ -73,7 +72,7 @@ void TextRenderer::setText(const std::string& ID, const std::string& text)
     Ogre::OverlayElement* textBox = mOverlayMgr->getOverlayElement(ID);
     // Note: We make ogre handle an UTF8 string
     if (textBox != nullptr)
-        textBox->setCaption(static_cast<Ogre::UTFString>(Helper::atow(text)));
+        textBox->setCaption(text);
 }
 
 void TextRenderer::setColor(const std::string& ID, const Ogre::ColourValue& color)
