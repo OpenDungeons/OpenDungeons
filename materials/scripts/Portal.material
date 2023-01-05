@@ -11,7 +11,7 @@ material Portal : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map PortalNormal.png object_space 
+                lighting_stage normal_map PortalNormal.png
             }
         }
 

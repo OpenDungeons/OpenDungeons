@@ -11,7 +11,7 @@ material Wyvern : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map WyvernNormal.png object_space 
+                lighting_stage normal_map WyvernNormal.png
             }
         }
 

@@ -11,7 +11,7 @@ material WeaponShield1 : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map WeaponShield1Normal.png object_space 
+                lighting_stage normal_map WeaponShield1Normal.png
             }
         }
 

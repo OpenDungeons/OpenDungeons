@@ -12,7 +12,7 @@ material T2ShieldGood : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map T2ShieldGoodNormal.png object_space 
+                lighting_stage normal_map T2ShieldGoodNormal.png
             }
         }
 
