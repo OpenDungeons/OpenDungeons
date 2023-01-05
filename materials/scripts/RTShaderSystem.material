@@ -41,44 +41,11 @@ material RTSS/NormalMapping_MultiPass
 {
 	technique
 	{
-		// Base ambient pass
-		pass ambient
-		{
-			// base colours, not needed for rendering, but as information
-			// to lighting pass categorisation routine
-			ambient 1 1 1
-			diffuse 0 0 0 
-			specular 0 0 0 0 
-			
-			// RT Shader system section.			
- 			rtshader_system
- 			{	
- 				// Override dynamic light count with zero light count.
- 				// Doing this will cause the RTSS to create 
- 				// ambient lighting shaders.
- 				// If not doing that the RTSS it will use the current scene light count
- 				// which will result in full lighting calculation in this pass.
-				light_count 0 0 0
-			}
-		}
-		
-		// Lighting pass.
 		pass lighting
 		{
-			// Comment the specular in order to use only diffuse based normal map technique.
+			ambient 1 1 1
 			specular 1.0 1.0 1.0 32
-			
-			// base colours, not needed for rendering, but as information
-			// to lighting pass categorisation routine
-			ambient 0 0 0 
-			
-			// do this for each point light
-			// You MUST specify the light type when working with the RT Shader System in iterative lighting method. 
-			// otherwise an exception will be thrown.
-			iteration once_per_light point
-
-			scene_blend add		
-			
+	
 			// RT Shader system section.
  			rtshader_system
  			{	 	
