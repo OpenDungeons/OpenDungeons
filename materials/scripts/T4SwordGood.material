@@ -14,14 +14,6 @@ material T4SwordGood : RTSS/NormalMapping_MultiPass
             {
                 lighting_stage normal_map T4SwordGoodNormal.png
             }
-        }
-
-        pass decal
-        {
-            ambient 0.8 0.8 0.8 1.0
-            diffuse 0.65 0.65 0.65 1.0
-            specular 0.0 0.0 0.0 0.0 2.0
-            emissive 0.0 0.0 0.0 0.0
 
             texture_unit decalmap
             {

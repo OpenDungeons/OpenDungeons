@@ -8,10 +8,6 @@ material KnightCoffin
     {
         pass KnightCoffin
         {
-            ambient 0.8 0.8 0.8 1.0
-            diffuse 0.65 0.65 0.65 1.0
-            specular 0.1 0.1 0.1 0.0 2.0
-            emissive 0.0 0.0 0.0 0.0
 
             alpha_to_coverage off
             colour_write on

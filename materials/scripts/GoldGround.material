@@ -13,10 +13,7 @@ material GoldGround : RTSS/NormalMapping_MultiPass
             {
                 lighting_stage normal_map DirtNormal.png
             }
-        }
 
-        pass decal
-        {
             texture_unit decalmap
             {
                 texture GoldGround.png

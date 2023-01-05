@@ -11,11 +11,8 @@ material Claimed : RTSS/NormalMapping_MultiPass
             {
                 lighting_stage normal_map ClaimedNormal.png tangent_space 
             }
-        }
-        pass decal
-        {
-            lighting off
-            // We use blending, so that we can see the underlying texture.
+
+
             texture_unit decalmap
             {
                 texture Claimed.png

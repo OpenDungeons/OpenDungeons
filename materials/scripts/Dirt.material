@@ -11,10 +11,7 @@ material Dirt : RTSS/NormalMapping_MultiPass
             {
                 lighting_stage normal_map DirtNormal.png tangent_space 
             }
-        }
 
-        pass decal
-        {
             texture_unit decalmap
             {
                 texture Dirt.png

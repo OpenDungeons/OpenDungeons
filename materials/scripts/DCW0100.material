@@ -12,11 +12,8 @@ material DCW0100 : RTSS/NormalMapping_MultiPass
             {
                 lighting_stage normal_map DungeonClaimedWall0100Normal.png tangent_space 
             }
-        }
-        pass decal
-        {
-            lighting off
-            // We use blending, so that we can see the underlying texture.
+
+
             texture_unit decalmap
             {
                 texture DungeonClaimedWall0100.png

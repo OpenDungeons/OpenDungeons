@@ -13,14 +13,6 @@ material DarkElfCloth : RTSS/NormalMapping_MultiPass
             {
                 lighting_stage normal_map DarkElfClothNormal.png
             }
-        }
-
-        pass decal
-        {
-            ambient 0.8 0.8 0.8 1.0
-            diffuse 0.65 0.65 0.65 1.0
-            specular 0.0 0.0 0.0 0.0 2.0
-            emissive 0.0 0.0 0.0 0.0
 
             texture_unit decalmap
             {
@@ -48,14 +40,6 @@ material DarkElfSkin : RTSS/NormalMapping_MultiPass
             {
                 lighting_stage normal_map DarkElfSkinNormal.png
             }
-        }
-
-        pass decal
-        {
-            ambient 0.8 0.8 0.8 1.0
-            diffuse 0.65 0.65 0.65 1.0
-            specular 0.0 0.0 0.0 0.0 2.0
-            emissive 0.0 0.0 0.0 0.0
 
             texture_unit decalmap
             {
@@ -83,14 +67,6 @@ material DarkElfHorns : RTSS/NormalMapping_MultiPass
             {
                 lighting_stage normal_map DarkElfHornsNormal.png
             }
-        }
-
-        pass decal
-        {
-            ambient 0.8 0.8 0.8 1.0
-            diffuse 0.65 0.65 0.65 1.0
-            specular 0.0 0.0 0.0 0.0 2.0
-            emissive 0.0 0.0 0.0 0.0
 
             texture_unit decalmap
             {
@@ -118,14 +94,6 @@ material DarkElfHair : RTSS/NormalMapping_MultiPass
             {
                 lighting_stage normal_map DarkElfHairNormal.png
             }
-        }
-
-        pass decal
-        {
-            ambient 0.8 0.8 0.8 1.0
-            diffuse 0.65 0.65 0.65 1.0
-            specular 0.0 0.0 0.0 0.0 2.0
-            emissive 0.0 0.0 0.0 0.0
 
             texture_unit decalmap
             {

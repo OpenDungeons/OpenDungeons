@@ -13,10 +13,7 @@ material Gold : RTSS/NormalMapping_MultiPass
             {
                 lighting_stage normal_map GoldNormal.png
             }
-        }
 
-        pass decal
-        {
             ambient 0.8 0.8 0.8 1.0
             diffuse 0.8 0.8 0.8 1.0
             specular 0.2 0.2 0.2 0.0 2.0
