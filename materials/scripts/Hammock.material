@@ -11,7 +11,7 @@ material Hammock : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map HammockNormal.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map HammockNormal.png object_space 
             }
         }
 
