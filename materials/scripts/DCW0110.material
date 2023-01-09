@@ -9,13 +9,10 @@ material DCW0110 : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map DungeonClaimedWall0110Normal.png tangent_space 0 bilinear 1 -1.0
+                lighting_stage normal_map DungeonClaimedWall0110Normal.png tangent_space 
             }
-        }
-        pass decal
-        {
-            lighting off
-            // We use blending, so that we can see the underlying texture.
+
+
             texture_unit decalmap
             {
                 texture DungeonClaimedWall0110.png

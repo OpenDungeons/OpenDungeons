@@ -11,16 +11,9 @@ material RatBody : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map RatBodyNorm.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map RatBodyNorm.png
             }
-        }
 
-        pass decal
-        {
-            ambient 0.8 0.8 0.8 1.0
-            diffuse 0.65 0.65 0.65 1.0
-            specular 0.1 0.1 0.1 0.0 2.0
-            emissive 0.0 0.0 0.0 0.0
 
             texture_unit decalmap
             {
@@ -46,16 +39,9 @@ material RatHead : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map RatHeadNorm.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map RatHeadNorm.png
             }
-        }
 
-        pass decal
-        {
-            ambient 0.8 0.8 0.8 1.0
-            diffuse 0.65 0.65 0.65 1.0
-            specular 0.1 0.1 0.1 0.0 2.0
-            emissive 0.0 0.0 0.0 0.0
 
             texture_unit decalmap
             {
@@ -81,16 +67,9 @@ material RatTeeth : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map RatHeadNorm.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map RatHeadNorm.png
             }
-        }
 
-        pass decal
-        {
-            ambient 0.8 0.8 0.8 1.0
-            diffuse 0.65 0.65 0.65 1.0
-            specular 0.1 0.1 0.1 0.0 2.0
-            emissive 0.0 0.0 0.0 0.0
 
             texture_unit decalmap
             {

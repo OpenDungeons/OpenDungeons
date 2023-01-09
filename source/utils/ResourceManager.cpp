@@ -493,7 +493,13 @@ void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
         for(const auto& setting: settingsMap)
         {
             const Ogre::String& typeName = setting.first;
-            const Ogre::String& archName = mGameDataPath + setting.second;
+            Ogre::String archName = setting.second;
+
+            if(!archName.empty() && archName.front() != '/') // do not modify absolute paths
+                archName = mGameDataPath + archName;
+            else
+                archName = Ogre::FileSystemLayer::resolveBundlePath(archName);
+
 #endif // OGRE_VERSION < 0x10A00
             OD_LOG_INF("Resource in section: " + secName + " Type: " + typeName
                        + " Path: " + archName);
@@ -516,12 +522,9 @@ void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
     // Adds the correct GLSL shader path depending on the GPU capacity
     Ogre::GpuProgramManager& gpuProgramManager = Ogre::GpuProgramManager::getSingleton();
     Ogre::ResourceGroupManager& resourceGroupManager = Ogre::ResourceGroupManager::getSingleton();
-    if(gpuProgramManager.isSyntaxSupported("glsl"))
+    if((OGRE_VERSION < 0x10C00) && gpuProgramManager.isSyntaxSupported("glsl"))
     {
         OD_LOG_INF("Supported shader version is: " + Helper::toString(shaderLanguageVersion));
-
-        // Add GLSL shader location for RTShader system
-        resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
 
         // Use patched version of shader on shader version 130+ systems
         if(shaderLanguageVersion >= 130)
@@ -532,11 +535,6 @@ void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
         {
             resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
         }
-    }
-
-    if (gpuProgramManager.isSyntaxSupported("hlsl"))
-    {
-        resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/HLSL", "FileSystem", "Graphics");
     }
 }
 

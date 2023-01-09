@@ -119,7 +119,7 @@ void StackTracePrintPrivateData::critErrHandler(int sig_num, siginfo_t* info, vo
     caller_address = reinterpret_cast<void*>(uc->uc_mcontext.sc_rip); // RIP: x86_64 specific
 #endif
 #else
-#error Unsupported architecture. // TODO: Add support for other arch.
+#warning Unsupported architecture. // TODO: Add support for other arch.
 #endif
     // void* caller_address = (void*) uc->uc_mcontext.eip; // x86 specific
 

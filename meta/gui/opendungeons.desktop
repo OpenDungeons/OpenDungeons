@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=OpenDungeons
-GenericName=RTS game inspired by Dungeon Keeper
-Exec=opendungeons
-Icon=${SNAP}/meta/gui/icon.svg
-Terminal=false
-Type=Application
-Categories=Game;StrategyGame;
