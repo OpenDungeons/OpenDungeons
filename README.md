@@ -1,3 +1,8 @@
+### State as of October 2025
+
+The project has not really seen much activity other than a few small build fixes for many years and the developers have moved on to other projects so it should mostly be considered archived.
+There is however a fork by a former contributor that seems some activity called OpenDungeonsPlus that can be found [here](https://github.com/tomluchowski/OpenDungeonsPlus).
+
 ## OpenDungeons
 
 OpenDungeons is an open source, real time strategy game sharing game elements
